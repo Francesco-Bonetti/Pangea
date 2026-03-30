@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Spinner } from "@/components/ui/spinner"
-import { Progress } from "@/components/ui/progress"
 import {
   Check,
   X,
@@ -22,27 +21,57 @@ import {
   Copy,
   CheckCircle2,
 } from "lucide-react"
-import { type Proposal, getTimeRemaining, generateVoteReceipt } from "@/lib/proposals"
+import { vote } from "@/lib/db"
+import { getCurrentUser } from "@/lib/auth"
 
 interface ProposalDialogProps {
-  proposal: Proposal | null
+  proposal: any | null
   onClose: () => void
 }
 
 export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
   const [voteState, setVoteState] = useState<"idle" | "loading" | "complete">("idle")
-  const [selectedVote, setSelectedVote] = useState<"approve" | "reject" | "abstain" | null>(null)
+  const [selectedVote, setSelectedVote] = useState<"yes" | "no" | "abstain" | null>(null)
   const [receipt, setReceipt] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleVote = (vote: "approve" | "reject" | "abstain") => {
-    setSelectedVote(vote)
+  useEffect(() => {
+    async function loadUser() {
+      const { user } = await getCurrentUser()
+      setCurrentUser(user)
+    }
+    loadUser()
+  }, [])
+
+  const handleVote = async (voteType: "yes" | "no" | "abstain") => {
+    if (!currentUser || !proposal) return
+
+    setSelectedVote(voteType)
     setVoteState("loading")
+    setError(null)
 
-    setTimeout(() => {
+    try {
+      const { data, error: voteError } = await vote(
+        proposal.id,
+        currentUser.id,
+        voteType
+      )
+
+      if (voteError) {
+        setError(voteError.message)
+        setVoteState("idle")
+        return
+      }
+
+      // Generate a receipt
       setReceipt(generateVoteReceipt())
       setVoteState("complete")
-    }, 2000)
+    } catch (err: any) {
+      setError(err.message)
+      setVoteState("idle")
+    }
   }
 
   const handleClose = () => {
@@ -50,6 +79,7 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
     setSelectedVote(null)
     setReceipt(null)
     setCopied(false)
+    setError(null)
     onClose()
   }
 
@@ -64,6 +94,7 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
   if (!proposal) return null
 
   const isOpen = proposal.status === "open"
+  const closingDate = new Date(proposal.closing_date || proposal.closingDate)
 
   return (
     <Dialog open={!!proposal} onOpenChange={handleClose}>
@@ -87,17 +118,25 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
           <DialogTitle className="text-xl text-balance">{proposal.title}</DialogTitle>
           <DialogDescription className="font-mono text-xs">
             {isOpen
-              ? `Voting closes in ${getTimeRemaining(proposal.closingDate)}`
-              : `Voting closed ${formatDate(proposal.closingDate)}`}
+              ? `Voting closes in ${getTimeRemaining(closingDate)}`
+              : `Voting closed ${formatDate(closingDate)}`}
           </DialogDescription>
         </DialogHeader>
 
         {/* Proposal Content */}
         <div className="prose prose-invert prose-sm max-w-none">
           <div className="bg-muted/30 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap leading-relaxed text-muted-foreground">
-            {proposal.fullText}
+            {proposal.full_text || proposal.fullText || proposal.description || "No full text available"}
           </div>
         </div>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert className="border-destructive/50 bg-destructive/10">
+            <AlertTitle className="text-destructive">Error</AlertTitle>
+            <AlertDescription className="text-destructive/80">{error}</AlertDescription>
+          </Alert>
+        )}
 
         {/* Voting Section */}
         {isOpen && voteState === "idle" && (
@@ -109,7 +148,8 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
               <Button
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground h-14"
-                onClick={() => handleVote("approve")}
+                onClick={() => handleVote("yes")}
+                disabled={!currentUser}
               >
                 <Check className="w-5 h-5 mr-2" />
                 Approve
@@ -117,7 +157,8 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
               <Button
                 size="lg"
                 className="bg-destructive hover:bg-destructive/90 text-destructive-foreground h-14"
-                onClick={() => handleVote("reject")}
+                onClick={() => handleVote("no")}
+                disabled={!currentUser}
               >
                 <X className="w-5 h-5 mr-2" />
                 Reject
@@ -127,11 +168,17 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
                 variant="secondary"
                 className="h-14"
                 onClick={() => handleVote("abstain")}
+                disabled={!currentUser}
               >
                 <Minus className="w-5 h-5 mr-2" />
                 Abstain
               </Button>
             </div>
+            {!currentUser && (
+              <p className="text-xs text-muted-foreground mt-4">
+                Please sign in to vote.
+              </p>
+            )}
           </div>
         )}
 
@@ -166,7 +213,7 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-background rounded px-3 py-2 font-mono text-sm text-foreground border border-border">
+                <code className="flex-1 bg-background rounded px-3 py-2 font-mono text-sm text-foreground border border-border overflow-hidden text-ellipsis">
                   {receipt}
                 </code>
                 <Button
@@ -185,75 +232,24 @@ export function ProposalDialog({ proposal, onClose }: ProposalDialogProps) {
             </div>
           </div>
         )}
-
-        {/* Results for Closed Proposals */}
-        {!isOpen && proposal.results && (
-          <div className="border-t border-border pt-6 mt-4">
-            <h4 className="text-sm font-medium text-foreground mb-4">
-              Voting Results
-            </h4>
-
-            <div className="space-y-4">
-              {/* Stacked Bar */}
-              <div className="h-8 rounded-md overflow-hidden flex">
-                <div
-                  className="bg-primary h-full transition-all"
-                  style={{ width: `${proposal.results.approve}%` }}
-                />
-                <div
-                  className="bg-destructive h-full transition-all"
-                  style={{ width: `${proposal.results.reject}%` }}
-                />
-                <div
-                  className="bg-muted h-full transition-all"
-                  style={{ width: `${proposal.results.abstain}%` }}
-                />
-              </div>
-
-              {/* Legend */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-muted/30 rounded-md p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-3 h-3 rounded-sm bg-primary" />
-                    <span className="text-xs text-muted-foreground">Approve</span>
-                  </div>
-                  <p className="text-lg font-semibold text-foreground">
-                    {proposal.results.approve}%
-                  </p>
-                </div>
-                <div className="bg-muted/30 rounded-md p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-3 h-3 rounded-sm bg-destructive" />
-                    <span className="text-xs text-muted-foreground">Reject</span>
-                  </div>
-                  <p className="text-lg font-semibold text-foreground">
-                    {proposal.results.reject}%
-                  </p>
-                </div>
-                <div className="bg-muted/30 rounded-md p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-3 h-3 rounded-sm bg-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Abstain</span>
-                  </div>
-                  <p className="text-lg font-semibold text-foreground">
-                    {proposal.results.abstain}%
-                  </p>
-                </div>
-              </div>
-
-              {/* Verification Badge */}
-              <div className="flex items-center gap-2 pt-2 border-t border-border">
-                <ShieldCheck className="w-4 h-4 text-primary" />
-                <span className="text-xs text-muted-foreground">
-                  Result mathematically certified by the Pangean Protocol
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   )
+}
+
+function getTimeRemaining(date: Date): string {
+  const now = new Date()
+  const diff = date.getTime() - now.getTime()
+
+  if (diff < 0) return "Voting closed"
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+  if (days > 0) return `${days}d ${hours}h remaining`
+  if (hours > 0) return `${hours}h ${minutes}m remaining`
+  return `${minutes}m remaining`
 }
 
 function formatDate(date: Date): string {
@@ -262,4 +258,8 @@ function formatDate(date: Date): string {
     month: "short",
     day: "numeric",
   })
+}
+
+function generateVoteReceipt(): string {
+  return `VOTE-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 }

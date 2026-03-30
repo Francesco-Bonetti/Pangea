@@ -3,18 +3,18 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, CheckCircle2 } from "lucide-react"
-import { type Proposal, getTimeRemaining } from "@/lib/proposals"
 
 interface ProposalCardProps {
-  proposal: Proposal
+  proposal: any
   onClick: () => void
 }
 
 export function ProposalCard({ proposal, onClick }: ProposalCardProps) {
   const isOpen = proposal.status === "open"
+  const closingDate = new Date(proposal.closing_date || proposal.closingDate)
   const timeText = isOpen
-    ? getTimeRemaining(proposal.closingDate)
-    : `Closed ${formatClosedDate(proposal.closingDate)}`
+    ? getTimeRemaining(closingDate)
+    : `Closed ${formatClosedDate(closingDate)}`
 
   return (
     <Card
@@ -43,7 +43,7 @@ export function ProposalCard({ proposal, onClick }: ProposalCardProps) {
       </CardHeader>
       <CardContent className="pt-0">
         <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap leading-relaxed bg-muted/30 rounded-md p-3 mb-4">
-          {proposal.summary}
+          {proposal.summary || proposal.description || "No summary available"}
         </pre>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {isOpen ? (
@@ -56,6 +56,21 @@ export function ProposalCard({ proposal, onClick }: ProposalCardProps) {
       </CardContent>
     </Card>
   )
+}
+
+function getTimeRemaining(date: Date): string {
+  const now = new Date()
+  const diff = date.getTime() - now.getTime()
+
+  if (diff < 0) return "Voting closed"
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+  if (days > 0) return `${days}d ${hours}h remaining`
+  if (hours > 0) return `${hours}h ${minutes}m remaining`
+  return `${minutes}m remaining`
 }
 
 function formatClosedDate(date: Date): string {

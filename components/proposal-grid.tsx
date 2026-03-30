@@ -1,19 +1,40 @@
 "use client"
 
-import { proposals, type Proposal } from "@/lib/proposals"
+import { useEffect, useState } from "react"
+import { getProposals } from "@/lib/db"
 import { ProposalCard } from "@/components/proposal-card"
 
 interface ProposalGridProps {
   filter: string
-  onSelectProposal: (proposal: Proposal) => void
+  onSelectProposal: (proposal: any) => void
 }
 
 export function ProposalGrid({ filter, onSelectProposal }: ProposalGridProps) {
-  const filteredProposals = proposals.filter((proposal) => {
-    if (filter === "active") return proposal.status === "open"
-    if (filter === "archive") return proposal.status === "closed"
-    return true
-  })
+  const [filteredProposals, setFilteredProposals] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadProposals() {
+      setLoading(true)
+      setError(null)
+
+      let filterStatus = undefined
+      if (filter === "active") filterStatus = "open"
+      if (filter === "archive") filterStatus = "closed"
+
+      const { data, error: dbError } = await getProposals(filterStatus)
+      if (dbError) {
+        setError(dbError.message)
+        setFilteredProposals([])
+      } else {
+        setFilteredProposals(data || [])
+      }
+      setLoading(false)
+    }
+
+    loadProposals()
+  }, [filter])
 
   const getTitle = () => {
     switch (filter) {
@@ -112,21 +133,36 @@ export function ProposalGrid({ filter, onSelectProposal }: ProposalGridProps) {
         <p className="text-muted-foreground mt-1">{getDescription()}</p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {filteredProposals.map((proposal) => (
-          <ProposalCard
-            key={proposal.id}
-            proposal={proposal}
-            onClick={() => onSelectProposal(proposal)}
-          />
-        ))}
-      </div>
+      {error && (
+        <div className="bg-card border border-border rounded-lg p-8 text-center">
+          <p className="text-destructive">Error loading proposals: {error}</p>
+        </div>
+      )}
 
-      {filteredProposals.length === 0 && (
+      {loading && (
+        <div className="bg-card border border-border rounded-lg p-8 text-center">
+          <p className="text-muted-foreground">Loading proposals...</p>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filteredProposals.map((proposal) => (
+            <ProposalCard
+              key={proposal.id}
+              proposal={proposal}
+              onClick={() => onSelectProposal(proposal)}
+            />
+          ))}
+        </div>
+      )}
+
+      {!loading && !error && filteredProposals.length === 0 && (
         <div className="bg-card border border-border rounded-lg p-8 text-center">
           <p className="text-muted-foreground">No proposals found.</p>
         </div>
       )}
     </div>
   )
+}
 }
