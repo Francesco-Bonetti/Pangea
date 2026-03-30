@@ -1,6 +1,6 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase'
 
 export async function getProposals(filter?: string) {
   const supabase = createClient()
