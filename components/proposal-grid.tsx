@@ -165,4 +165,3 @@ export function ProposalGrid({ filter, onSelectProposal }: ProposalGridProps) {
     </div>
   )
 }
-}
