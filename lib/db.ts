@@ -1,137 +1,172 @@
-import { createClient } from "./supabase"
-import type { Citizen, Proposal, Vote, Delegation, ProposalTally, ProposalCategory, ProposalStatus, VoteChoice, TablesInsert, TablesUpdate } from "./database.types"
+'use client'
 
-// ── Citizens ───────────────────────────────────────────────────────────────────
-export async function getCitizen(id: string): Promise<Citizen | null> {
-  const supabase = createClient()
-  const { data } = await supabase.from("citizens").select("*").eq("id", id).single()
-  return data
-}
+import { createClient } from '@/lib/supabase'
 
-export async function updateCitizen(id: string, updates: TablesUpdate<"citizens">): Promise<Citizen> {
+export async function getProposals(filter?: string) {
   const supabase = createClient()
-  const { data, error } = await supabase.from("citizens")
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq("id", id).select().single()
-  if (error) throw error
-  return data
-}
 
-// ── Proposals ──────────────────────────────────────────────────────────────────
-export async function getProposals(options?: { category?: ProposalCategory; status?: ProposalStatus; limit?: number }): Promise<Proposal[]> {
-  const supabase = createClient()
-  let query = supabase.from("proposals").select("*").order("prop_number", { ascending: false })
-  if (options?.category) query = query.eq("category", options.category)
-  if (options?.status) query = query.eq("status", options.status)
-  if (options?.limit) query = query.limit(options.limit)
+  let query = supabase
+    .from('proposals')
+    .select(
+      `
+      *,
+      citizens (user_name),
+      votes (id)
+    `
+    )
+    .order('created_at', { ascending: false })
+
+  if (filter === 'open') {
+    query = query.eq('status', 'open')
+  } else if (filter === 'closed') {
+    query = query.eq('status', 'closed')
+  }
+
   const { data, error } = await query
-  if (error) throw error
-  return data
+
+  return { data, error }
 }
 
-export async function getProposal(id: string): Promise<Proposal | null> {
+export async function getProposalById(id: string) {
   const supabase = createClient()
-  const { data } = await supabase.from("proposals")
-    .select("*, citizens(display_name, is_verified, reputation_score)")
-    .eq("id", id).single()
-  return data as unknown as Proposal
+
+  const { data, error } = await supabase
+    .from('proposals')
+    .select(
+      `
+      *,
+      citizens (user_name),
+      votes (*)
+    `
+    )
+    .eq('id', id)
+    .single()
+
+  return { data, error }
 }
 
-export async function getProposalByNumber(propNumber: number): Promise<Proposal | null> {
+export async function vote(
+  proposalId: string,
+  citizenId: string,
+  voteType: 'yes' | 'no' | 'abstain'
+) {
   const supabase = createClient()
-  const { data } = await supabase.from("proposals")
-    .select("*, citizens(display_name, is_verified, reputation_score)")
-    .eq("prop_number", propNumber).single()
-  return data as unknown as Proposal
+
+  // Check if user already voted
+  const { data: existing } = await supabase
+    .from('votes')
+    .select('id')
+    .eq('proposal_id', proposalId)
+    .eq('citizen_id', citizenId)
+    .single()
+
+  if (existing) {
+    // Update existing vote
+    const { data, error } = await supabase
+      .from('votes')
+      .update({ vote_type: voteType })
+      .eq('proposal_id', proposalId)
+      .eq('citizen_id', citizenId)
+      .select()
+      .single()
+
+    return { data, error }
+  }
+
+  // Insert new vote
+  const { data, error } = await supabase
+    .from('votes')
+    .insert({
+      proposal_id: proposalId,
+      citizen_id: citizenId,
+      vote_type: voteType,
+    })
+    .select()
+    .single()
+
+  return { data, error }
 }
 
-export async function createProposal(proposal: TablesInsert<"proposals">): Promise<Proposal> {
+export async function getDelegations(citizenId: string) {
   const supabase = createClient()
-  const { data, error } = await supabase.from("proposals").insert(proposal).select().single()
-  if (error) throw error
-  return data
+
+  const { data, error } = await supabase
+    .from('delegations')
+    .select(
+      `
+      *,
+      delegated_to:citizens!delegations_delegated_to_fkey (user_name)
+    `
+    )
+    .eq('citizen_id', citizenId)
+
+  return { data, error }
 }
 
-export async function updateProposalStatus(id: string, status: ProposalStatus): Promise<Proposal> {
+export async function createDelegation(
+  citizenId: string,
+  delegatedToId: string
+) {
   const supabase = createClient()
-  const { data, error } = await supabase.from("proposals")
-    .update({ status, updated_at: new Date().toISOString() })
-    .eq("id", id).select().single()
-  if (error) throw error
-  return data
+
+  const { data, error } = await supabase
+    .from('delegations')
+    .insert({
+      citizen_id: citizenId,
+      delegated_to: delegatedToId,
+    })
+    .select()
+    .single()
+
+  return { data, error }
 }
 
-// ── Proposal Tally (View) ──────────────────────────────────────────────────────
-export async function getProposalTally(proposalId: string): Promise<ProposalTally | null> {
+export async function removeDelegation(delegationId: string) {
   const supabase = createClient()
-  const { data } = await supabase.from("proposal_tally").select("*").eq("proposal_id", proposalId).single()
-  return data
+
+  const { data, error } = await supabase
+    .from('delegations')
+    .delete()
+    .eq('id', delegationId)
+
+  return { data, error }
 }
 
-export async function getAllTallies(): Promise<ProposalTally[]> {
+export async function getCitizen(citizenId: string) {
   const supabase = createClient()
-  const { data, error } = await supabase.from("proposal_tally").select("*").order("prop_number", { ascending: false })
-  if (error) throw error
-  return data
+
+  const { data, error } = await supabase
+    .from('citizens')
+    .select('*')
+    .eq('id', citizenId)
+    .single()
+
+  return { data, error }
 }
 
-// ── Votes ──────────────────────────────────────────────────────────────────────
-export async function getVotesForProposal(proposalId: string): Promise<Vote[]> {
+export async function getCitizens() {
   const supabase = createClient()
-  const { data, error } = await supabase.from("votes")
-    .select("*, citizens(display_name, is_verified)")
-    .eq("proposal_id", proposalId)
-  if (error) throw error
-  return data as unknown as Vote[]
+
+  const { data, error } = await supabase
+    .from('citizens')
+    .select('*')
+    .order('user_name', { ascending: true })
+
+  return { data, error }
 }
 
-export async function getVoteByUser(proposalId: string, voterId: string): Promise<Vote | null> {
+export async function updateCitizen(
+  citizenId: string,
+  updates: Record<string, any>
+) {
   const supabase = createClient()
-  const { data } = await supabase.from("votes").select("*")
-    .eq("proposal_id", proposalId).eq("voter_id", voterId).single()
-  return data
-}
 
-export async function castVote(proposalId: string, voterId: string, choice: VoteChoice, weight = 1.0, delegatedFrom: string[] = []): Promise<Vote> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from("votes")
-    .upsert({ proposal_id: proposalId, voter_id: voterId, choice, weight, delegated_from: delegatedFrom }, { onConflict: "proposal_id,voter_id" })
-    .select().single()
-  if (error) throw error
-  return data
-}
+  const { data, error } = await supabase
+    .from('citizens')
+    .update(updates)
+    .eq('id', citizenId)
+    .select()
+    .single()
 
-// ── Delegations ────────────────────────────────────────────────────────────────
-export async function getDelegationsFrom(delegatorId: string): Promise<Delegation[]> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from("delegations")
-    .select("*, citizens!delegations_delegate_id_fkey(display_name, is_verified)")
-    .eq("delegator_id", delegatorId).eq("is_active", true)
-  if (error) throw error
-  return data as unknown as Delegation[]
-}
-
-export async function getDelegationsTo(delegateId: string): Promise<Delegation[]> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from("delegations")
-    .select("*, citizens!delegations_delegator_id_fkey(display_name, is_verified)")
-    .eq("delegate_id", delegateId).eq("is_active", true)
-  if (error) throw error
-  return data as unknown as Delegation[]
-}
-
-export async function createDelegation(delegatorId: string, delegateId: string, domain?: string): Promise<Delegation> {
-  const supabase = createClient()
-  const { data, error } = await supabase.from("delegations")
-    .insert({ delegator_id: delegatorId, delegate_id: delegateId, domain })
-    .select().single()
-  if (error) throw error
-  return data
-}
-
-export async function revokeDelegation(id: string): Promise<void> {
-  const supabase = createClient()
-  const { error } = await supabase.from("delegations")
-    .update({ is_active: false, updated_at: new Date().toISOString() }).eq("id", id)
-  if (error) throw error
+  return { data, error }
 }
