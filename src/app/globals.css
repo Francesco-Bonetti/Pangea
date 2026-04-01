@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+  }
+
+  body {
+    @apply bg-[#0c1220] text-slate-100 antialiased;
+  }
+
+  * {
+    @apply border-slate-700;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-pangea-600 hover:bg-pangea-500 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-pangea-500/25 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold px-6 py-2.5 rounded-lg transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply text-slate-400 hover:text-slate-200 hover:bg-slate-800 px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm;
+  }
+
+  .input-field {
+    @apply w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-500 focus:ring-1 focus:ring-pangea-500 transition-colors;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-slate-300 mb-1.5;
+  }
+
+  .status-draft {
+    @apply bg-slate-700 text-slate-300 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  .status-active {
+    @apply bg-pangea-900/50 text-pangea-300 text-xs font-medium px-2.5 py-1 rounded-full border border-pangea-700/50;
+  }
+
+  .status-closed {
+    @apply bg-slate-700/50 text-slate-400 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+}
+
+/* Civic gold accent */
+.civic-accent {
+  color: #d4af37;
+}
+
+/* Loading shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
