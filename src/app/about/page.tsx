@@ -10,12 +10,13 @@ export default async function AboutPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user?.id || "")
-    .single()
-    .catch(() => ({ data: null }));
+  const { data: profile } = user
+    ? await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+    : { data: null };
 
   // Statistiche globali
   const stats = await supabase.rpc("get_platform_stats");
