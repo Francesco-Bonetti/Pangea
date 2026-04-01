@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import ProposalCard from "@/components/ProposalCard";
+import PlatformStats from "@/components/PlatformStats";
 import type { Proposal, ProposalResults, ProposalWithResults } from "@/lib/types";
 import { Plus, Globe, FileText, Clock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
@@ -68,6 +69,16 @@ export default async function DashboardPage() {
   const closedCount = enrichedProposals.filter((p) => p.status === "closed").length;
   const draftCount = drafts?.length ?? 0;
 
+  // Statistiche globali piattaforma
+  const platformStatsRes = await supabase.rpc("get_platform_stats");
+  const platformStats = platformStatsRes.data?.[0] ?? {
+    total_users: 0,
+    total_proposals: 0,
+    total_votes: 0,
+    active_proposals: 0,
+    closed_proposals: 0,
+  };
+
   return (
     <div className="min-h-screen bg-[#0c1220]">
       <Navbar
@@ -93,7 +104,16 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        {/* Stats cards */}
+        {/* Statistiche Globali */}
+        <PlatformStats
+          totalUsers={platformStats.total_users}
+          totalProposals={platformStats.total_proposals}
+          totalVotes={platformStats.total_votes}
+          activeProposals={platformStats.active_proposals}
+          closedProposals={platformStats.closed_proposals}
+        />
+
+        {/* Stats cards personali */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {[
             { label: "In Delibera", value: activeCount, icon: Clock, color: "text-pangea-400", bg: "bg-pangea-900/20" },

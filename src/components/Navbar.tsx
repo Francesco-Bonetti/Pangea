@@ -37,6 +37,12 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
           {/* Actions */}
           <div className="flex items-center gap-3">
             <Link
+              href="/about"
+              className="hidden md:block text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              Chi Siamo
+            </Link>
+            <Link
               href="/proposals/new"
               className="hidden sm:flex items-center gap-2 btn-primary text-sm py-2"
             >
