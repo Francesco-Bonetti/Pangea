@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User } from "lucide-react";
+import { Globe, LogOut, Plus, User, Users } from "lucide-react";
 import { useState } from "react";
 
 interface NavbarProps {
@@ -36,6 +36,13 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/delegations"
+              className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <Users className="w-3.5 h-3.5" />
+              Deleghe
+            </Link>
             <Link
               href="/about"
               className="hidden md:block text-sm text-slate-400 hover:text-slate-200 transition-colors"

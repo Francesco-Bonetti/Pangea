@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import ProposalCard from "@/components/ProposalCard";
 import PlatformStats from "@/components/PlatformStats";
 import type { Proposal, ProposalResults, ProposalWithResults } from "@/lib/types";
-import { Plus, Globe, FileText, Clock, CheckCircle2 } from "lucide-react";
+import { Plus, Globe, FileText, Clock, CheckCircle2, Flame, Users } from "lucide-react";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -23,11 +23,11 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  // Recupera proposte attive e chiuse (pubbliche per tutti)
+  // Recupera proposte pubbliche (active, closed, curation)
   const { data: proposals, error } = await supabase
     .from("proposals")
     .select("*")
-    .in("status", ["active", "closed"])
+    .in("status", ["active", "closed", "curation"])
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -42,9 +42,23 @@ export default async function DashboardPage() {
     .eq("status", "draft")
     .order("created_at", { ascending: false });
 
-  // Arricchisci proposte con risultati RPC e stato di voto
+  // Arricchisci proposte con risultati e segnali
   const enrichedProposals: ProposalWithResults[] = await Promise.all(
     (proposals || []).map(async (proposal: Proposal) => {
+      if (proposal.status === "curation") {
+        // Per le proposte in curatela: conta i segnali
+        const { count } = await supabase
+          .from("proposal_signals")
+          .select("*", { count: "exact", head: true })
+          .eq("proposal_id", proposal.id);
+
+        return {
+          ...proposal,
+          signal_count: count ?? 0,
+        };
+      }
+
+      // Per proposte active/closed: risultati di voto
       const [resultsRes, votedRes] = await Promise.all([
         supabase.rpc("get_proposal_results", { p_proposal_id: proposal.id }),
         supabase.rpc("has_user_voted", { p_proposal_id: proposal.id }),
@@ -56,17 +70,25 @@ export default async function DashboardPage() {
         abstain_count: 0,
       };
 
+      // Prova anche i risultati distribuiti
+      const { data: distResults } = await supabase.rpc(
+        "get_distributed_proposal_results",
+        { p_proposal_id: proposal.id }
+      );
+
       return {
         ...proposal,
         results,
+        distributed_results: distResults ?? [],
         has_voted: votedRes.data ?? false,
       };
     })
   );
 
   // Stats
-  const activeCount = enrichedProposals.filter((p) => p.status === "active").length;
-  const closedCount = enrichedProposals.filter((p) => p.status === "closed").length;
+  const activeProposals = enrichedProposals.filter((p) => p.status === "active");
+  const curationProposals = enrichedProposals.filter((p) => p.status === "curation");
+  const closedProposals = enrichedProposals.filter((p) => p.status === "closed");
   const draftCount = drafts?.length ?? 0;
 
   // Statistiche globali piattaforma
@@ -114,61 +136,79 @@ export default async function DashboardPage() {
         />
 
         {/* Stats cards personali */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
           {[
-            { label: "In Delibera", value: activeCount, icon: Clock, color: "text-pangea-400", bg: "bg-pangea-900/20" },
-            { label: "Deliberate", value: closedCount, icon: CheckCircle2, color: "text-green-400", bg: "bg-green-900/20" },
+            { label: "In Delibera", value: activeProposals.length, icon: Clock, color: "text-pangea-400", bg: "bg-pangea-900/20" },
+            { label: "In Curatela", value: curationProposals.length, icon: Flame, color: "text-amber-400", bg: "bg-amber-900/20" },
+            { label: "Deliberate", value: closedProposals.length, icon: CheckCircle2, color: "text-green-400", bg: "bg-green-900/20" },
             { label: "Tue Bozze", value: draftCount, icon: FileText, color: "text-slate-400", bg: "bg-slate-800/50" },
-            {
-              label: "Totale Proposte",
-              value: enrichedProposals.length + draftCount,
-              icon: Globe,
-              color: "text-amber-400",
-              bg: "bg-amber-900/20",
-            },
-          ].map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className={`card p-4 ${bg}`}>
-              <div className={`${color} mb-2`}>
-                <Icon className="w-5 h-5" />
+            { label: "Le tue Deleghe", value: "→", icon: Users, color: "text-purple-400", bg: "bg-purple-900/20", href: "/dashboard/delegations" },
+          ].map(({ label, value, icon: Icon, color, bg, href }) => {
+            const Card = (
+              <div key={label} className={`card p-4 ${bg} ${href ? "hover:border-slate-600 transition-colors cursor-pointer" : ""}`}>
+                <div className={`${color} mb-2`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <p className="text-2xl font-bold text-white">{value}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{label}</p>
               </div>
-              <p className="text-2xl font-bold text-white">{value}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{label}</p>
-            </div>
-          ))}
+            );
+            if (href) {
+              return <Link key={label} href={href}>{Card}</Link>;
+            }
+            return Card;
+          })}
         </div>
 
-        {/* Proposals grid */}
+        {/* Proposals grid con tabs */}
         <div className="space-y-8">
-          {/* Proposte attive */}
-          {enrichedProposals.filter((p) => p.status === "active").length > 0 && (
+          {/* Fase Deliberativa (Attive) */}
+          {activeProposals.length > 0 && (
             <section>
               <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-pangea-400" />
-                Delibere Aperte
+                Fase Deliberativa
+                <span className="text-xs text-slate-500 font-normal ml-1">
+                  Proposte in votazione attiva
+                </span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {enrichedProposals
-                  .filter((p) => p.status === "active")
-                  .map((proposal) => (
-                    <ProposalCard key={proposal.id} proposal={proposal} />
-                  ))}
+                {activeProposals.map((proposal) => (
+                  <ProposalCard key={proposal.id} proposal={proposal} />
+                ))}
               </div>
             </section>
           )}
 
-          {/* Proposte chiuse */}
-          {enrichedProposals.filter((p) => p.status === "closed").length > 0 && (
+          {/* Fase di Curatela */}
+          {curationProposals.length > 0 && (
+            <section>
+              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+                <Flame className="w-5 h-5 text-amber-400" />
+                Mercato di Curatela
+                <span className="text-xs text-slate-500 font-normal ml-1">
+                  Proposte in fase di valutazione — supportale con un segnale
+                </span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {curationProposals.map((proposal) => (
+                  <ProposalCard key={proposal.id} proposal={proposal} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Archivio Deliberativo */}
+          {closedProposals.length > 0 && (
             <section>
               <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-400" />
                 Archivio Deliberativo
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {enrichedProposals
-                  .filter((p) => p.status === "closed")
-                  .map((proposal) => (
-                    <ProposalCard key={proposal.id} proposal={proposal} />
-                  ))}
+                {closedProposals.map((proposal) => (
+                  <ProposalCard key={proposal.id} proposal={proposal} />
+                ))}
               </div>
             </section>
           )}
