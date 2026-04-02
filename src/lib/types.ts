@@ -112,6 +112,42 @@ export interface DistributedResult {
   total_votes: number;
 }
 
+// --- Tags (Hashtag System) ---
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  usage_count: number;
+  created_at: string;
+  created_by?: string | null;
+}
+
+// --- Social/Commenti ---
+export interface Comment {
+  id: string;
+  author_id: string;
+  proposal_id: string | null;
+  law_id: string | null;
+  parent_id: string | null;
+  body: string;
+  likes_count: number;
+  dislikes_count: number;
+  replies_count: number;
+  is_edited: boolean;
+  created_at: string;
+  updated_at: string;
+  // Join
+  profiles?: { full_name: string | null };
+}
+
+export interface CommentReaction {
+  id: string;
+  comment_id: string;
+  user_id: string;
+  reaction_type: "like" | "dislike";
+  created_at: string;
+}
+
 // --- Compositi ---
 export interface ProposalWithResults extends Proposal {
   results?: ProposalResults;

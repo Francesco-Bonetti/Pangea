@@ -5,8 +5,9 @@ import GuestBanner from "@/components/GuestBanner";
 import VotingBooth from "@/components/VotingBooth";
 import SignalButton from "@/components/SignalButton";
 import DraftActions from "@/components/DraftActions";
+import CommentSection from "@/components/CommentSection";
 import type { DistributedResult, ProposalOption } from "@/lib/types";
-import { ArrowLeft, Calendar, Clock, User, FileText, Tag, Flame, BarChart3, Users } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User, FileText, Hash, Flame, BarChart3, Users, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { formatDateTime } from "@/lib/utils";
 
@@ -32,6 +33,13 @@ export default async function ProposalDetailPage({ params }: Props) {
     .single();
 
   if (error || !proposal) notFound();
+
+  // Recupera tags della proposta
+  const { data: proposalTags } = await supabase
+    .from("proposal_tags")
+    .select("tag_id, tags(name, slug)")
+    .eq("proposal_id", id);
+  const tags = proposalTags?.map((pt: Record<string, unknown>) => (pt.tags as { name: string; slug: string })) ?? [];
 
   // Recupera profilo utente corrente (per ruolo) — solo se autenticato
   let currentProfile: { full_name?: string; role?: string } | null = null;
@@ -183,12 +191,12 @@ export default async function ProposalDetailPage({ params }: Props) {
                 Tua proposta
               </span>
             )}
-            {categoryName && (
-              <span className="text-xs text-slate-400 font-medium bg-slate-800 px-2 py-1 rounded-full flex items-center gap-1">
-                <Tag className="w-3 h-3" />
-                {categoryName}
+            {tags.map((tag: { name: string; slug: string }, i: number) => (
+              <span key={i} className="text-xs text-pangea-400 font-medium bg-pangea-900/20 px-2 py-1 rounded-full flex items-center gap-1 border border-pangea-800/30">
+                <Hash className="w-3 h-3" />
+                {tag.name}
               </span>
-            )}
+            ))}
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-6">
@@ -330,6 +338,21 @@ export default async function ProposalDetailPage({ params }: Props) {
                 isGuest={isGuest}
               />
             )}
+          </div>
+        </div>
+
+        {/* Sezione Discussione */}
+        <div className="mt-8">
+          <div className="card p-6">
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-pangea-400" />
+              Discussione
+            </h2>
+            <CommentSection
+              targetType="proposal"
+              targetId={proposal.id}
+              userId={user?.id}
+            />
           </div>
         </div>
       </main>

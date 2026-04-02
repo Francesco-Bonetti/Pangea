@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Proposal, ProposalOption, DistributedResult } from "@/lib/types";
 import {
@@ -42,6 +42,7 @@ export default function VotingBooth({
   isGuest = false,
 }: VotingBoothProps) {
   const [results, setResults] = useState<DistributedResult[]>(initialResults);
+  const [legacyResults, setLegacyResults] = useState<{yea: number; nay: number; abstain: number} | null>(null);
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
   const [allocations, setAllocations] = useState<Record<string, number>>(
     () => {
@@ -63,8 +64,33 @@ export default function VotingBooth({
   const supabase = createClient();
 
   const isActive = proposal.status === "active";
+  const isClosed = proposal.status === "closed";
   const isCuration = proposal.status === "curation";
   const canVote = isActive && !hasVoted && options.length > 0;
+
+  // Fetch legacy results for proposals without distributed options
+  useEffect(() => {
+    async function fetchLegacyResults() {
+      if (options.length > 0) return;
+      if (!isActive && !isClosed) return;
+
+      const { data } = await supabase
+        .from("votes")
+        .select("vote_type")
+        .eq("proposal_id", proposal.id);
+
+      if (data) {
+        const counts = { yea: 0, nay: 0, abstain: 0 };
+        data.forEach((v: { vote_type: string }) => {
+          if (v.vote_type === "yea") counts.yea++;
+          else if (v.vote_type === "nay") counts.nay++;
+          else if (v.vote_type === "abstain") counts.abstain++;
+        });
+        setLegacyResults(counts);
+      }
+    }
+    fetchLegacyResults();
+  }, [options.length, isActive, isClosed, proposal.id, supabase]);
 
   const totalAllocated = Object.values(allocations).reduce((a, b) => a + b, 0);
   const isValidAllocation = totalAllocated === 100;
@@ -234,14 +260,19 @@ export default function VotingBooth({
         throw voteError;
       }
 
-      // Update results
-      const { data: newResults } = await supabase.rpc(
-        "get_distributed_proposal_results",
-        { p_proposal_id: proposal.id }
-      );
-
-      if (newResults) {
-        setResults(newResults);
+      // Update legacy results
+      const { data: votesData } = await supabase
+        .from("votes")
+        .select("vote_type")
+        .eq("proposal_id", proposal.id);
+      if (votesData) {
+        const counts = { yea: 0, nay: 0, abstain: 0 };
+        votesData.forEach((v: { vote_type: string }) => {
+          if (v.vote_type === "yea") counts.yea++;
+          else if (v.vote_type === "nay") counts.nay++;
+          else if (v.vote_type === "abstain") counts.abstain++;
+        });
+        setLegacyResults(counts);
       }
 
       setHasVoted(true);
@@ -316,6 +347,47 @@ export default function VotingBooth({
                     <div
                       className="bg-pangea-500 h-2.5 rounded-full transition-all duration-700"
                       style={{ width: `${barWidth}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Risultati legacy (yea/nay/abstain) per proposte senza opzioni distribuite */}
+      {legacyResults && options.length === 0 && (legacyResults.yea > 0 || legacyResults.nay > 0 || legacyResults.abstain > 0) && (
+        <div className="card p-5 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-slate-300">
+              Risultati
+            </h3>
+            <div className="flex items-center gap-1 text-xs text-slate-500">
+              <Users className="w-3.5 h-3.5" />
+              <span>
+                {legacyResults.yea + legacyResults.nay + legacyResults.abstain} voti
+              </span>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {[
+              { label: "Favorevole", count: legacyResults.yea, color: "bg-green-500" },
+              { label: "Contrario", count: legacyResults.nay, color: "bg-red-500" },
+              { label: "Astenuto", count: legacyResults.abstain, color: "bg-slate-500" },
+            ].map((item) => {
+              const total = legacyResults.yea + legacyResults.nay + legacyResults.abstain;
+              const pct = total > 0 ? (item.count / total) * 100 : 0;
+              return (
+                <div key={item.label}>
+                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>{item.label}</span>
+                    <span className="font-medium">{item.count} ({pct.toFixed(0)}%)</span>
+                  </div>
+                  <div className="bg-slate-700 rounded-full h-2.5">
+                    <div
+                      className={`${item.color} h-2.5 rounded-full transition-all duration-700`}
+                      style={{ width: `${pct}%` }}
                     />
                   </div>
                 </div>

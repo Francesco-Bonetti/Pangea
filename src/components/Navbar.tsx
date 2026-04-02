@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Users, Menu, X, BookOpen, Shield, Settings, LogIn } from "lucide-react";
+import { Globe, LogOut, Plus, User, Users, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle } from "lucide-react";
 import { useState } from "react";
 
 interface NavbarProps {
@@ -57,6 +57,13 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false 
                 Deleghe
               </Link>
             )}
+            <Link
+              href="/social"
+              className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Discussioni
+            </Link>
             <Link
               href="/about"
               className="hidden md:block text-sm text-slate-400 hover:text-slate-200 transition-colors"
@@ -171,6 +178,13 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false 
                 Deleghe
               </Link>
             )}
+            <Link
+              href="/social"
+              className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Discussioni
+            </Link>
             <Link
               href="/about"
               className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"

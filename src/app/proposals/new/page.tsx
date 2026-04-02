@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import type { Category } from "@/lib/types";
+import TagInput from "@/components/TagInput";
+import LawTreeSelector from "@/components/LawTreeSelector";
 import {
   ArrowLeft,
   Save,
@@ -14,7 +15,7 @@ import {
   Loader2,
   Plus,
   X,
-  Tag,
+  GitBranch,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -27,8 +28,10 @@ export default function NewProposalPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [dispositivo, setDispositivo] = useState("");
-  const [categoryId, setCategoryId] = useState<string>("");
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [lawParentId, setLawParentId] = useState<string | null>(null);
+  const [replacesNodeId, setReplacesNodeId] = useState<string | null>(null);
+  const [showTreeSelector, setShowTreeSelector] = useState(false);
   const [options, setOptions] = useState<OptionDraft[]>([
     { title: "", description: "" },
     { title: "", description: "" },
@@ -38,18 +41,6 @@ export default function NewProposalPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
-
-  // Carica categorie
-  useEffect(() => {
-    async function loadCategories() {
-      const { data } = await supabase
-        .from("categories")
-        .select("*")
-        .order("name");
-      if (data) setCategories(data);
-    }
-    loadCategories();
-  }, [supabase]);
 
   function addOption() {
     if (options.length < 10) {
@@ -91,7 +82,7 @@ export default function NewProposalPage() {
         content: content.trim(),
         dispositivo: dispositivo.trim() || null,
         status,
-        category_id: categoryId || null,
+        category_id: null,
         expires_at: null,
       };
 
@@ -102,6 +93,15 @@ export default function NewProposalPage() {
         .single();
 
       if (insertError) throw insertError;
+
+      // Inserisci i tag associati alla proposta
+      if (data && selectedTags.length > 0) {
+        const tagRows = selectedTags.map((tagId) => ({
+          proposal_id: data.id,
+          tag_id: tagId,
+        }));
+        await supabase.from("proposal_tags").insert(tagRows);
+      }
 
       // Inserisci le opzioni deliberative (se la proposta va in curatela)
       if (status === "curation" && data) {
@@ -196,27 +196,37 @@ export default function NewProposalPage() {
             <p className="text-xs text-slate-600 mt-1.5">{title.length}/200 caratteri</p>
           </div>
 
-          {/* Categoria */}
+          {/* Hashtag */}
           <div>
-            <label className="label flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5" />
-              Dominio Tematico
-            </label>
-            <select
-              className="input-field"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+            <TagInput selectedTags={selectedTags} onTagsChange={setSelectedTags} />
+          </div>
+
+          {/* Posizione nell'albero delle leggi */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowTreeSelector(!showTreeSelector)}
+              className="label flex items-center gap-1.5 cursor-pointer hover:text-slate-200 transition-colors"
             >
-              <option value="">Nessuna categoria specifica</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name} {cat.description ? `— ${cat.description}` : ""}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-slate-600 mt-1.5">
-              Aiuta i cittadini a trovare le proposte del loro ambito di interesse
-            </p>
+              <GitBranch className="w-3.5 h-3.5" />
+              Posizione nell&apos;albero delle leggi
+              <span className="text-xs font-normal text-slate-500 ml-1">(facoltativo)</span>
+            </button>
+            {!showTreeSelector && (
+              <p className="text-xs text-slate-600 mt-1">
+                Clicca per scegliere dove inserire la legge nell&apos;ordinamento o quale norma sostituire
+              </p>
+            )}
+            {showTreeSelector && (
+              <LawTreeSelector
+                selectedParentId={lawParentId}
+                replacesNodeId={replacesNodeId}
+                onSelect={(parentId, replaces) => {
+                  setLawParentId(parentId);
+                  setReplacesNodeId(replaces);
+                }}
+              />
+            )}
           </div>
 
           {/* Contesto */}
@@ -253,10 +263,18 @@ export default function NewProposalPage() {
             <label className="label">
               Scelte per la votazione <span className="text-red-400">*</span>
             </label>
-            <p className="text-xs text-slate-500 mb-3">
-              Proponi almeno 2 alternative tra cui i cittadini potranno scegliere.
-              Per esempio: &quot;Approvare così com&apos;è&quot; e &quot;Approvare con modifiche&quot;.
-            </p>
+            <div className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-3 mb-3">
+              <p className="text-sm text-slate-300 mb-2">
+                In Pangea non si vota solo &quot;sì o no&quot;: ogni cittadino distribuisce il proprio voto
+                in percentuale tra le opzioni che proponi tu. Questo permette di esprimere sfumature,
+                non solo posizioni nette.
+              </p>
+              <p className="text-xs text-slate-400">
+                Scrivi almeno 2 alternative. Per esempio: &quot;Approvare il testo così com&apos;è&quot;,
+                &quot;Approvare con modifiche&quot;, &quot;Respingere e riscrivere&quot;.
+                Più opzioni dai, più ricca sarà la discussione.
+              </p>
+            </div>
 
             <div className="space-y-3">
               {options.map((opt, i) => (
