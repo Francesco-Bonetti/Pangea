@@ -97,7 +97,6 @@ export default function SettingsPage() {
           bio: bio,
           allow_delegations: allowDelegations,
           is_searchable: isSearchable,
-          updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 

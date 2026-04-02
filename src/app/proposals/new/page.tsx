@@ -156,10 +156,10 @@ export default function NewProposalPage() {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <FileText className="w-6 h-6 text-pangea-400" />
-              Nuova Proposta Legislativa
+              Nuova Proposta di Legge
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
-              Redigi un atto normativo per la deliberazione del popolo di Pangea
+              Scrivi la tua proposta e lascia che i cittadini la valutino
             </p>
           </div>
         </div>
@@ -168,12 +168,12 @@ export default function NewProposalPage() {
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
           <Info className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
           <div className="text-sm text-slate-400">
-            <p className="text-slate-300 font-medium mb-1">Flusso deliberativo</p>
+            <p className="text-slate-300 font-medium mb-1">Come funziona</p>
             <p>
-              La proposta passa prima per il <strong className="text-amber-300">Mercato di Curatela</strong>:
-              i cittadini la valutano con segnali di supporto. Raggiunta la soglia,
-              viene promossa alla <strong className="text-pangea-300">Fase Deliberativa</strong> dove
-              il popolo vota distribuendo il proprio potere tra le opzioni.
+              La tua proposta viene prima pubblicata in <strong className="text-amber-300">bacheca</strong> dove
+              i cittadini possono sostenerla con un click. Quando riceve abbastanza supporto,
+              passa alla <strong className="text-pangea-300">votazione</strong> dove tutti possono esprimere
+              la propria preferenza tra le scelte che hai definito.
             </p>
           </div>
         </div>
@@ -215,18 +215,18 @@ export default function NewProposalPage() {
               ))}
             </select>
             <p className="text-xs text-slate-600 mt-1.5">
-              La categoria determina quali deleghe di dominio si attivano durante la votazione
+              Aiuta i cittadini a trovare le proposte del loro ambito di interesse
             </p>
           </div>
 
           {/* Contesto */}
           <div>
             <label className="label">
-              Contesto e Motivazione <span className="text-red-400">*</span>
+              Perché serve questa legge? <span className="text-red-400">*</span>
             </label>
             <textarea
               className="input-field min-h-[180px] resize-y"
-              placeholder="Descrivi il problema che questa proposta intende risolvere, il contesto normativo esistente, e le motivazioni che giustificano questa iniziativa legislativa..."
+              placeholder="Spiega il problema che vuoi risolvere e perché pensi sia importante per la comunità..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
@@ -236,26 +236,26 @@ export default function NewProposalPage() {
 
           {/* Dispositivo normativo */}
           <div>
-            <label className="label">Dispositivo Normativo</label>
+            <label className="label">Testo della legge proposta</label>
             <textarea
               className="input-field min-h-[150px] font-mono text-sm resize-y"
-              placeholder={"Art. 1 - Principi generali\nLa Repubblica Democratica Globale Pangea garantisce...\n\nArt. 2 - Definizioni\nAi fini della presente legge si intende per..."}
+              placeholder={"Art. 1 - Cosa si stabilisce\nLa Repubblica di Pangea garantisce...\n\nArt. 2 - Come funziona\nPer applicare questa legge..."}
               value={dispositivo}
               onChange={(e) => setDispositivo(e.target.value)}
             />
             <p className="text-xs text-slate-600 mt-1.5">
-              Facoltativo — articoli specifici della proposta di legge
+              Facoltativo — scrivi gli articoli della legge vera e propria
             </p>
           </div>
 
           {/* Opzioni deliberative */}
           <div>
             <label className="label">
-              Opzioni Deliberative <span className="text-red-400">*</span>
+              Scelte per la votazione <span className="text-red-400">*</span>
             </label>
             <p className="text-xs text-slate-500 mb-3">
-              Definisci almeno 2 opzioni tra cui i cittadini distribuiranno il proprio voto.
-              Ogni opzione rappresenta un dispositivo normativo alternativo.
+              Proponi almeno 2 alternative tra cui i cittadini potranno scegliere.
+              Per esempio: &quot;Approvare così com&apos;è&quot; e &quot;Approvare con modifiche&quot;.
             </p>
 
             <div className="space-y-3">
@@ -284,7 +284,7 @@ export default function NewProposalPage() {
                   />
                   <textarea
                     className="input-field text-sm min-h-[60px] resize-y"
-                    placeholder="Descrizione del dispositivo normativo (facoltativo)"
+                    placeholder="Spiega questa alternativa in breve (facoltativo)"
                     value={opt.description}
                     onChange={(e) => updateOption(i, "description", e.target.value)}
                   />
@@ -327,15 +327,15 @@ export default function NewProposalPage() {
               className="btn-primary flex items-center justify-center gap-2 sm:ml-auto"
             >
               {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Pubblica nel Mercato di Curatela
+              Pubblica in bacheca
             </button>
           </div>
 
           {!isPublishValid && (
             <p className="text-xs text-slate-600 text-center">
               {!isValid
-                ? "Inserisci un titolo (min. 5 caratteri) e un contesto (min. 20 caratteri)"
-                : "Definisci almeno 2 opzioni deliberative per pubblicare"}
+                ? "Inserisci un titolo (min. 5 caratteri) e una motivazione (min. 20 caratteri)"
+                : "Aggiungi almeno 2 scelte per la votazione"}
             </p>
           )}
         </div>
