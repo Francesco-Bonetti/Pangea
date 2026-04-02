@@ -3,14 +3,13 @@
 import Link from "next/link";
 import type { ProposalWithResults } from "@/lib/types";
 import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
-import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame } from "lucide-react";
+import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle } from "lucide-react";
 
 interface ProposalCardProps {
   proposal: ProposalWithResults;
-  curationThreshold?: number;
 }
 
-export default function ProposalCard({ proposal, curationThreshold = 100 }: ProposalCardProps) {
+export default function ProposalCard({ proposal }: ProposalCardProps) {
   const results = proposal.results ?? { yea_count: 0, nay_count: 0, abstain_count: 0 };
   const total = getTotalVotes(results);
   const yeaPercent = calcPercentage(results.yea_count, total);
@@ -39,7 +38,7 @@ export default function ProposalCard({ proposal, curationThreshold = 100 }: Prop
       className: "status-closed",
     },
     repealed: {
-      icon: CheckCircle2,
+      icon: XCircle,
       label: "Abrogata",
       className: "status-repealed",
     },
@@ -61,6 +60,16 @@ export default function ProposalCard({ proposal, curationThreshold = 100 }: Prop
               <StatusIcon className="w-3 h-3 inline mr-1" />
               {statusLabel}
             </span>
+            {proposal.proposal_type === "amendment" && (
+              <span className="text-xs text-purple-400 bg-purple-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Edit3 className="w-3 h-3" /> Emendamento
+              </span>
+            )}
+            {proposal.proposal_type === "repeal" && (
+              <span className="text-xs text-red-400 bg-red-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Trash2 className="w-3 h-3" /> Abrogazione
+              </span>
+            )}
             {proposal.has_voted && (
               <span className="text-xs text-pangea-400 font-medium">
                 ✓ Hai votato
@@ -79,13 +88,6 @@ export default function ProposalCard({ proposal, curationThreshold = 100 }: Prop
         {proposal.content}
       </p>
 
-      {/* Draft hint */}
-      {proposal.status === "draft" && (
-        <p className="text-xs text-slate-500 italic mb-4">
-          Bozza — clicca per pubblicare
-        </p>
-      )}
-
       {/* Curation: signal progress bar */}
       {proposal.status === "curation" && typeof proposal.signal_count === "number" && (
         <div className="mb-4">
@@ -94,12 +96,12 @@ export default function ProposalCard({ proposal, curationThreshold = 100 }: Prop
               <Flame className="w-3 h-3 text-amber-400" />
               Segnali
             </span>
-            <span>{proposal.signal_count} / {curationThreshold}</span>
+            <span>{proposal.signal_count} / 100</span>
           </div>
           <div className="bg-slate-700 rounded-full h-2">
             <div
               className="bg-amber-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min((proposal.signal_count / curationThreshold) * 100, 100)}%` }}
+              style={{ width: `${Math.min((proposal.signal_count / 100) * 100, 100)}%` }}
             />
           </div>
         </div>

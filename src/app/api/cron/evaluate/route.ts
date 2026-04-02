@@ -22,6 +22,10 @@ export async function GET(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
+    // 0. Close expired proposals
+    const { data: closedCount } = await supabase.rpc("close_expired_proposals");
+
+    // 1. Evaluate curation markets (promote proposals to active)
     const { data, error } = await supabase.rpc("evaluate_curation_markets");
 
     if (error) {
@@ -32,9 +36,18 @@ export async function GET(request: Request) {
       );
     }
 
+    // 2. Convert approved closed proposals to laws
+    const { data: convertedCount, error: convertError } = await supabase.rpc("convert_closed_proposals_to_laws");
+
+    if (convertError) {
+      console.error("Errore convert_closed_proposals_to_laws:", convertError);
+    }
+
     return NextResponse.json({
       success: true,
+      expired_closed: closedCount ?? 0,
       promoted: data,
+      laws_created: convertedCount ?? 0,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

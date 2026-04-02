@@ -74,16 +74,19 @@ export default function VotingBooth({
       if (options.length > 0) return;
       if (!isActive && !isClosed) return;
 
-      const { data } = await supabase.rpc("get_legacy_vote_results", {
-        p_proposal_id: proposal.id,
-      });
+      const { data } = await supabase
+        .from("votes")
+        .select("vote_type")
+        .eq("proposal_id", proposal.id);
 
       if (data) {
-        setLegacyResults({
-          yea: data.yea ?? 0,
-          nay: data.nay ?? 0,
-          abstain: data.abstain ?? 0,
+        const counts = { yea: 0, nay: 0, abstain: 0 };
+        data.forEach((v: { vote_type: string }) => {
+          if (v.vote_type === "yea") counts.yea++;
+          else if (v.vote_type === "nay") counts.nay++;
+          else if (v.vote_type === "abstain") counts.abstain++;
         });
+        setLegacyResults(counts);
       }
     }
     fetchLegacyResults();
@@ -257,16 +260,19 @@ export default function VotingBooth({
         throw voteError;
       }
 
-      // Update legacy results via RPC (bypasses RLS)
-      const { data: votesData } = await supabase.rpc("get_legacy_vote_results", {
-        p_proposal_id: proposal.id,
-      });
+      // Update legacy results
+      const { data: votesData } = await supabase
+        .from("votes")
+        .select("vote_type")
+        .eq("proposal_id", proposal.id);
       if (votesData) {
-        setLegacyResults({
-          yea: votesData.yea ?? 0,
-          nay: votesData.nay ?? 0,
-          abstain: votesData.abstain ?? 0,
+        const counts = { yea: 0, nay: 0, abstain: 0 };
+        votesData.forEach((v: { vote_type: string }) => {
+          if (v.vote_type === "yea") counts.yea++;
+          else if (v.vote_type === "nay") counts.nay++;
+          else if (v.vote_type === "abstain") counts.abstain++;
         });
+        setLegacyResults(counts);
       }
 
       setHasVoted(true);

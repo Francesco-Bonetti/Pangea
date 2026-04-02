@@ -100,9 +100,16 @@ export default async function DashboardPage() {
   const curationProposals = enrichedProposals.filter((p) => p.status === "curation");
   const closedProposals = enrichedProposals.filter((p) => p.status === "closed");
 
-  // Soglia curatela dinamica (20% utenti attivi)
-  const { data: curationThreshold } = await supabase.rpc("get_curation_threshold");
-  const threshold = curationThreshold ?? 3;
+  // Count pending delegations for this user
+  let pendingDelegations = 0;
+  if (user) {
+    const { count } = await supabase
+      .from("delegations")
+      .select("*", { count: "exact", head: true })
+      .eq("delegate_id", user.id)
+      .eq("status", "pending");
+    pendingDelegations = count ?? 0;
+  }
 
   // Statistiche globali piattaforma
   const platformStatsRes = await supabase.rpc("get_platform_stats");
@@ -119,7 +126,9 @@ export default async function DashboardPage() {
       <Navbar
         userEmail={user?.email}
         userName={profile?.full_name}
+        userRole={profile?.role}
         isGuest={isGuest}
+        pendingDelegations={pendingDelegations}
       />
       {isGuest && <GuestBanner />}
 
@@ -229,7 +238,7 @@ export default async function DashboardPage() {
             {curationProposals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {curationProposals.map((proposal) => (
-                  <ProposalCard key={proposal.id} proposal={proposal} curationThreshold={threshold} />
+                  <ProposalCard key={proposal.id} proposal={proposal} />
                 ))}
               </div>
             ) : (

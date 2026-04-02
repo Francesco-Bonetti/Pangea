@@ -16,8 +16,9 @@ import {
   Globe,
   Tag,
   Trash2,
-  Check,
+  CheckCircle2,
   XCircle,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -104,26 +105,13 @@ export default function DelegationsPage() {
     setSearching(false);
   }
 
-  // Crea delega
+  // Crea delega (come richiesta pendente)
   async function createDelegation() {
     if (!selectedDelegate || !user) return;
     setSaving(true);
     setError(null);
 
     try {
-      // Controlla se il delegato accetta deleghe
-      const { data: delegateProfile } = await supabase
-        .from("profiles")
-        .select("allow_delegations")
-        .eq("id", selectedDelegate.id)
-        .single();
-
-      if (delegateProfile && !delegateProfile.allow_delegations) {
-        setError("Questo cittadino non accetta deleghe");
-        setSaving(false);
-        return;
-      }
-
       const payload: Record<string, unknown> = {
         delegator_id: user.id,
         delegate_id: selectedDelegate.id,
@@ -136,7 +124,6 @@ export default function DelegationsPage() {
         .upsert(payload, { onConflict: "delegator_id,category_id" });
 
       if (insertError) {
-        // Gestisci errore ciclo
         if (insertError.message?.includes("ciclo infinito")) {
           setError(
             "Impossibile creare questa delega: si formerebbe un ciclo. " +
@@ -152,7 +139,6 @@ export default function DelegationsPage() {
         return;
       }
 
-      // Successo: reset form e ricarica
       setShowForm(false);
       setSelectedDelegate(null);
       setSelectedCategory("");
@@ -168,6 +154,24 @@ export default function DelegationsPage() {
     }
   }
 
+  // Accetta delega ricevuta
+  async function acceptDelegation(delegationId: string) {
+    const { error: err } = await supabase
+      .from("delegations")
+      .update({ status: "accepted" })
+      .eq("id", delegationId);
+    if (!err) await loadData();
+  }
+
+  // Rifiuta delega ricevuta
+  async function rejectDelegation(delegationId: string) {
+    const { error: err } = await supabase
+      .from("delegations")
+      .update({ status: "rejected" })
+      .eq("id", delegationId);
+    if (!err) await loadData();
+  }
+
   // Revoca delega
   async function revokeDelegation(delegationId: string) {
     const { error: deleteError } = await supabase
@@ -176,30 +180,6 @@ export default function DelegationsPage() {
       .eq("id", delegationId);
 
     if (!deleteError) {
-      await loadData();
-    }
-  }
-
-  // Accetta delega ricevuta
-  async function acceptDelegation(delegationId: string) {
-    const { error: updateError } = await supabase
-      .from("delegations")
-      .update({ status: "accepted" })
-      .eq("id", delegationId);
-
-    if (!updateError) {
-      await loadData();
-    }
-  }
-
-  // Rifiuta delega ricevuta
-  async function rejectDelegation(delegationId: string) {
-    const { error: updateError } = await supabase
-      .from("delegations")
-      .update({ status: "rejected" })
-      .eq("id", delegationId);
-
-    if (!updateError) {
       await loadData();
     }
   }
@@ -430,6 +410,13 @@ export default function DelegationsPage() {
                         )}
                       </p>
                     </div>
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                      d.status === "accepted" ? "text-green-300 bg-green-900/20 border border-green-700/30" :
+                      d.status === "rejected" ? "text-red-300 bg-red-900/20 border border-red-700/30" :
+                      "text-amber-300 bg-amber-900/20 border border-amber-700/30"
+                    }`}>
+                      {d.status === "accepted" ? "Accettata" : d.status === "rejected" ? "Rifiutata" : "In attesa"}
+                    </span>
                     <button
                       onClick={() => revokeDelegation(d.id)}
                       className="text-slate-600 hover:text-red-400 transition-colors p-2"
@@ -466,10 +453,6 @@ export default function DelegationsPage() {
               {receivedDelegations.map((d) => {
                 const delegatorProfile = d.delegator as unknown as Profile | undefined;
                 const category = d.categories as unknown as Category | undefined;
-                const status = (d.status as string) || "pending";
-                const isPending = status === "pending";
-                const isAccepted = status === "accepted";
-                const isRejected = status === "rejected";
                 return (
                   <div
                     key={d.id}
@@ -496,35 +479,34 @@ export default function DelegationsPage() {
                         )}
                       </p>
                     </div>
-                    {isAccepted && (
-                      <span className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded-full border border-green-700/30">
-                        Accettata
-                      </span>
-                    )}
-                    {isRejected && (
-                      <span className="text-xs text-red-400 bg-red-900/20 px-2 py-1 rounded-full border border-red-700/30">
-                        Rifiutata
-                      </span>
-                    )}
-                    {isPending && (
-                      <div className="flex items-center gap-2">
+                    {d.status === "pending" ? (
+                      <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => acceptDelegation(d.id)}
-                          className="text-xs text-green-400 bg-green-900/20 hover:bg-green-900/40 border border-green-700/30 px-2 py-1 rounded-lg flex items-center gap-1 transition-colors"
+                          className="p-1.5 rounded-lg text-green-400 hover:bg-green-900/30 transition-colors"
                           title="Accetta delega"
                         >
-                          <Check className="w-3 h-3" />
-                          Accetta
+                          <CheckCircle2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => rejectDelegation(d.id)}
-                          className="text-xs text-red-400 bg-red-900/20 hover:bg-red-900/40 border border-red-700/30 px-2 py-1 rounded-lg flex items-center gap-1 transition-colors"
+                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
                           title="Rifiuta delega"
                         >
-                          <XCircle className="w-3 h-3" />
-                          Rifiuta
+                          <XCircle className="w-4 h-4" />
                         </button>
+                        <span className="text-xs text-amber-500/80 bg-amber-900/20 px-2 py-1 rounded-full flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> In attesa
+                        </span>
                       </div>
+                    ) : d.status === "accepted" ? (
+                      <span className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded-full">
+                        Accettata
+                      </span>
+                    ) : (
+                      <span className="text-xs text-red-400 bg-red-900/20 px-2 py-1 rounded-full">
+                        Rifiutata
+                      </span>
                     )}
                   </div>
                 );

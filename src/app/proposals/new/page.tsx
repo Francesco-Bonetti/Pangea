@@ -16,6 +16,9 @@ import {
   Plus,
   X,
   GitBranch,
+  Edit3,
+  Trash2,
+  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,14 +27,23 @@ interface OptionDraft {
   description: string;
 }
 
+type ProposalType = "new" | "amendment" | "repeal";
+
 export default function NewProposalPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [dispositivo, setDispositivo] = useState("");
+  const [proposalType, setProposalType] = useState<ProposalType>("new");
+  const [parentProposalId, setParentProposalId] = useState<string | null>(null);
+  const [parentLawTitle, setParentLawTitle] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [lawParentId, setLawParentId] = useState<string | null>(null);
   const [replacesNodeId, setReplacesNodeId] = useState<string | null>(null);
   const [showTreeSelector, setShowTreeSelector] = useState(false);
+  const [showLawPicker, setShowLawPicker] = useState(false);
+  const [expiresIn, setExpiresIn] = useState<string>("7");
+  const [lawSearchQuery, setLawSearchQuery] = useState("");
+  const [lawSearchResults, setLawSearchResults] = useState<{id: string; title: string; code: string | null}[]>([]);
   const [options, setOptions] = useState<OptionDraft[]>([
     { title: "", description: "" },
     { title: "", description: "" },
@@ -60,6 +72,18 @@ export default function NewProposalPage() {
     setOptions(updated);
   }
 
+  async function searchLaws(query: string) {
+    setLawSearchQuery(query);
+    if (query.trim().length < 2) { setLawSearchResults([]); return; }
+    const { data } = await supabase
+      .from("laws")
+      .select("id, title, code")
+      .ilike("title", `%${query.trim()}%`)
+      .eq("status", "active")
+      .limit(10);
+    setLawSearchResults(data ?? []);
+  }
+
   async function saveProposal(status: "draft" | "curation") {
     setError(null);
     const isSave = status === "draft";
@@ -76,14 +100,20 @@ export default function NewProposalPage() {
         return;
       }
 
-      const payload = {
+      // Calculate expiration date
+      const days = parseInt(expiresIn);
+      const expiresAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null;
+
+      const payload: Record<string, unknown> = {
         author_id: user.id,
         title: title.trim(),
         content: content.trim(),
         dispositivo: dispositivo.trim() || null,
         status,
         category_id: null,
-        expires_at: null,
+        expires_at: expiresAt,
+        proposal_type: proposalType,
+        parent_proposal_id: parentProposalId,
       };
 
       const { data, error: insertError } = await supabase
@@ -179,6 +209,94 @@ export default function NewProposalPage() {
         </div>
 
         <div className="space-y-6">
+          {/* Tipo di proposta */}
+          <div>
+            <label className="label">Tipo di proposta</label>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { type: "new" as ProposalType, label: "Nuova Legge", icon: FileText, desc: "Proponi una legge nuova" },
+                { type: "amendment" as ProposalType, label: "Emendamento", icon: Edit3, desc: "Modifica una legge esistente" },
+                { type: "repeal" as ProposalType, label: "Abrogazione", icon: Trash2, desc: "Abroga una legge esistente" },
+              ]).map(({ type, label, icon: Icon, desc }) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    setProposalType(type);
+                    if (type === "new") { setParentProposalId(null); setParentLawTitle(null); }
+                    else setShowLawPicker(true);
+                  }}
+                  className={`card p-4 text-left transition-all ${
+                    proposalType === type
+                      ? "border-pangea-500 bg-pangea-900/20"
+                      : "hover:border-slate-600"
+                  }`}
+                >
+                  <Icon className={`w-5 h-5 mb-2 ${
+                    proposalType === type ? "text-pangea-400" : "text-slate-500"
+                  }`} />
+                  <p className={`text-sm font-medium ${
+                    proposalType === type ? "text-pangea-300" : "text-slate-300"
+                  }`}>{label}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                </button>
+              ))}
+            </div>
+
+            {/* Law picker for amendment/repeal */}
+            {(proposalType === "amendment" || proposalType === "repeal") && (
+              <div className="mt-4 card p-4">
+                <label className="label flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  {proposalType === "amendment" ? "Legge da emendare" : "Legge da abrogare"}
+                </label>
+                {parentLawTitle ? (
+                  <div className="flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3">
+                    <BookOpen className="w-4 h-4 text-pangea-400" />
+                    <span className="text-sm text-slate-200 font-medium flex-1">{parentLawTitle}</span>
+                    <button onClick={() => { setParentProposalId(null); setParentLawTitle(null); }} className="text-slate-500 hover:text-red-400">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      className="input-field"
+                      placeholder="Cerca una legge per titolo..."
+                      value={lawSearchQuery}
+                      onChange={(e) => searchLaws(e.target.value)}
+                    />
+                    {lawSearchResults.length > 0 && (
+                      <div className="mt-2 border border-slate-700 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                        {lawSearchResults.map((law) => (
+                          <button
+                            key={law.id}
+                            type="button"
+                            onClick={() => {
+                              setParentProposalId(law.id);
+                              setParentLawTitle(law.title);
+                              setLawSearchQuery("");
+                              setLawSearchResults([]);
+                              setShowLawPicker(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-800 transition-colors border-b border-slate-700/50 last:border-b-0"
+                          >
+                            <BookOpen className="w-4 h-4 text-blue-400 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-slate-200 truncate">{law.title}</p>
+                              {law.code && <p className="text-xs text-slate-500">{law.code}</p>}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Titolo */}
           <div>
             <label className="label">
@@ -255,6 +373,25 @@ export default function NewProposalPage() {
             />
             <p className="text-xs text-slate-600 mt-1.5">
               Facoltativo — scrivi gli articoli della legge vera e propria
+            </p>
+          </div>
+
+          {/* Durata delibera */}
+          <div>
+            <label className="label">Durata della delibera</label>
+            <select
+              className="input-field"
+              value={expiresIn}
+              onChange={(e) => setExpiresIn(e.target.value)}
+            >
+              <option value="3">3 giorni</option>
+              <option value="7">7 giorni</option>
+              <option value="14">14 giorni</option>
+              <option value="30">30 giorni</option>
+              <option value="0">Senza scadenza</option>
+            </select>
+            <p className="text-xs text-slate-600 mt-1.5">
+              Dopo la scadenza, la proposta viene chiusa automaticamente e il risultato diventa definitivo
             </p>
           </div>
 

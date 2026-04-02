@@ -186,6 +186,16 @@ export default async function ProposalDetailPage({ params }: Props) {
                 ? "Abrogata"
                 : "Bozza"}
             </span>
+            {proposal.proposal_type === "amendment" && (
+              <span className="text-xs text-purple-400 font-medium bg-purple-900/20 px-2 py-1 rounded-full border border-purple-800/30">
+                Emendamento
+              </span>
+            )}
+            {proposal.proposal_type === "repeal" && (
+              <span className="text-xs text-red-400 font-medium bg-red-900/20 px-2 py-1 rounded-full border border-red-800/30">
+                Abrogazione
+              </span>
+            )}
             {isAuthor && (
               <span className="text-xs text-amber-400 font-medium bg-amber-900/20 px-2 py-1 rounded-full border border-amber-800/30">
                 Tua proposta
@@ -205,12 +215,12 @@ export default async function ProposalDetailPage({ params }: Props) {
 
           {/* Metadata */}
           <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-            <div className="flex items-center gap-1.5">
+            <Link href={`/citizens/${proposal.author_id}`} className="flex items-center gap-1.5 hover:text-pangea-300 transition-colors">
               <User className="w-4 h-4" />
               <span>
                 {authorProfile?.full_name ?? "Cittadino"}
               </span>
-            </div>
+            </Link>
             <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
               <span>{formatDateTime(proposal.created_at)}</span>

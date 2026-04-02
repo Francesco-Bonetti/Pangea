@@ -1,374 +1,324 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Settings, User, Users, Shield, Eye, Save, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
-
-interface Profile {
-  id: string;
-  full_name: string;
-  bio: string;
-  role: string;
-  allow_delegations: boolean;
-  is_searchable: boolean;
-}
+import type { Profile } from "@/lib/types";
+import {
+  Settings,
+  User,
+  Shield,
+  Users,
+  Eye,
+  Save,
+  Loader2,
+  ArrowLeft,
+  CheckCircle2,
+  AlertTriangle,
+  Mail,
+  Calendar,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/utils";
 
 export default function SettingsPage() {
-  const router = useRouter();
-  const supabase = createClient();
-
-  const [user, setUser] = useState<{ id: string; email: string | undefined } | null>(null);
+  const [user, setUser] = useState<{ id: string; email?: string; created_at?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Form state
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
-  const [allowDelegations, setAllowDelegations] = useState(false);
-  const [isSearchable, setIsSearchable] = useState(false);
+  const [allowDelegations, setAllowDelegations] = useState(true);
+  const [isSearchable, setIsSearchable] = useState(true);
 
-  // Load user and profile
-  useEffect(() => {
-    async function loadUserAndProfile() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
+  // Password change
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
-        if (!user) {
-          router.push("/auth");
-          return;
-        }
+  const supabase = createClient();
+  const router = useRouter();
 
-        setUser({ id: user.id, email: user.email });
+  const loadProfile = useCallback(async () => {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) { router.push("/auth"); return; }
+    setUser(authUser);
 
-        // Load profile
-        const { data: profileData, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (error) {
-          console.error("Errore caricamento profilo:", error);
-          setMessage({
-            type: "error",
-            text: "Impossibile caricare il profilo. Riprova più tardi.",
-          });
-          return;
-        }
-
-        if (profileData) {
-          setProfile(profileData);
-          setFullName(profileData.full_name || "");
-          setBio(profileData.bio || "");
-          setAllowDelegations(profileData.allow_delegations || false);
-          setIsSearchable(profileData.is_searchable || false);
-        }
-      } catch (error) {
-        console.error("Errore:", error);
-        setMessage({
-          type: "error",
-          text: "Errore durante il caricamento dei dati.",
-        });
-      } finally {
-        setLoading(false);
-      }
+    const { data: prof } = await supabase.from("profiles").select("*").eq("id", authUser.id).single();
+    if (prof) {
+      setProfile(prof);
+      setFullName(prof.full_name ?? "");
+      setBio(prof.bio ?? "");
+      setAllowDelegations(prof.allow_delegations ?? true);
+      setIsSearchable(prof.is_searchable ?? true);
     }
+    setLoading(false);
+  }, [supabase, router]);
 
-    loadUserAndProfile();
-  }, []);
+  useEffect(() => { loadProfile(); }, [loadProfile]);
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    if (!user || !profile) return;
-
+  async function saveProfile() {
+    if (!user) return;
     setSaving(true);
-    setMessage(null);
+    setError(null);
+    setSuccess(false);
 
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          full_name: fullName,
-          bio: bio,
-          allow_delegations: allowDelegations,
-          is_searchable: isSearchable,
-        })
-        .eq("id", user.id);
-
-      if (error) throw error;
-
-      setMessage({
-        type: "success",
-        text: "Impostazioni salvate con successo!",
-      });
-
-      // Update local profile state
-      setProfile({
-        ...profile,
-        full_name: fullName,
-        bio: bio,
+    const { error: err } = await supabase
+      .from("profiles")
+      .update({
+        full_name: fullName.trim() || null,
+        bio: bio.trim() || null,
         allow_delegations: allowDelegations,
         is_searchable: isSearchable,
-      });
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : "Errore sconosciuto";
-      setMessage({
-        type: "error",
-        text: `Errore nel salvataggio: ${msg}`,
-      });
-    } finally {
-      setSaving(false);
+      })
+      .eq("id", user.id);
+
+    if (err) setError(err.message);
+    else setSuccess(true);
+    setSaving(false);
+    setTimeout(() => setSuccess(false), 3000);
+  }
+
+  async function changePassword() {
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    if (newPassword.length < 8) {
+      setPasswordError("La password deve essere di almeno 8 caratteri.");
+      return;
     }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Le password non corrispondono.");
+      return;
+    }
+
+    setChangingPassword(true);
+    const { error: err } = await supabase.auth.updateUser({ password: newPassword });
+    if (err) setPasswordError(err.message);
+    else {
+      setPasswordSuccess(true);
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    setChangingPassword(false);
+    setTimeout(() => setPasswordSuccess(false), 3000);
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c1220]">
-        <Navbar userEmail={user?.email} userName={profile?.full_name} />
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center h-96">
-            <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
-          </div>
-        </main>
+      <div className="min-h-screen bg-[#0c1220] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user.email} userName={profile?.full_name} />
+      <Navbar userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Torna alla dashboard
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/dashboard" className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
           </Link>
-
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-pangea-900/30 border border-pangea-600/30 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-pangea-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Impostazioni Account</h1>
-              <p className="text-slate-400 text-sm mt-1">Gestisci il tuo profilo e le preferenze</p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Settings className="w-6 h-6 text-pangea-400" />
+              Impostazioni Account
+            </h1>
+            <p className="text-sm text-slate-400 mt-0.5">Gestisci il tuo profilo e le preferenze</p>
           </div>
         </div>
 
-        {/* Feedback Message */}
-        {message && (
-          <div
-            className={`mb-6 p-4 rounded-lg border flex items-start gap-3 ${
-              message.type === "success"
-                ? "bg-green-900/20 border-green-700/50 text-green-300"
-                : "bg-red-900/20 border-red-700/50 text-red-300"
-            }`}
-          >
-            {message.type === "success" ? (
-              <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-            ) : (
-              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            )}
-            <span className="text-sm">{message.text}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSave} className="space-y-6">
-          {/* Profile Section */}
-          <section className="card p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-pangea-900/30 flex items-center justify-center">
-                <User className="w-4 h-4 text-pangea-400" />
+        <div className="space-y-6">
+          {/* Account info (read-only) */}
+          <div className="card p-6">
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-pangea-400" />
+              Informazioni Account
+            </h2>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Mail className="w-4 h-4 text-slate-500" />
+                <div>
+                  <p className="text-xs text-slate-500">Email</p>
+                  <p className="text-sm text-slate-200">{user?.email}</p>
+                </div>
               </div>
-              <h2 className="text-lg font-semibold text-slate-200">Profilo</h2>
+              <div className="flex items-center gap-3">
+                <Shield className="w-4 h-4 text-slate-500" />
+                <div>
+                  <p className="text-xs text-slate-500">Ruolo</p>
+                  <p className="text-sm text-slate-200 capitalize">{profile?.role || "citizen"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Calendar className="w-4 h-4 text-slate-500" />
+                <div>
+                  <p className="text-xs text-slate-500">Membro dal</p>
+                  <p className="text-sm text-slate-200">{profile?.created_at ? formatDate(profile.created_at) : "—"}</p>
+                </div>
+              </div>
             </div>
+          </div>
+
+          {/* Profile editing */}
+          <div className="card p-6">
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <User className="w-5 h-5 text-pangea-400" />
+              Profilo Pubblico
+            </h2>
 
             <div className="space-y-4">
-              {/* Full Name */}
               <div>
-                <label className="label">Nome Completo</label>
+                <label className="label">Nome completo</label>
                 <input
                   type="text"
                   className="input-field"
-                  placeholder="Mario Rossi"
+                  placeholder="Il tuo nome"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                  maxLength={100}
                 />
-                <p className="text-xs text-slate-500 mt-1.5">
-                  Il tuo nome sarà visibile agli altri cittadini.
-                </p>
               </div>
-
-              {/* Bio */}
               <div>
-                <label className="label">Biografia</label>
+                <label className="label">Bio</label>
                 <textarea
-                  className="input-field resize-none"
-                  placeholder="Racconta qualcosa di te... (max 500 caratteri)"
-                  rows={4}
-                  maxLength={500}
+                  className="input-field min-h-[100px] resize-y"
+                  placeholder="Racconta qualcosa di te ai concittadini..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
+                  maxLength={500}
                 />
-                <p className="text-xs text-slate-500 mt-1.5">
-                  {bio.length}/500 caratteri
-                </p>
+                <p className="text-xs text-slate-600 mt-1">{bio.length}/500 caratteri</p>
               </div>
             </div>
-          </section>
+          </div>
 
-          {/* Deleghe Section */}
-          <section className="card p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-purple-900/30 flex items-center justify-center">
-                <Users className="w-4 h-4 text-purple-400" />
-              </div>
-              <h2 className="text-lg font-semibold text-slate-200">Deleghe</h2>
-            </div>
+          {/* Privacy settings */}
+          <div className="card p-6">
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Eye className="w-5 h-5 text-pangea-400" />
+              Privacy e Deleghe
+            </h2>
 
             <div className="space-y-4">
-              {/* Allow Delegations Toggle */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-slate-200">Accetta deleghe</h3>
+              <label className="flex items-center justify-between cursor-pointer group">
+                <div className="flex items-center gap-3">
+                  <Users className="w-4 h-4 text-slate-500" />
+                  <div>
+                    <p className="text-sm text-slate-200">Accetta deleghe</p>
+                    <p className="text-xs text-slate-500">Permetti ad altri cittadini di delegarti il voto</p>
                   </div>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Se abilitato, altri cittadini potranno delegarti i loro voti in proprie aree di competenza.
-                    La tua identità sarà verificata per questa funzione.
-                  </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setAllowDelegations(!allowDelegations)}
-                  className={`relative inline-flex h-8 w-14 shrink-0 rounded-full transition-colors ${
+                <div
+                  className={`w-11 h-6 rounded-full transition-colors relative ${
                     allowDelegations ? "bg-pangea-600" : "bg-slate-700"
                   }`}
+                  onClick={() => setAllowDelegations(!allowDelegations)}
                 >
-                  <span
-                    className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg transition transform ${
-                      allowDelegations ? "translate-x-7" : "translate-x-0.5"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </section>
-
-          {/* Privacy Section */}
-          <section className="card p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-blue-900/30 flex items-center justify-center">
-                <Eye className="w-4 h-4 text-blue-400" />
-              </div>
-              <h2 className="text-lg font-semibold text-slate-200">Privacy</h2>
-            </div>
-
-            <div className="space-y-4">
-              {/* Searchable Toggle */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-slate-200">Visibile nella ricerca deleghe</h3>
-                  </div>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Se abilitato, il tuo profilo sarà visibile quando altri cittadini cercano esperti a cui delegare i voti.
-                  </p>
+                  <div className={`w-5 h-5 rounded-full bg-white shadow-sm absolute top-0.5 transition-transform ${
+                    allowDelegations ? "translate-x-5.5 left-0.5" : "left-0.5"
+                  }`} style={{ transform: allowDelegations ? "translateX(22px)" : "translateX(0)" }} />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsSearchable(!isSearchable)}
-                  className={`relative inline-flex h-8 w-14 shrink-0 rounded-full transition-colors ${
+              </label>
+
+              <label className="flex items-center justify-between cursor-pointer group">
+                <div className="flex items-center gap-3">
+                  <Eye className="w-4 h-4 text-slate-500" />
+                  <div>
+                    <p className="text-sm text-slate-200">Profilo ricercabile</p>
+                    <p className="text-xs text-slate-500">Appari nei risultati di ricerca per le deleghe</p>
+                  </div>
+                </div>
+                <div
+                  className={`w-11 h-6 rounded-full transition-colors relative ${
                     isSearchable ? "bg-pangea-600" : "bg-slate-700"
                   }`}
+                  onClick={() => setIsSearchable(!isSearchable)}
                 >
-                  <span
-                    className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg transition transform ${
-                      isSearchable ? "translate-x-7" : "translate-x-0.5"
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </section>
-
-          {/* Account Info Section */}
-          <section className="card p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-slate-700/50 flex items-center justify-center">
-                <Shield className="w-4 h-4 text-slate-400" />
-              </div>
-              <h2 className="text-lg font-semibold text-slate-200">Informazioni Account</h2>
-            </div>
-
-            <div className="space-y-4">
-              {/* Email */}
-              <div>
-                <label className="label">Email</label>
-                <div className="bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-slate-300 flex items-center justify-between">
-                  <span className="truncate">{user.email}</span>
-                  <span className="text-xs text-slate-500 ml-2 shrink-0">Non modificabile</span>
+                  <div className={`w-5 h-5 rounded-full bg-white shadow-sm absolute top-0.5 transition-transform`}
+                    style={{ transform: isSearchable ? "translateX(22px)" : "translateX(0)", left: "2px" }} />
                 </div>
-              </div>
-
-              {/* Role Badge */}
-              <div>
-                <label className="label">Ruolo</label>
-                <div className="flex items-center gap-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-700">
-                    <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                    <span className="text-sm font-medium text-slate-300">
-                      {profile?.role === "admin" ? "Amministratore" : profile?.role === "moderator" ? "Moderatore" : "Cittadino"}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              </label>
             </div>
-          </section>
-
-          {/* Save Button */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="btn-primary flex items-center gap-2 flex-1"
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              {saving ? "Salvataggio..." : "Salva Impostazioni"}
-            </button>
-
-            <Link
-              href="/dashboard"
-              className="btn-secondary flex items-center justify-center"
-            >
-              Annulla
-            </Link>
           </div>
-        </form>
 
-        {/* Info Footer */}
-        <div className="mt-12 p-4 rounded-lg bg-slate-800/20 border border-slate-700/30">
-          <p className="text-xs text-slate-500">
-            Le tue impostazioni sono protette da crittografia end-to-end. I tuoi dati sono al sicuro e conformi al GDPR.
-          </p>
+          {/* Save button */}
+          {error && (
+            <div className="p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
+            </div>
+          )}
+          {success && (
+            <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> Profilo aggiornato con successo!
+            </div>
+          )}
+          <button
+            onClick={saveProfile}
+            disabled={saving}
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? "Salvando..." : "Salva modifiche"}
+          </button>
+
+          {/* Change password */}
+          <div className="card p-6">
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-amber-400" />
+              Cambia Password
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Nuova password</label>
+                <input
+                  type="password"
+                  className="input-field"
+                  placeholder="Minimo 8 caratteri"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">Conferma password</label>
+                <input
+                  type="password"
+                  className="input-field"
+                  placeholder="Ripeti la password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+              {passwordError && (
+                <div className="p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" /> {passwordError}
+                </div>
+              )}
+              {passwordSuccess && (
+                <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" /> Password aggiornata!
+                </div>
+              )}
+              <button
+                onClick={changePassword}
+                disabled={changingPassword || !newPassword}
+                className="btn-secondary w-full flex items-center justify-center gap-2"
+              >
+                {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
+                {changingPassword ? "Aggiornando..." : "Aggiorna password"}
+              </button>
+            </div>
+          </div>
         </div>
       </main>
     </div>

@@ -11,9 +11,10 @@ interface NavbarProps {
   userName?: string | null;
   userRole?: string;
   isGuest?: boolean;
+  pendingDelegations?: number;
 }
 
-export default function Navbar({ userEmail, userName, userRole, isGuest = false }: NavbarProps) {
+export default function Navbar({ userEmail, userName, userRole, isGuest = false, pendingDelegations = 0 }: NavbarProps) {
   const router = useRouter();
   const supabase = createClient();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -51,10 +52,15 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false 
             {!isGuest && (
               <Link
                 href="/dashboard/delegations"
-                className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+                className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors relative"
               >
                 <Users className="w-3.5 h-3.5" />
                 Deleghe
+                {pendingDelegations > 0 && (
+                  <span className="absolute -top-1.5 -right-3 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {pendingDelegations}
+                  </span>
+                )}
               </Link>
             )}
             <Link
