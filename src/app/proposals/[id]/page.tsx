@@ -142,7 +142,7 @@ export default async function ProposalDetailPage({ params }: Props) {
         </Link>
 
         {/* Draft Actions — solo per bozze dell'autore */}
-        {proposal.status === "draft" && (
+        {proposal.status === "draft" && user && (
           <DraftActions
             proposalId={proposal.id}
             authorId={proposal.author_id}
