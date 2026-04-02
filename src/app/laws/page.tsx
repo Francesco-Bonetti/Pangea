@@ -29,7 +29,7 @@ export default async function LawsPage() {
 
   const isGuest = !user;
 
-  // Profilo per ruolo (navbar)
+  // Profilo per ruolo (navbar + admin check)
   let profile: { full_name?: string; role?: string } | null = null;
   if (user) {
     const { data } = await supabase
@@ -39,6 +39,8 @@ export default async function LawsPage() {
       .single();
     profile = data;
   }
+
+  const isAdmin = profile?.role === "admin" || profile?.role === "moderator";
 
   // Carica tutte le leggi e costruisci l'albero lato server
   const { data: allLaws, error } = await supabase
@@ -121,7 +123,7 @@ export default async function LawsPage() {
         {/* Albero delle leggi */}
         <div className="space-y-4">
           {lawTree.map((code) => (
-            <LawTree key={code.id} node={code} depth={0} />
+            <LawTree key={code.id} node={code} depth={0} isAdmin={isAdmin} />
           ))}
         </div>
 
