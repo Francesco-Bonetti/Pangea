@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import GuestBanner from "@/components/GuestBanner";
 import ProposalCard from "@/components/ProposalCard";
 import PlatformStats from "@/components/PlatformStats";
 import type { Proposal, ProposalResults, ProposalWithResults } from "@/lib/types";
-import { Plus, Globe, FileText, Clock, CheckCircle2, Flame, Users } from "lucide-react";
+import { Plus, Globe, FileText, Clock, CheckCircle2, Flame, Users, BookOpen } from "lucide-react";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -14,14 +14,18 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/auth");
+  const isGuest = !user;
 
-  // Recupera profilo
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+  // Recupera profilo (solo se autenticato)
+  let profile: { full_name?: string; role?: string } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+    profile = data;
+  }
 
   // Recupera proposte pubbliche (active, closed, curation)
   const { data: proposals, error } = await supabase
@@ -34,19 +38,22 @@ export default async function DashboardPage() {
     console.error("Errore caricamento proposte:", error);
   }
 
-  // Recupera bozze dell'utente corrente
-  const { data: drafts } = await supabase
-    .from("proposals")
-    .select("*")
-    .eq("author_id", user.id)
-    .eq("status", "draft")
-    .order("created_at", { ascending: false });
+  // Recupera bozze dell'utente corrente (solo se autenticato)
+  let drafts: Proposal[] = [];
+  if (user) {
+    const { data } = await supabase
+      .from("proposals")
+      .select("*")
+      .eq("author_id", user.id)
+      .eq("status", "draft")
+      .order("created_at", { ascending: false });
+    drafts = data ?? [];
+  }
 
   // Arricchisci proposte con risultati e segnali
   const enrichedProposals: ProposalWithResults[] = await Promise.all(
     (proposals || []).map(async (proposal: Proposal) => {
       if (proposal.status === "curation") {
-        // Per le proposte in curatela: conta i segnali
         const { count } = await supabase
           .from("proposal_signals")
           .select("*", { count: "exact", head: true })
@@ -59,10 +66,7 @@ export default async function DashboardPage() {
       }
 
       // Per proposte active/closed: risultati di voto
-      const [resultsRes, votedRes] = await Promise.all([
-        supabase.rpc("get_proposal_results", { p_proposal_id: proposal.id }),
-        supabase.rpc("has_user_voted", { p_proposal_id: proposal.id }),
-      ]);
+      const resultsRes = await supabase.rpc("get_proposal_results", { p_proposal_id: proposal.id });
 
       const results: ProposalResults = resultsRes.data?.[0] ?? {
         yea_count: 0,
@@ -70,24 +74,30 @@ export default async function DashboardPage() {
         abstain_count: 0,
       };
 
-      // Prova anche i risultati distribuiti
       const { data: distResults } = await supabase.rpc(
         "get_distributed_proposal_results",
         { p_proposal_id: proposal.id }
       );
 
+      // Controlla se l'utente ha votato (solo se autenticato)
+      let hasVoted = false;
+      if (user) {
+        const votedRes = await supabase.rpc("has_user_voted", { p_proposal_id: proposal.id });
+        hasVoted = votedRes.data ?? false;
+      }
+
       return {
         ...proposal,
         results,
         distributed_results: distResults ?? [],
-        has_voted: votedRes.data ?? false,
+        has_voted: hasVoted,
       };
     })
   );
 
   // Soglia dinamica curatela
   const { data: thresholdData } = await supabase.rpc("get_curation_threshold");
-  const curationThreshold = thresholdData ?? 2;
+  const curationThreshold = thresholdData ?? 3;
 
   // Stats
   const activeProposals = enrichedProposals.filter((p) => p.status === "active");
@@ -108,10 +118,12 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#0c1220]">
       <Navbar
-        userEmail={user.email}
+        userEmail={user?.email}
         userName={profile?.full_name}
         userRole={profile?.role}
+        isGuest={isGuest}
       />
+      {isGuest && <GuestBanner />}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -123,11 +135,17 @@ export default async function DashboardPage() {
             </h1>
           </div>
           <p className="text-slate-400">
-            Benvenuto/a,{" "}
-            <span className="text-slate-200 font-medium">
-              {profile?.full_name || user.email}
-            </span>
-            . Partecipa alla democrazia globale Pangea.
+            {isGuest ? (
+              <>Benvenuto/a nella democrazia globale Pangea. <Link href="/auth" className="text-pangea-400 hover:underline">Registrati</Link> per partecipare.</>
+            ) : (
+              <>
+                Benvenuto/a,{" "}
+                <span className="text-slate-200 font-medium">
+                  {profile?.full_name || user.email}
+                </span>
+                . Partecipa alla democrazia globale Pangea.
+              </>
+            )}
           </p>
         </div>
 
@@ -140,15 +158,21 @@ export default async function DashboardPage() {
           closedProposals={platformStats.closed_proposals}
         />
 
-        {/* Stats cards personali */}
+        {/* Navigazione rapida per sezioni */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
           {[
-            { label: "In Delibera", value: activeProposals.length, icon: Clock, color: "text-pangea-400", bg: "bg-pangea-900/20" },
-            { label: "In Curatela", value: curationProposals.length, icon: Flame, color: "text-amber-400", bg: "bg-amber-900/20" },
-            { label: "Deliberate", value: closedProposals.length, icon: CheckCircle2, color: "text-green-400", bg: "bg-green-900/20" },
-            { label: "Tue Bozze", value: draftCount, icon: FileText, color: "text-slate-400", bg: "bg-slate-800/50" },
-            { label: "Le tue Deleghe", value: "→", icon: Users, color: "text-purple-400", bg: "bg-purple-900/20", href: "/dashboard/delegations" },
+            { label: "In Delibera", value: activeProposals.length, icon: Clock, color: "text-pangea-400", bg: "bg-pangea-900/20", href: "#delibera" },
+            { label: "In Curatela", value: curationProposals.length, icon: Flame, color: "text-amber-400", bg: "bg-amber-900/20", href: "#curatela" },
+            { label: "Deliberate", value: closedProposals.length, icon: CheckCircle2, color: "text-green-400", bg: "bg-green-900/20", href: "#archivio" },
+            { label: "Codice di Pangea", value: "→", icon: BookOpen, color: "text-blue-400", bg: "bg-blue-900/20", href: "/laws" },
+            ...(isGuest ? [] : [
+              { label: "Tue Bozze", value: draftCount, icon: FileText, color: "text-slate-400", bg: "bg-slate-800/50" },
+            ]),
+            ...(isGuest ? [] : [
+              { label: "Le tue Deleghe", value: "→", icon: Users, color: "text-purple-400", bg: "bg-purple-900/20", href: "/dashboard/delegations" },
+            ]),
           ].map(({ label, value, icon: Icon, color, bg, href }) => {
+            const isExternal = href?.startsWith("/");
             const Card = (
               <div key={label} className={`card p-4 ${bg} ${href ? "hover:border-slate-600 transition-colors cursor-pointer" : ""}`}>
                 <div className={`${color} mb-2`}>
@@ -158,17 +182,20 @@ export default async function DashboardPage() {
                 <p className="text-xs text-slate-500 mt-0.5">{label}</p>
               </div>
             );
-            if (href) {
-              return <Link key={label} href={href}>{Card}</Link>;
+            if (isExternal) {
+              return <Link key={label} href={href!}>{Card}</Link>;
             }
-            return Card;
+            if (href) {
+              return <a key={label} href={href}>{Card}</a>;
+            }
+            return <div key={label}>{Card}</div>;
           })}
         </div>
 
-        {/* Proposals grid con tabs */}
-        <div className="space-y-8">
+        {/* Sezioni per tipologia */}
+        <div className="space-y-10">
           {/* Fase Deliberativa (Attive) */}
-          <section>
+          <section id="delibera">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <Clock className="w-5 h-5 text-pangea-400" />
               Fase Deliberativa
@@ -184,13 +211,13 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="card p-6 text-center text-slate-500 text-sm">
-                Nessuna proposta in delibera al momento
+                Nessuna proposta in delibera al momento.
               </div>
             )}
           </section>
 
           {/* Fase di Curatela */}
-          <section>
+          <section id="curatela">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <Flame className="w-5 h-5 text-amber-400" />
               Mercato di Curatela
@@ -206,13 +233,13 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="card p-6 text-center text-slate-500 text-sm">
-                Nessuna proposta in curatela al momento
+                Nessuna proposta in curatela al momento.
               </div>
             )}
           </section>
 
           {/* Archivio Deliberativo */}
-          <section>
+          <section id="archivio">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-green-400" />
               Archivio Deliberativo
@@ -225,13 +252,13 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="card p-6 text-center text-slate-500 text-sm">
-                Nessuna legge deliberata ancora
+                Nessuna legge deliberata ancora.
               </div>
             )}
           </section>
 
-          {/* Bozze */}
-          {drafts && drafts.length > 0 && (
+          {/* Bozze (solo utenti autenticati) */}
+          {!isGuest && drafts && drafts.length > 0 && (
             <section>
               <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-slate-400" />
@@ -253,13 +280,17 @@ export default async function DashboardPage() {
                 L&apos;Agora è ancora silenziosa
               </h3>
               <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                Sii il primo cittadino a proporre una legge per la Repubblica
-                Democratica Globale Pangea.
+                {isGuest
+                  ? "Registrati per essere il primo cittadino a proporre una legge."
+                  : "Sii il primo cittadino a proporre una legge per la Repubblica Democratica Globale Pangea."
+                }
               </p>
-              <Link href="/proposals/new" className="btn-primary inline-flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Presenta la prima proposta
-              </Link>
+              {!isGuest && (
+                <Link href="/proposals/new" className="btn-primary inline-flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Presenta la prima proposta
+                </Link>
+              )}
             </div>
           )}
         </div>

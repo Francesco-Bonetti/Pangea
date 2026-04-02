@@ -99,10 +99,10 @@ export default async function HomePage() {
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
-            href="/about"
+            href="/dashboard"
             className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-8 py-3.5 rounded-lg transition-colors border border-slate-700"
           >
-            Scopri di più
+            Esplora come ospite
           </Link>
         </div>
       </section>

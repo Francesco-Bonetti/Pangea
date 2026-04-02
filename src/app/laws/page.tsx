@@ -1,186 +1,139 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
-import CategoryTree from "@/components/CategoryTree";
-import { ArrowLeft, Scale, Loader2 } from "lucide-react";
+import GuestBanner from "@/components/GuestBanner";
+import LawTree from "@/components/LawTree";
+import { BookOpen, Globe, Scale } from "lucide-react";
 import Link from "next/link";
 
-interface Category {
+// Tipo per i nodi dell'albero
+export interface LawNode {
   id: string;
-  name: string;
-  description: string;
   parent_id: string | null;
-  created_by: string;
-}
-
-interface Law {
-  id: string;
   title: string;
-  content: string;
-  status: "closed" | "repealed";
-  category_id: string | null;
-  created_at: string;
+  summary: string | null;
+  content: string | null;
+  code: string | null;
+  article_number: string | null;
+  law_type: string;
+  status: string;
+  order_index: number;
+  children?: LawNode[];
 }
 
-interface UserProfile {
-  id: string;
-  full_name: string;
-  email: string;
-}
+export default async function LawsPage() {
+  const supabase = await createClient();
 
-export default function LawsPage() {
-  const supabase = createClient();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [laws, setLaws] = useState<Law[]>([]);
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        setError(null);
+  const isGuest = !user;
 
-        // Get current user
-        const {
-          data: { user: authUser },
-        } = await supabase.auth.getUser();
-        if (!authUser) return;
+  // Profilo per ruolo (navbar)
+  let profile: { full_name?: string; role?: string } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, role")
+      .eq("id", user.id)
+      .single();
+    profile = data;
+  }
 
-        // Get user profile
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", authUser.id)
-          .single();
+  // Carica tutte le leggi e costruisci l'albero lato server
+  const { data: allLaws, error } = await supabase
+    .from("laws")
+    .select("*")
+    .eq("status", "active")
+    .order("order_index")
+    .order("created_at");
 
-        if (profile) {
-          setUser(profile);
-        }
+  if (error) {
+    console.error("Errore caricamento leggi:", error);
+  }
 
-        // Load categories
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from("categories")
-          .select("*")
-          .order("name");
+  // Costruisci albero gerarchico
+  const laws = allLaws ?? [];
+  const rootLaws = laws.filter((l: LawNode) => l.parent_id === null);
 
-        if (categoriesError) throw categoriesError;
-        setCategories(categoriesData || []);
+  function buildTree(parentId: string): LawNode[] {
+    return laws
+      .filter((l: LawNode) => l.parent_id === parentId)
+      .map((l: LawNode) => ({
+        ...l,
+        children: buildTree(l.id),
+      }));
+  }
 
-        // Load closed and repealed proposals (these are "laws")
-        const { data: lawsData, error: lawsError } = await supabase
-          .from("proposals")
-          .select("*")
-          .in("status", ["closed", "repealed"])
-          .order("created_at", { ascending: false });
+  const lawTree: LawNode[] = rootLaws.map((l: LawNode) => ({
+    ...l,
+    children: buildTree(l.id),
+  }));
 
-        if (lawsError) throw lawsError;
-        setLaws(lawsData || []);
-      } catch (err) {
-        console.error("Error loading laws data:", err);
-        setError("Errore nel caricamento del catalogo leggi.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
-  }, []);
-
-  const handleCreateSubcategory = async (
-    parentCategoryId: string,
-    name: string
-  ) => {
-    try {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-      if (!authUser) return;
-
-      const { data: newCategory, error } = await supabase
-        .from("categories")
-        .insert([
-          {
-            name,
-            description: "",
-            parent_id: parentCategoryId,
-            created_by: authUser.id,
-          },
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setCategories([...categories, newCategory]);
-    } catch (err) {
-      console.error("Error creating subcategory:", err);
-      setError("Errore nella creazione della sottocategoria.");
-    }
-  };
+  // Statistiche
+  const totalCodes = rootLaws.length;
+  const totalArticles = laws.filter((l: LawNode) => l.law_type === "article").length;
 
   return (
     <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} userName={user?.full_name} />
+      <Navbar userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={isGuest} />
+      {isGuest && <GuestBanner />}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors mb-6"
+            className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-4 inline-block"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Torna alla Piazza
+            ← Torna alla Piazza
           </Link>
-
           <div className="flex items-center gap-3 mb-2">
-            <Scale className="w-8 h-8 text-pangea-400" strokeWidth={1.5} />
-            <h1 className="text-3xl font-bold text-white">Catalogo Leggi</h1>
+            <BookOpen className="w-8 h-8 text-blue-400" strokeWidth={1.5} />
+            <h1 className="text-3xl font-bold text-white">
+              Codice di Pangea
+            </h1>
           </div>
           <p className="text-slate-400">
-            Esplora il catalogo delle leggi deliberate e abrogate della
-            Repubblica Democratica Globale Pangea.
+            I Living Codes del Pangean Commonwealth — leggi viventi, emendabili e abrogabili attraverso il processo democratico dell&apos;Agorà.
           </p>
         </div>
 
-        {/* Error state */}
-        {error && (
-          <div className="mb-6 card p-4 bg-red-900/20 border-red-700/50">
-            <p className="text-red-300 text-sm">{error}</p>
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="card p-4 bg-blue-900/10">
+            <Scale className="w-5 h-5 text-blue-400 mb-2" />
+            <p className="text-2xl font-bold text-white">{totalCodes}</p>
+            <p className="text-xs text-slate-500">Codici</p>
           </div>
-        )}
+          <div className="card p-4 bg-pangea-900/10">
+            <BookOpen className="w-5 h-5 text-pangea-400 mb-2" />
+            <p className="text-2xl font-bold text-white">{totalArticles}</p>
+            <p className="text-xs text-slate-500">Articoli</p>
+          </div>
+          <div className="card p-4 bg-green-900/10">
+            <Globe className="w-5 h-5 text-green-400 mb-2" />
+            <p className="text-2xl font-bold text-white">Attivo</p>
+            <p className="text-xs text-slate-500">Status</p>
+          </div>
+        </div>
 
-        {/* Loading state */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <Loader2 className="w-10 h-10 text-pangea-400 animate-spin mx-auto mb-4" />
-              <p className="text-slate-400">Caricamento catalogo leggi...</p>
-            </div>
-          </div>
-        ) : (
-          <div className="card p-6">
-            {categories.length === 0 && laws.length === 0 ? (
-              <div className="text-center py-12">
-                <Scale className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-300 mb-2">
-                  Catalogo vuoto
-                </h3>
-                <p className="text-slate-500">
-                  Non sono ancora state deliberate leggi sulla piattaforma.
-                </p>
-              </div>
-            ) : (
-              <CategoryTree
-                categories={categories}
-                laws={laws}
-                onCreateSubcategory={handleCreateSubcategory}
-              />
-            )}
+        {/* Albero delle leggi */}
+        <div className="space-y-4">
+          {lawTree.map((code) => (
+            <LawTree key={code.id} node={code} depth={0} />
+          ))}
+        </div>
+
+        {lawTree.length === 0 && (
+          <div className="text-center py-20 card">
+            <BookOpen className="w-16 h-16 text-slate-600 mx-auto mb-4" strokeWidth={1} />
+            <h3 className="text-xl font-semibold text-slate-300 mb-2">
+              Nessuna legge ancora
+            </h3>
+            <p className="text-slate-500">
+              I Living Codes verranno popolati man mano che la comunità cresce.
+            </p>
           </div>
         )}
       </main>

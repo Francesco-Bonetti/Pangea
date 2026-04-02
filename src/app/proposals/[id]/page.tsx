@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import GuestBanner from "@/components/GuestBanner";
 import VotingBooth from "@/components/VotingBooth";
 import SignalButton from "@/components/SignalButton";
 import DraftActions from "@/components/DraftActions";
 import type { DistributedResult, ProposalOption } from "@/lib/types";
-import { ArrowLeft, Calendar, Clock, User, FileText, Tag, Flame } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User, FileText, Tag, Flame, BarChart3, Users } from "lucide-react";
 import Link from "next/link";
 import { formatDateTime } from "@/lib/utils";
 
@@ -21,7 +22,7 @@ export default async function ProposalDetailPage({ params }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/auth");
+  const isGuest = !user;
 
   // Recupera proposta con categoria
   const { data: proposal, error } = await supabase
@@ -32,12 +33,16 @@ export default async function ProposalDetailPage({ params }: Props) {
 
   if (error || !proposal) notFound();
 
-  // Recupera profilo utente corrente (per ruolo)
-  const { data: currentProfile } = await supabase
-    .from("profiles")
-    .select("full_name, role")
-    .eq("id", user.id)
-    .single();
+  // Recupera profilo utente corrente (per ruolo) — solo se autenticato
+  let currentProfile: { full_name?: string; role?: string } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, role")
+      .eq("id", user.id)
+      .single();
+    currentProfile = data;
+  }
 
   // Recupera profilo autore
   const { data: authorProfile } = await supabase
@@ -65,10 +70,14 @@ export default async function ProposalDetailPage({ params }: Props) {
     distributedResults = distResults ?? [];
   }
 
-  // Controlla se l'utente ha già votato
-  const { data: hasVoted } = await supabase.rpc("has_user_voted", {
-    p_proposal_id: id,
-  });
+  // Controlla se l'utente ha già votato (solo se autenticato)
+  let hasVoted = false;
+  if (user) {
+    const { data } = await supabase.rpc("has_user_voted", {
+      p_proposal_id: id,
+    });
+    hasVoted = data ?? false;
+  }
 
   // Segnali (per proposte in curatela)
   let signalCount = 0;
@@ -82,13 +91,15 @@ export default async function ProposalDetailPage({ params }: Props) {
       .eq("proposal_id", id);
     signalCount = count ?? 0;
 
-    const { data: userSignal } = await supabase
-      .from("proposal_signals")
-      .select("id")
-      .eq("proposal_id", id)
-      .eq("supporter_id", user.id)
-      .maybeSingle();
-    hasSignaled = !!userSignal;
+    if (user) {
+      const { data: userSignal } = await supabase
+        .from("proposal_signals")
+        .select("id")
+        .eq("proposal_id", id)
+        .eq("supporter_id", user.id)
+        .maybeSingle();
+      hasSignaled = !!userSignal;
+    }
 
     // Soglia dinamica
     const { data: threshold } = await supabase.rpc("get_curation_threshold");
@@ -99,25 +110,26 @@ export default async function ProposalDetailPage({ params }: Props) {
 
   // Controlla deleghe attive per la categoria della proposta
   let hasActiveDelegation = false;
-  if (proposal.category_id) {
+  if (user && proposal.category_id) {
     const { data: delegation } = await supabase
       .from("delegations")
       .select("id")
-      .eq("delegator_id", user.id)
+      .eq("delegator_id", user!.id)
       .or(`category_id.eq.${proposal.category_id},category_id.is.null`)
       .limit(1)
       .maybeSingle();
     hasActiveDelegation = !!delegation;
   }
 
-  const isAuthor = proposal.author_id === user.id;
+  const isAuthor = user ? proposal.author_id === user.id : false;
   const categoryName = (proposal as Record<string, unknown>).categories
     ? ((proposal as Record<string, unknown>).categories as { name: string })?.name
     : null;
 
   return (
     <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user.email} userName={currentProfile?.full_name} userRole={currentProfile?.role} />
+      <Navbar userEmail={user?.email} userName={currentProfile?.full_name} userRole={currentProfile?.role} isGuest={isGuest} />
+      {isGuest && <GuestBanner />}
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
@@ -285,14 +297,24 @@ export default async function ProposalDetailPage({ params }: Props) {
                   </p>
                 </div>
                 <div className="card p-5">
-                  <SignalButton
-                    proposalId={proposal.id}
-                    userId={user.id}
-                    initialSignalCount={signalCount}
-                    initialHasSignaled={hasSignaled}
-                    threshold={curationThreshold}
-                    activeUsersCount={activeUsersCount}
-                  />
+                  {isGuest ? (
+                    <div className="text-center py-4">
+                      <Flame className="w-10 h-10 text-amber-400 mx-auto mb-3" />
+                      <p className="text-slate-300 font-medium mb-1">Segnali: {signalCount} / {curationThreshold}</p>
+                      <p className="text-xs text-slate-500 mb-4">
+                        <Link href="/auth" className="text-pangea-400 hover:underline">Registrati</Link> per supportare questa proposta.
+                      </p>
+                    </div>
+                  ) : (
+                    <SignalButton
+                      proposalId={proposal.id}
+                      userId={user!.id}
+                      initialSignalCount={signalCount}
+                      initialHasSignaled={hasSignaled}
+                      threshold={curationThreshold}
+                      activeUsersCount={activeUsersCount}
+                    />
+                  )}
                 </div>
               </div>
             ) : (
@@ -301,10 +323,11 @@ export default async function ProposalDetailPage({ params }: Props) {
                 proposal={proposal}
                 options={proposalOptions}
                 initialResults={distributedResults}
-                initialHasVoted={hasVoted ?? false}
-                userId={user.id}
+                initialHasVoted={hasVoted}
+                userId={user?.id ?? "guest"}
                 hasActiveDelegation={hasActiveDelegation}
                 categoryName={categoryName}
+                isGuest={isGuest}
               />
             )}
           </div>

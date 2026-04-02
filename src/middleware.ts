@@ -33,8 +33,8 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Rotte protette: richiedono autenticazione
-  const protectedPaths = ["/dashboard", "/proposals/new"];
+  // Rotte protette: richiedono autenticazione (solo creazione contenuto)
+  const protectedPaths = ["/proposals/new", "/dashboard/delegations", "/admin", "/settings"];
   const isProtected = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );

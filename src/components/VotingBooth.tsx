@@ -16,7 +16,9 @@ import {
   ThumbsUp,
   ThumbsDown,
   MinusCircle,
+  LogIn,
 } from "lucide-react";
+import Link from "next/link";
 
 interface VotingBoothProps {
   proposal: Proposal;
@@ -26,6 +28,7 @@ interface VotingBoothProps {
   userId: string;
   hasActiveDelegation?: boolean;
   categoryName?: string | null;
+  isGuest?: boolean;
 }
 
 export default function VotingBooth({
@@ -36,6 +39,7 @@ export default function VotingBooth({
   userId,
   hasActiveDelegation = false,
   categoryName,
+  isGuest = false,
 }: VotingBoothProps) {
   const [results, setResults] = useState<DistributedResult[]>(initialResults);
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
@@ -374,8 +378,25 @@ export default function VotingBooth({
           </div>
         )}
 
+        {/* Ospite — invito a registrarsi */}
+        {isGuest && isActive && (
+          <div className="text-center py-4">
+            <LogIn className="w-10 h-10 text-pangea-400 mx-auto mb-3" />
+            <p className="text-slate-200 font-semibold mb-1">
+              Vuoi votare?
+            </p>
+            <p className="text-xs text-slate-500 leading-relaxed mb-4">
+              Registrati per partecipare alla delibera e far sentire la tua voce.
+            </p>
+            <Link href="/auth" className="btn-primary inline-flex items-center gap-2 text-sm">
+              <LogIn className="w-4 h-4" />
+              Registrati per votare
+            </Link>
+          </div>
+        )}
+
         {/* Può votare — Sliders */}
-        {canVote && (
+        {canVote && !isGuest && (
           <>
             <div className="flex items-center gap-2 mb-4">
               <Sliders className="w-4 h-4 text-pangea-400" />

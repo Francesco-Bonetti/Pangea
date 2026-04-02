@@ -256,6 +256,25 @@ export default function AuthPage() {
             </button>
           </form>
 
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-slate-700" />
+            <span className="text-xs text-slate-500">oppure</span>
+            <div className="flex-1 h-px bg-slate-700" />
+          </div>
+
+          {/* Pulsante ospite */}
+          <button
+            type="button"
+            onClick={() => {
+              router.push("/dashboard");
+            }}
+            className="btn-secondary w-full flex items-center justify-center gap-2 text-sm"
+          >
+            <Globe className="w-4 h-4" />
+            Esplora come ospite
+          </button>
+
           <p className="text-center text-xs text-slate-600 mt-8">
             Agora · Pangea World · Privacy by Design
           </p>
