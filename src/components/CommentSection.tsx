@@ -224,7 +224,7 @@ function RepliesSection({
     try {
       const { data, error } = await supabase
         .from("comments")
-        .select("*, profiles(full_name)")
+        .select("*, profiles!comments_author_id_profiles_fkey(full_name)")
         .eq("parent_id", parentCommentId)
         .order("created_at", { ascending: false });
 
@@ -367,6 +367,8 @@ export default function CommentSection({
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
     new Set()
   );
+  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchComments();
@@ -378,7 +380,7 @@ export default function CommentSection({
     try {
       let query = supabase
         .from("comments")
-        .select("*, profiles(full_name)")
+        .select("*, profiles!comments_author_id_profiles_fkey(full_name)")
         .is("parent_id", null)
         .order("created_at", { ascending: false });
 
@@ -396,8 +398,9 @@ export default function CommentSection({
 
       if (error) throw error;
       setComments(data || []);
-    } catch (error) {
-      console.error("Error fetching comments:", error);
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      setError("Errore nel caricamento dei commenti. Riprova.");
     } finally {
       setIsLoading(false);
     }
@@ -429,6 +432,7 @@ export default function CommentSection({
     if (!newCommentText.trim()) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       const insertData: Record<string, any> = {
         author_id: userId,
@@ -450,8 +454,9 @@ export default function CommentSection({
 
       setNewCommentText("");
       await fetchComments();
-    } catch (error) {
-      console.error("Error submitting comment:", error);
+    } catch (err) {
+      console.error("Error submitting comment:", err);
+      setSubmitError("Errore nell'invio del commento. Riprova.");
     } finally {
       setIsSubmitting(false);
     }
@@ -491,6 +496,9 @@ export default function CommentSection({
           >
             <span>Commenta</span>
           </button>
+          {submitError && (
+            <p className="text-red-400 text-xs mt-2">{submitError}</p>
+          )}
         </div>
       ) : (
         <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 mb-6 text-center">
@@ -503,6 +511,13 @@ export default function CommentSection({
           >
             Accedi
           </a>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="p-3 mb-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-xs">
+          {error}
         </div>
       )}
 
