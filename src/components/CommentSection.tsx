@@ -214,8 +214,8 @@ function RepliesSection({
   const supabase = createClient();
   const [replies, setReplies] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [replyingTo, setReplyingTo] = useState<string | null>(parentCommentId);
   const [replyText, setReplyText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -264,6 +264,11 @@ function RepliesSection({
       setIsSubmitting(false);
     }
   };
+
+  // Load replies on mount since we start expanded
+  useEffect(() => {
+    fetchReplies();
+  }, [parentCommentId]);
 
   const handleToggleExpanded = async () => {
     if (!isExpanded && replies.length === 0) {
@@ -540,12 +545,12 @@ export default function CommentSection({
                 userReactions={userReactions}
               />
 
-              {comment.replies_count > 0 && expandedReplies.has(comment.id) && (
+              {expandedReplies.has(comment.id) && (
                 <RepliesSection
                   parentCommentId={comment.id}
                   userId={userId}
                   userReactions={userReactions}
-                  onReactionsChange={fetchUserReactions}
+                  onReactionsChange={() => { fetchUserReactions(); fetchComments(); }}
                 />
               )}
 
