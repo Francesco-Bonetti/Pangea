@@ -261,7 +261,7 @@ export default function VotingBooth({
         <p className="text-xs text-slate-500">
           {isCuration
             ? "Questa proposta è in fase di valutazione comunitaria"
-            : "I voti sono anonimi e immutabili per garanzia democratica"}
+            : "I voti sono anonimi. Puoi modificare il tuo voto finché la proposta è attiva."}
         </p>
       </div>
 

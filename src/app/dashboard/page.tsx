@@ -85,6 +85,10 @@ export default async function DashboardPage() {
     })
   );
 
+  // Soglia dinamica curatela
+  const { data: thresholdData } = await supabase.rpc("get_curation_threshold");
+  const curationThreshold = thresholdData ?? 2;
+
   // Stats
   const activeProposals = enrichedProposals.filter((p) => p.status === "active");
   const curationProposals = enrichedProposals.filter((p) => p.status === "curation");
@@ -197,7 +201,7 @@ export default async function DashboardPage() {
             {curationProposals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {curationProposals.map((proposal) => (
-                  <ProposalCard key={proposal.id} proposal={proposal} />
+                  <ProposalCard key={proposal.id} proposal={proposal} curationThreshold={curationThreshold} />
                 ))}
               </div>
             ) : (

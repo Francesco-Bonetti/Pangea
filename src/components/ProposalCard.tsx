@@ -7,9 +7,10 @@ import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame } from "lucid
 
 interface ProposalCardProps {
   proposal: ProposalWithResults;
+  curationThreshold?: number;
 }
 
-export default function ProposalCard({ proposal }: ProposalCardProps) {
+export default function ProposalCard({ proposal, curationThreshold = 100 }: ProposalCardProps) {
   const results = proposal.results ?? { yea_count: 0, nay_count: 0, abstain_count: 0 };
   const total = getTotalVotes(results);
   const yeaPercent = calcPercentage(results.yea_count, total);
@@ -93,12 +94,12 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
               <Flame className="w-3 h-3 text-amber-400" />
               Segnali
             </span>
-            <span>{proposal.signal_count} / 100</span>
+            <span>{proposal.signal_count} / {curationThreshold}</span>
           </div>
           <div className="bg-slate-700 rounded-full h-2">
             <div
               className="bg-amber-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min((proposal.signal_count / 100) * 100, 100)}%` }}
+              style={{ width: `${Math.min((proposal.signal_count / curationThreshold) * 100, 100)}%` }}
             />
           </div>
         </div>
