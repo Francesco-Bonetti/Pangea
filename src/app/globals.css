@@ -57,6 +57,10 @@
   .status-closed {
     @apply bg-slate-700/50 text-slate-400 text-xs font-medium px-2.5 py-1 rounded-full;
   }
+
+  .status-repealed {
+    @apply bg-red-900/30 text-red-400 text-xs font-medium px-2.5 py-1 rounded-full border border-red-700/50;
+  }
 }
 
 /* Civic gold accent */

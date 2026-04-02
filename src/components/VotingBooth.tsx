@@ -12,6 +12,10 @@ import {
   AlertTriangle,
   Flame,
   Sliders,
+  RotateCcw,
+  ThumbsUp,
+  ThumbsDown,
+  MinusCircle,
 } from "lucide-react";
 
 interface VotingBoothProps {
@@ -51,6 +55,7 @@ export default function VotingBooth({
   );
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [revoking, setRevoking] = useState(false);
   const supabase = createClient();
 
   const isActive = proposal.status === "active";
@@ -159,6 +164,92 @@ export default function VotingBooth({
     }
   }
 
+  async function revokeVote() {
+    if (!isActive || !hasVoted || revoking) return;
+    setError(null);
+    setRevoking(true);
+
+    try {
+      // Delete the user's vote (cascade will remove vote_allocations)
+      const { error: deleteError } = await supabase
+        .from("votes")
+        .delete()
+        .eq("proposal_id", proposal.id)
+        .eq("voter_id", userId);
+
+      if (deleteError) throw deleteError;
+
+      // Update results
+      const { data: newResults } = await supabase.rpc(
+        "get_distributed_proposal_results",
+        { p_proposal_id: proposal.id }
+      );
+
+      if (newResults) {
+        setResults(newResults);
+      }
+
+      setHasVoted(false);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Errore durante la revoca del voto";
+      setError(msg);
+    } finally {
+      setRevoking(false);
+    }
+  }
+
+  async function castSimpleVote(voteType: "yea" | "nay" | "abstain") {
+    if (!isActive || hasVoted || revoking) return;
+    setError(null);
+    setRevoking(true);
+
+    try {
+      // Calculate voting weight
+      const { data: weight } = await supabase.rpc("calculate_voting_weight", {
+        p_proposal_id: proposal.id,
+        p_voter_id: userId,
+      });
+
+      // Insert simple vote (no allocations)
+      const { error: voteError } = await supabase
+        .from("votes")
+        .insert({
+          proposal_id: proposal.id,
+          voter_id: userId,
+          vote_type: voteType,
+          voting_weight: weight ?? 1,
+        });
+
+      if (voteError) {
+        if (voteError.code === "23505") {
+          setHasVoted(true);
+          setError("Hai già partecipato a questa delibera.");
+          return;
+        }
+        throw voteError;
+      }
+
+      // Update results
+      const { data: newResults } = await supabase.rpc(
+        "get_distributed_proposal_results",
+        { p_proposal_id: proposal.id }
+      );
+
+      if (newResults) {
+        setResults(newResults);
+      }
+
+      setHasVoted(true);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Errore durante la votazione";
+      setError(msg);
+    } finally {
+      setRevoking(false);
+    }
+  }
+
   return (
     <div className="sticky top-24">
       {/* Header */}
@@ -243,6 +334,20 @@ export default function VotingBooth({
               La tua allocazione è stata registrata in modo sicuro e anonimo.
               Conforme al GDPR.
             </p>
+            {isActive && (
+              <button
+                onClick={revokeVote}
+                disabled={revoking}
+                className="w-full mt-4 btn-primary flex items-center justify-center gap-2 py-2 bg-slate-700 hover:bg-slate-600"
+              >
+                {revoking ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="w-4 h-4" />
+                )}
+                {revoking ? "Revocando..." : "Modifica voto"}
+              </button>
+            )}
           </div>
         )}
 
@@ -356,17 +461,60 @@ export default function VotingBooth({
           </>
         )}
 
-        {/* Nessuna opzione definita */}
+        {/* Nessuna opzione definita — Fallback a Favorevole/Contrario/Astenuto */}
         {isActive && !hasVoted && options.length === 0 && (
-          <div className="text-center py-4">
-            <AlertTriangle className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400 font-medium mb-1">
-              Nessuna opzione deliberativa
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <ThumbsUp className="w-4 h-4 text-pangea-400" />
+              <p className="text-sm text-slate-300 font-medium">
+                Esprimi la tua posizione
+              </p>
+            </div>
+            <p className="text-xs text-slate-500 mb-5">
+              Nessuna opzione deliberativa è stata definita. Puoi comunque
+              partecipare votando Favorevole, Contrario o Astenuto.
             </p>
-            <p className="text-xs text-slate-600">
-              L&apos;autore non ha ancora definito le opzioni di voto per questa
-              proposta.
-            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => castSimpleVote("yea")}
+                disabled={revoking}
+                className="btn-primary py-3 flex items-center justify-center gap-2 bg-green-900/20 hover:bg-green-900/40 border border-green-700/30 text-green-300"
+              >
+                {revoking ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ThumbsUp className="w-4 h-4" />
+                )}
+                <span className="text-xs font-medium">Favorevole</span>
+              </button>
+
+              <button
+                onClick={() => castSimpleVote("nay")}
+                disabled={revoking}
+                className="btn-primary py-3 flex items-center justify-center gap-2 bg-red-900/20 hover:bg-red-900/40 border border-red-700/30 text-red-300"
+              >
+                {revoking ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ThumbsDown className="w-4 h-4" />
+                )}
+                <span className="text-xs font-medium">Contrario</span>
+              </button>
+
+              <button
+                onClick={() => castSimpleVote("abstain")}
+                disabled={revoking}
+                className="btn-primary py-3 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 border border-slate-600/30 text-slate-300"
+              >
+                {revoking ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <MinusCircle className="w-4 h-4" />
+                )}
+                <span className="text-xs font-medium">Astenuto</span>
+              </button>
+            </div>
           </div>
         )}
 

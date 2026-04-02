@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import VotingBooth from "@/components/VotingBooth";
 import SignalButton from "@/components/SignalButton";
+import DraftActions from "@/components/DraftActions";
 import type { DistributedResult, ProposalOption } from "@/lib/types";
 import { ArrowLeft, Calendar, Clock, User, FileText, Tag, Flame } from "lucide-react";
 import Link from "next/link";
@@ -30,6 +31,13 @@ export default async function ProposalDetailPage({ params }: Props) {
     .single();
 
   if (error || !proposal) notFound();
+
+  // Recupera profilo utente corrente (per ruolo)
+  const { data: currentProfile } = await supabase
+    .from("profiles")
+    .select("full_name, role")
+    .eq("id", user.id)
+    .single();
 
   // Recupera profilo autore
   const { data: authorProfile } = await supabase
@@ -65,6 +73,8 @@ export default async function ProposalDetailPage({ params }: Props) {
   // Segnali (per proposte in curatela)
   let signalCount = 0;
   let hasSignaled = false;
+  let curationThreshold = 2;
+  let activeUsersCount = 5;
   if (proposal.status === "curation") {
     const { count } = await supabase
       .from("proposal_signals")
@@ -79,6 +89,12 @@ export default async function ProposalDetailPage({ params }: Props) {
       .eq("supporter_id", user.id)
       .maybeSingle();
     hasSignaled = !!userSignal;
+
+    // Soglia dinamica
+    const { data: threshold } = await supabase.rpc("get_curation_threshold");
+    curationThreshold = threshold ?? 2;
+    const { data: activeCount } = await supabase.rpc("get_active_users_count");
+    activeUsersCount = activeCount ?? 5;
   }
 
   // Controlla deleghe attive per la categoria della proposta
@@ -101,7 +117,7 @@ export default async function ProposalDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user.email} />
+      <Navbar userEmail={user.email} userName={currentProfile?.full_name} userRole={currentProfile?.role} />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
@@ -112,6 +128,16 @@ export default async function ProposalDetailPage({ params }: Props) {
           <ArrowLeft className="w-4 h-4" />
           Torna alla Piazza
         </Link>
+
+        {/* Draft Actions — solo per bozze dell'autore */}
+        {proposal.status === "draft" && (
+          <DraftActions
+            proposalId={proposal.id}
+            authorId={proposal.author_id}
+            userId={user.id}
+            hasOptions={proposalOptions.length >= 2}
+          />
+        )}
 
         {/* Proposal Header */}
         <div className="card p-6 sm:p-8 mb-6">
@@ -125,6 +151,8 @@ export default async function ProposalDetailPage({ params }: Props) {
                   ? "status-curation"
                   : proposal.status === "closed"
                   ? "status-closed"
+                  : proposal.status === "repealed"
+                  ? "status-repealed"
                   : "status-draft"
               }
             >
@@ -134,6 +162,8 @@ export default async function ProposalDetailPage({ params }: Props) {
                 ? "In Curatela"
                 : proposal.status === "closed"
                 ? "Deliberata"
+                : proposal.status === "repealed"
+                ? "Abrogata"
                 : "Bozza"}
             </span>
             {isAuthor && (
@@ -260,6 +290,8 @@ export default async function ProposalDetailPage({ params }: Props) {
                     userId={user.id}
                     initialSignalCount={signalCount}
                     initialHasSignaled={hasSignaled}
+                    threshold={curationThreshold}
+                    activeUsersCount={activeUsersCount}
                   />
                 </div>
               </div>

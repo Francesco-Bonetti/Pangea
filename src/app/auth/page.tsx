@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Globe, Shield, Users, Vote, Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function AuthPage() {
@@ -102,6 +103,16 @@ export default function AuthPage() {
             La piattaforma dove le idee diventano proposte di legge, le proposte
             diventano dibattiti e i dibattiti diventano delibere del popolo.
           </p>
+
+          {/* Chi Siamo link */}
+          <div className="mb-12">
+            <Link
+              href="/about"
+              className="inline-block text-sm text-pangea-400 hover:text-pangea-300 transition-colors font-medium"
+            >
+              Scopri di più su Agora →
+            </Link>
+          </div>
 
           <div className="grid grid-cols-1 gap-4 text-left max-w-sm mx-auto">
             {[

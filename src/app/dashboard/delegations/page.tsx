@@ -16,6 +16,8 @@ import {
   Globe,
   Tag,
   Trash2,
+  Check,
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -109,10 +111,24 @@ export default function DelegationsPage() {
     setError(null);
 
     try {
+      // Controlla se il delegato accetta deleghe
+      const { data: delegateProfile } = await supabase
+        .from("profiles")
+        .select("allow_delegations")
+        .eq("id", selectedDelegate.id)
+        .single();
+
+      if (delegateProfile && !delegateProfile.allow_delegations) {
+        setError("Questo cittadino non accetta deleghe");
+        setSaving(false);
+        return;
+      }
+
       const payload: Record<string, unknown> = {
         delegator_id: user.id,
         delegate_id: selectedDelegate.id,
         category_id: selectedCategory || null,
+        status: "pending",
       };
 
       const { error: insertError } = await supabase
@@ -160,6 +176,30 @@ export default function DelegationsPage() {
       .eq("id", delegationId);
 
     if (!deleteError) {
+      await loadData();
+    }
+  }
+
+  // Accetta delega ricevuta
+  async function acceptDelegation(delegationId: string) {
+    const { error: updateError } = await supabase
+      .from("delegations")
+      .update({ status: "accepted" })
+      .eq("id", delegationId);
+
+    if (!updateError) {
+      await loadData();
+    }
+  }
+
+  // Rifiuta delega ricevuta
+  async function rejectDelegation(delegationId: string) {
+    const { error: updateError } = await supabase
+      .from("delegations")
+      .update({ status: "rejected" })
+      .eq("id", delegationId);
+
+    if (!updateError) {
       await loadData();
     }
   }
@@ -426,6 +466,10 @@ export default function DelegationsPage() {
               {receivedDelegations.map((d) => {
                 const delegatorProfile = d.delegator as unknown as Profile | undefined;
                 const category = d.categories as unknown as Category | undefined;
+                const status = (d.status as string) || "pending";
+                const isPending = status === "pending";
+                const isAccepted = status === "accepted";
+                const isRejected = status === "rejected";
                 return (
                   <div
                     key={d.id}
@@ -452,9 +496,36 @@ export default function DelegationsPage() {
                         )}
                       </p>
                     </div>
-                    <span className="text-xs text-amber-500/80 bg-amber-900/20 px-2 py-1 rounded-full">
-                      Delegante
-                    </span>
+                    {isAccepted && (
+                      <span className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded-full border border-green-700/30">
+                        Accettata
+                      </span>
+                    )}
+                    {isRejected && (
+                      <span className="text-xs text-red-400 bg-red-900/20 px-2 py-1 rounded-full border border-red-700/30">
+                        Rifiutata
+                      </span>
+                    )}
+                    {isPending && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => acceptDelegation(d.id)}
+                          className="text-xs text-green-400 bg-green-900/20 hover:bg-green-900/40 border border-green-700/30 px-2 py-1 rounded-lg flex items-center gap-1 transition-colors"
+                          title="Accetta delega"
+                        >
+                          <Check className="w-3 h-3" />
+                          Accetta
+                        </button>
+                        <button
+                          onClick={() => rejectDelegation(d.id)}
+                          className="text-xs text-red-400 bg-red-900/20 hover:bg-red-900/40 border border-red-700/30 px-2 py-1 rounded-lg flex items-center gap-1 transition-colors"
+                          title="Rifiuta delega"
+                        >
+                          <XCircle className="w-3 h-3" />
+                          Rifiuta
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}

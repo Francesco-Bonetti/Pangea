@@ -3,18 +3,21 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Users } from "lucide-react";
+import { Globe, LogOut, Plus, User, Users, Menu, X, BookOpen, Shield, Settings } from "lucide-react";
 import { useState } from "react";
 
 interface NavbarProps {
   userEmail?: string | null;
   userName?: string | null;
+  userRole?: string;
 }
 
-export default function Navbar({ userEmail, userName }: NavbarProps) {
+export default function Navbar({ userEmail, userName, userRole }: NavbarProps) {
   const router = useRouter();
   const supabase = createClient();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isAdmin = userRole === "admin" || userRole === "moderator";
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -36,6 +39,7 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            {/* Desktop navigation */}
             <Link
               href="/dashboard/delegations"
               className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
@@ -49,6 +53,30 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
             >
               Chi Siamo
             </Link>
+            <Link
+              href="/laws"
+              className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Catalogo Leggi
+            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                Pannello Admin
+              </Link>
+            )}
+            <Link
+              href="/settings"
+              className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Impostazioni
+            </Link>
+
             <Link
               href="/proposals/new"
               className="hidden sm:flex items-center gap-2 btn-primary text-sm py-2"
@@ -69,10 +97,27 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
                 <p className="text-xs text-slate-300 font-medium">{userName || "Cittadino"}</p>
                 <p className="text-xs text-slate-600 truncate max-w-[120px]">{userEmail}</p>
               </div>
-              <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center">
+              <Link
+                href="/settings"
+                className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center hover:bg-pangea-700 transition-colors"
+                title="Impostazioni"
+              >
                 <User className="w-4 h-4 text-pangea-300" />
-              </div>
+              </Link>
             </div>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-slate-800 transition-colors text-slate-400"
+              title="Menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
 
             <button
               onClick={handleLogout}
@@ -84,6 +129,56 @@ export default function Navbar({ userEmail, userName }: NavbarProps) {
             </button>
           </div>
         </div>
+
+        {/* Mobile slide-down menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-800 bg-slate-900 py-3 px-4 space-y-2">
+            <Link
+              href="/dashboard/delegations"
+              className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Deleghe
+            </Link>
+            <Link
+              href="/about"
+              className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Chi Siamo
+            </Link>
+            <Link
+              href="/proposals/new"
+              className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Nuova Proposta
+            </Link>
+            <Link
+              href="/laws"
+              className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Catalogo Leggi
+            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pannello Admin
+              </Link>
+            )}
+            <Link
+              href="/settings"
+              className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Impostazioni
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );

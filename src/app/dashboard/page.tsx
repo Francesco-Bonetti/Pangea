@@ -27,7 +27,7 @@ export default async function DashboardPage() {
   const { data: proposals, error } = await supabase
     .from("proposals")
     .select("*")
-    .in("status", ["active", "closed", "curation"])
+    .in("status", ["active", "closed", "curation", "repealed"])
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -106,6 +106,7 @@ export default async function DashboardPage() {
       <Navbar
         userEmail={user.email}
         userName={profile?.full_name}
+        userRole={profile?.role}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -163,55 +164,67 @@ export default async function DashboardPage() {
         {/* Proposals grid con tabs */}
         <div className="space-y-8">
           {/* Fase Deliberativa (Attive) */}
-          {activeProposals.length > 0 && (
-            <section>
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-pangea-400" />
-                Fase Deliberativa
-                <span className="text-xs text-slate-500 font-normal ml-1">
-                  Proposte in votazione attiva
-                </span>
-              </h2>
+          <section>
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-pangea-400" />
+              Fase Deliberativa
+              <span className="text-xs text-slate-500 font-normal ml-1">
+                Proposte in votazione attiva
+              </span>
+            </h2>
+            {activeProposals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {activeProposals.map((proposal) => (
                   <ProposalCard key={proposal.id} proposal={proposal} />
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <div className="card p-6 text-center text-slate-500 text-sm">
+                Nessuna proposta in delibera al momento
+              </div>
+            )}
+          </section>
 
           {/* Fase di Curatela */}
-          {curationProposals.length > 0 && (
-            <section>
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <Flame className="w-5 h-5 text-amber-400" />
-                Mercato di Curatela
-                <span className="text-xs text-slate-500 font-normal ml-1">
-                  Proposte in fase di valutazione — supportale con un segnale
-                </span>
-              </h2>
+          <section>
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Flame className="w-5 h-5 text-amber-400" />
+              Mercato di Curatela
+              <span className="text-xs text-slate-500 font-normal ml-1">
+                Proposte in fase di valutazione — supportale con un segnale
+              </span>
+            </h2>
+            {curationProposals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {curationProposals.map((proposal) => (
                   <ProposalCard key={proposal.id} proposal={proposal} />
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <div className="card p-6 text-center text-slate-500 text-sm">
+                Nessuna proposta in curatela al momento
+              </div>
+            )}
+          </section>
 
           {/* Archivio Deliberativo */}
-          {closedProposals.length > 0 && (
-            <section>
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
-                Archivio Deliberativo
-              </h2>
+          <section>
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-400" />
+              Archivio Deliberativo
+            </h2>
+            {closedProposals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {closedProposals.map((proposal) => (
                   <ProposalCard key={proposal.id} proposal={proposal} />
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <div className="card p-6 text-center text-slate-500 text-sm">
+                Nessuna legge deliberata ancora
+              </div>
+            )}
+          </section>
 
           {/* Bozze */}
           {drafts && drafts.length > 0 && (

@@ -4,14 +4,20 @@
 // ============================================
 
 // --- Status & Enums ---
-export type ProposalStatus = "draft" | "curation" | "active" | "closed";
+export type ProposalStatus = "draft" | "curation" | "active" | "closed" | "repealed";
 export type VoteType = "yea" | "nay" | "abstain";
+export type UserRole = "citizen" | "moderator" | "admin";
+export type DelegationStatus = "pending" | "accepted" | "rejected";
+export type ProposalType = "new" | "amendment" | "repeal";
 
 // --- Entità Base ---
 export interface Profile {
   id: string;
   full_name: string | null;
   bio: string | null;
+  role?: UserRole;
+  allow_delegations?: boolean;
+  is_searchable?: boolean;
   created_at: string;
 }
 
@@ -19,6 +25,8 @@ export interface Category {
   id: string;
   name: string;
   description: string | null;
+  parent_id?: string | null;
+  created_by?: string | null;
   created_at: string;
 }
 
@@ -29,6 +37,8 @@ export interface Proposal {
   content: string;
   dispositivo: string | null;
   status: ProposalStatus;
+  proposal_type?: ProposalType;
+  parent_proposal_id?: string | null;
   created_at: string;
   expires_at: string | null;
   category_id: string | null;
@@ -52,6 +62,7 @@ export interface Delegation {
   delegator_id: string;
   delegate_id: string;
   category_id: string | null;
+  status?: DelegationStatus;
   created_at: string;
   // Join
   delegator?: Profile;

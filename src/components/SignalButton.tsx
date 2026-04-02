@@ -9,7 +9,8 @@ interface SignalButtonProps {
   userId: string;
   initialSignalCount: number;
   initialHasSignaled: boolean;
-  threshold?: number;
+  threshold: number;
+  activeUsersCount: number;
 }
 
 export default function SignalButton({
@@ -17,7 +18,8 @@ export default function SignalButton({
   userId,
   initialSignalCount,
   initialHasSignaled,
-  threshold = 100,
+  threshold,
+  activeUsersCount,
 }: SignalButtonProps) {
   const [signalCount, setSignalCount] = useState(initialSignalCount);
   const [hasSignaled, setHasSignaled] = useState(initialHasSignaled);
@@ -78,7 +80,11 @@ export default function SignalButton({
         <div className="flex justify-between text-xs text-slate-400 mb-1.5">
           <span>Segnali di supporto</span>
           <span className="font-medium">
-            {signalCount} / {threshold}
+            {signalCount} / {threshold} segnali (
+            {activeUsersCount > 0
+              ? ((threshold / activeUsersCount) * 100).toFixed(0)
+              : "0"}
+            % degli utenti attivi)
           </span>
         </div>
         <div className="bg-slate-700 rounded-full h-2.5">

@@ -37,6 +37,11 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
       label: "Deliberata",
       className: "status-closed",
     },
+    repealed: {
+      icon: CheckCircle2,
+      label: "Abrogata",
+      className: "status-repealed",
+    },
   };
 
   const config = statusConfig[proposal.status] ?? statusConfig.draft;
@@ -72,6 +77,13 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
       <p className="text-sm text-slate-400 line-clamp-2 mb-5">
         {proposal.content}
       </p>
+
+      {/* Draft hint */}
+      {proposal.status === "draft" && (
+        <p className="text-xs text-slate-500 italic mb-4">
+          Bozza — clicca per pubblicare
+        </p>
+      )}
 
       {/* Curation: signal progress bar */}
       {proposal.status === "curation" && typeof proposal.signal_count === "number" && (
