@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   Mail,
   Calendar,
+  Hash,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -146,6 +147,13 @@ export default function SettingsPage() {
               Informazioni Account
             </h2>
             <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Hash className="w-4 h-4 text-slate-500" />
+                <div>
+                  <p className="text-xs text-slate-500">Codice Cittadino</p>
+                  <p className="text-sm text-pangea-300 font-mono font-semibold">{profile?.user_code || "—"}</p>
+                </div>
+              </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-slate-500" />
                 <div>

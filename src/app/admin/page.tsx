@@ -22,15 +22,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/lib/utils";
-
-interface LawRow {
-  id: string;
-  title: string;
-  code: string | null;
-  law_type: string;
-  status: string;
-  created_at: string;
-}
+import LawTree from "@/components/LawTree";
+import type { LawNode } from "@/app/laws/page";
 
 export default function AdminPage() {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -41,7 +34,8 @@ export default function AdminPage() {
   // Data
   const [users, setUsers] = useState<Profile[]>([]);
   const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [laws, setLaws] = useState<LawRow[]>([]);
+  const [lawTree, setLawTree] = useState<LawNode[]>([]);
+  const [totalLaws, setTotalLaws] = useState(0);
 
   // UI State
   const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "stats">("users");
@@ -70,12 +64,22 @@ export default function AdminPage() {
     const [usersRes, proposalsRes, lawsRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("proposals").select("*").order("created_at", { ascending: false }),
-      supabase.from("laws").select("id, title, code, law_type, status, created_at").order("created_at", { ascending: false }),
+      supabase.from("laws").select("*").eq("status", "active").order("order_index").order("created_at"),
     ]);
 
     setUsers(usersRes.data ?? []);
     setProposals(proposalsRes.data ?? []);
-    setLaws(lawsRes.data ?? []);
+
+    // Costruisci albero leggi
+    const allLaws: LawNode[] = lawsRes.data ?? [];
+    setTotalLaws(allLaws.length);
+    const rootLaws = allLaws.filter(l => l.parent_id === null);
+    function buildTree(parentId: string): LawNode[] {
+      return allLaws
+        .filter(l => l.parent_id === parentId)
+        .map(l => ({ ...l, children: buildTree(l.id) }));
+    }
+    setLawTree(rootLaws.map(l => ({ ...l, children: buildTree(l.id) })));
     setLoading(false);
   }, [supabase, router]);
 
@@ -126,20 +130,7 @@ export default function AdminPage() {
     setActionLoading(null);
   }
 
-  async function deleteLaw(lawId: string) {
-    clearMessages();
-    if (!confirm("Sei sicuro di voler eliminare questa legge?")) return;
-    setActionLoading(lawId);
-    // Delete children first
-    await supabase.from("laws").delete().eq("parent_id", lawId);
-    const { error: err } = await supabase.from("laws").delete().eq("id", lawId);
-    if (err) setError(err.message);
-    else {
-      setSuccess("Legge eliminata");
-      setLaws(prev => prev.filter(l => l.id !== lawId));
-    }
-    setActionLoading(null);
-  }
+  // deleteLaw is now handled by LawTree component directly
 
   async function closeProposal(proposalId: string) {
     clearMessages();
@@ -250,7 +241,7 @@ export default function AdminPage() {
           </div>
           <div className="card p-4">
             <BookOpen className="w-5 h-5 text-blue-400 mb-1" />
-            <p className="text-2xl font-bold text-white">{laws.length}</p>
+            <p className="text-2xl font-bold text-white">{totalLaws}</p>
             <p className="text-xs text-slate-500">Leggi</p>
           </div>
           <div className="card p-4">
@@ -293,7 +284,7 @@ export default function AdminPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-200 font-medium">{u.full_name ?? "Senza nome"}</p>
-                  <p className="text-xs text-slate-500">{u.id.slice(0, 8)}...</p>
+                  <p className="text-xs text-pangea-400 font-mono">{u.user_code ?? "—"}</p>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                   u.role === "admin" ? "text-red-300 bg-red-900/30 border border-red-700/30" :
@@ -383,34 +374,14 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Laws tab */}
+        {/* Laws tab - albero gerarchico con edit/delete */}
         {activeTab === "laws" && (
-          <div className="space-y-2">
-            {laws.length === 0 && (
+          <div className="space-y-4">
+            {lawTree.length === 0 && (
               <div className="card p-8 text-center text-slate-500 text-sm">Nessuna legge presente.</div>
             )}
-            {laws.map((l) => (
-              <div key={l.id} className="card p-4 flex items-center gap-4">
-                <BookOpen className="w-5 h-5 text-blue-400 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-200 font-medium">{l.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    {l.code && <span className="text-xs text-blue-400 bg-blue-900/20 px-2 py-0.5 rounded-full">{l.code}</span>}
-                    <span className="text-xs text-slate-500">{l.law_type}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${l.status === "active" ? "text-green-300 bg-green-900/20" : "text-red-300 bg-red-900/20"}`}>
-                      {l.status}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => deleteLaw(l.id)}
-                  disabled={actionLoading === l.id}
-                  className="p-2 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
-                  title="Elimina legge"
-                >
-                  {actionLoading === l.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                </button>
-              </div>
+            {lawTree.map((code) => (
+              <LawTree key={code.id} node={code} depth={0} isAdmin={true} />
             ))}
           </div>
         )}

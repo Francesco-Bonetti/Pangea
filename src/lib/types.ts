@@ -16,6 +16,7 @@ export interface Profile {
   full_name: string | null;
   bio: string | null;
   role?: UserRole;
+  user_code?: string | null;
   allow_delegations?: boolean;
   is_searchable?: boolean;
   created_at: string;
