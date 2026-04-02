@@ -2,9 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import GuestBanner from "@/components/GuestBanner";
 import ProposalCard from "@/components/ProposalCard";
-import PlatformStats from "@/components/PlatformStats";
 import type { Proposal, ProposalResults, ProposalWithResults } from "@/lib/types";
-import { Plus, Globe, FileText, Clock, CheckCircle2, Flame, Users, BookOpen } from "lucide-react";
+import { Plus, Globe, FileText, Clock, CheckCircle2, Flame, Users, BookOpen, Vote, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -17,7 +16,7 @@ export default async function DashboardPage() {
   const isGuest = !user;
 
   // Recupera profilo (solo se autenticato)
-  let profile: { full_name?: string; role?: string } | null = null;
+  let profile = null;
   if (user) {
     const { data } = await supabase
       .from("profiles")
@@ -31,7 +30,7 @@ export default async function DashboardPage() {
   const { data: proposals, error } = await supabase
     .from("proposals")
     .select("*")
-    .in("status", ["active", "closed", "curation", "repealed"])
+    .in("status", ["active", "closed", "curation"])
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -74,6 +73,7 @@ export default async function DashboardPage() {
         abstain_count: 0,
       };
 
+      // Risultati distribuiti
       const { data: distResults } = await supabase.rpc(
         "get_distributed_proposal_results",
         { p_proposal_id: proposal.id }
@@ -95,15 +95,10 @@ export default async function DashboardPage() {
     })
   );
 
-  // Soglia dinamica curatela
-  const { data: thresholdData } = await supabase.rpc("get_curation_threshold");
-  const curationThreshold = thresholdData ?? 3;
-
-  // Stats
+  // Categorizzazione
   const activeProposals = enrichedProposals.filter((p) => p.status === "active");
   const curationProposals = enrichedProposals.filter((p) => p.status === "curation");
   const closedProposals = enrichedProposals.filter((p) => p.status === "closed");
-  const draftCount = drafts?.length ?? 0;
 
   // Statistiche globali piattaforma
   const platformStatsRes = await supabase.rpc("get_platform_stats");
@@ -120,87 +115,89 @@ export default async function DashboardPage() {
       <Navbar
         userEmail={user?.email}
         userName={profile?.full_name}
-        userRole={profile?.role}
         isGuest={isGuest}
       />
       {isGuest && <GuestBanner />}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <Globe className="w-8 h-8 text-pangea-400" strokeWidth={1.5} />
-            <h1 className="text-3xl font-bold text-white">
-              Piazza Telematica
-            </h1>
-          </div>
-          <p className="text-slate-400">
-            {isGuest ? (
-              <>Benvenuto/a nella democrazia globale Pangea. <Link href="/auth" className="text-pangea-400 hover:underline">Registrati</Link> per partecipare.</>
-            ) : (
-              <>
-                Benvenuto/a,{" "}
-                <span className="text-slate-200 font-medium">
-                  {profile?.full_name || user.email}
-                </span>
-                . Partecipa alla democrazia globale Pangea.
-              </>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header + Stats compatte inline */}
+        <div className="mb-8">
+          <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Globe className="w-6 h-6 text-pangea-400" strokeWidth={1.5} />
+                Piazza Telematica
+              </h1>
+              <p className="text-slate-400 text-sm mt-1">
+                {isGuest ? (
+                  <>Benvenuto/a nella democrazia globale Pangea. <Link href="/auth" className="text-pangea-400 hover:underline">Registrati</Link> per partecipare.</>
+                ) : (
+                  <>
+                    Benvenuto/a,{" "}
+                    <span className="text-slate-200 font-medium">
+                      {profile?.full_name || user.email}
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+            {!isGuest && (
+              <Link href="/proposals/new" className="btn-primary inline-flex items-center gap-2 text-sm shrink-0">
+                <Plus className="w-4 h-4" />
+                Nuova Proposta
+              </Link>
             )}
-          </p>
+          </div>
+
+          {/* Barra statistiche compatta */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-400 px-1">
+            <span className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-blue-400" />
+              <span className="text-white font-medium">{platformStats.total_users}</span> cittadini
+            </span>
+            <span className="text-slate-700">|</span>
+            <span className="flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-white font-medium">{platformStats.total_proposals}</span> proposte
+            </span>
+            <span className="text-slate-700">|</span>
+            <span className="flex items-center gap-1.5">
+              <Vote className="w-3.5 h-3.5 text-pangea-400" />
+              <span className="text-white font-medium">{platformStats.total_votes}</span> voti espressi
+            </span>
+          </div>
         </div>
 
-        {/* Statistiche Globali */}
-        <PlatformStats
-          totalUsers={platformStats.total_users}
-          totalProposals={platformStats.total_proposals}
-          totalVotes={platformStats.total_votes}
-          activeProposals={platformStats.active_proposals}
-          closedProposals={platformStats.closed_proposals}
-        />
-
-        {/* Navigazione rapida per sezioni */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-          {[
-            { label: "In Delibera", value: activeProposals.length, icon: Clock, color: "text-pangea-400", bg: "bg-pangea-900/20", href: "#delibera" },
-            { label: "In Curatela", value: curationProposals.length, icon: Flame, color: "text-amber-400", bg: "bg-amber-900/20", href: "#curatela" },
-            { label: "Deliberate", value: closedProposals.length, icon: CheckCircle2, color: "text-green-400", bg: "bg-green-900/20", href: "#archivio" },
-            { label: "Codice di Pangea", value: "→", icon: BookOpen, color: "text-blue-400", bg: "bg-blue-900/20", href: "/laws" },
-            ...(isGuest ? [] : [
-              { label: "Tue Bozze", value: draftCount, icon: FileText, color: "text-slate-400", bg: "bg-slate-800/50" },
-            ]),
-            ...(isGuest ? [] : [
-              { label: "Le tue Deleghe", value: "→", icon: Users, color: "text-purple-400", bg: "bg-purple-900/20", href: "/dashboard/delegations" },
-            ]),
-          ].map(({ label, value, icon: Icon, color, bg, href }) => {
-            const isExternal = href?.startsWith("/");
-            const Card = (
-              <div key={label} className={`card p-4 ${bg} ${href ? "hover:border-slate-600 transition-colors cursor-pointer" : ""}`}>
-                <div className={`${color} mb-2`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <p className="text-2xl font-bold text-white">{value}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{label}</p>
-              </div>
-            );
-            if (isExternal) {
-              return <Link key={label} href={href!}>{Card}</Link>;
-            }
-            if (href) {
-              return <a key={label} href={href}>{Card}</a>;
-            }
-            return <div key={label}>{Card}</div>;
-          })}
+        {/* Link rapidi */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          <Link href="/laws" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-900/20 text-blue-400 border border-blue-800/30 hover:border-blue-700/50 transition-colors">
+            <BookOpen className="w-3.5 h-3.5" />
+            Codice di Pangea
+          </Link>
+          {!isGuest && (
+            <Link href="/dashboard/delegations" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-900/20 text-purple-400 border border-purple-800/30 hover:border-purple-700/50 transition-colors">
+              <Users className="w-3.5 h-3.5" />
+              Le tue Deleghe
+            </Link>
+          )}
+          {!isGuest && drafts.length > 0 && (
+            <a href="#bozze" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/50 text-slate-400 border border-slate-700/30 hover:border-slate-600/50 transition-colors">
+              <FileText className="w-3.5 h-3.5" />
+              {drafts.length} {drafts.length === 1 ? "bozza" : "bozze"}
+            </a>
+          )}
         </div>
 
-        {/* Sezioni per tipologia */}
+        {/* ── Sezioni per tipologia ── */}
         <div className="space-y-10">
-          {/* Fase Deliberativa (Attive) */}
+
+          {/* 1. Fase Deliberativa */}
           <section id="delibera">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-pangea-400" />
+            <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Clock className="w-4.5 h-4.5 text-pangea-400" />
               Fase Deliberativa
-              <span className="text-xs text-slate-500 font-normal ml-1">
-                Proposte in votazione attiva
+              <span className="text-xs text-slate-500 font-normal">
+                — {activeProposals.length} {activeProposals.length === 1 ? "proposta" : "proposte"} in votazione
               </span>
             </h2>
             {activeProposals.length > 0 ? (
@@ -210,39 +207,42 @@ export default async function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="card p-6 text-center text-slate-500 text-sm">
-                Nessuna proposta in delibera al momento.
+              <div className="card p-5 text-center text-slate-500 text-sm">
+                Nessuna proposta in fase deliberativa al momento.
               </div>
             )}
           </section>
 
-          {/* Fase di Curatela */}
+          {/* 2. Mercato di Curatela */}
           <section id="curatela">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <Flame className="w-5 h-5 text-amber-400" />
+            <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <Flame className="w-4.5 h-4.5 text-amber-400" />
               Mercato di Curatela
-              <span className="text-xs text-slate-500 font-normal ml-1">
-                Proposte in fase di valutazione — supportale con un segnale
+              <span className="text-xs text-slate-500 font-normal">
+                — {curationProposals.length} in valutazione
               </span>
             </h2>
             {curationProposals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {curationProposals.map((proposal) => (
-                  <ProposalCard key={proposal.id} proposal={proposal} curationThreshold={curationThreshold} />
+                  <ProposalCard key={proposal.id} proposal={proposal} />
                 ))}
               </div>
             ) : (
-              <div className="card p-6 text-center text-slate-500 text-sm">
+              <div className="card p-5 text-center text-slate-500 text-sm">
                 Nessuna proposta in curatela al momento.
               </div>
             )}
           </section>
 
-          {/* Archivio Deliberativo */}
+          {/* 3. Archivio */}
           <section id="archivio">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-green-400" />
+            <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <CheckCircle2 className="w-4.5 h-4.5 text-green-400" />
               Archivio Deliberativo
+              <span className="text-xs text-slate-500 font-normal">
+                — {closedProposals.length} {closedProposals.length === 1 ? "delibera" : "delibere"} concluse
+              </span>
             </h2>
             {closedProposals.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -251,17 +251,17 @@ export default async function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="card p-6 text-center text-slate-500 text-sm">
-                Nessuna legge deliberata ancora.
+              <div className="card p-5 text-center text-slate-500 text-sm">
+                Nessuna proposta deliberata ancora.
               </div>
             )}
           </section>
 
-          {/* Bozze (solo utenti autenticati) */}
+          {/* 4. Bozze (solo utenti autenticati) */}
           {!isGuest && drafts && drafts.length > 0 && (
-            <section>
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-slate-400" />
+            <section id="bozze">
+              <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
+                <FileText className="w-4.5 h-4.5 text-slate-400" />
                 Le tue Bozze
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -273,20 +273,20 @@ export default async function DashboardPage() {
           )}
 
           {/* Empty state */}
-          {enrichedProposals.length === 0 && draftCount === 0 && (
-            <div className="text-center py-20 card">
-              <Globe className="w-16 h-16 text-slate-600 mx-auto mb-4" strokeWidth={1} />
-              <h3 className="text-xl font-semibold text-slate-300 mb-2">
+          {enrichedProposals.length === 0 && drafts.length === 0 && (
+            <div className="text-center py-16 card">
+              <Globe className="w-14 h-14 text-slate-600 mx-auto mb-4" strokeWidth={1} />
+              <h3 className="text-lg font-semibold text-slate-300 mb-2">
                 L&apos;Agora è ancora silenziosa
               </h3>
-              <p className="text-slate-500 mb-6 max-w-md mx-auto">
+              <p className="text-slate-500 mb-6 max-w-md mx-auto text-sm">
                 {isGuest
                   ? "Registrati per essere il primo cittadino a proporre una legge."
-                  : "Sii il primo cittadino a proporre una legge per la Repubblica Democratica Globale Pangea."
+                  : "Sii il primo a proporre una legge per la Repubblica Democratica Globale Pangea."
                 }
               </p>
               {!isGuest && (
-                <Link href="/proposals/new" className="btn-primary inline-flex items-center gap-2">
+                <Link href="/proposals/new" className="btn-primary inline-flex items-center gap-2 text-sm">
                   <Plus className="w-4 h-4" />
                   Presenta la prima proposta
                 </Link>
