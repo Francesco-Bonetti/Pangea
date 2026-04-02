@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /auth
+
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /settings
+Disallow: /proposals/new
+Disallow: /dashboard/delegations
+
+Sitemap: https://v0-agora-pangea-dashboard.vercel.app/sitemap.xml
