@@ -3,8 +3,11 @@ import Navbar from "@/components/Navbar";
 import GuestBanner from "@/components/GuestBanner";
 import ProposalCard from "@/components/ProposalCard";
 import type { Proposal, ProposalResults, ProposalWithResults } from "@/lib/types";
-import { Plus, Globe, FileText, Clock, CheckCircle2, Flame, Users, BookOpen, Vote, TrendingUp } from "lucide-react";
+import { Plus, Globe, FileText, Users, BookOpen, Vote } from "lucide-react";
 import Link from "next/link";
+
+// Client component for collapsible sections
+import SectionBlock from "@/components/SectionBlock";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -121,6 +124,63 @@ export default async function DashboardPage() {
     closed_proposals: 0,
   };
 
+  // Costruisci i blocchi con dati serializzabili
+  const sections: Array<{
+    id: string;
+    title: string;
+    subtitle: string;
+    icon: "clock" | "trending" | "check" | "file";
+    color: "pangea" | "amber" | "green" | "slate";
+    proposals: ProposalWithResults[];
+    defaultOpen: boolean;
+    emptyText: string;
+  }> = [
+    {
+      id: "votazione",
+      title: "In Votazione",
+      subtitle: `${activeProposals.length} ${activeProposals.length === 1 ? "proposta aperta" : "proposte aperte"}`,
+      icon: "clock",
+      color: "pangea",
+      proposals: activeProposals,
+      defaultOpen: true,
+      emptyText: "Nessuna proposta in votazione al momento.",
+    },
+    {
+      id: "promozione",
+      title: "In Attesa di Promozione",
+      subtitle: `${curationProposals.length} in raccolta supporto`,
+      icon: "trending",
+      color: "amber",
+      proposals: curationProposals,
+      defaultOpen: curationProposals.length > 0,
+      emptyText: "Nessuna proposta in attesa di promozione.",
+    },
+    {
+      id: "approvate",
+      title: "Approvate di Recente",
+      subtitle: `${closedProposals.length} ${closedProposals.length === 1 ? "delibera conclusa" : "delibere concluse"}`,
+      icon: "check",
+      color: "green",
+      proposals: closedProposals,
+      defaultOpen: false,
+      emptyText: "Nessuna proposta conclusa ancora.",
+    },
+  ];
+
+  // Aggiungi bozze solo se autenticato e ne ha
+  if (!isGuest && drafts.length > 0) {
+    sections.push({
+      id: "bozze",
+      title: "Le tue Bozze",
+      subtitle: `${drafts.length} ${drafts.length === 1 ? "bozza" : "bozze"} da completare`,
+      icon: "file",
+      color: "slate",
+      proposals: drafts as ProposalWithResults[],
+      defaultOpen: false,
+      emptyText: "",
+    });
+  }
+
   return (
     <div className="min-h-screen bg-[#0c1220]">
       <Navbar
@@ -132,8 +192,8 @@ export default async function DashboardPage() {
       />
       {isGuest && <GuestBanner />}
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header + Stats compatte inline */}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
           <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 mb-4">
             <div>
@@ -193,120 +253,46 @@ export default async function DashboardPage() {
               Le tue Deleghe
             </Link>
           )}
-          {!isGuest && drafts.length > 0 && (
-            <a href="#bozze" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/50 text-slate-400 border border-slate-700/30 hover:border-slate-600/50 transition-colors">
-              <FileText className="w-3.5 h-3.5" />
-              {drafts.length} {drafts.length === 1 ? "bozza" : "bozze"}
-            </a>
-          )}
         </div>
 
-        {/* ── Sezioni per tipologia ── */}
-        <div className="space-y-10">
-
-          {/* 1. Fase Deliberativa */}
-          <section id="delibera">
-            <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <Clock className="w-4.5 h-4.5 text-pangea-400" />
-              Fase Deliberativa
-              <span className="text-xs text-slate-500 font-normal">
-                — {activeProposals.length} {activeProposals.length === 1 ? "proposta" : "proposte"} in votazione
-              </span>
-            </h2>
-            {activeProposals.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {activeProposals.map((proposal) => (
-                  <ProposalCard key={proposal.id} proposal={proposal} />
-                ))}
-              </div>
-            ) : (
-              <div className="card p-5 text-center text-slate-500 text-sm">
-                Nessuna proposta in fase deliberativa al momento.
-              </div>
-            )}
-          </section>
-
-          {/* 2. Mercato di Curatela */}
-          <section id="curatela">
-            <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <Flame className="w-4.5 h-4.5 text-amber-400" />
-              Mercato di Curatela
-              <span className="text-xs text-slate-500 font-normal">
-                — {curationProposals.length} in valutazione
-              </span>
-            </h2>
-            {curationProposals.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {curationProposals.map((proposal) => (
-                  <ProposalCard key={proposal.id} proposal={proposal} />
-                ))}
-              </div>
-            ) : (
-              <div className="card p-5 text-center text-slate-500 text-sm">
-                Nessuna proposta in curatela al momento.
-              </div>
-            )}
-          </section>
-
-          {/* 3. Archivio */}
-          <section id="archivio">
-            <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <CheckCircle2 className="w-4.5 h-4.5 text-green-400" />
-              Archivio Deliberativo
-              <span className="text-xs text-slate-500 font-normal">
-                — {closedProposals.length} {closedProposals.length === 1 ? "delibera" : "delibere"} concluse
-              </span>
-            </h2>
-            {closedProposals.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {closedProposals.map((proposal) => (
-                  <ProposalCard key={proposal.id} proposal={proposal} />
-                ))}
-              </div>
-            ) : (
-              <div className="card p-5 text-center text-slate-500 text-sm">
-                Nessuna proposta deliberata ancora.
-              </div>
-            )}
-          </section>
-
-          {/* 4. Bozze (solo utenti autenticati) */}
-          {!isGuest && drafts && drafts.length > 0 && (
-            <section id="bozze">
-              <h2 className="text-base font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <FileText className="w-4.5 h-4.5 text-slate-400" />
-                Le tue Bozze
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {drafts.map((proposal: Proposal) => (
-                  <ProposalCard key={proposal.id} proposal={proposal} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Empty state */}
-          {enrichedProposals.length === 0 && drafts.length === 0 && (
-            <div className="text-center py-16 card">
-              <Globe className="w-14 h-14 text-slate-600 mx-auto mb-4" strokeWidth={1} />
-              <h3 className="text-lg font-semibold text-slate-300 mb-2">
-                L&apos;Agora è ancora silenziosa
-              </h3>
-              <p className="text-slate-500 mb-6 max-w-md mx-auto text-sm">
-                {isGuest
-                  ? "Registrati per essere il primo cittadino a proporre una legge."
-                  : "Sii il primo a proporre una legge per la Repubblica Democratica Globale Pangea."
-                }
-              </p>
-              {!isGuest && (
-                <Link href="/proposals/new" className="btn-primary inline-flex items-center gap-2 text-sm">
-                  <Plus className="w-4 h-4" />
-                  Presenta la prima proposta
-                </Link>
-              )}
-            </div>
-          )}
+        {/* Blocchi collassabili per categoria */}
+        <div className="space-y-4">
+          {sections.map((section) => (
+            <SectionBlock
+              key={section.id}
+              id={section.id}
+              title={section.title}
+              subtitle={section.subtitle}
+              icon={section.icon}
+              color={section.color}
+              proposals={section.proposals}
+              defaultOpen={section.defaultOpen}
+              emptyText={section.emptyText}
+            />
+          ))}
         </div>
+
+        {/* Empty state globale */}
+        {enrichedProposals.length === 0 && drafts.length === 0 && (
+          <div className="text-center py-16 card mt-6">
+            <Globe className="w-14 h-14 text-slate-600 mx-auto mb-4" strokeWidth={1} />
+            <h3 className="text-lg font-semibold text-slate-300 mb-2">
+              L&apos;Agora è ancora silenziosa
+            </h3>
+            <p className="text-slate-500 mb-6 max-w-md mx-auto text-sm">
+              {isGuest
+                ? "Registrati per essere il primo cittadino a proporre una legge."
+                : "Sii il primo a proporre una legge per la Repubblica Democratica Globale Pangea."
+              }
+            </p>
+            {!isGuest && (
+              <Link href="/proposals/new" className="btn-primary inline-flex items-center gap-2 text-sm">
+                <Plus className="w-4 h-4" />
+                Presenta la prima proposta
+              </Link>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

@@ -177,11 +177,11 @@ export default async function ProposalDetailPage({ params }: Props) {
               }
             >
               {proposal.status === "active"
-                ? "In Delibera"
+                ? "In Votazione"
                 : proposal.status === "curation"
-                ? "In Curatela"
+                ? "In Promozione"
                 : proposal.status === "closed"
-                ? "Deliberata"
+                ? "Approvata"
                 : proposal.status === "repealed"
                 ? "Abrogata"
                 : "Bozza"}

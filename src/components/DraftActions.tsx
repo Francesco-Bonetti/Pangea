@@ -89,8 +89,8 @@ export default function DraftActions({
         Azioni Bozza
       </h3>
       <p className="text-xs text-slate-500 mb-4">
-        Questa proposta è ancora una bozza. Pubblicala nel Mercato di Curatela
-        per raccogliere i segnali di supporto dei cittadini.
+        Questa proposta è ancora una bozza. Pubblicala per raccogliere
+        il supporto dei cittadini.
       </p>
 
       {!hasOptions && (
@@ -122,7 +122,7 @@ export default function DraftActions({
           )}
           {publishing
             ? "Pubblicazione..."
-            : "Pubblica nel Mercato di Curatela"}
+            : "Pubblica Proposta"}
         </button>
 
         {!confirmDelete ? (

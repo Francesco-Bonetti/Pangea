@@ -125,9 +125,9 @@ export default async function HomePage() {
             },
             {
               icon: Zap,
-              title: "Mercato di Curatela",
+              title: "Raccolta Supporto",
               description:
-                "Prima di votare, le proposte passano dal Mercato di Curatela. I cittadini le segnalano con un 'supporto'. Quando una proposta raggiunge la soglia del 20% degli utenti attivi, viene promossa a delibera.",
+                "Prima di votare, le proposte devono raccogliere il sostegno della comunità. I cittadini le segnalano con un 'supporto'. Quando una proposta raggiunge la soglia del 20% degli utenti attivi, viene promossa a votazione.",
               color: "text-amber-400",
               bg: "bg-amber-900/20 border-amber-700/30",
             },

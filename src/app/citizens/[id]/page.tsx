@@ -124,7 +124,7 @@ export default async function CitizenProfilePage({ params }: Props) {
                     <p className="text-xs text-slate-500">{formatDate(p.created_at)}</p>
                   </div>
                   <span className={statusConfig[p.status] || "status-draft"}>
-                    {p.status === "active" ? "In Delibera" : p.status === "closed" ? "Deliberata" : "In Curatela"}
+                    {p.status === "active" ? "In Votazione" : p.status === "closed" ? "Approvata" : "In Promozione"}
                   </span>
                 </Link>
               ))}

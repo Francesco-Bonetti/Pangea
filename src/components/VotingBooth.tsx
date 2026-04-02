@@ -291,7 +291,7 @@ export default function VotingBooth({
       <div className="card p-5 mb-4">
         <h2 className="text-base font-semibold text-slate-200 mb-1 flex items-center gap-2">
           <Shield className="w-4 h-4 text-pangea-400" />
-          {isCuration ? "Mercato di Curatela" : "Cabina Elettorale"}
+          {isCuration ? "Raccolta Supporto" : "Cabina Elettorale"}
         </h2>
         <p className="text-xs text-slate-500">
           {isCuration
@@ -438,14 +438,14 @@ export default function VotingBooth({
           </div>
         )}
 
-        {/* In curatela — non si vota ancora */}
+        {/* In promozione — non si vota ancora */}
         {isCuration && (
           <div className="text-center py-4">
             <Flame className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-            <p className="text-slate-300 font-medium mb-1">Fase di Curatela</p>
+            <p className="text-slate-300 font-medium mb-1">Raccolta Supporto</p>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Questa proposta deve raggiungere la soglia di segnali prima di
-              passare alla fase deliberativa. Supportala con un segnale.
+              Questa proposta deve raccogliere abbastanza supporto dalla comunità
+              prima di passare alla votazione. Sostienila con un segnale.
             </p>
           </div>
         )}

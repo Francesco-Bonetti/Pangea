@@ -24,17 +24,17 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
     },
     curation: {
       icon: Flame,
-      label: "In Curatela",
+      label: "In Promozione",
       className: "status-curation",
     },
     active: {
       icon: Clock,
-      label: "In Delibera",
+      label: "In Votazione",
       className: "status-active",
     },
     closed: {
       icon: CheckCircle2,
-      label: "Deliberata",
+      label: "Approvata",
       className: "status-closed",
     },
     repealed: {
