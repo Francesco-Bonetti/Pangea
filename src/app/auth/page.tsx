@@ -68,11 +68,17 @@ export default function AuthPage() {
       }
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Unknown error";
+      let userMsg = msg;
+      if (msg === "Invalid login credentials") {
+        userMsg = "Invalid credentials. Please check your email and password.";
+      } else if (msg.includes("security purposes") || msg.includes("rate limit")) {
+        userMsg = "Too many attempts. Please wait a minute and try again.";
+      } else if (msg.includes("already registered") || msg.includes("already been registered")) {
+        userMsg = "This email is already registered. Try signing in instead.";
+      }
       setMessage({
         type: "error",
-        text: msg === "Invalid login credentials"
-          ? "Invalid credentials. Please check your email and password."
-          : msg,
+        text: userMsg,
       });
     } finally {
       setLoading(false);
