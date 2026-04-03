@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff } from "lucide-react";
+import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff, MessageSquare } from "lucide-react";
+import SendMessageButton from "@/components/SendMessageButton";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 
@@ -189,6 +190,17 @@ export default async function CitizenProfilePage({ params }: Props) {
                 <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-slate-500">
                   <Calendar className="w-3.5 h-3.5" />
                   Member since {formatDate(citizen.created_at)}
+                </div>
+              )}
+
+              {/* Send Message button — only if logged in, not self, and DM policy allows */}
+              {user && !isSelf && (
+                <div className="mt-4">
+                  <SendMessageButton
+                    currentUserId={user.id}
+                    targetUserId={id}
+                    dmPolicy={privacy?.dm_policy || "everyone"}
+                  />
                 </div>
               )}
             </div>

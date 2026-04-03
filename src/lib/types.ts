@@ -394,3 +394,56 @@ export type DiscussionReport = {
   status: 'pending' | 'reviewed' | 'dismissed' | 'action_taken';
   created_at: string;
 };
+
+// --- Direct Messaging (E2E Encrypted) ---
+export type DmMessageType = 'text' | 'system' | 'key_exchange';
+
+export interface UserKeys {
+  id: string;
+  user_id: string;
+  public_key: string;
+  encrypted_private_key: string;
+  key_salt: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DmConversation {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  last_message_at: string;
+}
+
+export interface DmParticipant {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  joined_at: string;
+  last_read_at: string;
+  is_muted: boolean;
+  // Joins
+  profiles?: Profile;
+}
+
+export interface DmMessage {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  encrypted_content: string;
+  nonce: string;
+  message_type: DmMessageType;
+  is_edited: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // Client-side only (after decryption)
+  decrypted_content?: string;
+}
+
+export interface ConversationWithDetails extends DmConversation {
+  participants: DmParticipant[];
+  last_message?: DmMessage;
+  unread_count?: number;
+  other_user?: Profile & { public_key?: string };
+}

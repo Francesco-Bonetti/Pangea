@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protected routes: require authentication (content creation only)
-  const protectedPaths = ["/proposals/new", "/dashboard/delegations", "/admin", "/settings"];
+  const protectedPaths = ["/proposals/new", "/dashboard/delegations", "/admin", "/settings", "/messages"];
   const isProtected = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
