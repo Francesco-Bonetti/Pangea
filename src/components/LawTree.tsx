@@ -19,6 +19,7 @@ interface LawTreeProps {
   node: LawNode;
   depth: number;
   showActiveStatus?: boolean;
+  isAdmin?: boolean;
 }
 
 const typeConfig: Record<
