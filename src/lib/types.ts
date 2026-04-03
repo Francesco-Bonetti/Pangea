@@ -447,3 +447,35 @@ export interface ConversationWithDetails extends DmConversation {
   unread_count?: number;
   other_user?: Profile & { public_key?: string };
 }
+
+// --- Follow System ---
+export type FollowTargetType = "citizen" | "party" | "jurisdiction";
+
+export interface Follow {
+  id: string;
+  follower_id: string;
+  target_type: FollowTargetType;
+  target_id: string;
+  created_at: string;
+}
+
+export type FeedEventType =
+  | "proposal_created"
+  | "vote_cast"
+  | "law_approved"
+  | "discussion_created"
+  | "party_vote"
+  | "member_joined";
+
+export interface FeedEvent {
+  id: string;
+  actor_id: string | null;
+  actor_party_id: string | null;
+  actor_jurisdiction_id: string | null;
+  event_type: FeedEventType;
+  title: string;
+  description: string | null;
+  link: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}

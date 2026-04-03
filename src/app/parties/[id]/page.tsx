@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { Party, PartyMember, PartyVote, PartyForumPost, Profile, Proposal } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
+import FollowButton from "@/components/FollowButton";
 
 type Tab = "info" | "members" | "votes" | "forum";
 
@@ -304,7 +305,17 @@ export default function PartyDetailPage() {
                 <p className="text-slate-300 mt-3">{party.description}</p>
               )}
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+              {!isGuest && (
+                <FollowButton
+                  currentUserId={profile?.id ?? null}
+                  targetId={partyId}
+                  targetType="party"
+                  targetName={party.name}
+                  size="sm"
+                  showCount={false}
+                />
+              )}
               {!isGuest && !isMember && (
                 <button onClick={handleJoin} className="btn-primary flex items-center gap-2">
                   <UserPlus className="w-4 h-4" /> Join

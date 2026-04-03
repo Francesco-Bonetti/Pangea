@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail } from "lucide-react";
+import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 interface NavbarProps {
@@ -120,6 +120,15 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             ) : (
               /* Authenticated User */
               <>
+                {/* Feed Icon */}
+                <Link
+                  href="/feed"
+                  className="relative p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all duration-150"
+                  title="Your Feed"
+                >
+                  <Rss className="w-5 h-5" />
+                </Link>
+
                 {/* Messages Icon */}
                 <Link
                   href="/messages"
@@ -305,6 +314,14 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                 >
                   <Plus className="w-4 h-4" />
                   New Proposal
+                </Link>
+                <Link
+                  href="/feed"
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors duration-150"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Rss className="w-4 h-4" />
+                  Feed
                 </Link>
                 <Link
                   href="/messages"

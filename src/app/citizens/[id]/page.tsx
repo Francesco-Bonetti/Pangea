@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff, MessageSquare } from "lucide-react";
 import SendMessageButton from "@/components/SendMessageButton";
+import FollowButton from "@/components/FollowButton";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 
@@ -193,9 +194,15 @@ export default async function CitizenProfilePage({ params }: Props) {
                 </div>
               )}
 
-              {/* Send Message button — only if logged in, not self, and DM policy allows */}
+              {/* Follow + Send Message buttons */}
               {user && !isSelf && (
-                <div className="mt-4">
+                <div className="mt-4 flex flex-col items-center gap-3">
+                  <FollowButton
+                    currentUserId={user.id}
+                    targetId={id}
+                    targetType="citizen"
+                    targetName={displayName}
+                  />
                   <SendMessageButton
                     currentUserId={user.id}
                     targetUserId={id}
