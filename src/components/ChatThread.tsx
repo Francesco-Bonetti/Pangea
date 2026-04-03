@@ -87,17 +87,17 @@ export default function ChatThread({
   // Decrypt messages helper
   const decryptMessages = useCallback(
     (msgs: DmMessage[]): DmMessage[] => {
-      if (!secretKey || !otherUserPublicKey || !myPublicKey) return msgs;
+      if (!secretKey || !otherUserPublicKey) return msgs;
 
       return msgs.map((msg) => {
         if (msg.decrypted_content) return msg;
         try {
-          const senderPk =
-            msg.sender_id === userId ? myPublicKey : otherUserPublicKey;
+          // NaCl box: shared secret = (mySecretKey, otherPublicKey)
+          // This is the same regardless of who sent the message
           const decrypted = decryptMessage(
             msg.encrypted_content,
             msg.nonce,
-            senderPk,
+            otherUserPublicKey,
             secretKey
           );
           return { ...msg, decrypted_content: decrypted || "[Unable to decrypt]" };
@@ -106,7 +106,7 @@ export default function ChatThread({
         }
       });
     },
-    [secretKey, otherUserPublicKey, myPublicKey, userId]
+    [secretKey, otherUserPublicKey]
   );
 
   // Decrypt initial messages once keys are ready
