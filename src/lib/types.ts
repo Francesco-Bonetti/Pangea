@@ -40,6 +40,7 @@ export interface Proposal {
   status: ProposalStatus;
   proposal_type?: ProposalType;
   parent_proposal_id?: string | null;
+  jurisdiction_id?: string | null;
   created_at: string;
   expires_at: string | null;
   category_id: string | null;

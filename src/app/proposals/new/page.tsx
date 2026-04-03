@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import TagInput from "@/components/TagInput";
 import LawTreeSelector from "@/components/LawTreeSelector";
@@ -19,6 +19,7 @@ import {
   Edit3,
   Trash2,
   BookOpen,
+  Globe2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -30,6 +31,10 @@ interface OptionDraft {
 type ProposalType = "new" | "amendment" | "repeal";
 
 export default function NewProposalPage() {
+  const searchParams = useSearchParams();
+  const jurisdictionId = searchParams.get("jurisdiction");
+  const jurisdictionName = searchParams.get("jurisdiction_name");
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [dispositivo, setDispositivo] = useState("");
@@ -114,6 +119,7 @@ export default function NewProposalPage() {
         expires_at: expiresAt,
         proposal_type: proposalType,
         parent_proposal_id: parentProposalId,
+        jurisdiction_id: jurisdictionId || null,
       };
 
       const { data, error: insertError } = await supabase
@@ -193,6 +199,27 @@ export default function NewProposalPage() {
             </p>
           </div>
         </div>
+
+        {/* Giurisdizione badge */}
+        {jurisdictionId && jurisdictionName && (
+          <div className="card p-4 mb-6 bg-purple-900/10 border-purple-800/30 flex items-center gap-3">
+            <Globe2 className="w-5 h-5 text-purple-400 shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-purple-300 font-medium">
+                Proposta per la giurisdizione: {jurisdictionName}
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Questa proposta si applicherà solo ai membri della giurisdizione.
+              </p>
+            </div>
+            <Link
+              href={`/jurisdictions/${jurisdictionId}`}
+              className="text-xs text-purple-400 hover:text-purple-300 whitespace-nowrap"
+            >
+              ← Torna alla giurisdizione
+            </Link>
+          </div>
+        )}
 
         {/* Guida */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
