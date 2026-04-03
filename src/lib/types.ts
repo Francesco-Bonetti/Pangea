@@ -16,7 +16,6 @@ export interface Profile {
   full_name: string | null;
   bio: string | null;
   role?: UserRole;
-  user_code?: string | null;
   allow_delegations?: boolean;
   is_searchable?: boolean;
   created_at: string;
@@ -147,6 +146,60 @@ export interface CommentReaction {
   user_id: string;
   reaction_type: "like" | "dislike";
   created_at: string;
+}
+
+// --- Partiti Politici (Fase 4) ---
+export type PartyMemberRole = "member" | "admin" | "founder";
+
+export interface Party {
+  id: string;
+  name: string;
+  description: string | null;
+  manifesto: string | null;
+  logo_emoji: string;
+  founder_id: string;
+  is_active: boolean;
+  created_at: string;
+  // Join
+  profiles?: Profile;
+  member_count?: number;
+}
+
+export interface PartyMember {
+  id: string;
+  party_id: string;
+  user_id: string;
+  role: PartyMemberRole;
+  vote_weight: number;
+  joined_at: string;
+  // Join
+  profiles?: Profile;
+  parties?: Party;
+}
+
+export interface PartyVote {
+  id: string;
+  party_id: string;
+  proposal_id: string;
+  vote_type: VoteType;
+  decided_by: string;
+  created_at: string;
+  // Join
+  parties?: Party;
+  proposals?: Proposal;
+}
+
+export interface PartyForumPost {
+  id: string;
+  party_id: string;
+  author_id: string;
+  title: string | null;
+  body: string;
+  is_admin_only: boolean;
+  parent_id: string | null;
+  created_at: string;
+  // Join
+  profiles?: { full_name: string | null };
 }
 
 // --- Compositi ---

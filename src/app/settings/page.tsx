@@ -17,7 +17,7 @@ import {
   AlertTriangle,
   Mail,
   Calendar,
-  Hash,
+  Flag,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,6 +36,11 @@ export default function SettingsPage() {
   const [bio, setBio] = useState("");
   const [allowDelegations, setAllowDelegations] = useState(true);
   const [isSearchable, setIsSearchable] = useState(true);
+
+  // Party weights
+  const [partyMemberships, setPartyMemberships] = useState<{ id: string; party_id: string; party_name: string; logo_emoji: string; vote_weight: number }[]>([]);
+  const [savingWeights, setSavingWeights] = useState(false);
+  const [weightsSuccess, setWeightsSuccess] = useState(false);
 
   // Password change
   const [newPassword, setNewPassword] = useState("");
@@ -60,6 +65,23 @@ export default function SettingsPage() {
       setAllowDelegations(prof.allow_delegations ?? true);
       setIsSearchable(prof.is_searchable ?? true);
     }
+    // Load party memberships for weight management
+    const { data: memberships } = await supabase
+      .from("party_members")
+      .select("id, party_id, vote_weight, parties(name, logo_emoji)")
+      .eq("user_id", authUser.id);
+    if (memberships) {
+      setPartyMemberships(
+        memberships.map((m: Record<string, unknown>) => ({
+          id: m.id as string,
+          party_id: m.party_id as string,
+          party_name: (m.parties as Record<string, string>)?.name || "Partito",
+          logo_emoji: (m.parties as Record<string, string>)?.logo_emoji || "🏛️",
+          vote_weight: m.vote_weight as number,
+        }))
+      );
+    }
+
     setLoading(false);
   }, [supabase, router]);
 
@@ -85,6 +107,26 @@ export default function SettingsPage() {
     else setSuccess(true);
     setSaving(false);
     setTimeout(() => setSuccess(false), 3000);
+  }
+
+  async function savePartyWeights() {
+    setSavingWeights(true);
+    setWeightsSuccess(false);
+    for (const pm of partyMemberships) {
+      await supabase
+        .from("party_members")
+        .update({ vote_weight: pm.vote_weight })
+        .eq("id", pm.id);
+    }
+    setWeightsSuccess(true);
+    setSavingWeights(false);
+    setTimeout(() => setWeightsSuccess(false), 3000);
+  }
+
+  function updatePartyWeight(partyId: string, weight: number) {
+    setPartyMemberships((prev) =>
+      prev.map((pm) => (pm.party_id === partyId ? { ...pm, vote_weight: Math.max(1, Math.min(100, weight)) } : pm))
+    );
   }
 
   async function changePassword() {
@@ -147,13 +189,6 @@ export default function SettingsPage() {
               Informazioni Account
             </h2>
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Hash className="w-4 h-4 text-slate-500" />
-                <div>
-                  <p className="text-xs text-slate-500">Codice Cittadino</p>
-                  <p className="text-sm text-pangea-300 font-mono font-semibold">{profile?.user_code || "—"}</p>
-                </div>
-              </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-slate-500" />
                 <div>
@@ -259,6 +294,75 @@ export default function SettingsPage() {
               </label>
             </div>
           </div>
+
+          {/* Party vote weights */}
+          {partyMemberships.length > 0 && (
+            <div className="card p-6">
+              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+                <Flag className="w-5 h-5 text-pangea-400" />
+                Pesi Voto Partiti
+              </h2>
+              <p className="text-xs text-slate-500 mb-4">
+                Se sei iscritto a più partiti e non voti direttamente su una proposta, il tuo voto viene diviso tra i partiti
+                in base a questi pesi. Di default tutti hanno peso uguale (1). Puoi personalizzare i pesi per dare più
+                influenza a un partito rispetto ad un altro.
+              </p>
+              <div className="space-y-3">
+                {partyMemberships.map((pm) => {
+                  const totalWeight = partyMemberships.reduce((s, p) => s + p.vote_weight, 0);
+                  const percentage = totalWeight > 0 ? Math.round((pm.vote_weight / totalWeight) * 100) : 0;
+                  return (
+                    <div key={pm.party_id} className="flex items-center gap-3 bg-slate-800/50 rounded-lg p-3">
+                      <span className="text-xl">{pm.logo_emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/parties/${pm.party_id}`} className="text-sm text-slate-200 hover:text-pangea-300 transition-colors">
+                          {pm.party_name}
+                        </Link>
+                        <p className="text-[10px] text-slate-500">{percentage}% del tuo voto</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updatePartyWeight(pm.party_id, pm.vote_weight - 1)}
+                          className="w-7 h-7 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center justify-center text-sm font-bold"
+                          disabled={pm.vote_weight <= 1}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          value={pm.vote_weight}
+                          onChange={(e) => updatePartyWeight(pm.party_id, parseInt(e.target.value) || 1)}
+                          className="w-14 text-center input-field py-1 text-sm"
+                          min={1}
+                          max={100}
+                        />
+                        <button
+                          onClick={() => updatePartyWeight(pm.party_id, pm.vote_weight + 1)}
+                          className="w-7 h-7 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center justify-center text-sm font-bold"
+                          disabled={pm.vote_weight >= 100}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {weightsSuccess && (
+                <div className="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Pesi aggiornati!
+                </div>
+              )}
+              <button
+                onClick={savePartyWeights}
+                disabled={savingWeights}
+                className="mt-3 btn-secondary w-full flex items-center justify-center gap-2 text-sm"
+              >
+                {savingWeights ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {savingWeights ? "Salvando..." : "Salva pesi partiti"}
+              </button>
+            </div>
+          )}
 
           {/* Save button */}
           {error && (
