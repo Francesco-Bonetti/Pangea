@@ -44,6 +44,9 @@ export default async function ConversationPage({ params }: Props) {
 
   if (!user) redirect("/auth");
 
+  // DEBUG: log auth and query details
+  console.log("[DM-DEBUG] user.id:", user.id, "conversationId:", conversationId);
+
   // Verify user is a participant (separate query, no joins)
   const { data: myParticipant, error: myError } = await supabase
     .from("dm_participants")
@@ -52,9 +55,11 @@ export default async function ConversationPage({ params }: Props) {
     .eq("user_id", user.id)
     .single();
 
+  console.log("[DM-DEBUG] myParticipant:", JSON.stringify(myParticipant), "error:", JSON.stringify(myError));
+
   if (!myParticipant || myError) {
     return (
-      <ConversationNotFound reason="This conversation does not exist or you are not a participant." />
+      <ConversationNotFound reason={`This conversation does not exist or you are not a participant. (Debug: ${myError?.message || 'no data'})`} />
     );
   }
 
