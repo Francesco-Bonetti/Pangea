@@ -44,7 +44,7 @@ export default function DelegationsPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  // Carica dati iniziali
+  // Load initial data
   const loadData = useCallback(async () => {
     const {
       data: { user: authUser },
@@ -57,7 +57,7 @@ export default function DelegationsPage() {
 
     setUser(authUser);
 
-    // Carica profilo, categorie e deleghe in parallelo
+    // Load profile, categories and delegations in parallel
     const [profileRes, catRes, delegGivenRes, delegReceivedRes] =
       await Promise.all([
         supabase.from("profiles").select("*").eq("id", authUser.id).single(),
@@ -85,7 +85,7 @@ export default function DelegationsPage() {
     loadData();
   }, [loadData]);
 
-  // Ricerca utenti
+  // Search users
   async function searchUsers(query: string) {
     setSearchQuery(query);
     if (query.trim().length < 2) {
@@ -105,7 +105,7 @@ export default function DelegationsPage() {
     setSearching(false);
   }
 
-  // Crea delega (come richiesta pendente)
+  // Create delegation (as pending request)
   async function createDelegation() {
     if (!selectedDelegate || !user) return;
     setSaving(true);
@@ -126,12 +126,12 @@ export default function DelegationsPage() {
       if (insertError) {
         if (insertError.message?.includes("ciclo infinito")) {
           setError(
-            "Impossibile creare questa delega: si formerebbe un ciclo. " +
-              "Il cittadino selezionato ha già delegato te (direttamente o transitivamente) per questa categoria."
+            "Cannot create this delegation: it would form a cycle. " +
+              "The selected citizen has already delegated to you (directly or transitively) for this category."
           );
         } else if (insertError.code === "23505") {
           setError(
-            "Hai già una delega attiva per questa categoria. Verrà aggiornata con il nuovo delegato."
+            "You already have an active delegation for this category. It will be updated with the new delegate."
           );
         } else {
           throw insertError;
@@ -147,32 +147,42 @@ export default function DelegationsPage() {
       await loadData();
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Errore durante la creazione";
+        err instanceof Error ? err.message : "Error creating delegation";
       setError(msg);
     } finally {
       setSaving(false);
     }
   }
 
-  // Accetta delega ricevuta
+  // Accept received delegation
   async function acceptDelegation(delegationId: string) {
+    setError(null);
     const { error: err } = await supabase
       .from("delegations")
       .update({ status: "accepted" })
       .eq("id", delegationId);
-    if (!err) await loadData();
+    if (err) {
+      setError("Failed to accept delegation: " + err.message);
+    } else {
+      await loadData();
+    }
   }
 
-  // Rifiuta delega ricevuta
+  // Reject received delegation
   async function rejectDelegation(delegationId: string) {
+    setError(null);
     const { error: err } = await supabase
       .from("delegations")
       .update({ status: "rejected" })
       .eq("id", delegationId);
-    if (!err) await loadData();
+    if (err) {
+      setError("Failed to reject delegation: " + err.message);
+    } else {
+      await loadData();
+    }
   }
 
-  // Revoca delega
+  // Revoke delegation
   async function revokeDelegation(delegationId: string) {
     const { error: deleteError } = await supabase
       .from("delegations")
@@ -208,10 +218,10 @@ export default function DelegationsPage() {
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <Users className="w-6 h-6 text-pangea-400" />
-              Democrazia Liquida
+              Liquid Democracy
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
-              Gestisci le tue deleghe di voto — globali o per dominio tematico
+              Manage your vote delegations — global or by topic
             </p>
           </div>
           <button
@@ -223,49 +233,41 @@ export default function DelegationsPage() {
             ) : (
               <Plus className="w-4 h-4" />
             )}
-            {showForm ? "Annulla" : "Nuova Delega"}
+            {showForm ? "Cancel" : "New Delegation"}
           </button>
         </div>
 
         {/* Info card */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
           <Globe className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
-          <div className="text-sm text-slate-400 space-y-2">
+          <div className="text-sm text-slate-400">
             <p>
-              La <strong className="text-slate-300">Democrazia Liquida</strong>{" "}
-              ti permette di delegare il tuo voto a un altro cittadino per tutti
-              i temi o per una categoria specifica. La delega è sempre{" "}
-              <strong className="text-slate-300">revocabile</strong> e il tuo{" "}
-              <strong className="text-slate-300">voto diretto</strong> ha sempre
-              la priorità assoluta.
+              <strong className="text-slate-300">Liquid Democracy</strong>{" "}
+              lets you delegate your vote to another citizen for all topics
+              or for a specific category. Delegations are always{" "}
+              <strong className="text-slate-300">revocable</strong> and your{" "}
+              <strong className="text-slate-300">direct vote</strong> always
+              takes precedence.
             </p>
-            <div className="bg-slate-800/60 rounded-lg p-2.5">
-              <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
-              <p className="text-xs text-slate-400">
-                Non ti intendi di economia? Puoi delegare il voto sulle proposte economiche a un cittadino esperto di cui ti fidi.
-                Quando si vota una proposta economica, il tuo voto segue la sua scelta. Ma se un giorno vuoi votare direttamente
-                su una proposta specifica, il tuo voto personale prevale automaticamente. Puoi anche revocare la delega in qualsiasi momento.
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* Form nuova delega */}
+        {/* New delegation form */}
         {showForm && (
           <div className="card p-6 mb-6">
             <h2 className="text-lg font-semibold text-slate-200 mb-4">
-              Crea una nuova delega
+              Create a new delegation
             </h2>
 
-            {/* Ricerca utente */}
+            {/* User search */}
             <div className="mb-4">
-              <label className="label">Cerca un cittadino</label>
+              <label className="label">Search for a citizen</label>
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   className="input-field pl-10"
-                  placeholder="Cerca per nome..."
+                  placeholder="Search by name..."
                   value={searchQuery}
                   onChange={(e) => searchUsers(e.target.value)}
                 />
@@ -274,7 +276,7 @@ export default function DelegationsPage() {
                 )}
               </div>
 
-              {/* Risultati ricerca */}
+              {/* Search results */}
               {searchResults.length > 0 && !selectedDelegate && (
                 <div className="mt-2 border border-slate-700 rounded-lg overflow-hidden">
                   {searchResults.map((p) => (
@@ -291,7 +293,7 @@ export default function DelegationsPage() {
                         {(p.full_name ?? "?")[0].toUpperCase()}
                       </div>
                       <span className="text-sm text-slate-200">
-                        {p.full_name ?? "Cittadino"}
+                        {p.full_name ?? "Citizen"}
                       </span>
                       <ChevronRight className="w-4 h-4 text-slate-600 ml-auto" />
                     </button>
@@ -299,7 +301,7 @@ export default function DelegationsPage() {
                 </div>
               )}
 
-              {/* Delegato selezionato */}
+              {/* Selected delegate */}
               {selectedDelegate && (
                 <div className="mt-2 flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3">
                   <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-pangea-300 font-bold">
@@ -321,11 +323,11 @@ export default function DelegationsPage() {
               )}
             </div>
 
-            {/* Categoria */}
+            {/* Category */}
             <div className="mb-4">
               <label className="label flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5" />
-                Dominio (facoltativo)
+                Category (optional)
               </label>
               <select
                 className="input-field"
@@ -333,7 +335,7 @@ export default function DelegationsPage() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 <option value="">
-                  Delega globale (tutti i domini)
+                  Global delegation (all categories)
                 </option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -342,11 +344,11 @@ export default function DelegationsPage() {
                 ))}
               </select>
               <p className="text-xs text-slate-600 mt-1.5">
-                Una delega specifica per dominio ha la priorità su quella globale
+                A category-specific delegation takes priority over a global one
               </p>
             </div>
 
-            {/* Errore */}
+            {/* Error */}
             {error && (
               <div className="mb-4 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-xs flex gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -354,7 +356,7 @@ export default function DelegationsPage() {
               </div>
             )}
 
-            {/* Conferma */}
+            {/* Confirm */}
             <button
               onClick={createDelegation}
               disabled={!selectedDelegate || saving}
@@ -365,16 +367,27 @@ export default function DelegationsPage() {
               ) : (
                 <Users className="w-4 h-4" />
               )}
-              {saving ? "Creazione..." : "Conferma delega"}
+              {saving ? "Creating..." : "Confirm delegation"}
             </button>
           </div>
         )}
 
-        {/* Deleghe assegnate */}
+        {/* Global error banner */}
+        {error && !showForm && (
+          <div className="mb-6 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex gap-2 items-start">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span className="flex-1">{error}</span>
+            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Your delegations */}
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
             <ChevronRight className="w-5 h-5 text-pangea-400" />
-            Le tue deleghe
+            Your delegations
             <span className="text-xs text-slate-500 font-normal">
               ({delegations.length})
             </span>
@@ -384,7 +397,7 @@ export default function DelegationsPage() {
             <div className="card p-8 text-center">
               <Users className="w-12 h-12 text-slate-700 mx-auto mb-3" />
               <p className="text-slate-500 text-sm">
-                Non hai ancora delegato il tuo voto a nessuno.
+                You haven&apos;t delegated your vote to anyone yet.
               </p>
             </div>
           ) : (
@@ -402,7 +415,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-slate-200 font-medium">
-                        {delegateProfile?.full_name ?? "Cittadino"}
+                        {delegateProfile?.full_name ?? "Citizen"}
                       </p>
                       <p className="text-xs text-slate-500 flex items-center gap-1">
                         {category ? (
@@ -413,7 +426,7 @@ export default function DelegationsPage() {
                         ) : (
                           <>
                             <Globe className="w-3 h-3" />
-                            Delega globale
+                            Global delegation
                           </>
                         )}
                       </p>
@@ -423,12 +436,12 @@ export default function DelegationsPage() {
                       d.status === "rejected" ? "text-red-300 bg-red-900/20 border border-red-700/30" :
                       "text-amber-300 bg-amber-900/20 border border-amber-700/30"
                     }`}>
-                      {d.status === "accepted" ? "Accettata" : d.status === "rejected" ? "Rifiutata" : "In attesa"}
+                      {d.status === "accepted" ? "Accepted" : d.status === "rejected" ? "Rejected" : "Pending"}
                     </span>
                     <button
                       onClick={() => revokeDelegation(d.id)}
                       className="text-slate-600 hover:text-red-400 transition-colors p-2"
-                      title="Revoca delega"
+                      title="Revoke delegation"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -439,11 +452,11 @@ export default function DelegationsPage() {
           )}
         </section>
 
-        {/* Deleghe ricevute */}
+        {/* Received delegations */}
         <section>
           <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
-            Deleghe ricevute
+            Received delegations
             <span className="text-xs text-slate-500 font-normal">
               ({receivedDelegations.length})
             </span>
@@ -453,7 +466,7 @@ export default function DelegationsPage() {
             <div className="card p-8 text-center">
               <Users className="w-12 h-12 text-slate-700 mx-auto mb-3" />
               <p className="text-slate-500 text-sm">
-                Nessun cittadino ti ha ancora delegato il proprio voto.
+                No citizen has delegated their vote to you yet.
               </p>
             </div>
           ) : (
@@ -471,7 +484,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-slate-200 font-medium">
-                        {delegatorProfile?.full_name ?? "Cittadino"}
+                        {delegatorProfile?.full_name ?? "Citizen"}
                       </p>
                       <p className="text-xs text-slate-500 flex items-center gap-1">
                         {category ? (
@@ -482,7 +495,7 @@ export default function DelegationsPage() {
                         ) : (
                           <>
                             <Globe className="w-3 h-3" />
-                            Delega globale
+                            Global delegation
                           </>
                         )}
                       </p>
@@ -492,28 +505,28 @@ export default function DelegationsPage() {
                         <button
                           onClick={() => acceptDelegation(d.id)}
                           className="p-1.5 rounded-lg text-green-400 hover:bg-green-900/30 transition-colors"
-                          title="Accetta delega"
+                          title="Accept delegation"
                         >
                           <CheckCircle2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => rejectDelegation(d.id)}
                           className="p-1.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
-                          title="Rifiuta delega"
+                          title="Reject delegation"
                         >
                           <XCircle className="w-4 h-4" />
                         </button>
                         <span className="text-xs text-amber-500/80 bg-amber-900/20 px-2 py-1 rounded-full flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> In attesa
+                          <Clock className="w-3 h-3" /> Pending
                         </span>
                       </div>
                     ) : d.status === "accepted" ? (
                       <span className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded-full">
-                        Accettata
+                        Accepted
                       </span>
                     ) : (
                       <span className="text-xs text-red-400 bg-red-900/20 px-2 py-1 rounded-full">
-                        Rifiutata
+                        Rejected
                       </span>
                     )}
                   </div>
