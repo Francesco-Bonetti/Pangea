@@ -195,8 +195,23 @@ export default function JurisdictionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c1220] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
+      <div className="min-h-screen bg-[#0c1220]">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="h-8 w-48 bg-slate-800 rounded-lg animate-pulse mb-6" />
+          <div className="grid gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-700 rounded-lg animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 w-40 bg-slate-700 rounded animate-pulse" />
+                    <div className="h-4 w-64 bg-slate-700/50 rounded animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

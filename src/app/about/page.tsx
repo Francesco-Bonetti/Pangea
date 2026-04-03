@@ -38,7 +38,7 @@ export default async function AboutPage() {
             <h1 className="text-4xl font-bold text-white">Agora Pangea</h1>
           </div>
           <p className="text-xl text-slate-400 max-w-2xl">
-            The digital democracy platform of the Global Democratic Republic of Pangea.
+            The digital democracy platform of the Global Democratic Commonwealth of Pangea.
             Propose laws, debate and vote on legislative proposals in a transparent and secure environment.
           </p>
         </div>

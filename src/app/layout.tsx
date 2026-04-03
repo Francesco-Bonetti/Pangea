@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Agora — Pangea Democratic Platform",
   description:
-    "The digital democracy platform of the Global Democratic Republic of Pangea. Propose, debate, deliberate.",
+    "The digital democracy platform of the Global Democratic Commonwealth of Pangea. Propose, debate, deliberate.",
   keywords: ["democracy", "vote", "proposals", "Pangea", "Agora", "digital"],
   openGraph: {
     title: "Agora — Pangea",

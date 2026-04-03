@@ -30,14 +30,25 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch election
+  // Fetch election (no profiles join — created_by FK points to auth.users, not profiles)
   const { data: election } = await supabase
     .from("elections")
-    .select("*, profiles:created_by(full_name), jurisdictions(name, logo_emoji), parties!elections_party_id_fkey(name, logo_emoji)")
+    .select("*, jurisdictions(name, logo_emoji), parties!elections_party_id_fkey(name, logo_emoji)")
     .eq("id", id)
     .single();
 
   if (!election) notFound();
+
+  // Fetch creator name separately
+  let creatorName = "Admin";
+  if (election.created_by) {
+    const { data: creatorProfile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", election.created_by)
+      .single();
+    if (creatorProfile?.full_name) creatorName = creatorProfile.full_name;
+  }
 
   // User data
   let userName: string | null = null;
@@ -135,7 +146,7 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
             )}
             <span className="flex items-center gap-1.5 shrink-0">
               <User className="w-4 h-4 shrink-0" />
-              <span className="truncate">Created by {election.profiles?.full_name || "Admin"}</span>
+              <span className="truncate">Created by {creatorName}</span>
             </span>
           </div>
         </div>

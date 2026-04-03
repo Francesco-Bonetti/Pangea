@@ -214,7 +214,19 @@ export default function PartiesPage() {
 
         {/* Party list */}
         {loading ? (
-          <div className="text-center text-slate-500 py-12">Loading parties...</div>
+          <div className="grid gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-700 rounded-lg animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 w-40 bg-slate-700 rounded animate-pulse" />
+                    <div className="h-4 w-64 bg-slate-700/50 rounded animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : filteredParties.length === 0 ? (
           <div className="text-center text-slate-500 py-12">
             {searchQuery ? "No parties found." : "No parties created yet. Be the first!"}
