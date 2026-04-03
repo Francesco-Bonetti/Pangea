@@ -113,7 +113,7 @@ export default async function SocialPage({
       discussion_channels: d.discussion_channels,
       profiles: d.profiles,
     })
-  );
+  ) as unknown as Discussion[];
 
   return (
     <div className="min-h-screen bg-[#0c1220]">
