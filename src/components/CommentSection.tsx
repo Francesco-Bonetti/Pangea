@@ -24,6 +24,7 @@ interface Comment {
   parent_id: string | null;
   profiles: {
     full_name: string;
+    previous_name: string | null;
   } | null;
 }
 
@@ -138,10 +139,15 @@ function CommentCard({
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="font-medium text-slate-200">
               {comment.profiles?.full_name || "Anonimo"}
             </span>
+            {comment.profiles?.previous_name && (
+              <span className="text-[10px] text-slate-500 italic">
+                ex-{comment.profiles.previous_name}
+              </span>
+            )}
             <span className="text-xs text-slate-500">
               {timeAgo(comment.created_at)}
             </span>
@@ -224,7 +230,7 @@ function RepliesSection({
     try {
       const { data, error } = await supabase
         .from("comments")
-        .select("*, profiles!comments_author_id_profiles_fkey(full_name)")
+        .select("*, profiles!comments_author_id_profiles_fkey(full_name, previous_name)")
         .eq("parent_id", parentCommentId)
         .order("created_at", { ascending: false });
 
@@ -385,7 +391,7 @@ export default function CommentSection({
     try {
       let query = supabase
         .from("comments")
-        .select("*, profiles!comments_author_id_profiles_fkey(full_name)")
+        .select("*, profiles!comments_author_id_profiles_fkey(full_name, previous_name)")
         .is("parent_id", null)
         .order("created_at", { ascending: false });
 

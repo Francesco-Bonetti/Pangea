@@ -15,6 +15,16 @@
   * {
     @apply border-slate-700;
   }
+
+  /* Nasconde le freccette (spinner) dagli input numerici */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
 }
 
 @layer components {
@@ -31,7 +41,7 @@
   }
 
   .card {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm;
+    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm p-5;
   }
 
   .input-field {

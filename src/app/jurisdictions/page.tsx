@@ -206,9 +206,9 @@ export default function JurisdictionsPage() {
         </div>
 
         {/* Info card */}
-        <div className="card mb-6 border-l-4 border-pangea-500">
-          <h3 className="text-sm font-semibold text-pangea-300 mb-2">Come funzionano le Sotto-giurisdizioni</h3>
-          <ul className="text-xs text-slate-400 space-y-1">
+        <div className="card p-6 mb-8 border-l-4 border-pangea-500">
+          <h3 className="text-sm font-semibold text-pangea-300 mb-3">Come funzionano le Sotto-giurisdizioni</h3>
+          <ul className="text-sm text-slate-400 space-y-2 leading-relaxed">
             <li>• Esistono due tipi: <strong className="text-slate-300">Virtuali</strong> (unite da un ideale) e <strong className="text-slate-300">Geografiche</strong> (legate a un luogo fisico)</li>
             <li>• Puoi appartenere a <strong className="text-slate-300">più giurisdizioni</strong>, purché le loro leggi non siano in conflitto</li>
             <li>• Le leggi di Pangea sono sempre <strong className="text-slate-300">superiori</strong> — le sotto-leggi possono solo specificare, non contraddire</li>
@@ -270,7 +270,7 @@ export default function JurisdictionsPage() {
               <Link
                 key={j.id}
                 href={`/jurisdictions/${j.id}`}
-                className="card hover:border-pangea-600/50 transition-all group"
+                className="card p-6 hover:border-pangea-600/50 transition-all group"
               >
                 <div className="flex items-start gap-4">
                   <div className="text-3xl flex-shrink-0 mt-1">{j.logo_emoji}</div>

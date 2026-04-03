@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -30,7 +30,15 @@ interface OptionDraft {
 
 type ProposalType = "new" | "amendment" | "repeal";
 
-export default function NewProposalPage() {
+export default function NewProposalPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0c1220] flex items-center justify-center text-slate-500">Caricamento...</div>}>
+      <NewProposalPage />
+    </Suspense>
+  );
+}
+
+function NewProposalPage() {
   const searchParams = useSearchParams();
   const jurisdictionId = searchParams.get("jurisdiction");
   const jurisdictionName = searchParams.get("jurisdiction_name");

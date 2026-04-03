@@ -14,6 +14,7 @@ export type ProposalType = "new" | "amendment" | "repeal";
 export interface Profile {
   id: string;
   full_name: string | null;
+  previous_name?: string | null;
   bio: string | null;
   role?: UserRole;
   user_code?: string | null;

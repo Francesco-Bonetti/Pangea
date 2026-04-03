@@ -310,10 +310,10 @@ export default function SettingsPage() {
                 <Flag className="w-5 h-5 text-pangea-400" />
                 Pesi Voto Partiti
               </h2>
-              <p className="text-xs text-slate-500 mb-4">
+              <p className="text-sm text-slate-400 mb-4 leading-relaxed">
                 Se sei iscritto a più partiti e non voti direttamente su una proposta, il tuo voto viene diviso tra i partiti
-                in base a questi pesi. Di default tutti hanno peso uguale (1). Puoi personalizzare i pesi per dare più
-                influenza a un partito rispetto ad un altro.
+                in base a questi pesi. Di default tutti hanno peso uguale (1). I pesi sono relativi tra loro: se
+                un partito ha peso 2 e un altro peso 1, il primo riceverà il doppio dell&apos;influenza del secondo.
               </p>
               <div className="space-y-3">
                 {partyMemberships.map((pm) => {
