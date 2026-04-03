@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Users, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag } from "lucide-react";
+import { Globe, LogOut, Plus, User, Users, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Globe2 } from "lucide-react";
 import { useState } from "react";
 
 interface NavbarProps {
@@ -69,6 +69,13 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             >
               <Flag className="w-3.5 h-3.5" />
               Partiti
+            </Link>
+            <Link
+              href="/jurisdictions"
+              className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <Globe2 className="w-3.5 h-3.5" />
+              Giurisdizioni
             </Link>
             <Link
               href="/social"
@@ -197,6 +204,13 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               Partiti
+            </Link>
+            <Link
+              href="/jurisdictions"
+              className="block text-sm text-slate-400 hover:text-slate-200 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Giurisdizioni
             </Link>
             <Link
               href="/social"
