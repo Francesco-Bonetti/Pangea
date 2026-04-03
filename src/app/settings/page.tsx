@@ -348,19 +348,19 @@ export default function SettingsPage() {
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-3 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Settings className="w-6 h-6 text-pangea-400" />
-              Account Settings
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-pangea-400 shrink-0" />
+              <span className="truncate">Account Settings</span>
             </h1>
-            <p className="text-sm text-slate-400 mt-0.5">Manage your profile, privacy, and preferences</p>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5 truncate">Manage your profile, privacy, and preferences</p>
           </div>
         </div>
 

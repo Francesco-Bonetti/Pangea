@@ -176,17 +176,17 @@ export default function NewProposalPage() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <FileText className="w-6 h-6 text-pangea-400" />
-              New Proposal
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2 overflow-hidden">
+              <FileText className="w-6 h-6 text-pangea-400 shrink-0" />
+              <span className="truncate">New Proposal</span>
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
               Write your proposal and let citizens evaluate it
@@ -246,15 +246,15 @@ export default function NewProposalPage() {
             {/* Law picker for amendment/repeal */}
             {(proposalType === "amendment" || proposalType === "repeal") && (
               <div className="mt-4 card p-4">
-                <label className="label flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  {proposalType === "amendment" ? "Law to amend" : "Law to repeal"}
+                <label className="label flex items-center gap-1.5 overflow-hidden">
+                  <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{proposalType === "amendment" ? "Law to amend" : "Law to repeal"}</span>
                 </label>
                 {parentLawTitle ? (
-                  <div className="flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3">
-                    <BookOpen className="w-4 h-4 text-pangea-400" />
-                    <span className="text-sm text-slate-200 font-medium flex-1">{parentLawTitle}</span>
-                    <button onClick={() => { setParentProposalId(null); setParentLawTitle(null); }} className="text-slate-500 hover:text-red-400">
+                  <div className="flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3 overflow-hidden">
+                    <BookOpen className="w-4 h-4 text-pangea-400 shrink-0" />
+                    <span className="text-sm text-slate-200 font-medium flex-1 truncate">{parentLawTitle}</span>
+                    <button onClick={() => { setParentProposalId(null); setParentLawTitle(null); }} className="text-slate-500 hover:text-red-400 shrink-0">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -324,11 +324,11 @@ export default function NewProposalPage() {
             <button
               type="button"
               onClick={() => setShowTreeSelector(!showTreeSelector)}
-              className="label flex items-center gap-1.5 cursor-pointer hover:text-slate-200 transition-colors"
+              className="label flex items-center gap-1.5 cursor-pointer hover:text-slate-200 transition-colors overflow-hidden"
             >
-              <GitBranch className="w-3.5 h-3.5" />
-              Position in the law tree
-              <span className="text-xs font-normal text-slate-500 ml-1">(optional)</span>
+              <GitBranch className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Position in the law tree</span>
+              <span className="text-xs font-normal text-slate-500 ml-1 shrink-0">(optional)</span>
             </button>
             {!showTreeSelector && (
               <p className="text-xs text-slate-600 mt-1">
@@ -450,10 +450,10 @@ export default function NewProposalPage() {
             {options.length < 10 && (
               <button
                 onClick={addOption}
-                className="mt-3 btn-ghost text-sm flex items-center gap-1.5 text-pangea-400 hover:text-pangea-300"
+                className="mt-3 btn-ghost text-sm flex items-center gap-1.5 text-pangea-400 hover:text-pangea-300 overflow-hidden"
               >
-                <Plus className="w-4 h-4" />
-                Add option
+                <Plus className="w-4 h-4 shrink-0" />
+                <span className="truncate">Add option</span>
               </button>
             )}
           </div>
@@ -470,19 +470,19 @@ export default function NewProposalPage() {
             <button
               onClick={() => saveProposal("draft")}
               disabled={!isValid || saving || publishing}
-              className="btn-secondary flex items-center justify-center gap-2"
+              className="btn-secondary flex items-center justify-center gap-2 overflow-hidden"
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save as Draft
+              {saving ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <Save className="w-4 h-4 shrink-0" />}
+              <span className="truncate">Save as Draft</span>
             </button>
 
             <button
               onClick={() => saveProposal("curation")}
               disabled={!isPublishValid || saving || publishing}
-              className="btn-primary flex items-center justify-center gap-2 sm:ml-auto"
+              className="btn-primary flex items-center justify-center gap-2 sm:ml-auto overflow-hidden"
             >
-              {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Publish for Review
+              {publishing ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <Send className="w-4 h-4 shrink-0" />}
+              <span className="truncate">Publish for Review</span>
             </button>
           </div>
 

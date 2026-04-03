@@ -65,33 +65,33 @@ export default async function LawHistoryPage({ params }: PageProps) {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/laws"
-          className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-4 inline-flex items-center gap-1"
+          className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-4 inline-flex items-center gap-1 overflow-hidden"
         >
-          <ArrowLeft className="w-3 h-3" />
-          Back to Living Codes
+          <ArrowLeft className="w-3 h-3 shrink-0" />
+          <span className="truncate">Back to Living Codes</span>
         </Link>
 
-        <div className="flex items-center gap-3 mb-2 mt-4">
-          <History className="w-7 h-7 text-blue-400" />
-          <h1 className="text-2xl font-bold text-white">Version History</h1>
+        <div className="flex items-center gap-3 mb-2 mt-4 overflow-hidden">
+          <History className="w-7 h-7 text-blue-400 shrink-0" />
+          <h1 className="text-2xl font-bold text-white truncate">Version History</h1>
         </div>
 
         {/* Current law info */}
-        <div className="card border border-slate-700/30 p-4 mb-8">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="card border border-slate-700/30 p-4 mb-8 overflow-hidden">
+          <div className="flex items-center gap-2 mb-1 overflow-hidden">
             {law.article_number && (
-              <span className="text-xs font-medium text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded">
+              <span className="text-xs font-medium text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded shrink-0">
                 {law.article_number}
               </span>
             )}
-            <h2 className="text-lg font-semibold text-white">{law.title}</h2>
+            <h2 className="text-lg font-semibold text-white truncate">{law.title}</h2>
           </div>
           {law.summary && (
             <p className="text-sm text-slate-400">{law.summary}</p>
           )}
-          <div className="flex items-center gap-1.5 mt-2">
-            <Clock className="w-3 h-3 text-slate-600" />
-            <span className="text-xs text-slate-600">
+          <div className="flex items-center gap-1.5 mt-2 overflow-hidden">
+            <Clock className="w-3 h-3 text-slate-600 shrink-0" />
+            <span className="text-xs text-slate-600 truncate">
               Current version &middot; Last updated:{" "}
               {new Date(law.updated_at).toLocaleDateString("en-US", {
                 year: "numeric",

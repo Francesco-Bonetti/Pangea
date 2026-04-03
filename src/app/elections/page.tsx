@@ -11,6 +11,9 @@ export default async function ElectionsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  // Component: elections/page.tsx has minimal overflow risks as it delegates to ElectionsClient
+  // No direct flex headers with text overflow in this server component
+
   let userName: string | null = null;
   let userEmail: string | null = null;
   let userRole = "citizen";

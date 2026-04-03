@@ -145,17 +145,17 @@ export default async function SocialPage({
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-              <MessageCircle className="w-8 h-8 text-pangea-400" />
-              Community Forum
+          <div className="flex-1 min-w-0">
+            <h1 className="text-3xl font-bold text-white flex items-center gap-2 overflow-hidden">
+              <MessageCircle className="w-8 h-8 text-pangea-400 shrink-0" />
+              <span className="truncate">Community Forum</span>
             </h1>
             <p className="text-sm text-slate-400 mt-1">
               Join discussions with the community

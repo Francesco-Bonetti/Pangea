@@ -139,57 +139,57 @@ export default async function DiscussionPage({
         {/* Back button */}
         <Link
           href="/social"
-          className="inline-flex items-center gap-2 text-pangea-400 hover:text-pangea-300 font-medium mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-pangea-400 hover:text-pangea-300 font-medium mb-6 transition-colors overflow-hidden"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Forum
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          <span className="truncate">Back to Forum</span>
         </Link>
 
         {/* Discussion Header Card */}
-        <div className="card p-8 mb-8">
+        <div className="card p-8 mb-8 overflow-hidden">
           {/* Channel badge + metadata */}
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
             {discussion.discussion_channels && (
               <>
-                <span className="inline-flex items-center gap-1.5 text-sm text-slate-300 bg-slate-700/40 px-3 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 text-sm text-slate-300 bg-slate-700/40 px-3 py-1 rounded-full shrink-0">
                   <span className="text-base">
                     {discussion.discussion_channels.emoji}
                   </span>
-                  {discussion.discussion_channels.name}
+                  <span className="truncate">{discussion.discussion_channels.name}</span>
                 </span>
-                <span className="text-slate-500">•</span>
+                <span className="text-slate-500 shrink-0">•</span>
               </>
             )}
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-slate-500 shrink-0">
               {formatTimeAgo(discussion.created_at)}
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl font-bold text-white mb-4">
+          <h1 className="text-3xl font-bold text-white mb-4 truncate">
             {discussion.title}
           </h1>
 
           {/* Author info */}
-          <div className="flex items-center gap-3 py-4 border-b border-slate-700">
-            <div>
-              <p className="text-sm font-medium text-slate-200">
+          <div className="flex items-center gap-3 py-4 border-b border-slate-700 overflow-hidden">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-slate-200 truncate">
                 {resolvePrivacyName(discussion.profiles?.full_name, privacyMap.get(discussion.author_id) || null)}
               </p>
               {discussion.profiles?.bio && (
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5 truncate">
                   {discussion.profiles.bio}
                 </p>
               )}
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto shrink-0 flex gap-2">
               {discussion.is_pinned && (
-                <span className="text-xs px-2 py-1 bg-amber-900/30 text-amber-400 border border-amber-700/50 rounded-full">
+                <span className="text-xs px-2 py-1 bg-amber-900/30 text-amber-400 border border-amber-700/50 rounded-full shrink-0">
                   📌 Pinned
                 </span>
               )}
               {discussion.is_locked && (
-                <span className="text-xs px-2 py-1 bg-red-900/30 text-red-400 border border-red-700/50 rounded-full ml-2">
+                <span className="text-xs px-2 py-1 bg-red-900/30 text-red-400 border border-red-700/50 rounded-full shrink-0">
                   🔒 Locked
                 </span>
               )}

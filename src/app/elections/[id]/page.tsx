@@ -87,28 +87,28 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
         {/* Back */}
         <Link
           href="/elections"
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-6 overflow-hidden"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Elections
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          <span className="truncate">Back to Elections</span>
         </Link>
 
         {/* Header */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <div className="flex items-center gap-3 flex-wrap mb-2">
-                <h1 className="text-2xl font-bold text-white">{election.title}</h1>
-                <span className={`px-3 py-1 text-xs font-medium rounded-full border ${config.bg} ${config.color}`}>
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-6 overflow-hidden">
+          <div className="flex items-start justify-between gap-4 mb-4 overflow-hidden">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 flex-wrap mb-2 overflow-hidden">
+                <h1 className="text-2xl font-bold text-white truncate">{election.title}</h1>
+                <span className={`px-3 py-1 text-xs font-medium rounded-full border shrink-0 ${config.bg} ${config.color}`}>
                   {config.label}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 mb-3">
-                <Trophy className="w-5 h-5 text-amber-500" />
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
+                <Trophy className="w-5 h-5 text-amber-500 shrink-0" />
                 <span className="text-base text-slate-300 font-medium">{election.position_name}</span>
                 {election.max_winners > 1 && (
-                  <span className="text-sm text-slate-500">({election.max_winners} seats)</span>
+                  <span className="text-sm text-slate-500 shrink-0">({election.max_winners} seats)</span>
                 )}
               </div>
             </div>
@@ -120,31 +120,31 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
           )}
 
           {/* Meta */}
-          <div className="flex items-center gap-4 flex-wrap text-sm text-slate-500">
+          <div className="flex items-center gap-4 flex-wrap text-sm text-slate-500 overflow-hidden">
             {election.jurisdictions && (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4" />
-                {election.jurisdictions.logo_emoji} {election.jurisdictions.name}
+              <span className="flex items-center gap-1.5 shrink-0">
+                <MapPin className="w-4 h-4 shrink-0" />
+                <span className="truncate">{election.jurisdictions.logo_emoji} {election.jurisdictions.name}</span>
               </span>
             )}
             {election.parties && (
-              <span className="flex items-center gap-1.5">
-                <Flag className="w-4 h-4" />
-                {election.parties.logo_emoji} {election.parties.name}
+              <span className="flex items-center gap-1.5 shrink-0">
+                <Flag className="w-4 h-4 shrink-0" />
+                <span className="truncate">{election.parties.logo_emoji} {election.parties.name}</span>
               </span>
             )}
-            <span className="flex items-center gap-1.5">
-              <User className="w-4 h-4" />
-              Created by {election.profiles?.full_name || "Admin"}
+            <span className="flex items-center gap-1.5 shrink-0">
+              <User className="w-4 h-4 shrink-0" />
+              <span className="truncate">Created by {election.profiles?.full_name || "Admin"}</span>
             </span>
           </div>
         </div>
 
         {/* Timeline */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6">
-          <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            Election Timeline
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6 overflow-hidden">
+          <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2 overflow-hidden">
+            <Clock className="w-4 h-4 shrink-0" />
+            <span className="truncate">Election Timeline</span>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {phases.map((phase, i) => {
@@ -163,9 +163,9 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
                   <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                     phase.active ? "bg-purple-500 animate-pulse" : isPast ? "bg-slate-600" : "bg-slate-500"
                   }`} />
-                  <div>
-                    <p className="text-xs text-slate-500">{phase.label}</p>
-                    <p className="text-sm text-slate-300">{formatDate(phase.date)}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500 truncate">{phase.label}</p>
+                    <p className="text-sm text-slate-300 truncate">{formatDate(phase.date)}</p>
                   </div>
                 </div>
               );

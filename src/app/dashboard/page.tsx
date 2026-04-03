@@ -135,10 +135,10 @@ export default async function DashboardPage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header + Compact stats */}
         <div className="mb-8">
-          <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 mb-4">
-            <div>
+          <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 mb-4 overflow-hidden">
+            <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Globe className="w-6 h-6 text-pangea-400" strokeWidth={1.5} />
+                <Globe className="w-6 h-6 text-pangea-400 shrink-0" strokeWidth={1.5} />
                 The Agora
               </h1>
               <p className="text-slate-400 text-sm mt-1">

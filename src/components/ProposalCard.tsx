@@ -50,28 +50,28 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
   return (
     <Link
       href={`/proposals/${proposal.id}`}
-      className="card p-6 hover:border-slate-600 hover:bg-slate-800/70 transition-all duration-200 group block"
+      className="card p-6 hover:border-slate-600 hover:bg-slate-800/70 transition-all duration-200 group block overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-4">
+      <div className="flex items-start justify-between gap-4 mb-4 overflow-hidden">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={statusClass}>
+            <span className={`${statusClass} shrink-0`}>
               <StatusIcon className="w-3 h-3 inline mr-1" />
               {statusLabel}
             </span>
             {proposal.proposal_type === "amendment" && (
-              <span className="text-xs text-purple-400 bg-purple-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-xs text-purple-400 bg-purple-900/20 px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
                 <Edit3 className="w-3 h-3" /> Amendment
               </span>
             )}
             {proposal.proposal_type === "repeal" && (
-              <span className="text-xs text-red-400 bg-red-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-xs text-red-400 bg-red-900/20 px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
                 <Trash2 className="w-3 h-3" /> Repeal
               </span>
             )}
             {proposal.has_voted && (
-              <span className="text-xs text-pangea-400 font-medium">
+              <span className="text-xs text-pangea-400 font-medium shrink-0">
                 ✓ Voted
               </span>
             )}
@@ -91,12 +91,12 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
       {/* Curation: signal progress bar */}
       {proposal.status === "curation" && typeof proposal.signal_count === "number" && (
         <div className="mb-4">
-          <div className="flex justify-between text-xs text-slate-400 mb-1">
-            <span className="flex items-center gap-1">
-              <Flame className="w-3 h-3 text-amber-400" />
-              Signals
+          <div className="flex justify-between text-xs text-slate-400 mb-1 overflow-hidden gap-2">
+            <span className="flex items-center gap-1 min-w-0">
+              <Flame className="w-3 h-3 text-amber-400 shrink-0" />
+              <span className="truncate">Signals</span>
             </span>
-            <span>{proposal.signal_count} / 100</span>
+            <span className="shrink-0">{proposal.signal_count} / 100</span>
           </div>
           <div className="bg-slate-700 rounded-full h-2">
             <div
@@ -175,21 +175,21 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
         )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
-        <div className="flex items-center gap-1 text-xs text-slate-400">
+      <div className="flex items-center justify-between pt-4 border-t border-slate-700/50 overflow-hidden gap-2">
+        <div className="flex items-center gap-1 text-xs text-slate-400 min-w-0">
           {proposal.status === "curation" ? (
             <>
-              <Flame className="w-3 h-3" />
-              <span>{proposal.signal_count ?? 0} signals</span>
+              <Flame className="w-3 h-3 shrink-0" />
+              <span className="truncate">{proposal.signal_count ?? 0} signals</span>
             </>
           ) : (
             <>
-              <Users className="w-3 h-3" />
-              <span>{total} {total === 1 ? "vote" : "votes"}</span>
+              <Users className="w-3 h-3 shrink-0" />
+              <span className="truncate">{total} {total === 1 ? "vote" : "votes"}</span>
             </>
           )}
         </div>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-400 shrink-0">
           {formatDate(proposal.created_at)}
         </span>
       </div>

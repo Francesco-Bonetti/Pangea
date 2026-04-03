@@ -93,9 +93,9 @@ export default async function LawsPage() {
           >
             &larr; Back to the Agora
           </Link>
-          <div className="flex items-center gap-3 mb-2">
-            <BookOpen className="w-8 h-8 text-blue-400" strokeWidth={1.5} />
-            <h1 className="text-3xl font-bold text-white">
+          <div className="flex items-center gap-3 mb-2 overflow-hidden">
+            <BookOpen className="w-8 h-8 text-blue-400 shrink-0" strokeWidth={1.5} />
+            <h1 className="text-3xl font-bold text-white truncate">
               The Living Codes of Pangea
             </h1>
           </div>

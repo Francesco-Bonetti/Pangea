@@ -187,8 +187,9 @@ export default function AdminPage() {
           <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-2">Access denied</h1>
           <p className="text-slate-400 mb-6">Only administrators can access this page.</p>
-          <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" /> Back to the Agora
+          <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2 overflow-hidden">
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            <span className="truncate">Back to the Agora</span>
           </Link>
         </div>
       </div>

@@ -222,14 +222,14 @@ export default function FeedClient({ userId }: FeedClientProps) {
               {events.map((event) => (
                 <div
                   key={event.id}
-                  className={`card p-4 border-l-2 ${EVENT_COLORS[event.event_type] || "border-l-slate-600"} hover:bg-slate-800/30 transition-colors`}
+                  className={`card p-4 border-l-2 ${EVENT_COLORS[event.event_type] || "border-l-slate-600"} hover:bg-slate-800/30 transition-colors overflow-hidden`}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3 overflow-hidden">
                     <div className="mt-0.5 flex-shrink-0">
-                      {EVENT_ICONS[event.event_type] || <FileText className="w-4 h-4 text-slate-400" />}
+                      {EVENT_ICONS[event.event_type] || <FileText className="w-4 h-4 text-slate-400 shrink-0" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-200 font-medium">{event.title}</p>
+                      <p className="text-sm text-slate-200 font-medium truncate">{event.title}</p>
                       {event.description && (
                         <p className="text-xs text-slate-400 mt-1 truncate">{event.description}</p>
                       )}
@@ -238,9 +238,9 @@ export default function FeedClient({ userId }: FeedClientProps) {
                     {event.link && (
                       <Link
                         href={event.link}
-                        className="flex-shrink-0 text-pangea-400 hover:text-pangea-300 transition-colors"
+                        className="flex-shrink-0 text-pangea-400 hover:text-pangea-300 transition-colors shrink-0"
                       >
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-4 h-4 shrink-0" />
                       </Link>
                     )}
                   </div>
@@ -268,16 +268,16 @@ export default function FeedClient({ userId }: FeedClientProps) {
                 <Link
                   key={`${entity.target_type}-${entity.target_id}`}
                   href={entityLink(entity.target_type, entity.target_id)}
-                  className="card p-4 flex items-center gap-3 hover:bg-slate-800/30 transition-colors"
+                  className="card p-4 flex items-center gap-3 hover:bg-slate-800/30 transition-colors overflow-hidden"
                 >
-                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
                     {entityIcon(entity.target_type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-slate-200 font-medium truncate">{entity.name}</p>
                     <p className="text-xs text-slate-500 capitalize">{entity.target_type}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-600" />
+                  <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
                 </Link>
               ))}
             </div>

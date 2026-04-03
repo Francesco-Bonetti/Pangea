@@ -170,23 +170,23 @@ export default function MessagesClient({
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <MessageSquare className="w-6 h-6 text-blue-400" />
-          <h1 className="text-2xl font-bold text-white">Messages</h1>
+      <div className="flex items-center justify-between mb-6 overflow-hidden">
+        <div className="flex items-center gap-3 min-w-0">
+          <MessageSquare className="w-6 h-6 text-blue-400 shrink-0" />
+          <h1 className="text-2xl font-bold text-white truncate">Messages</h1>
         </div>
         <button
           onClick={() => setShowNewConv(true)}
-          className="btn-primary flex items-center gap-2 text-sm px-4 py-2"
+          className="btn-primary flex items-center gap-2 text-sm px-4 py-2 shrink-0"
         >
-          <PenSquare className="w-4 h-4" />
+          <PenSquare className="w-4 h-4 shrink-0" />
           New Message
         </button>
       </div>
 
       {/* E2E badge */}
-      <div className="flex items-center gap-2 mb-6 text-xs text-slate-400">
-        <ShieldCheck className="w-4 h-4 text-green-500" />
+      <div className="flex items-center gap-2 mb-6 text-xs text-slate-400 overflow-hidden flex-wrap">
+        <ShieldCheck className="w-4 h-4 text-green-500 shrink-0" />
         <span>End-to-end encrypted. Only you and the recipient can read these messages.</span>
       </div>
 
@@ -238,7 +238,7 @@ export default function MessagesClient({
               <Link
                 key={conv.id}
                 href={`/messages/${conv.id}`}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 hover:bg-slate-800/70 group ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 hover:bg-slate-800/70 group overflow-hidden ${
                   unread ? "bg-slate-800/40" : ""
                 }`}
               >
@@ -257,7 +257,7 @@ export default function MessagesClient({
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2 overflow-hidden">
                     <span
                       className={`text-sm truncate ${
                         unread
@@ -267,13 +267,13 @@ export default function MessagesClient({
                     >
                       {displayName}
                     </span>
-                    <span className="text-xs text-slate-400 shrink-0 ml-2">
+                    <span className="text-xs text-slate-400 shrink-0">
                       {conv.last_message
                         ? formatTime(conv.last_message.created_at)
                         : ""}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 mt-0.5">
+                  <div className="flex items-center gap-1 mt-0.5 min-w-0">
                     <Lock className="w-3 h-3 text-slate-500 shrink-0" />
                     <p
                       className={`text-xs truncate ${
@@ -292,9 +292,9 @@ export default function MessagesClient({
                 {/* Unread dot + chevron */}
                 <div className="flex items-center gap-2 shrink-0">
                   {unread && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
                   )}
-                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors shrink-0" />
                 </div>
               </Link>
             );

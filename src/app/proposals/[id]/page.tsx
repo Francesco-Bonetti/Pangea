@@ -165,7 +165,7 @@ export default async function ProposalDetailPage({ params }: Props) {
         )}
 
         {/* Proposal Header */}
-        <div className="card p-6 sm:p-8 mb-6">
+        <div className="card p-6 sm:p-8 mb-6 overflow-hidden">
           {/* Status badge */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <span
@@ -220,9 +220,9 @@ export default async function ProposalDetailPage({ params }: Props) {
 
           {/* Metadata */}
           <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-            <Link href={`/citizens/${proposal.author_id}`} className="flex items-center gap-1.5 hover:text-pangea-300 transition-colors">
-              <User className="w-4 h-4" />
-              <span>
+            <Link href={`/citizens/${proposal.author_id}`} className="flex items-center gap-1.5 hover:text-pangea-300 transition-colors overflow-hidden min-w-0">
+              <User className="w-4 h-4 shrink-0" />
+              <span className="truncate">
                 {authorPrivacy && authorPrivacy.profile_visibility === "private"
                   ? (authorPrivacy.display_name || "Private Citizen")
                   : authorPrivacy && authorPrivacy.show_full_name === false
@@ -230,14 +230,14 @@ export default async function ProposalDetailPage({ params }: Props) {
                     : (authorProfile?.full_name ?? "Citizen")}
               </span>
             </Link>
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4" />
-              <span>{formatDateTime(proposal.created_at)}</span>
+            <div className="flex items-center gap-1.5 overflow-hidden min-w-0">
+              <Calendar className="w-4 h-4 shrink-0" />
+              <span className="truncate">{formatDateTime(proposal.created_at)}</span>
             </div>
             {proposal.expires_at && (
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4" />
-                <span>
+              <div className="flex items-center gap-1.5 overflow-hidden min-w-0">
+                <Clock className="w-4 h-4 shrink-0" />
+                <span className="truncate">
                   Expires: {formatDateTime(proposal.expires_at)}
                 </span>
               </div>
@@ -250,10 +250,10 @@ export default async function ProposalDetailPage({ params }: Props) {
           {/* Proposal text */}
           <div className="lg:col-span-2 space-y-6">
             {/* Context */}
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-pangea-400" />
-                Context and Motivation
+            <div className="card p-6 overflow-hidden">
+              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2 overflow-hidden">
+                <FileText className="w-5 h-5 text-pangea-400 shrink-0" />
+                <span className="truncate">Context and Motivation</span>
               </h2>
               <div className="prose prose-invert prose-sm max-w-none">
                 <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
@@ -278,10 +278,10 @@ export default async function ProposalDetailPage({ params }: Props) {
 
             {/* Deliberative options */}
             {proposalOptions.length > 0 && (
-              <div className="card p-6">
-                <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                  <Flame className="w-5 h-5 text-amber-400" />
-                  Deliberative Options
+              <div className="card p-6 overflow-hidden">
+                <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2 overflow-hidden">
+                  <Flame className="w-5 h-5 text-amber-400 shrink-0" />
+                  <span className="truncate">Deliberative Options</span>
                 </h2>
                 <div className="space-y-3">
                   {proposalOptions.map((opt, i) => (
@@ -314,10 +314,10 @@ export default async function ProposalDetailPage({ params }: Props) {
             {proposal.status === "curation" ? (
               /* Community Review — SignalButton */
               <div className="sticky top-24">
-                <div className="card p-5 mb-4">
-                  <h2 className="text-base font-semibold text-slate-200 mb-1 flex items-center gap-2">
-                    <Flame className="w-4 h-4 text-amber-400" />
-                    Community Review
+                <div className="card p-5 mb-4 overflow-hidden">
+                  <h2 className="text-base font-semibold text-slate-200 mb-1 flex items-center gap-2 overflow-hidden">
+                    <Flame className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="truncate">Community Review</span>
                   </h2>
                   <p className="text-xs text-slate-500">
                     Support this proposal to move it to the voting phase
@@ -362,10 +362,10 @@ export default async function ProposalDetailPage({ params }: Props) {
 
         {/* Discussion section */}
         <div className="mt-8">
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-pangea-400" />
-              Discussion
+          <div className="card p-6 overflow-hidden">
+            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2 overflow-hidden">
+              <MessageCircle className="w-5 h-5 text-pangea-400 shrink-0" />
+              <span className="truncate">Discussion</span>
             </h2>
             <CommentSection
               targetType="proposal"

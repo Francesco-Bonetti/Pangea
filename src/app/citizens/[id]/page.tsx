@@ -112,8 +112,8 @@ export default async function CitizenProfilePage({ params }: Props) {
       <Navbar userEmail={user?.email} isGuest={!user} />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link href="/dashboard" className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-6 inline-block">
-          &larr; Back to the Agora
+        <Link href="/dashboard" className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-6 inline-block overflow-hidden">
+          <span className="inline-block truncate">&larr; Back to the Agora</span>
         </Link>
 
         {/* Restricted access banner */}
@@ -136,9 +136,9 @@ export default async function CitizenProfilePage({ params }: Props) {
             <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center text-2xl text-slate-500 font-bold mx-auto mb-4">
               <Lock className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-1">{displayName}</h1>
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+            <h1 className="text-2xl font-bold text-white mb-1 truncate">{displayName}</h1>
+            <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+              <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${
                 citizen.role === "admin" ? "text-red-300 bg-red-900/30 border border-red-700/30" :
                 citizen.role === "moderator" ? "text-amber-300 bg-amber-900/30 border border-amber-700/30" :
                 "text-slate-400 bg-slate-700/50"
@@ -148,7 +148,7 @@ export default async function CitizenProfilePage({ params }: Props) {
               </span>
             </div>
             {showUserCode && citizen.user_code && (
-              <p className="text-xs text-pangea-300 font-mono font-semibold tracking-wider mt-1">{citizen.user_code}</p>
+              <p className="text-xs text-pangea-300 font-mono font-semibold tracking-wider mt-1 truncate">{citizen.user_code}</p>
             )}
             <p className="text-slate-500 text-sm mt-4">This citizen has set their profile to private.</p>
           </div>
@@ -162,17 +162,18 @@ export default async function CitizenProfilePage({ params }: Props) {
               <div className="w-20 h-20 rounded-full bg-pangea-800 border-2 border-pangea-600 flex items-center justify-center text-2xl text-pangea-300 font-bold mx-auto mb-4">
                 {avatarInitial}
               </div>
-              <h1 className="text-2xl font-bold text-white mb-1">{displayName}</h1>
+              <h1 className="text-2xl font-bold text-white mb-1 truncate">{displayName}</h1>
 
               {/* If viewing own private profile, show indicator */}
               {isSelf && privacy?.profile_visibility === "private" && (
-                <p className="text-xs text-amber-400 mb-2 flex items-center justify-center gap-1">
-                  <Lock className="w-3 h-3" /> Your profile is set to Private — only you see the full version
+                <p className="text-xs text-amber-400 mb-2 flex items-center justify-center gap-1 flex-wrap">
+                  <Lock className="w-3 h-3 shrink-0" />
+                  <span className="truncate">Your profile is set to Private — only you see the full version</span>
                 </p>
               )}
 
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+              <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+                <span className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${
                   citizen.role === "admin" ? "text-red-300 bg-red-900/30 border border-red-700/30" :
                   citizen.role === "moderator" ? "text-amber-300 bg-amber-900/30 border border-amber-700/30" :
                   "text-slate-400 bg-slate-700/50"
@@ -188,9 +189,9 @@ export default async function CitizenProfilePage({ params }: Props) {
                 <p className="text-slate-400 text-sm max-w-md mx-auto mt-2">{citizen.bio}</p>
               )}
               {showJoinDate && (
-                <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-slate-500">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Member since {formatDate(citizen.created_at)}
+                <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-slate-500 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Member since {formatDate(citizen.created_at)}</span>
                 </div>
               )}
 
@@ -234,20 +235,20 @@ export default async function CitizenProfilePage({ params }: Props) {
             {/* Proposals */}
             {showActivity && proposals && proposals.length > 0 && (
               <div className="card p-6">
-                <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-pangea-400" />
-                  Public Proposals
+                <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2 overflow-hidden">
+                  <BookOpen className="w-5 h-5 text-pangea-400 shrink-0" />
+                  <span className="truncate">Public Proposals</span>
                 </h2>
                 <div className="space-y-3">
                   {proposals.map((p) => (
                     <Link
                       key={p.id}
                       href={`/proposals/${p.id}`}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-colors overflow-hidden"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-slate-200 truncate">{p.title}</p>
-                        <p className="text-xs text-slate-500">{formatDate(p.created_at)}</p>
+                        <p className="text-xs text-slate-500 truncate">{formatDate(p.created_at)}</p>
                       </div>
                       <span className={statusConfig[p.status] || "status-draft"}>
                         {p.status === "active" ? "Active Vote" : p.status === "closed" ? "Concluded" : "Community Review"}

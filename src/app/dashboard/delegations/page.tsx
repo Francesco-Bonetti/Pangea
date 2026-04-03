@@ -209,32 +209,32 @@ export default function DelegationsPage() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-3 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Users className="w-6 h-6 text-pangea-400" />
-              Liquid Democracy
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-pangea-400 shrink-0" />
+              <span className="truncate">Liquid Democracy</span>
             </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5 truncate">
               Manage your vote delegations — global or by topic
             </p>
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="btn-primary flex items-center gap-2 text-sm py-2"
+            className="shrink-0 btn-primary flex items-center gap-2 text-sm py-2"
           >
             {showForm ? (
               <X className="w-4 h-4" />
             ) : (
               <Plus className="w-4 h-4" />
             )}
-            {showForm ? "Cancel" : "New Delegation"}
+            <span className="hidden sm:inline">{showForm ? "Cancel" : "New Delegation"}</span>
           </button>
         </div>
 
@@ -409,30 +409,30 @@ export default function DelegationsPage() {
                 return (
                   <div
                     key={d.id}
-                    className="card p-4 flex items-center gap-4"
+                    className="card p-4 flex items-center gap-3 overflow-hidden"
                   >
-                    <div className="w-10 h-10 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-sm text-pangea-300 font-bold">
-                      {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} className="text-xs" /> : "?"}
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-pangea-300 font-bold overflow-hidden">
+                      {delegateProfile?.full_name ? delegateProfile.full_name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "?"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-200 font-medium">
+                      <p className="text-sm text-slate-200 font-medium truncate">
                         {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
                       </p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1">
+                      <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
                         {category ? (
                           <>
-                            <Tag className="w-3 h-3" />
-                            {category.name}
+                            <Tag className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{category.name}</span>
                           </>
                         ) : (
                           <>
-                            <Globe className="w-3 h-3" />
+                            <Globe className="w-3 h-3 shrink-0" />
                             Global delegation
                           </>
                         )}
                       </p>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    <span className={`shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
                       d.status === "accepted" ? "text-green-300 bg-green-900/20 border border-green-700/30" :
                       d.status === "rejected" ? "text-red-300 bg-red-900/20 border border-red-700/30" :
                       "text-amber-300 bg-amber-900/20 border border-amber-700/30"
@@ -441,7 +441,7 @@ export default function DelegationsPage() {
                     </span>
                     <button
                       onClick={() => revokeDelegation(d.id)}
-                      className="text-slate-600 hover:text-red-400 transition-colors p-2"
+                      className="shrink-0 text-slate-600 hover:text-red-400 transition-colors p-2"
                       title="Revoke delegation"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -478,31 +478,31 @@ export default function DelegationsPage() {
                 return (
                   <div
                     key={d.id}
-                    className="card p-4 flex items-center gap-4"
+                    className="card p-4 flex items-center gap-3 overflow-hidden"
                   >
-                    <div className="w-10 h-10 rounded-full bg-amber-900/30 border border-amber-700/50 flex items-center justify-center text-sm text-amber-300 font-bold">
-                      {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} className="text-xs" /> : "?"}
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-amber-900/30 border border-amber-700/50 flex items-center justify-center text-xs text-amber-300 font-bold overflow-hidden">
+                      {delegatorProfile?.full_name ? delegatorProfile.full_name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "?"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-200 font-medium">
+                      <p className="text-sm text-slate-200 font-medium truncate">
                         {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
                       </p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1">
+                      <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
                         {category ? (
                           <>
-                            <Tag className="w-3 h-3" />
-                            {category.name}
+                            <Tag className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{category.name}</span>
                           </>
                         ) : (
                           <>
-                            <Globe className="w-3 h-3" />
+                            <Globe className="w-3 h-3 shrink-0" />
                             Global delegation
                           </>
                         )}
                       </p>
                     </div>
                     {d.status === "pending" ? (
-                      <div className="flex items-center gap-1.5">
+                      <div className="shrink-0 flex items-center gap-1.5">
                         <button
                           onClick={() => acceptDelegation(d.id)}
                           className="p-1.5 rounded-lg text-green-400 hover:bg-green-900/30 transition-colors"
@@ -517,7 +517,7 @@ export default function DelegationsPage() {
                         >
                           <XCircle className="w-4 h-4" />
                         </button>
-                        <span className="text-xs text-amber-500/80 bg-amber-900/20 px-2 py-1 rounded-full flex items-center gap-1">
+                        <span className="text-xs text-amber-500/80 bg-amber-900/20 px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
                           <Clock className="w-3 h-3" /> Pending
                         </span>
                       </div>

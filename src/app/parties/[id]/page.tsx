@@ -273,15 +273,17 @@ export default function PartyDetailPage() {
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Back link */}
-        <Link href="/parties" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-300 mb-6">
-          <ArrowLeft className="w-4 h-4" /> All parties
+        <Link href="/parties" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-300 mb-6 overflow-hidden">
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          <span className="truncate">All parties</span>
         </Link>
 
         {/* Alerts */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />{error}
-            <button onClick={() => setError(null)} className="ml-auto"><X className="w-4 h-4" /></button>
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="truncate">{error}</span>
+            <button onClick={() => setError(null)} className="ml-auto shrink-0"><X className="w-4 h-4" /></button>
           </div>
         )}
         {success && (
@@ -291,11 +293,11 @@ export default function PartyDetailPage() {
         )}
 
         {/* Party header */}
-        <div className="card mb-6">
-          <div className="flex items-start gap-4">
-            <div className="text-5xl">{party.logo_emoji}</div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white">{party.name}</h1>
+        <div className="card mb-6 overflow-hidden">
+          <div className="flex items-start gap-4 overflow-hidden">
+            <div className="text-5xl shrink-0">{party.logo_emoji}</div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold text-white truncate">{party.name}</h1>
               <p className="text-sm text-slate-400 mt-1">
                 Founded by <span className="text-slate-300"><PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={profile?.id} /></span>
                 {" · "}{new Date(party.created_at).toLocaleDateString("en-US")}
@@ -305,7 +307,7 @@ export default function PartyDetailPage() {
                 <p className="text-slate-300 mt-3">{party.description}</p>
               )}
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
               {!isGuest && (
                 <FollowButton
                   currentUserId={profile?.id ?? null}
@@ -317,18 +319,21 @@ export default function PartyDetailPage() {
                 />
               )}
               {!isGuest && !isMember && (
-                <button onClick={handleJoin} className="btn-primary flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" /> Join
+                <button onClick={handleJoin} className="btn-primary flex items-center gap-2 overflow-hidden whitespace-nowrap">
+                  <UserPlus className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Join</span>
                 </button>
               )}
               {isMember && !isFounder && (
-                <button onClick={handleLeave} className="btn-ghost text-red-400 flex items-center gap-2">
-                  <UserMinus className="w-4 h-4" /> Leave
+                <button onClick={handleLeave} className="btn-ghost text-red-400 flex items-center gap-2 overflow-hidden whitespace-nowrap">
+                  <UserMinus className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Leave</span>
                 </button>
               )}
               {isAdmin && (
-                <button onClick={() => setEditing(!editing)} className="btn-ghost flex items-center gap-2">
-                  <Edit2 className="w-4 h-4" /> Edit
+                <button onClick={() => setEditing(!editing)} className="btn-ghost flex items-center gap-2 overflow-hidden whitespace-nowrap">
+                  <Edit2 className="w-4 h-4 shrink-0" />
+                  <span className="truncate">Edit</span>
                 </button>
               )}
             </div>
@@ -369,13 +374,14 @@ export default function PartyDetailPage() {
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 overflow-hidden ${
                 activeTab === t.key
                   ? "border-pangea-400 text-pangea-300"
                   : "border-transparent text-slate-500 hover:text-slate-300"
               }`}
             >
-              {t.icon}{t.label}
+              {t.icon}
+              <span className="truncate">{t.label}</span>
             </button>
           ))}
         </div>
@@ -444,19 +450,19 @@ export default function PartyDetailPage() {
         {activeTab === "members" && (
           <div className="space-y-2">
             {members.map((m) => (
-              <div key={m.id} className="card flex items-center gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-pangea-300 font-bold text-sm overflow-hidden">
+              <div key={m.id} className="card flex items-center gap-3 overflow-hidden">
+                <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-pangea-300 font-bold text-sm">
                   {(m.profiles?.full_name ?? "?").split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
                 </div>
-                <div className="flex-1">
-                  <Link href={`/citizens/${m.user_id}`} className="text-sm font-medium text-white hover:text-pangea-300 transition-colors">
+                <div className="flex-1 min-w-0">
+                  <Link href={`/citizens/${m.user_id}`} className="text-sm font-medium text-white hover:text-pangea-300 transition-colors truncate block">
                     <PrivacyName userId={m.user_id} fullName={m.profiles?.full_name ?? null} currentUserId={user?.id} />
                   </Link>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    {m.role === "founder" && <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">Founder</span>}
-                    {m.role === "admin" && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Admin</span>}
-                    {m.role === "member" && <span className="text-[10px] bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-full">Member</span>}
-                    <span className="text-[10px] text-slate-600">Since {new Date(m.joined_at).toLocaleDateString("en-US")}</span>
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    {m.role === "founder" && <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full shrink-0">Founder</span>}
+                    {m.role === "admin" && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full shrink-0">Admin</span>}
+                    {m.role === "member" && <span className="text-[10px] bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-full shrink-0">Member</span>}
+                    <span className="text-[10px] text-slate-600 shrink-0">Since {new Date(m.joined_at).toLocaleDateString("en-US")}</span>
                   </div>
                 </div>
                 {/* Admin actions */}
@@ -496,11 +502,11 @@ export default function PartyDetailPage() {
                     {activeProposals.map((prop) => {
                       const currentVote = partyVotes.find((v) => v.proposal_id === prop.id);
                       return (
-                        <div key={prop.id} className="flex items-center gap-3 bg-slate-800/50 rounded-lg p-3">
-                          <Link href={`/proposals/${prop.id}`} className="flex-1 text-sm text-slate-300 hover:text-white truncate">
+                        <div key={prop.id} className="flex items-center gap-3 bg-slate-800/50 rounded-lg p-3 overflow-hidden">
+                          <Link href={`/proposals/${prop.id}`} className="flex-1 min-w-0 text-sm text-slate-300 hover:text-white truncate">
                             {prop.title}
                           </Link>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 shrink-0">
                             <button
                               onClick={() => handleSetPartyVote(prop.id, "yea")}
                               className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "yea" ? "bg-green-500/30 text-green-400" : "text-slate-600 hover:text-green-400"}`}
@@ -539,16 +545,16 @@ export default function PartyDetailPage() {
               ) : (
                 <div className="space-y-2">
                   {partyVotes.map((pv) => (
-                    <div key={pv.id} className="card flex items-center gap-3 py-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    <div key={pv.id} className="card flex items-center gap-3 py-3 overflow-hidden">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         pv.vote_type === "yea" ? "bg-green-500/20" : pv.vote_type === "nay" ? "bg-red-500/20" : "bg-amber-500/20"
                       }`}>
                         {pv.vote_type === "yea" && <ThumbsUp className="w-4 h-4 text-green-400" />}
                         {pv.vote_type === "nay" && <ThumbsDown className="w-4 h-4 text-red-400" />}
                         {pv.vote_type === "abstain" && <MinusCircle className="w-4 h-4 text-amber-400" />}
                       </div>
-                      <div className="flex-1">
-                        <Link href={`/proposals/${pv.proposal_id}`} className="text-sm text-white hover:text-pangea-300 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/proposals/${pv.proposal_id}`} className="text-sm text-white hover:text-pangea-300 transition-colors truncate block">
                           {pv.proposals?.title || "Proposal"}
                         </Link>
                         <p className="text-[10px] text-slate-600 mt-0.5">
@@ -556,7 +562,7 @@ export default function PartyDetailPage() {
                           {" · "}{new Date(pv.created_at).toLocaleDateString("en-US")}
                         </p>
                       </div>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
                         pv.proposals?.status === "active" ? "bg-green-500/10 text-green-400" : "bg-slate-500/10 text-slate-400"
                       }`}>
                         {pv.proposals?.status || ""}

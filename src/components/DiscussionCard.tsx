@@ -111,9 +111,9 @@ export default function DiscussionCard({
 
   return (
     <Link href={`/social/${discussion.id}`}>
-      <div className="card p-6 hover:border-slate-600 hover:bg-slate-800/70 transition-all duration-200 group block">
+      <div className="card p-6 hover:border-slate-600 hover:bg-slate-800/70 transition-all duration-200 group block overflow-hidden">
         {/* Header row: title + channel badge */}
-        <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="flex items-start justify-between gap-4 mb-3 overflow-hidden">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-slate-100 text-base leading-snug group-hover:text-white truncate">
               {discussion.title}
@@ -160,8 +160,8 @@ export default function DiscussionCard({
         </div>
 
         {/* Footer: voting + reply count */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-700/50 overflow-hidden">
+          <div className="flex items-center gap-4 overflow-hidden">
             {/* Upvote button */}
             <button
               onClick={(e) => {
@@ -169,19 +169,19 @@ export default function DiscussionCard({
                 handleVote("up");
               }}
               disabled={isVoting}
-              className={`flex items-center gap-1 px-2 py-1 rounded transition-colors ${
+              className={`flex items-center gap-1 px-2 py-1 rounded transition-colors shrink-0 ${
                 userVote === "up"
                   ? "text-pangea-400 bg-pangea-900/30"
                   : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              <ArrowBigUp className="w-4 h-4" />
+              <ArrowBigUp className="w-4 h-4 shrink-0" />
               <span className="text-xs font-medium">{upvotes}</span>
             </button>
 
             {/* Net score */}
             <span
-              className={`text-xs font-semibold px-2 py-1 rounded ${
+              className={`text-xs font-semibold px-2 py-1 rounded shrink-0 ${
                 netScore > 0
                   ? "text-green-400 bg-green-900/20"
                   : netScore < 0
@@ -199,24 +199,24 @@ export default function DiscussionCard({
                 handleVote("down");
               }}
               disabled={isVoting}
-              className={`flex items-center gap-1 px-2 py-1 rounded transition-colors ${
+              className={`flex items-center gap-1 px-2 py-1 rounded transition-colors shrink-0 ${
                 userVote === "down"
                   ? "text-red-400 bg-red-900/30"
                   : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              <ArrowBigDown className="w-4 h-4" />
+              <ArrowBigDown className="w-4 h-4 shrink-0" />
               <span className="text-xs font-medium">{downvotes}</span>
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             {/* Reply count */}
             <div
               onClick={(e) => e.preventDefault()}
-              className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-300"
+              className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-300 shrink-0"
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-4 h-4 shrink-0" />
               <span>{discussion.replies_count || 0}</span>
             </div>
 
@@ -226,7 +226,7 @@ export default function DiscussionCard({
                 e.preventDefault();
                 onReport?.(discussion.id);
               }}
-              className="p-1 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-700/30 transition-colors"
+              className="p-1 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-700/30 transition-colors shrink-0"
               title="Report"
             >
               <Flag className="w-4 h-4" />

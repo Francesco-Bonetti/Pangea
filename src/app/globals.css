@@ -12,6 +12,13 @@
     @apply bg-[#0c1220] text-slate-100 antialiased;
     font-size: 16px;
     line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Prevent any element from overflowing the viewport horizontally */
+  main {
+    overflow-x: hidden;
+    word-break: break-word;
   }
 
   * {
@@ -56,12 +63,12 @@
   }
 
   .card {
-    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5 transition-all duration-300 hover:border-slate-500/80 hover:bg-slate-800/80 hover:shadow-lg hover:shadow-slate-900/50;
+    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5 transition-all duration-300 hover:border-slate-500/80 hover:bg-slate-800/80 hover:shadow-lg hover:shadow-slate-900/50 overflow-hidden;
   }
 
   /* Static card variant — no hover transform (for containers, info boxes) */
   .card-static {
-    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5;
+    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5 overflow-hidden;
   }
 
   .input-field {
@@ -121,11 +128,11 @@
 
   /* Info box — for explanations, tips. Always clearly visible on dark bg. */
   .info-box {
-    @apply rounded-xl p-4 border border-pangea-600/50 border-l-4 border-l-pangea-400 bg-pangea-950/50 backdrop-blur-sm;
+    @apply rounded-xl p-4 border border-pangea-600/50 border-l-4 border-l-pangea-400 bg-pangea-950/50 backdrop-blur-sm overflow-hidden;
   }
 
   .info-box-amber {
-    @apply rounded-xl p-4 border border-amber-600/50 border-l-4 border-l-amber-400 bg-amber-950/50 backdrop-blur-sm;
+    @apply rounded-xl p-4 border border-amber-600/50 border-l-4 border-l-amber-400 bg-amber-950/50 backdrop-blur-sm overflow-hidden;
   }
 
   /* Page loading bar animation */

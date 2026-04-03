@@ -159,10 +159,10 @@ export default function PartiesPage() {
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <Flag className="w-7 h-7 text-pangea-400" />
-              Political Parties
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-3 overflow-hidden">
+              <Flag className="w-7 h-7 text-pangea-400 shrink-0" />
+              <span className="truncate">Political Parties</span>
             </h1>
             <p className="text-slate-400 mt-1">
               Organize into parties to influence votes on proposals. You can join multiple parties.
@@ -171,10 +171,10 @@ export default function PartiesPage() {
           {!isGuest && (
             <button
               onClick={() => setShowCreate(true)}
-              className="btn-primary flex items-center gap-2 whitespace-nowrap"
+              className="btn-primary flex items-center gap-2 whitespace-nowrap shrink-0 overflow-hidden"
             >
-              <Plus className="w-4 h-4" />
-              Create Party
+              <Plus className="w-4 h-4 shrink-0" />
+              <span className="truncate">Create Party</span>
             </button>
           )}
         </div>
@@ -205,10 +205,10 @@ export default function PartiesPage() {
 
         {/* Error */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            {error}
-            <button onClick={() => setError(null)} className="ml-auto"><X className="w-4 h-4" /></button>
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="truncate">{error}</span>
+            <button onClick={() => setError(null)} className="ml-auto shrink-0"><X className="w-4 h-4" /></button>
           </div>
         )}
 
@@ -225,17 +225,17 @@ export default function PartiesPage() {
               <Link
                 key={party.id}
                 href={`/parties/${party.id}`}
-                className="card hover:border-pangea-600/50 transition-all group"
+                className="card hover:border-pangea-600/50 transition-all group overflow-hidden"
               >
-                <div className="flex items-start gap-4">
-                  <div className="text-3xl flex-shrink-0 mt-1">{party.logo_emoji}</div>
+                <div className="flex items-start gap-4 overflow-hidden">
+                  <div className="text-3xl shrink-0 mt-1">{party.logo_emoji}</div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h2 className="text-lg font-semibold text-white group-hover:text-pangea-300 transition-colors">
+                    <div className="flex items-center gap-2 mb-1 overflow-hidden">
+                      <h2 className="text-lg font-semibold text-white group-hover:text-pangea-300 transition-colors truncate">
                         {party.name}
                       </h2>
                       {party.is_member && (
-                        <span className="text-[10px] bg-pangea-800 text-pangea-300 px-2 py-0.5 rounded-full font-medium">
+                        <span className="text-[10px] bg-pangea-800 text-pangea-300 px-2 py-0.5 rounded-full font-medium shrink-0">
                           Joined
                         </span>
                       )}
@@ -243,16 +243,16 @@ export default function PartiesPage() {
                     {party.description && (
                       <p className="text-sm text-slate-400 line-clamp-2 mb-2">{party.description}</p>
                     )}
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
+                    <div className="flex items-center gap-4 text-xs text-slate-500 flex-wrap">
+                      <span className="flex items-center gap-1 shrink-0">
+                        <Users className="w-3 h-3 shrink-0" />
                         {party.member_count} {party.member_count === 1 ? "member" : "members"}
                       </span>
-                      <span>Founded by <PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={user?.id} /></span>
-                      <span>{new Date(party.created_at).toLocaleDateString("en-US")}</span>
+                      <span className="flex-1 min-w-0 truncate">Founded by <PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={user?.id} /></span>
+                      <span className="shrink-0">{new Date(party.created_at).toLocaleDateString("en-US")}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     {!isGuest && !party.is_member && (
                       <button
                         onClick={(e) => {
@@ -260,12 +260,12 @@ export default function PartiesPage() {
                           e.stopPropagation();
                           handleJoinParty(party.id);
                         }}
-                        className="btn-primary text-xs py-1.5 px-3"
+                        className="btn-primary text-xs py-1.5 px-3 whitespace-nowrap overflow-hidden"
                       >
-                        Join
+                        <span className="truncate">Join</span>
                       </button>
                     )}
-                    <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-pangea-400 transition-colors" />
+                    <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-pangea-400 transition-colors shrink-0" />
                   </div>
                 </div>
               </Link>
@@ -277,21 +277,21 @@ export default function PartiesPage() {
       {/* Create party modal */}
       {showCreate && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Flag className="w-5 h-5 text-pangea-400" />
-                Create Party
+          <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full p-6 overflow-hidden">
+            <div className="flex items-center justify-between mb-6 overflow-hidden">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2 overflow-hidden flex-1">
+                <Flag className="w-5 h-5 text-pangea-400 shrink-0" />
+                <span className="truncate">Create Party</span>
               </h2>
-              <button onClick={() => { setShowCreate(false); setError(null); }} className="text-slate-400 hover:text-white">
+              <button onClick={() => { setShowCreate(false); setError(null); }} className="text-slate-400 hover:text-white shrink-0">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Delegation warning */}
             {profile && !profile.allow_delegations && (
-              <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg p-3 mb-4">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium">Delegation feature not enabled</p>
                   <p className="text-xs mt-1">To create a party you need to enable the delegation feature in your{" "}
@@ -302,9 +302,9 @@ export default function PartiesPage() {
             )}
 
             {error && (
-              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                {error}
+              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span className="truncate">{error}</span>
               </div>
             )}
 

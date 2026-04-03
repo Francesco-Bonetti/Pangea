@@ -130,20 +130,20 @@ function CommentCard({
   };
 
   return (
-    <div className="bg-[#0c1220] border border-slate-700 rounded-lg p-4 mb-3">
-      <div className="flex items-start gap-3">
+    <div className="bg-[#0c1220] border border-slate-700 rounded-lg p-4 mb-3 overflow-hidden">
+      <div className="flex items-start gap-3 overflow-hidden">
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-slate-400" />
+          <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center shrink-0">
+            <User className="w-4 h-4 text-slate-400 shrink-0" />
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-medium text-slate-200">
+          <div className="flex items-center gap-2 mb-2 overflow-hidden flex-wrap">
+            <span className="font-medium text-slate-200 min-w-0">
               <PrivacyName userId={comment.author_id} fullName={comment.profiles?.full_name ?? null} currentUserId={userId} />
             </span>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-500 shrink-0">
               {timeAgo(comment.created_at)}
             </span>
           </div>
@@ -152,46 +152,46 @@ function CommentCard({
             {comment.body}
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden flex-wrap">
             <button
               onClick={() => handleReaction("like")}
               disabled={isReacting || !userId}
-              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors ${
+              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 currentReaction === "like"
                   ? "bg-pangea-400 text-[#0c1220]"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               title={!userId ? "Log in to react" : ""}
             >
-              <ThumbsUp className="w-4 h-4" />
+              <ThumbsUp className="w-4 h-4 shrink-0" />
               <span>{comment.likes_count}</span>
             </button>
 
             <button
               onClick={() => handleReaction("dislike")}
               disabled={isReacting || !userId}
-              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors ${
+              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 currentReaction === "dislike"
                   ? "bg-red-400 text-[#0c1220]"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               title={!userId ? "Log in to react" : ""}
             >
-              <ThumbsDown className="w-4 h-4" />
+              <ThumbsDown className="w-4 h-4 shrink-0" />
               <span>{comment.dislikes_count}</span>
             </button>
 
             <button
               onClick={() => onReplyClick(comment.id)}
               disabled={!userId}
-              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors ${
+              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 userId
                   ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
                   : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"
               }`}
               title={!userId ? "Log in to reply" : ""}
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-4 h-4 shrink-0" />
               <span>Reply</span>
             </button>
           </div>
@@ -277,12 +277,12 @@ function RepliesSection({
     <div className="ml-6 mt-3 border-l-2 border-slate-700 pl-4">
       <button
         onClick={handleToggleExpanded}
-        className="text-sm text-pangea-400 hover:text-pangea-300 transition-colors flex items-center gap-2 mb-2"
+        className="text-sm text-pangea-400 hover:text-pangea-300 transition-colors flex items-center gap-2 mb-2 shrink-0"
       >
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4" />
+          <ChevronUp className="w-4 h-4 shrink-0" />
         ) : (
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className="w-4 h-4 shrink-0" />
         )}
         {isExpanded ? "Hide replies" : `Show replies (${replies.length})`}
       </button>
@@ -469,10 +469,10 @@ export default function CommentSection({
   };
 
   return (
-    <div className="w-full bg-[#0c1220] rounded-lg border border-slate-700 p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <MessageCircle className="w-5 h-5 text-pangea-400" />
-        <h2 className="text-lg font-semibold text-slate-200">Discussion</h2>
+    <div className="w-full bg-[#0c1220] rounded-lg border border-slate-700 p-6 overflow-hidden">
+      <div className="flex items-center gap-2 mb-6 overflow-hidden">
+        <MessageCircle className="w-5 h-5 text-pangea-400 shrink-0" />
+        <h2 className="text-lg font-semibold text-slate-200 truncate">Discussion</h2>
       </div>
 
       {/* New Comment Form */}
