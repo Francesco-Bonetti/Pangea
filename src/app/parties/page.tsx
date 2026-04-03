@@ -180,7 +180,7 @@ export default function PartiesPage() {
         </div>
 
         {/* Info card */}
-        <div className="card mb-6 border-l-4 border-pangea-500">
+        <div className="info-box mb-6">
           <h3 className="text-sm font-semibold text-pangea-300 mb-2">How Parties Work</h3>
           <ul className="text-xs text-slate-400 space-y-1">
             <li>• You can join <strong className="text-slate-300">multiple parties</strong> at the same time</li>

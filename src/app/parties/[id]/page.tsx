@@ -487,7 +487,7 @@ export default function PartyDetailPage() {
           <div className="space-y-6">
             {/* Set vote on active proposals (admin only) */}
             {isAdmin && (
-              <div className="card border-l-4 border-pangea-500">
+              <div className="info-box">
                 <h3 className="text-sm font-semibold text-pangea-300 mb-3">Set party position</h3>
                 {activeProposals.length === 0 ? (
                   <p className="text-xs text-slate-500">No active proposals at the moment.</p>
@@ -620,7 +620,7 @@ export default function PartyDetailPage() {
             ) : (
               <div className="space-y-3">
                 {forumPosts.map((post) => (
-                  <div key={post.id} className={`card ${post.is_admin_only ? "border-l-4 border-amber-500/50" : ""}`}>
+                  <div key={post.id} className={`card ${post.is_admin_only ? "border-l-4 border-l-amber-500 bg-amber-950/20" : ""}`}>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-sm font-medium text-slate-300">
                         <PrivacyName userId={post.author_id} fullName={post.profiles?.full_name ?? null} currentUserId={user?.id} />

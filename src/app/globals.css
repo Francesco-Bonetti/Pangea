@@ -119,13 +119,13 @@
     @apply text-slate-500;
   }
 
-  /* Info box — for explanations, tips */
+  /* Info box — for explanations, tips. Always clearly visible on dark bg. */
   .info-box {
-    @apply card-static p-4 border-l-4 border-l-pangea-500 bg-pangea-900/10;
+    @apply rounded-xl p-4 border border-pangea-700/40 border-l-4 border-l-pangea-500 bg-pangea-950/40 backdrop-blur-sm;
   }
 
   .info-box-amber {
-    @apply card-static p-4 border-l-4 border-l-amber-500 bg-amber-900/10;
+    @apply rounded-xl p-4 border border-amber-700/40 border-l-4 border-l-amber-500 bg-amber-950/40 backdrop-blur-sm;
   }
 
   /* Page loading bar animation */
