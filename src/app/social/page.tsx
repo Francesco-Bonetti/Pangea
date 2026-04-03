@@ -104,7 +104,7 @@ export default async function SocialPage({
   const { data: discussions } = await query;
 
   // Transform discussions to include tags
-  const discussionsWithTags: Discussion[] = (discussions || []).map(
+  const discussionsWithTags = (discussions || []).map(
     (d: Record<string, unknown>) => ({
       ...d,
       tags: ((d.discussion_tags as Array<{ tags: Tag }>) || []).map(
