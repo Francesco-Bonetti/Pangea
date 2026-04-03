@@ -105,7 +105,11 @@ export default async function SocialPage({
 
   query = query.limit(50);
 
-  const { data: discussions } = await query;
+  const { data: discussions, error: discussionsError } = await query;
+  if (discussionsError) {
+    console.error("DISCUSSIONS QUERY ERROR:", JSON.stringify(discussionsError));
+  }
+  console.log("DISCUSSIONS COUNT:", discussions?.length ?? 0);
 
   // Transform discussions to include tags
   const discussionsWithTags = (discussions || []).map(
