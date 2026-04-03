@@ -37,7 +37,9 @@ export default async function ConversationPage({ params }: Props) {
 
   if (!otherParticipant) notFound();
 
-  const otherProfile = otherParticipant.profiles as {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const profilesRaw = otherParticipant.profiles as any;
+  const otherProfile = (Array.isArray(profilesRaw) ? profilesRaw[0] : profilesRaw) as {
     full_name: string | null;
     user_code: string | null;
     bio: string | null;
