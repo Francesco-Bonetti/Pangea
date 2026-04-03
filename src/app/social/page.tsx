@@ -285,7 +285,7 @@ export default async function SocialPage({
               <ForumClient
                 discussions={discussionsWithTags}
                 userId={user?.id}
-                channels={channels}
+                channels={channels ? (channels as DiscussionChannel[]) : undefined}
               />
             </div>
           </div>
