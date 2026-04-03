@@ -20,42 +20,42 @@ export default function PlatformStats({
       <div className="flex items-center gap-2 mb-6">
         <TrendingUp className="w-5 h-5 text-pangea-400" />
         <h2 className="text-lg font-semibold text-slate-200">
-          Statistiche Globali Pangea
+          Pangea Global Statistics
         </h2>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
           {
-            label: "Cittadini Registrati",
+            label: "Registered Citizens",
             value: totalUsers,
             icon: Users,
             color: "text-blue-400",
             bg: "bg-blue-900/20",
           },
           {
-            label: "Proposte Totali",
+            label: "Total Proposals",
             value: totalProposals,
             icon: FileText,
             color: "text-slate-400",
             bg: "bg-slate-800/50",
           },
           {
-            label: "In Delibera",
+            label: "Active Votes",
             value: activeProposals,
             icon: Vote,
             color: "text-pangea-400",
             bg: "bg-pangea-900/20",
           },
           {
-            label: "Deliberate",
+            label: "Concluded",
             value: closedProposals,
             icon: Globe,
             color: "text-green-400",
             bg: "bg-green-900/20",
           },
           {
-            label: "Voti Espressi",
+            label: "Votes Cast",
             value: totalVotes,
             icon: TrendingUp,
             color: "text-amber-400",

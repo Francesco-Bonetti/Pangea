@@ -22,8 +22,15 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/lib/utils";
-import LawTree from "@/components/LawTree";
-import type { LawNode } from "@/app/laws/page";
+
+interface LawRow {
+  id: string;
+  title: string;
+  code: string | null;
+  law_type: string;
+  status: string;
+  created_at: string;
+}
 
 export default function AdminPage() {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -34,8 +41,7 @@ export default function AdminPage() {
   // Data
   const [users, setUsers] = useState<Profile[]>([]);
   const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [lawTree, setLawTree] = useState<LawNode[]>([]);
-  const [totalLaws, setTotalLaws] = useState(0);
+  const [laws, setLaws] = useState<LawRow[]>([]);
 
   // UI State
   const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "stats">("users");
@@ -64,22 +70,12 @@ export default function AdminPage() {
     const [usersRes, proposalsRes, lawsRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("proposals").select("*").order("created_at", { ascending: false }),
-      supabase.from("laws").select("*").eq("status", "active").order("order_index").order("created_at"),
+      supabase.from("laws").select("id, title, code, law_type, status, created_at").order("created_at", { ascending: false }),
     ]);
 
     setUsers(usersRes.data ?? []);
     setProposals(proposalsRes.data ?? []);
-
-    // Costruisci albero leggi
-    const allLaws: LawNode[] = lawsRes.data ?? [];
-    setTotalLaws(allLaws.length);
-    const rootLaws = allLaws.filter(l => l.parent_id === null);
-    function buildTree(parentId: string): LawNode[] {
-      return allLaws
-        .filter(l => l.parent_id === parentId)
-        .map(l => ({ ...l, children: buildTree(l.id) }));
-    }
-    setLawTree(rootLaws.map(l => ({ ...l, children: buildTree(l.id) })));
+    setLaws(lawsRes.data ?? []);
     setLoading(false);
   }, [supabase, router]);
 
@@ -96,7 +92,7 @@ export default function AdminPage() {
       .eq("id", userId);
     if (err) setError(err.message);
     else {
-      setSuccess(`Ruolo aggiornato a "${newRole}"`);
+      setSuccess(`Role updated to "${newRole}"`);
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
     }
     setActionLoading(null);
@@ -104,7 +100,7 @@ export default function AdminPage() {
 
   async function deleteProposal(proposalId: string) {
     clearMessages();
-    if (!confirm("Sei sicuro di voler eliminare questa proposta? L'azione è irreversibile.")) return;
+    if (!confirm("Are you sure you want to delete this proposal? This action is irreversible.")) return;
     setActionLoading(proposalId);
 
     // Delete related data first
@@ -124,13 +120,26 @@ export default function AdminPage() {
     const { error: err } = await supabase.from("proposals").delete().eq("id", proposalId);
     if (err) setError(err.message);
     else {
-      setSuccess("Proposta eliminata");
+      setSuccess("Proposal deleted");
       setProposals(prev => prev.filter(p => p.id !== proposalId));
     }
     setActionLoading(null);
   }
 
-  // deleteLaw is now handled by LawTree component directly
+  async function deleteLaw(lawId: string) {
+    clearMessages();
+    if (!confirm("Are you sure you want to delete this law?")) return;
+    setActionLoading(lawId);
+    // Delete children first
+    await supabase.from("laws").delete().eq("parent_id", lawId);
+    const { error: err } = await supabase.from("laws").delete().eq("id", lawId);
+    if (err) setError(err.message);
+    else {
+      setSuccess("Law deleted");
+      setLaws(prev => prev.filter(l => l.id !== lawId));
+    }
+    setActionLoading(null);
+  }
 
   async function closeProposal(proposalId: string) {
     clearMessages();
@@ -141,7 +150,7 @@ export default function AdminPage() {
       .eq("id", proposalId);
     if (err) setError(err.message);
     else {
-      setSuccess("Proposta chiusa");
+      setSuccess("Proposal closed");
       setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, status: "closed" } : p));
     }
     setActionLoading(null);
@@ -156,7 +165,7 @@ export default function AdminPage() {
       .eq("id", proposalId);
     if (err) setError(err.message);
     else {
-      setSuccess("Proposta attivata");
+      setSuccess("Proposal activated");
       setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, status: "active" } : p));
     }
     setActionLoading(null);
@@ -176,10 +185,10 @@ export default function AdminPage() {
         <Navbar userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} />
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
           <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Accesso negato</h1>
-          <p className="text-slate-400 mb-6">Solo gli amministratori possono accedere a questa pagina.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Access denied</h1>
+          <p className="text-slate-400 mb-6">Only administrators can access this page.</p>
           <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" /> Torna alla Piazza
+            <ArrowLeft className="w-4 h-4" /> Back to the Agora
           </Link>
         </div>
       </div>
@@ -207,10 +216,10 @@ export default function AdminPage() {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <Shield className="w-6 h-6 text-red-400" />
-              Pannello Amministrazione
+              Admin Panel
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
-              Gestisci utenti, proposte e leggi della piattaforma
+              Manage users, proposals, and laws of the platform
             </p>
           </div>
         </div>
@@ -232,32 +241,32 @@ export default function AdminPage() {
           <div className="card p-4">
             <Users className="w-5 h-5 text-blue-400 mb-1" />
             <p className="text-2xl font-bold text-white">{users.length}</p>
-            <p className="text-xs text-slate-500">Cittadini</p>
+            <p className="text-xs text-slate-500">Citizens</p>
           </div>
           <div className="card p-4">
             <FileText className="w-5 h-5 text-pangea-400 mb-1" />
             <p className="text-2xl font-bold text-white">{proposals.length}</p>
-            <p className="text-xs text-slate-500">Proposte</p>
+            <p className="text-xs text-slate-500">Proposals</p>
           </div>
           <div className="card p-4">
             <BookOpen className="w-5 h-5 text-blue-400 mb-1" />
-            <p className="text-2xl font-bold text-white">{totalLaws}</p>
-            <p className="text-xs text-slate-500">Leggi</p>
+            <p className="text-2xl font-bold text-white">{laws.length}</p>
+            <p className="text-xs text-slate-500">Laws</p>
           </div>
           <div className="card p-4">
             <Scale className="w-5 h-5 text-green-400 mb-1" />
             <p className="text-2xl font-bold text-white">{proposals.filter(p => p.status === "active").length}</p>
-            <p className="text-xs text-slate-500">Attive</p>
+            <p className="text-xs text-slate-500">Active</p>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 border-b border-slate-700/50 pb-px">
           {([
-            { key: "users", label: "Utenti", icon: Users },
-            { key: "proposals", label: "Proposte", icon: FileText },
-            { key: "laws", label: "Leggi", icon: BookOpen },
-            { key: "stats", label: "Statistiche", icon: BarChart3 },
+            { key: "users", label: "Users", icon: Users },
+            { key: "proposals", label: "Proposals", icon: FileText },
+            { key: "laws", label: "Laws", icon: BookOpen },
+            { key: "stats", label: "Statistics", icon: BarChart3 },
           ] as const).map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -283,8 +292,8 @@ export default function AdminPage() {
                   {(u.full_name ?? "?")[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-200 font-medium">{u.full_name ?? "Senza nome"}</p>
-                  <p className="text-xs text-pangea-400 font-mono">{u.user_code ?? "—"}</p>
+                  <p className="text-sm text-slate-200 font-medium">{u.full_name ?? "No name"}</p>
+                  <p className="text-xs text-slate-500">{u.id.slice(0, 8)}...</p>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                   u.role === "admin" ? "text-red-300 bg-red-900/30 border border-red-700/30" :
@@ -301,8 +310,8 @@ export default function AdminPage() {
                       disabled={actionLoading === u.id}
                       className="appearance-none bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 pr-8 text-xs text-slate-300 cursor-pointer focus:outline-none focus:border-pangea-500"
                     >
-                      <option value="citizen">Cittadino</option>
-                      <option value="moderator">Moderatore</option>
+                      <option value="citizen">Citizen</option>
+                      <option value="moderator">Moderator</option>
                       <option value="admin">Admin</option>
                     </select>
                     <ChevronDown className="w-3 h-3 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -318,7 +327,7 @@ export default function AdminPage() {
         {activeTab === "proposals" && (
           <div className="space-y-2">
             {proposals.length === 0 && (
-              <div className="card p-8 text-center text-slate-500 text-sm">Nessuna proposta presente.</div>
+              <div className="card p-8 text-center text-slate-500 text-sm">No proposals found.</div>
             )}
             {proposals.map((p) => (
               <div key={p.id} className="card p-4 flex items-center gap-4">
@@ -344,7 +353,7 @@ export default function AdminPage() {
                       onClick={() => activateProposal(p.id)}
                       disabled={actionLoading === p.id}
                       className="p-2 rounded-lg text-green-400 hover:bg-green-900/30 transition-colors"
-                      title="Promuovi a delibera"
+                      title="Promote to deliberation"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                     </button>
@@ -354,7 +363,7 @@ export default function AdminPage() {
                       onClick={() => closeProposal(p.id)}
                       disabled={actionLoading === p.id}
                       className="p-2 rounded-lg text-amber-400 hover:bg-amber-900/30 transition-colors"
-                      title="Chiudi delibera"
+                      title="Close deliberation"
                     >
                       <XCircle className="w-4 h-4" />
                     </button>
@@ -363,7 +372,7 @@ export default function AdminPage() {
                     onClick={() => deleteProposal(p.id)}
                     disabled={actionLoading === p.id}
                     className="p-2 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
-                    title="Elimina proposta"
+                    title="Delete proposal"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -374,14 +383,34 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Laws tab - albero gerarchico con edit/delete */}
+        {/* Laws tab */}
         {activeTab === "laws" && (
-          <div className="space-y-4">
-            {lawTree.length === 0 && (
-              <div className="card p-8 text-center text-slate-500 text-sm">Nessuna legge presente.</div>
+          <div className="space-y-2">
+            {laws.length === 0 && (
+              <div className="card p-8 text-center text-slate-500 text-sm">No laws found.</div>
             )}
-            {lawTree.map((code) => (
-              <LawTree key={code.id} node={code} depth={0} isAdmin={true} />
+            {laws.map((l) => (
+              <div key={l.id} className="card p-4 flex items-center gap-4">
+                <BookOpen className="w-5 h-5 text-blue-400 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-200 font-medium">{l.title}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {l.code && <span className="text-xs text-blue-400 bg-blue-900/20 px-2 py-0.5 rounded-full">{l.code}</span>}
+                    <span className="text-xs text-slate-500">{l.law_type}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${l.status === "active" ? "text-green-300 bg-green-900/20" : "text-red-300 bg-red-900/20"}`}>
+                      {l.status}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => deleteLaw(l.id)}
+                  disabled={actionLoading === l.id}
+                  className="p-2 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
+                  title="Delete law"
+                >
+                  {actionLoading === l.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                </button>
+              </div>
             ))}
           </div>
         )}
@@ -392,7 +421,7 @@ export default function AdminPage() {
             <div className="card p-6">
               <h3 className="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-pangea-400" />
-                Proposte per stato
+                Proposals by status
               </h3>
               <div className="space-y-3">
                 {(["draft", "curation", "active", "closed", "repealed"] as const).map((status) => {
@@ -418,7 +447,7 @@ export default function AdminPage() {
             <div className="card p-6">
               <h3 className="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
                 <Users className="w-4 h-4 text-blue-400" />
-                Utenti per ruolo
+                Users by role
               </h3>
               <div className="space-y-3">
                 {(["citizen", "moderator", "admin"] as const).map((role) => {

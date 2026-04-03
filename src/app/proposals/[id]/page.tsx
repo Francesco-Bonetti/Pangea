@@ -25,7 +25,7 @@ export default async function ProposalDetailPage({ params }: Props) {
 
   const isGuest = !user;
 
-  // Recupera proposta con categoria
+  // Fetch proposal with category
   const { data: proposal, error } = await supabase
     .from("proposals")
     .select("*, categories(id, name)")
@@ -34,14 +34,14 @@ export default async function ProposalDetailPage({ params }: Props) {
 
   if (error || !proposal) notFound();
 
-  // Recupera tags della proposta
+  // Fetch proposal tags
   const { data: proposalTags } = await supabase
     .from("proposal_tags")
     .select("tag_id, tags(name, slug)")
     .eq("proposal_id", id);
   const tags = proposalTags?.map((pt: Record<string, unknown>) => (pt.tags as { name: string; slug: string })) ?? [];
 
-  // Recupera profilo utente corrente (per ruolo) — solo se autenticato
+  // Fetch current user profile (for role) — only if authenticated
   let currentProfile: { full_name?: string; role?: string } | null = null;
   if (user) {
     const { data } = await supabase
@@ -52,14 +52,14 @@ export default async function ProposalDetailPage({ params }: Props) {
     currentProfile = data;
   }
 
-  // Recupera profilo autore
+  // Fetch author profile
   const { data: authorProfile } = await supabase
     .from("profiles")
     .select("full_name")
     .eq("id", proposal.author_id)
     .single();
 
-  // Recupera opzioni deliberative
+  // Fetch deliberative options
   const { data: optionsData } = await supabase
     .from("proposal_options")
     .select("*")
@@ -68,7 +68,7 @@ export default async function ProposalDetailPage({ params }: Props) {
 
   const proposalOptions: ProposalOption[] = optionsData ?? [];
 
-  // Risultati distribuiti
+  // Distributed results
   let distributedResults: DistributedResult[] = [];
   if (proposal.status === "active" || proposal.status === "closed") {
     const { data: distResults } = await supabase.rpc(
@@ -78,7 +78,7 @@ export default async function ProposalDetailPage({ params }: Props) {
     distributedResults = distResults ?? [];
   }
 
-  // Controlla se l'utente ha già votato (solo se autenticato)
+  // Check if user has already voted (only if authenticated)
   let hasVoted = false;
   if (user) {
     const { data } = await supabase.rpc("has_user_voted", {
@@ -87,7 +87,7 @@ export default async function ProposalDetailPage({ params }: Props) {
     hasVoted = data ?? false;
   }
 
-  // Segnali (per proposte in curatela)
+  // Signals (for proposals in community review)
   let signalCount = 0;
   let hasSignaled = false;
   let curationThreshold = 2;
@@ -109,14 +109,14 @@ export default async function ProposalDetailPage({ params }: Props) {
       hasSignaled = !!userSignal;
     }
 
-    // Soglia dinamica
+    // Dynamic threshold
     const { data: threshold } = await supabase.rpc("get_curation_threshold");
     curationThreshold = threshold ?? 2;
     const { data: activeCount } = await supabase.rpc("get_active_users_count");
     activeUsersCount = activeCount ?? 5;
   }
 
-  // Controlla deleghe attive per la categoria della proposta
+  // Check active delegations for the proposal's category
   let hasActiveDelegation = false;
   if (user && proposal.category_id) {
     const { data: delegation } = await supabase
@@ -146,10 +146,10 @@ export default async function ProposalDetailPage({ params }: Props) {
           className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Torna alla Piazza
+          Back to the Agora
         </Link>
 
-        {/* Draft Actions — solo per bozze dell'autore */}
+        {/* Draft Actions — only for author's drafts */}
         {proposal.status === "draft" && user && (
           <DraftActions
             proposalId={proposal.id}
@@ -177,28 +177,28 @@ export default async function ProposalDetailPage({ params }: Props) {
               }
             >
               {proposal.status === "active"
-                ? "In Votazione"
+                ? "Active Vote"
                 : proposal.status === "curation"
-                ? "In Promozione"
+                ? "Community Review"
                 : proposal.status === "closed"
-                ? "Approvata"
+                ? "Concluded"
                 : proposal.status === "repealed"
-                ? "Abrogata"
-                : "Bozza"}
+                ? "Repealed"
+                : "Draft"}
             </span>
             {proposal.proposal_type === "amendment" && (
               <span className="text-xs text-purple-400 font-medium bg-purple-900/20 px-2 py-1 rounded-full border border-purple-800/30">
-                Emendamento
+                Amendment
               </span>
             )}
             {proposal.proposal_type === "repeal" && (
               <span className="text-xs text-red-400 font-medium bg-red-900/20 px-2 py-1 rounded-full border border-red-800/30">
-                Abrogazione
+                Repeal
               </span>
             )}
             {isAuthor && (
               <span className="text-xs text-amber-400 font-medium bg-amber-900/20 px-2 py-1 rounded-full border border-amber-800/30">
-                Tua proposta
+                Your proposal
               </span>
             )}
             {tags.map((tag: { name: string; slug: string }, i: number) => (
@@ -218,7 +218,7 @@ export default async function ProposalDetailPage({ params }: Props) {
             <Link href={`/citizens/${proposal.author_id}`} className="flex items-center gap-1.5 hover:text-pangea-300 transition-colors">
               <User className="w-4 h-4" />
               <span>
-                {authorProfile?.full_name ?? "Cittadino"}
+                {authorProfile?.full_name ?? "Citizen"}
               </span>
             </Link>
             <div className="flex items-center gap-1.5">
@@ -229,7 +229,7 @@ export default async function ProposalDetailPage({ params }: Props) {
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4" />
                 <span>
-                  Scade: {formatDateTime(proposal.expires_at)}
+                  Expires: {formatDateTime(proposal.expires_at)}
                 </span>
               </div>
             )}
@@ -238,13 +238,13 @@ export default async function ProposalDetailPage({ params }: Props) {
 
         {/* Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Testo proposta */}
+          {/* Proposal text */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Contesto */}
+            {/* Context */}
             <div className="card p-6">
               <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-pangea-400" />
-                Contesto e Motivazione
+                Context and Motivation
               </h2>
               <div className="prose prose-invert prose-sm max-w-none">
                 <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
@@ -253,11 +253,11 @@ export default async function ProposalDetailPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Dispositivo normativo */}
+            {/* Legal provision */}
             {proposal.dispositivo && (
               <div className="card p-6">
                 <h2 className="text-lg font-semibold text-slate-200 mb-4">
-                  Dispositivo Normativo
+                  Legal Provision
                 </h2>
                 <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
                   <p className="text-slate-300 text-sm font-mono leading-relaxed whitespace-pre-wrap">
@@ -267,12 +267,12 @@ export default async function ProposalDetailPage({ params }: Props) {
               </div>
             )}
 
-            {/* Opzioni deliberative */}
+            {/* Deliberative options */}
             {proposalOptions.length > 0 && (
               <div className="card p-6">
                 <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
                   <Flame className="w-5 h-5 text-amber-400" />
-                  Opzioni Deliberative
+                  Deliberative Options
                 </h2>
                 <div className="space-y-3">
                   {proposalOptions.map((opt, i) => (
@@ -300,27 +300,27 @@ export default async function ProposalDetailPage({ params }: Props) {
             )}
           </div>
 
-          {/* Sidebar: Cabina Elettorale o Segnali */}
+          {/* Sidebar: Voting Booth or Signals */}
           <div className="lg:col-span-1">
             {proposal.status === "curation" ? (
-              /* Mercato di Curatela — SignalButton */
+              /* Community Review — SignalButton */
               <div className="sticky top-24">
                 <div className="card p-5 mb-4">
                   <h2 className="text-base font-semibold text-slate-200 mb-1 flex items-center gap-2">
                     <Flame className="w-4 h-4 text-amber-400" />
-                    Mercato di Curatela
+                    Community Review
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Supporta questa proposta per portarla alla fase deliberativa
+                    Support this proposal to move it to the voting phase
                   </p>
                 </div>
                 <div className="card p-5">
                   {isGuest ? (
                     <div className="text-center py-4">
                       <Flame className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-                      <p className="text-slate-300 font-medium mb-1">Segnali: {signalCount} / {curationThreshold}</p>
+                      <p className="text-slate-300 font-medium mb-1">Signals: {signalCount} / {curationThreshold}</p>
                       <p className="text-xs text-slate-500 mb-4">
-                        <Link href="/auth" className="text-pangea-400 hover:underline">Registrati</Link> per supportare questa proposta.
+                        <Link href="/auth" className="text-pangea-400 hover:underline">Sign up</Link> to support this proposal.
                       </p>
                     </div>
                   ) : (
@@ -336,7 +336,7 @@ export default async function ProposalDetailPage({ params }: Props) {
                 </div>
               </div>
             ) : (
-              /* Cabina Elettorale — VotingBooth con sliders */
+              /* Voting Booth — with sliders */
               <VotingBooth
                 proposal={proposal}
                 options={proposalOptions}
@@ -351,12 +351,12 @@ export default async function ProposalDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Sezione Discussione */}
+        {/* Discussion section */}
         <div className="mt-8">
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-pangea-400" />
-              Discussione
+              Discussion
             </h2>
             <CommentSection
               targetType="proposal"

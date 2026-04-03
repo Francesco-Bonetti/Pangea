@@ -10,15 +10,14 @@ export default async function AboutPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: profile } = user
-    ? await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single()
-    : { data: null };
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user?.id || "")
+    .single()
+    .catch(() => ({ data: null }));
 
-  // Statistiche globali
+  // Global statistics
   const stats = await supabase.rpc("get_platform_stats");
   const platformStats = stats.data?.[0] ?? {
     total_users: 0,
@@ -40,19 +39,19 @@ export default async function AboutPage() {
             <h1 className="text-4xl font-bold text-white">Agora Pangea</h1>
           </div>
           <p className="text-xl text-slate-400 max-w-2xl">
-            La piattaforma di democrazia digitale della Repubblica Democratica Globale Pangea.
-            Proponi leggi, dibatti e vota su proposte legislative in un ambiente trasparente e sicuro.
+            The digital democracy platform of the Global Democratic Republic of Pangea.
+            Propose laws, debate and vote on legislative proposals in a transparent and secure environment.
           </p>
         </div>
 
         {/* Platform Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-16">
           {[
-            { label: "Cittadini", value: platformStats.total_users, icon: Users },
-            { label: "Proposte", value: platformStats.total_proposals, icon: FileText },
-            { label: "In Delibera", value: platformStats.active_proposals, icon: Vote },
-            { label: "Deliberate", value: platformStats.closed_proposals, icon: Globe },
-            { label: "Voti Espressi", value: platformStats.total_votes, icon: FileText },
+            { label: "Citizens", value: platformStats.total_users, icon: Users },
+            { label: "Proposals", value: platformStats.total_proposals, icon: FileText },
+            { label: "Active Votes", value: platformStats.active_proposals, icon: Vote },
+            { label: "Concluded", value: platformStats.closed_proposals, icon: Globe },
+            { label: "Votes Cast", value: platformStats.total_votes, icon: FileText },
           ].map(({ label, value, icon: Icon }) => (
             <div key={label} className="card p-4 bg-pangea-900/20 border border-pangea-700/30">
               <Icon className="w-5 h-5 text-pangea-400 mb-2" />
@@ -64,29 +63,29 @@ export default async function AboutPage() {
 
         {/* Guide Sections */}
         <div className="space-y-12">
-          {/* Come funziona */}
+          {/* How it works */}
           <section>
             <div className="flex items-center gap-2 mb-6">
               <BookOpen className="w-6 h-6 text-pangea-400" />
-              <h2 className="text-2xl font-semibold text-white">Come Funziona</h2>
+              <h2 className="text-2xl font-semibold text-white">How It Works</h2>
             </div>
             <div className="space-y-4">
               {[
                 {
-                  title: "1. Registrati",
-                  desc: "Crea il tuo profilo cittadino su Agora. La registrazione è gratuita e richiede il consenso GDPR per garantire la tua privacy.",
+                  title: "1. Register",
+                  desc: "Create your citizen profile on Agora. Registration is free and requires GDPR consent to protect your privacy.",
                 },
                 {
-                  title: "2. Esplora Proposte",
-                  desc: "Consulta la Piazza Telematica per vedere le proposte in delibera. Ogni proposta mostra il contesto legislativo, gli articoli proposti e i risultati in tempo reale.",
+                  title: "2. Explore Proposals",
+                  desc: "Browse the Agora to see proposals in active voting. Each proposal shows the legislative context, proposed articles, and real-time results.",
                 },
                 {
-                  title: "3. Proponi Leggi",
-                  desc: "Crea una nuova proposta legislativa. Descrivi il problema, il contesto e il dispositivo normativo che proponi. Le tue bozze restano private finché non le pubblichi.",
+                  title: "3. Propose Laws",
+                  desc: "Create a new legislative proposal. Describe the problem, context, and the legal provision you propose. Your drafts remain private until you publish them.",
                 },
                 {
-                  title: "4. Vota e Partecipa",
-                  desc: "Accedi alla Cabina Elettorale e vota le proposte in delibera. Un cittadino, un voto. I risultati sono aggregati e visibili in tempo reale.",
+                  title: "4. Vote and Participate",
+                  desc: "Enter the Voting Booth and vote on active proposals. One citizen, one vote. Results are aggregated and visible in real time.",
                 },
               ].map((step, idx) => (
                 <div key={idx} className="card p-6 bg-slate-900/30 border border-slate-700/30">
@@ -97,29 +96,29 @@ export default async function AboutPage() {
             </div>
           </section>
 
-          {/* Principi */}
+          {/* Principles */}
           <section>
             <div className="flex items-center gap-2 mb-6">
               <Shield className="w-6 h-6 text-pangea-400" />
-              <h2 className="text-2xl font-semibold text-white">I Nostri Principi</h2>
+              <h2 className="text-2xl font-semibold text-white">Our Principles</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 {
-                  title: "🔒 Un Cittadino, Un Voto",
-                  desc: "La sicurezza civile è garantita da vincoli relazionali PostgreSQL. Nessuno può votare due volte sulla stessa proposta.",
+                  title: "One Citizen, One Vote",
+                  desc: "Civic security is enforced by PostgreSQL relational constraints. No one can vote twice on the same proposal.",
                 },
                 {
-                  title: "🕵️ Privacy by Design",
-                  desc: "I tuoi voti sono privati. Le policy di Row-Level Security impediscono l'accesso ai dati personali. Vediamo solo i risultati aggregati.",
+                  title: "Privacy by Design",
+                  desc: "Your votes are private. Row-Level Security policies prevent access to personal data. Only aggregated results are visible.",
                 },
                 {
-                  title: "📊 Trasparenza Totale",
-                  desc: "Tutte le proposte attive e gli esiti deliberativi sono pubblici. Chiunque può vedere il contesto legislativo e i voti aggregati.",
+                  title: "Full Transparency",
+                  desc: "All active proposals and deliberative outcomes are public. Anyone can see the legislative context and aggregated votes.",
                 },
                 {
-                  title: "⚖️ Conforme GDPR",
-                  desc: "Consenso esplicito in registrazione, diritto all'oblio, dati limitati al minimo necessario. La democrazia digitale rispetta i diritti.",
+                  title: "GDPR Compliant",
+                  desc: "Explicit consent at registration, right to be forgotten, data minimization. Digital democracy respects your rights.",
                 },
               ].map((principle, idx) => (
                 <div key={idx} className="card p-6 bg-green-900/20 border border-green-700/30">
@@ -132,24 +131,24 @@ export default async function AboutPage() {
 
           {/* FAQ */}
           <section>
-            <h2 className="text-2xl font-semibold text-white mb-6">Domande Frequenti</h2>
+            <h2 className="text-2xl font-semibold text-white mb-6">Frequently Asked Questions</h2>
             <div className="space-y-4">
               {[
                 {
-                  q: "Come cambio il mio profilo?",
-                  a: "Dalla dashboard, clicca sul tuo nome in alto a destra. Puoi modificare il tuo nome completo e la biografia.",
+                  q: "How do I change my profile?",
+                  a: "From the dashboard, click on your name in the top right. You can edit your full name and biography.",
                 },
                 {
-                  q: "Posso modificare una proposta dopo averla pubblicata?",
-                  a: "No. Le proposte pubblicate sono immutabili per garantire l'integrità del processo deliberativo. Puoi creare una nuova proposta se necessario.",
+                  q: "Can I edit a proposal after publishing it?",
+                  a: "No. Published proposals are immutable to ensure the integrity of the deliberative process. You can create a new proposal if needed.",
                 },
                 {
-                  q: "Quanto tempo ho per votare una proposta?",
-                  a: "Dipende dalla scadenza della proposta. Ogni proposta mostra la data di scadenza. Dopo quella data, entra in archivio.",
+                  q: "How long do I have to vote on a proposal?",
+                  a: "It depends on the proposal's deadline. Each proposal displays its expiration date. After that date, it moves to the archive.",
                 },
                 {
-                  q: "I miei dati sono al sicuro?",
-                  a: "Sì. Usiamo Supabase con PostgreSQL, Row-Level Security, e crittografia. I dati sensibili non vengono mai archiviati in chiaro.",
+                  q: "Is my data safe?",
+                  a: "Yes. We use Supabase with PostgreSQL, Row-Level Security, and encryption. Sensitive data is never stored in plaintext.",
                 },
               ].map((item, idx) => (
                 <div key={idx} className="card p-4 bg-slate-900/30 border border-slate-700/30">
@@ -162,23 +161,23 @@ export default async function AboutPage() {
 
           {/* CTA */}
           <div className="card p-8 bg-pangea-900/30 border border-pangea-700/30 text-center">
-            <h3 className="text-2xl font-semibold text-white mb-4">Pronto a Partecipare?</h3>
+            <h3 className="text-2xl font-semibold text-white mb-4">Ready to Participate?</h3>
             <p className="text-slate-400 mb-6">
-              Unisciti ai cittadini di Pangea e forma il futuro della democrazia digitale globale.
+              Join the citizens of Pangea and shape the future of global digital democracy.
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               {user ? (
                 <>
                   <Link href="/dashboard" className="btn-primary">
-                    Torna alla Dashboard
+                    Back to the Agora
                   </Link>
                   <Link href="/proposals/new" className="btn-secondary">
-                    Proponi una Legge
+                    Propose a Law
                   </Link>
                 </>
               ) : (
                 <Link href="/auth" className="btn-primary">
-                  Registrati Ora
+                  Register Now
                 </Link>
               )}
             </div>

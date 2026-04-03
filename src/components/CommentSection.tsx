@@ -24,7 +24,6 @@ interface Comment {
   parent_id: string | null;
   profiles: {
     full_name: string;
-    previous_name: string | null;
   } | null;
 }
 
@@ -41,28 +40,28 @@ interface CommentSectionProps {
   userId?: string;
 }
 
-// Helper function for relative time in Italian
+// Helper function for relative time
 function timeAgo(dateString: string): string {
   const now = new Date();
   const date = new Date(dateString);
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (seconds < 60) return "adesso";
+  if (seconds < 60) return "now";
   if (seconds < 3600) {
     const minutes = Math.floor(seconds / 60);
-    return `${minutes}m fa`;
+    return `${minutes}m ago`;
   }
   if (seconds < 86400) {
     const hours = Math.floor(seconds / 3600);
-    return `${hours}h fa`;
+    return `${hours}h ago`;
   }
   if (seconds < 2592000) {
     const days = Math.floor(seconds / 86400);
-    return `${days}d fa`;
+    return `${days}d ago`;
   }
 
   const months = Math.floor(seconds / 2592000);
-  return `${months}m fa`;
+  return `${months}mo ago`;
 }
 
 function CommentCard({
@@ -139,15 +138,10 @@ function CommentCard({
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
+          <div className="flex items-center gap-2 mb-2">
             <span className="font-medium text-slate-200">
-              {comment.profiles?.full_name || "Anonimo"}
+              {comment.profiles?.full_name || "Anonymous"}
             </span>
-            {comment.profiles?.previous_name && (
-              <span className="text-[10px] text-slate-500 italic">
-                ex-{comment.profiles.previous_name}
-              </span>
-            )}
             <span className="text-xs text-slate-500">
               {timeAgo(comment.created_at)}
             </span>
@@ -166,7 +160,7 @@ function CommentCard({
                   ? "bg-pangea-400 text-[#0c1220]"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
-              title={!userId ? "Accedi per reagire" : ""}
+              title={!userId ? "Log in to react" : ""}
             >
               <ThumbsUp className="w-4 h-4" />
               <span>{comment.likes_count}</span>
@@ -180,7 +174,7 @@ function CommentCard({
                   ? "bg-red-400 text-[#0c1220]"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
-              title={!userId ? "Accedi per reagire" : ""}
+              title={!userId ? "Log in to react" : ""}
             >
               <ThumbsDown className="w-4 h-4" />
               <span>{comment.dislikes_count}</span>
@@ -194,10 +188,10 @@ function CommentCard({
                   ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
                   : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"
               }`}
-              title={!userId ? "Accedi per rispondere" : ""}
+              title={!userId ? "Log in to reply" : ""}
             >
               <MessageCircle className="w-4 h-4" />
-              <span>Rispondi</span>
+              <span>Reply</span>
             </button>
           </div>
         </div>
@@ -220,8 +214,8 @@ function RepliesSection({
   const supabase = createClient();
   const [replies, setReplies] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [replyingTo, setReplyingTo] = useState<string | null>(parentCommentId);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -230,7 +224,7 @@ function RepliesSection({
     try {
       const { data, error } = await supabase
         .from("comments")
-        .select("*, profiles!comments_author_id_profiles_fkey(full_name, previous_name)")
+        .select("*, profiles(full_name)")
         .eq("parent_id", parentCommentId)
         .order("created_at", { ascending: false });
 
@@ -271,11 +265,6 @@ function RepliesSection({
     }
   };
 
-  // Load replies on mount since we start expanded
-  useEffect(() => {
-    fetchReplies();
-  }, [parentCommentId]);
-
   const handleToggleExpanded = async () => {
     if (!isExpanded && replies.length === 0) {
       await fetchReplies();
@@ -294,16 +283,16 @@ function RepliesSection({
         ) : (
           <ChevronDown className="w-4 h-4" />
         )}
-        {isExpanded ? "Nascondi risposte" : `Mostra risposte (${replies.length})`}
+        {isExpanded ? "Hide replies" : `Show replies (${replies.length})`}
       </button>
 
       {isExpanded && (
         <div>
           {isLoading ? (
-            <div className="text-slate-500 text-sm py-2">Caricamento...</div>
+            <div className="text-slate-500 text-sm py-2">Loading...</div>
           ) : replies.length === 0 ? (
             <div className="text-slate-500 text-sm py-2">
-              Nessuna risposta ancora
+              No replies yet
             </div>
           ) : (
             <div className="space-y-3 mb-3">
@@ -325,7 +314,7 @@ function RepliesSection({
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Scrivi una risposta..."
+                placeholder="Write a reply..."
                 className="w-full bg-[#0c1220] text-slate-300 placeholder-slate-500 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none focus:border-pangea-400 resize-none"
                 rows={2}
               />
@@ -335,7 +324,7 @@ function RepliesSection({
                   disabled={isSubmitting || !replyText.trim()}
                   className="bg-pangea-500 text-white px-3 py-1 rounded-md text-sm hover:bg-pangea-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
-                  Rispondi
+                  Reply
                 </button>
                 <button
                   onClick={() => {
@@ -344,7 +333,7 @@ function RepliesSection({
                   }}
                   className="bg-slate-800 text-slate-300 px-3 py-1 rounded-md text-sm hover:bg-slate-700 transition-colors"
                 >
-                  Annulla
+                  Cancel
                 </button>
               </div>
             </div>
@@ -353,7 +342,7 @@ function RepliesSection({
               onClick={() => setReplyingTo(parentCommentId)}
               className="text-sm text-slate-400 hover:text-slate-300 transition-colors"
             >
-              + Scrivi una risposta
+              + Write a reply
             </button>
           )}
         </div>
@@ -378,8 +367,6 @@ export default function CommentSection({
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
     new Set()
   );
-  const [error, setError] = useState<string | null>(null);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchComments();
@@ -391,7 +378,7 @@ export default function CommentSection({
     try {
       let query = supabase
         .from("comments")
-        .select("*, profiles!comments_author_id_profiles_fkey(full_name, previous_name)")
+        .select("*, profiles(full_name)")
         .is("parent_id", null)
         .order("created_at", { ascending: false });
 
@@ -409,9 +396,8 @@ export default function CommentSection({
 
       if (error) throw error;
       setComments(data || []);
-    } catch (err) {
-      console.error("Error fetching comments:", err);
-      setError("Errore nel caricamento dei commenti. Riprova.");
+    } catch (error) {
+      console.error("Error fetching comments:", error);
     } finally {
       setIsLoading(false);
     }
@@ -443,7 +429,6 @@ export default function CommentSection({
     if (!newCommentText.trim()) return;
 
     setIsSubmitting(true);
-    setSubmitError(null);
     try {
       const insertData: Record<string, any> = {
         author_id: userId,
@@ -465,9 +450,8 @@ export default function CommentSection({
 
       setNewCommentText("");
       await fetchComments();
-    } catch (err) {
-      console.error("Error submitting comment:", err);
-      setSubmitError("Errore nell'invio del commento. Riprova.");
+    } catch (error) {
+      console.error("Error submitting comment:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -487,7 +471,7 @@ export default function CommentSection({
     <div className="w-full bg-[#0c1220] rounded-lg border border-slate-700 p-6">
       <div className="flex items-center gap-2 mb-6">
         <MessageCircle className="w-5 h-5 text-pangea-400" />
-        <h2 className="text-lg font-semibold text-slate-200">Discussione</h2>
+        <h2 className="text-lg font-semibold text-slate-200">Discussion</h2>
       </div>
 
       {/* New Comment Form */}
@@ -496,7 +480,7 @@ export default function CommentSection({
           <textarea
             value={newCommentText}
             onChange={(e) => setNewCommentText(e.target.value)}
-            placeholder="Condividi il tuo parere..."
+            placeholder="Share your opinion..."
             className="w-full bg-slate-900 text-slate-300 placeholder-slate-500 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:border-pangea-400 resize-none mb-3"
             rows={3}
           />
@@ -505,39 +489,29 @@ export default function CommentSection({
             disabled={isSubmitting || !newCommentText.trim()}
             className="bg-pangea-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pangea-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
           >
-            <span>Commenta</span>
+            <span>Comment</span>
           </button>
-          {submitError && (
-            <p className="text-red-400 text-xs mt-2">{submitError}</p>
-          )}
         </div>
       ) : (
         <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 mb-6 text-center">
           <p className="text-slate-400 text-sm mb-3">
-            Accedi per partecipare alla discussione
+            Log in to join the discussion
           </p>
           <a
             href="/auth"
             className="inline-block bg-pangea-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pangea-600 transition-colors font-medium"
           >
-            Accedi
+            Log in
           </a>
-        </div>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div className="p-3 mb-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-xs">
-          {error}
         </div>
       )}
 
       {/* Comments List */}
       {isLoading ? (
-        <div className="text-center py-8 text-slate-500">Caricamento...</div>
+        <div className="text-center py-8 text-slate-500">Loading...</div>
       ) : comments.length === 0 ? (
         <div className="text-center py-8 text-slate-500 text-sm">
-          Nessun commento ancora. Sii il primo a commentare!
+          No comments yet. Be the first to comment!
         </div>
       ) : (
         <div className="space-y-3">
@@ -551,12 +525,12 @@ export default function CommentSection({
                 userReactions={userReactions}
               />
 
-              {expandedReplies.has(comment.id) && (
+              {comment.replies_count > 0 && expandedReplies.has(comment.id) && (
                 <RepliesSection
                   parentCommentId={comment.id}
                   userId={userId}
                   userReactions={userReactions}
-                  onReactionsChange={() => { fetchUserReactions(); fetchComments(); }}
+                  onReactionsChange={fetchUserReactions}
                 />
               )}
 
@@ -567,7 +541,7 @@ export default function CommentSection({
                     className="text-sm text-pangea-400 hover:text-pangea-300 transition-colors flex items-center gap-2"
                   >
                     <ChevronDown className="w-4 h-4" />
-                    Mostra {comment.replies_count} risposte
+                    Show {comment.replies_count} replies
                   </button>
                 </div>
               )}

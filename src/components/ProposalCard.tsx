@@ -19,27 +19,27 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
   const statusConfig: Record<string, { icon: typeof Clock; label: string; className: string }> = {
     draft: {
       icon: FileText,
-      label: "Bozza",
+      label: "Draft",
       className: "status-draft",
     },
     curation: {
       icon: Flame,
-      label: "In Promozione",
+      label: "Community Review",
       className: "status-curation",
     },
     active: {
       icon: Clock,
-      label: "In Votazione",
+      label: "Active Vote",
       className: "status-active",
     },
     closed: {
       icon: CheckCircle2,
-      label: "Approvata",
+      label: "Concluded",
       className: "status-closed",
     },
     repealed: {
       icon: XCircle,
-      label: "Abrogata",
+      label: "Repealed",
       className: "status-repealed",
     },
   };
@@ -62,17 +62,17 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
             </span>
             {proposal.proposal_type === "amendment" && (
               <span className="text-xs text-purple-400 bg-purple-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Edit3 className="w-3 h-3" /> Emendamento
+                <Edit3 className="w-3 h-3" /> Amendment
               </span>
             )}
             {proposal.proposal_type === "repeal" && (
               <span className="text-xs text-red-400 bg-red-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Trash2 className="w-3 h-3" /> Abrogazione
+                <Trash2 className="w-3 h-3" /> Repeal
               </span>
             )}
             {proposal.has_voted && (
               <span className="text-xs text-pangea-400 font-medium">
-                ✓ Hai votato
+                ✓ Voted
               </span>
             )}
           </div>
@@ -94,7 +94,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
           <div className="flex justify-between text-xs text-slate-400 mb-1">
             <span className="flex items-center gap-1">
               <Flame className="w-3 h-3 text-amber-400" />
-              Segnali
+              Signals
             </span>
             <span>{proposal.signal_count} / 100</span>
           </div>
@@ -107,11 +107,11 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
         </div>
       )}
 
-      {/* Vote bars (solo per proposte active/closed con il sistema legacy) */}
+      {/* Vote bars (for active/closed proposals with legacy system) */}
       {(proposal.status === "active" || proposal.status === "closed") && total > 0 && (
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-green-400 w-20 shrink-0">Favorevoli</span>
+            <span className="text-xs text-green-400 w-20 shrink-0">In Favor</span>
             <div className="flex-1 bg-slate-700 rounded-full h-2">
               <div
                 className="bg-green-500 h-2 rounded-full transition-all duration-500"
@@ -121,7 +121,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
             <span className="text-xs text-slate-400 w-8 text-right">{yeaPercent}%</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-red-400 w-20 shrink-0">Contrari</span>
+            <span className="text-xs text-red-400 w-20 shrink-0">Against</span>
             <div className="flex-1 bg-slate-700 rounded-full h-2">
               <div
                 className="bg-red-500 h-2 rounded-full transition-all duration-500"
@@ -131,7 +131,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
             <span className="text-xs text-slate-400 w-8 text-right">{nayPercent}%</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 w-20 shrink-0">Astenuti</span>
+            <span className="text-xs text-slate-400 w-20 shrink-0">Abstain</span>
             <div className="flex-1 bg-slate-700 rounded-full h-2">
               <div
                 className="bg-slate-500 h-2 rounded-full transition-all duration-500"
@@ -143,7 +143,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
         </div>
       )}
 
-      {/* Distributed results (Voto Multiplo) */}
+      {/* Distributed results (Plural Voting) */}
       {(proposal.status === "active" || proposal.status === "closed") &&
         proposal.distributed_results &&
         proposal.distributed_results.length > 0 && (
@@ -180,12 +180,12 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
           {proposal.status === "curation" ? (
             <>
               <Flame className="w-3 h-3" />
-              <span>{proposal.signal_count ?? 0} segnali</span>
+              <span>{proposal.signal_count ?? 0} signals</span>
             </>
           ) : (
             <>
               <Users className="w-3 h-3" />
-              <span>{total} {total === 1 ? "voto" : "voti"}</span>
+              <span>{total} {total === 1 ? "vote" : "votes"}</span>
             </>
           )}
         </div>

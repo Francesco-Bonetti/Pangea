@@ -96,7 +96,7 @@ export default function PartiesPage() {
 
   async function handleCreateParty() {
     if (!newParty.name.trim()) {
-      setError("Il nome del partito è obbligatorio");
+      setError("Party name is required");
       return;
     }
     setCreating(true);
@@ -111,9 +111,9 @@ export default function PartiesPage() {
 
     if (err) {
       if (err.message.includes("delega")) {
-        setError("Per creare un partito è necessario attivare la funzione delega nelle tue impostazioni personali.");
+        setError("To create a party you need to enable the delegation feature in your personal settings.");
       } else if (err.message.includes("unique") || err.message.includes("duplicate")) {
-        setError("Esiste già un partito con questo nome.");
+        setError("A party with this name already exists.");
       } else {
         setError(err.message);
       }
@@ -161,10 +161,10 @@ export default function PartiesPage() {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
               <Flag className="w-7 h-7 text-pangea-400" />
-              Partiti Politici
+              Political Parties
             </h1>
             <p className="text-slate-400 mt-1">
-              Organizzati in partiti per influenzare il voto sulle proposte. Puoi iscriverti a più partiti.
+              Organize into parties to influence votes on proposals. You can join multiple parties.
             </p>
           </div>
           {!isGuest && (
@@ -173,28 +173,21 @@ export default function PartiesPage() {
               className="btn-primary flex items-center gap-2 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
-              Crea Partito
+              Create Party
             </button>
           )}
         </div>
 
         {/* Info card */}
         <div className="card mb-6 border-l-4 border-pangea-500">
-          <h3 className="text-sm font-semibold text-pangea-300 mb-2">Come funzionano i Partiti</h3>
-          <ul className="text-sm text-slate-400 space-y-2 leading-relaxed">
-            <li>• Puoi iscriverti a <strong className="text-slate-300">più partiti</strong> contemporaneamente — ad esempio al Partito Verde e al Partito Scientifico insieme</li>
-            <li>• I partiti esprimono un <strong className="text-slate-300">voto pubblico</strong> su ogni proposta. Se non voti direttamente, il tuo voto viene automaticamente diviso tra i partiti a cui sei iscritto, secondo i pesi che imposti nelle <strong className="text-slate-300">Impostazioni</strong></li>
-            <li>• Il tuo <strong className="text-slate-300">voto diretto</strong> ha sempre la priorità: se voti personalmente su una proposta, il voto dei partiti viene ignorato per quella proposta (e puoi ripristinarlo in qualsiasi momento)</li>
-            <li>• Per creare un nuovo partito devi avere la <strong className="text-slate-300">funzione delega attivata</strong> nelle impostazioni del profilo</li>
+          <h3 className="text-sm font-semibold text-pangea-300 mb-2">How Parties Work</h3>
+          <ul className="text-xs text-slate-400 space-y-1">
+            <li>• You can join <strong className="text-slate-300">multiple parties</strong> at the same time</li>
+            <li>• Parties cast a <strong className="text-slate-300">public vote</strong> on each proposal</li>
+            <li>• If you don&apos;t vote directly, your vote is <strong className="text-slate-300">split among parties</strong> based on the weights you choose</li>
+            <li>• Your <strong className="text-slate-300">direct vote</strong> always overrides party votes (and you can restore them)</li>
+            <li>• To create a party you must have the <strong className="text-slate-300">delegation feature enabled</strong></li>
           </ul>
-          <div className="bg-slate-800/60 rounded-lg p-3 mt-3">
-            <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
-            <p className="text-xs text-slate-400">
-              Mario è iscritto al Partito Verde (peso 3) e al Partito Scientifico (peso 1). Su una proposta dove non vota direttamente,
-              il 75% del suo voto segue la posizione del Partito Verde e il 25% quella del Partito Scientifico.
-              Se Mario decide di votare in prima persona, il suo voto diretto sostituisce completamente quello dei partiti.
-            </p>
-          </div>
         </div>
 
         {/* Search */}
@@ -202,7 +195,7 @@ export default function PartiesPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
             type="text"
-            placeholder="Cerca partiti..."
+            placeholder="Search parties..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input-field pl-10 w-full"
@@ -220,10 +213,10 @@ export default function PartiesPage() {
 
         {/* Party list */}
         {loading ? (
-          <div className="text-center text-slate-500 py-12">Caricamento partiti...</div>
+          <div className="text-center text-slate-500 py-12">Loading parties...</div>
         ) : filteredParties.length === 0 ? (
           <div className="text-center text-slate-500 py-12">
-            {searchQuery ? "Nessun partito trovato." : "Nessun partito ancora creato. Sii il primo!"}
+            {searchQuery ? "No parties found." : "No parties created yet. Be the first!"}
           </div>
         ) : (
           <div className="grid gap-4">
@@ -242,7 +235,7 @@ export default function PartiesPage() {
                       </h2>
                       {party.is_member && (
                         <span className="text-[10px] bg-pangea-800 text-pangea-300 px-2 py-0.5 rounded-full font-medium">
-                          Iscritto
+                          Joined
                         </span>
                       )}
                     </div>
@@ -252,10 +245,10 @@ export default function PartiesPage() {
                     <div className="flex items-center gap-4 text-xs text-slate-500">
                       <span className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
-                        {party.member_count} {party.member_count === 1 ? "membro" : "membri"}
+                        {party.member_count} {party.member_count === 1 ? "member" : "members"}
                       </span>
-                      <span>Fondato da {party.profiles?.full_name || "Anonimo"}</span>
-                      <span>{new Date(party.created_at).toLocaleDateString("it-IT")}</span>
+                      <span>Founded by {party.profiles?.full_name || "Anonymous"}</span>
+                      <span>{new Date(party.created_at).toLocaleDateString("en-US")}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
@@ -268,7 +261,7 @@ export default function PartiesPage() {
                         }}
                         className="btn-primary text-xs py-1.5 px-3"
                       >
-                        Iscriviti
+                        Join
                       </button>
                     )}
                     <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-pangea-400 transition-colors" />
@@ -287,7 +280,7 @@ export default function PartiesPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <Flag className="w-5 h-5 text-pangea-400" />
-                Crea Partito
+                Create Party
               </h2>
               <button onClick={() => { setShowCreate(false); setError(null); }} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -299,9 +292,9 @@ export default function PartiesPage() {
               <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg p-3 mb-4">
                 <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium">Funzione delega non attivata</p>
-                  <p className="text-xs mt-1">Per creare un partito è necessario attivare la funzione delega nelle tue{" "}
-                    <Link href="/settings" className="underline text-amber-300">impostazioni personali</Link>.
+                  <p className="font-medium">Delegation feature not enabled</p>
+                  <p className="text-xs mt-1">To create a party you need to enable the delegation feature in your{" "}
+                    <Link href="/settings" className="underline text-amber-300">personal settings</Link>.
                   </p>
                 </div>
               </div>
@@ -316,7 +309,7 @@ export default function PartiesPage() {
 
             {/* Emoji selector */}
             <div className="mb-4">
-              <label className="label">Simbolo</label>
+              <label className="label">Symbol</label>
               <div className="flex flex-wrap gap-2">
                 {emojiOptions.map((e) => (
                   <button
@@ -335,35 +328,35 @@ export default function PartiesPage() {
             </div>
 
             <div className="mb-4">
-              <label className="label">Nome del Partito *</label>
+              <label className="label">Party Name *</label>
               <input
                 type="text"
                 value={newParty.name}
                 onChange={(e) => setNewParty({ ...newParty, name: e.target.value })}
                 className="input-field w-full"
-                placeholder="es. Partito della Sostenibilità Globale"
+                placeholder="e.g. Global Sustainability Party"
                 maxLength={100}
               />
             </div>
 
             <div className="mb-4">
-              <label className="label">Descrizione breve</label>
+              <label className="label">Short description</label>
               <textarea
                 value={newParty.description}
                 onChange={(e) => setNewParty({ ...newParty, description: e.target.value })}
                 className="input-field w-full h-20 resize-none"
-                placeholder="Una frase che descrive la missione del partito..."
+                placeholder="A sentence describing the party's mission..."
                 maxLength={300}
               />
             </div>
 
             <div className="mb-6">
-              <label className="label">Manifesto (opzionale)</label>
+              <label className="label">Manifesto (optional)</label>
               <textarea
                 value={newParty.manifesto}
                 onChange={(e) => setNewParty({ ...newParty, manifesto: e.target.value })}
                 className="input-field w-full h-32 resize-none"
-                placeholder="I principi fondamentali, gli obiettivi e i valori del partito..."
+                placeholder="Core principles, goals, and values of the party..."
                 maxLength={5000}
               />
             </div>
@@ -373,14 +366,14 @@ export default function PartiesPage() {
                 onClick={() => { setShowCreate(false); setError(null); }}
                 className="btn-ghost px-4 py-2"
               >
-                Annulla
+                Cancel
               </button>
               <button
                 onClick={handleCreateParty}
                 disabled={creating || !newParty.name.trim()}
                 className="btn-primary px-6 py-2"
               >
-                {creating ? "Creazione..." : "Crea Partito"}
+                {creating ? "Creating..." : "Create Party"}
               </button>
             </div>
           </div>

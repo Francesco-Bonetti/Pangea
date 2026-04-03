@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import TagInput from "@/components/TagInput";
 import LawTreeSelector from "@/components/LawTreeSelector";
@@ -19,7 +19,6 @@ import {
   Edit3,
   Trash2,
   BookOpen,
-  Globe2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -30,19 +29,7 @@ interface OptionDraft {
 
 type ProposalType = "new" | "amendment" | "repeal";
 
-export default function NewProposalPageWrapper() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0c1220] flex items-center justify-center text-slate-500">Caricamento...</div>}>
-      <NewProposalPage />
-    </Suspense>
-  );
-}
-
-function NewProposalPage() {
-  const searchParams = useSearchParams();
-  const jurisdictionId = searchParams.get("jurisdiction");
-  const jurisdictionName = searchParams.get("jurisdiction_name");
-
+export default function NewProposalPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [dispositivo, setDispositivo] = useState("");
@@ -127,7 +114,6 @@ function NewProposalPage() {
         expires_at: expiresAt,
         proposal_type: proposalType,
         parent_proposal_id: parentProposalId,
-        jurisdiction_id: jurisdictionId || null,
       };
 
       const { data, error: insertError } = await supabase
@@ -138,7 +124,7 @@ function NewProposalPage() {
 
       if (insertError) throw insertError;
 
-      // Inserisci i tag associati alla proposta
+      // Insert tags associated with the proposal
       if (data && selectedTags.length > 0) {
         const tagRows = selectedTags.map((tagId) => ({
           proposal_id: data.id,
@@ -147,7 +133,7 @@ function NewProposalPage() {
         await supabase.from("proposal_tags").insert(tagRows);
       }
 
-      // Inserisci le opzioni deliberative (se la proposta va in curatela)
+      // Insert deliberative options (if proposal goes to curation)
       if (status === "curation" && data) {
         const validOptions = options.filter((o) => o.title.trim().length > 0);
         if (validOptions.length >= 2) {
@@ -172,7 +158,7 @@ function NewProposalPage() {
       }
       router.refresh();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Errore durante il salvataggio";
+      const msg = err instanceof Error ? err.message : "Error while saving";
       setError(msg);
     } finally {
       setSaving(false);
@@ -200,65 +186,37 @@ function NewProposalPage() {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <FileText className="w-6 h-6 text-pangea-400" />
-              Nuova Proposta di Legge
+              New Proposal
             </h1>
             <p className="text-sm text-slate-400 mt-0.5">
-              Scrivi la tua proposta e lascia che i cittadini la valutino
+              Write your proposal and let citizens evaluate it
             </p>
           </div>
         </div>
-
-        {/* Giurisdizione badge */}
-        {jurisdictionId && jurisdictionName && (
-          <div className="card p-4 mb-6 bg-purple-900/10 border-purple-800/30 flex items-center gap-3">
-            <Globe2 className="w-5 h-5 text-purple-400 shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm text-purple-300 font-medium">
-                Proposta per la giurisdizione: {jurisdictionName}
-              </p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Questa proposta si applicherà solo ai membri della giurisdizione.
-              </p>
-            </div>
-            <Link
-              href={`/jurisdictions/${jurisdictionId}`}
-              className="text-xs text-purple-400 hover:text-purple-300 whitespace-nowrap"
-            >
-              ← Torna alla giurisdizione
-            </Link>
-          </div>
-        )}
 
         {/* Guida */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
           <Info className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
           <div className="text-sm text-slate-400">
-            <p className="text-slate-300 font-medium mb-1">Come funziona</p>
-            <p className="mb-2">
-              La tua proposta segue due fasi: prima viene pubblicata in <strong className="text-amber-300">bacheca</strong> dove
-              i cittadini possono sostenerla con un click. Quando raggiunge il <strong className="text-slate-300">20% di supporto</strong> degli utenti attivi,
-              passa alla <strong className="text-pangea-300">votazione</strong> dove tutti esprimono la propria preferenza tra le scelte che hai definito.
+            <p className="text-slate-300 font-medium mb-1">How it works</p>
+            <p>
+              Your proposal is first published for <strong className="text-amber-300">community review</strong> where
+              citizens can support it with a click. When it receives enough support,
+              it moves to the <strong className="text-pangea-300">voting phase</strong> where everyone can express
+              their preference among the options you defined.
             </p>
-            <div className="bg-slate-800/60 rounded-lg p-2.5 mt-1">
-              <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
-              <p className="text-xs">
-                Proponi una legge sulla tutela ambientale. Viene pubblicata in bacheca: se 20 cittadini su 100 attivi
-                la sostengono, entra in votazione. A quel punto tutti possono distribuire il proprio voto tra le opzioni
-                che hai scritto (es. &quot;Approvare&quot; 60%, &quot;Modificare&quot; 30%, &quot;Respingere&quot; 10%).
-              </p>
-            </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          {/* Tipo di proposta */}
+          {/* Proposal type */}
           <div>
-            <label className="label">Tipo di proposta</label>
+            <label className="label">Proposal type</label>
             <div className="grid grid-cols-3 gap-3">
               {([
-                { type: "new" as ProposalType, label: "Nuova Legge", icon: FileText, desc: "Proponi una legge nuova" },
-                { type: "amendment" as ProposalType, label: "Emendamento", icon: Edit3, desc: "Modifica una legge esistente" },
-                { type: "repeal" as ProposalType, label: "Abrogazione", icon: Trash2, desc: "Abroga una legge esistente" },
+                { type: "new" as ProposalType, label: "New Law", icon: FileText, desc: "Propose a new law" },
+                { type: "amendment" as ProposalType, label: "Amendment", icon: Edit3, desc: "Modify an existing law" },
+                { type: "repeal" as ProposalType, label: "Repeal", icon: Trash2, desc: "Repeal an existing law" },
               ]).map(({ type, label, icon: Icon, desc }) => (
                 <button
                   key={type}
@@ -290,7 +248,7 @@ function NewProposalPage() {
               <div className="mt-4 card p-4">
                 <label className="label flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5" />
-                  {proposalType === "amendment" ? "Legge da emendare" : "Legge da abrogare"}
+                  {proposalType === "amendment" ? "Law to amend" : "Law to repeal"}
                 </label>
                 {parentLawTitle ? (
                   <div className="flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3">
@@ -305,7 +263,7 @@ function NewProposalPage() {
                     <input
                       type="text"
                       className="input-field"
-                      placeholder="Cerca una legge per titolo..."
+                      placeholder="Search for a law by title..."
                       value={lawSearchQuery}
                       onChange={(e) => searchLaws(e.target.value)}
                     />
@@ -339,21 +297,21 @@ function NewProposalPage() {
             )}
           </div>
 
-          {/* Titolo */}
+          {/* Title */}
           <div>
             <label className="label">
-              Titolo della Proposta <span className="text-red-400">*</span>
+              Proposal Title <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               className="input-field text-lg"
-              placeholder="Es: Istituzione del diritto universale all'istruzione digitale"
+              placeholder="e.g. Establishment of the universal right to digital education"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={200}
               required
             />
-            <p className="text-xs text-slate-600 mt-1.5">{title.length}/200 caratteri</p>
+            <p className="text-xs text-slate-600 mt-1.5">{title.length}/200 characters</p>
           </div>
 
           {/* Hashtag */}
@@ -361,7 +319,7 @@ function NewProposalPage() {
             <TagInput selectedTags={selectedTags} onTagsChange={setSelectedTags} />
           </div>
 
-          {/* Posizione nell'albero delle leggi */}
+          {/* Position in the law tree */}
           <div>
             <button
               type="button"
@@ -369,12 +327,12 @@ function NewProposalPage() {
               className="label flex items-center gap-1.5 cursor-pointer hover:text-slate-200 transition-colors"
             >
               <GitBranch className="w-3.5 h-3.5" />
-              Posizione nell&apos;albero delle leggi
-              <span className="text-xs font-normal text-slate-500 ml-1">(facoltativo)</span>
+              Position in the law tree
+              <span className="text-xs font-normal text-slate-500 ml-1">(optional)</span>
             </button>
             {!showTreeSelector && (
               <p className="text-xs text-slate-600 mt-1">
-                Clicca per scegliere dove inserire la legge nell&apos;ordinamento o quale norma sostituire
+                Click to choose where to place the law in the legal framework or which rule to replace
               </p>
             )}
             {showTreeSelector && (
@@ -392,72 +350,66 @@ function NewProposalPage() {
           {/* Contesto */}
           <div>
             <label className="label">
-              Perché serve questa legge? <span className="text-red-400">*</span>
+              Why is this law needed? <span className="text-red-400">*</span>
             </label>
             <textarea
               className="input-field min-h-[180px] resize-y"
-              placeholder="Spiega il problema che vuoi risolvere e perché pensi sia importante per la comunità..."
+              placeholder="Explain the problem you want to solve and why you think it matters to the community..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
             />
-            <p className="text-xs text-slate-600 mt-1.5">{content.length} caratteri</p>
+            <p className="text-xs text-slate-600 mt-1.5">{content.length} characters</p>
           </div>
 
           {/* Dispositivo normativo */}
           <div>
-            <label className="label">Testo della legge proposta</label>
+            <label className="label">Proposed law text</label>
             <textarea
               className="input-field min-h-[150px] font-mono text-sm resize-y"
-              placeholder={"Art. 1 - Cosa si stabilisce\nLa Repubblica di Pangea garantisce...\n\nArt. 2 - Come funziona\nPer applicare questa legge..."}
+              placeholder={"Art. 1 - What is established\nThe Commonwealth of Pangea guarantees...\n\nArt. 2 - How it works\nTo enforce this law..."}
               value={dispositivo}
               onChange={(e) => setDispositivo(e.target.value)}
             />
             <p className="text-xs text-slate-600 mt-1.5">
-              Facoltativo — scrivi gli articoli della legge vera e propria
+              Optional — write the actual articles of the proposed law
             </p>
           </div>
 
           {/* Durata delibera */}
           <div>
-            <label className="label">Durata della delibera</label>
+            <label className="label">Voting duration</label>
             <select
               className="input-field"
               value={expiresIn}
               onChange={(e) => setExpiresIn(e.target.value)}
             >
-              <option value="3">3 giorni</option>
-              <option value="7">7 giorni</option>
-              <option value="14">14 giorni</option>
-              <option value="30">30 giorni</option>
-              <option value="0">Senza scadenza</option>
+              <option value="3">3 days</option>
+              <option value="7">7 days</option>
+              <option value="14">14 days</option>
+              <option value="30">30 days</option>
+              <option value="0">No expiration</option>
             </select>
             <p className="text-xs text-slate-600 mt-1.5">
-              Dopo la scadenza, la proposta viene chiusa automaticamente e il risultato diventa definitivo
+              After expiration, the proposal is automatically closed and the result becomes final
             </p>
           </div>
 
           {/* Opzioni deliberative */}
           <div>
             <label className="label">
-              Scelte per la votazione <span className="text-red-400">*</span>
+              Voting options <span className="text-red-400">*</span>
             </label>
             <div className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-3 mb-3">
               <p className="text-sm text-slate-300 mb-2">
-                In Pangea non si vota solo &quot;sì o no&quot;: ogni cittadino <strong>distribuisce il proprio voto
-                in percentuale</strong> tra le opzioni che proponi tu. Questo permette di esprimere sfumature e preferenze multiple,
-                non solo posizioni nette.
+                In Pangea, voting is not just &quot;yes or no&quot;: each citizen distributes their vote
+                as a percentage among the options you propose. This allows for nuanced positions,
+                not just binary choices.
               </p>
-              <div className="bg-slate-900/50 rounded p-2.5 my-2">
-                <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
-                <p className="text-xs text-slate-400">
-                  Per una proposta sulla mobilità urbana potresti offrire 3 scelte: &quot;Approvare com&apos;è&quot;, &quot;Approvare
-                  con piste ciclabili obbligatorie&quot;, &quot;Respingere e riscrivere&quot;. Un cittadino potrebbe dare 60% alla seconda,
-                  30% alla prima e 10% alla terza — mostrando che preferisce la versione con piste ciclabili ma accetterebbe anche il testo base.
-                </p>
-              </div>
               <p className="text-xs text-slate-400">
-                Scrivi almeno 2 alternative. Più opzioni dai, più ricca e sfumata sarà la deliberazione.
+                Write at least 2 alternatives. For example: &quot;Approve the text as is&quot;,
+                &quot;Approve with modifications&quot;, &quot;Reject and rewrite&quot;.
+                The more options you offer, the richer the discussion.
               </p>
             </div>
 
@@ -466,7 +418,7 @@ function NewProposalPage() {
                 <div key={i} className="card p-4 relative">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-slate-500 font-medium">
-                      Opzione {i + 1}
+                      Option {i + 1}
                     </span>
                     {options.length > 2 && (
                       <button
@@ -480,14 +432,14 @@ function NewProposalPage() {
                   <input
                     type="text"
                     className="input-field mb-2"
-                    placeholder={`Titolo opzione ${i + 1}`}
+                    placeholder={`Option ${i + 1} title`}
                     value={opt.title}
                     onChange={(e) => updateOption(i, "title", e.target.value)}
                     maxLength={200}
                   />
                   <textarea
                     className="input-field text-sm min-h-[60px] resize-y"
-                    placeholder="Spiega questa alternativa in breve (facoltativo)"
+                    placeholder="Briefly explain this option (optional)"
                     value={opt.description}
                     onChange={(e) => updateOption(i, "description", e.target.value)}
                   />
@@ -501,7 +453,7 @@ function NewProposalPage() {
                 className="mt-3 btn-ghost text-sm flex items-center gap-1.5 text-pangea-400 hover:text-pangea-300"
               >
                 <Plus className="w-4 h-4" />
-                Aggiungi opzione
+                Add option
               </button>
             )}
           </div>
@@ -521,7 +473,7 @@ function NewProposalPage() {
               className="btn-secondary flex items-center justify-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Salva come Bozza
+              Save as Draft
             </button>
 
             <button
@@ -530,15 +482,15 @@ function NewProposalPage() {
               className="btn-primary flex items-center justify-center gap-2 sm:ml-auto"
             >
               {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Pubblica in bacheca
+              Publish for Review
             </button>
           </div>
 
           {!isPublishValid && (
             <p className="text-xs text-slate-600 text-center">
               {!isValid
-                ? "Inserisci un titolo (min. 5 caratteri) e una motivazione (min. 20 caratteri)"
-                : "Aggiungi almeno 2 scelte per la votazione"}
+                ? "Enter a title (min. 5 characters) and a reason (min. 20 characters)"
+                : "Add at least 2 voting options"}
             </p>
           )}
         </div>

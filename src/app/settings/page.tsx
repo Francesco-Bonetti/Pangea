@@ -135,11 +135,11 @@ export default function SettingsPage() {
     setPasswordSuccess(false);
 
     if (newPassword.length < 8) {
-      setPasswordError("La password deve essere di almeno 8 caratteri.");
+      setPasswordError("Password must be at least 8 characters.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("Le password non corrispondono.");
+      setPasswordError("Passwords do not match.");
       return;
     }
 
@@ -176,9 +176,9 @@ export default function SettingsPage() {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <Settings className="w-6 h-6 text-pangea-400" />
-              Impostazioni Account
+              Account Settings
             </h1>
-            <p className="text-sm text-slate-400 mt-0.5">Gestisci il tuo profilo e le preferenze</p>
+            <p className="text-sm text-slate-400 mt-0.5">Manage your profile and preferences</p>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <Shield className="w-5 h-5 text-pangea-400" />
-              Informazioni Account
+              Account Information
             </h2>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
@@ -200,21 +200,21 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <Shield className="w-4 h-4 text-slate-500" />
                 <div>
-                  <p className="text-xs text-slate-500">Ruolo</p>
+                  <p className="text-xs text-slate-500">Role</p>
                   <p className="text-sm text-slate-200 capitalize">{profile?.role || "citizen"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Hash className="w-4 h-4 text-slate-500" />
                 <div>
-                  <p className="text-xs text-slate-500">Codice Cittadino</p>
+                  <p className="text-xs text-slate-500">Citizen Code</p>
                   <p className="text-sm text-pangea-300 font-mono font-semibold tracking-wider">{profile?.user_code || "—"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Calendar className="w-4 h-4 text-slate-500" />
                 <div>
-                  <p className="text-xs text-slate-500">Membro dal</p>
+                  <p className="text-xs text-slate-500">Member since</p>
                   <p className="text-sm text-slate-200">{profile?.created_at ? formatDate(profile.created_at) : "—"}</p>
                 </div>
               </div>
@@ -225,16 +225,16 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <User className="w-5 h-5 text-pangea-400" />
-              Profilo Pubblico
+              Public Profile
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="label">Nome completo</label>
+                <label className="label">Full name</label>
                 <input
                   type="text"
                   className="input-field"
-                  placeholder="Il tuo nome"
+                  placeholder="Your name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   maxLength={100}
@@ -244,12 +244,12 @@ export default function SettingsPage() {
                 <label className="label">Bio</label>
                 <textarea
                   className="input-field min-h-[100px] resize-y"
-                  placeholder="Racconta qualcosa di te ai concittadini..."
+                  placeholder="Tell fellow citizens something about yourself..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={500}
                 />
-                <p className="text-xs text-slate-600 mt-1">{bio.length}/500 caratteri</p>
+                <p className="text-xs text-slate-600 mt-1">{bio.length}/500 characters</p>
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <Eye className="w-5 h-5 text-pangea-400" />
-              Privacy e Deleghe
+              Privacy & Delegations
             </h2>
 
             <div className="space-y-4">
@@ -266,8 +266,8 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-3">
                   <Users className="w-4 h-4 text-slate-500" />
                   <div>
-                    <p className="text-sm text-slate-200">Accetta deleghe</p>
-                    <p className="text-xs text-slate-500">Permetti ad altri cittadini di delegarti il voto</p>
+                    <p className="text-sm text-slate-200">Accept delegations</p>
+                    <p className="text-xs text-slate-500">Allow other citizens to delegate their vote to you</p>
                   </div>
                 </div>
                 <div
@@ -286,8 +286,8 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-3">
                   <Eye className="w-4 h-4 text-slate-500" />
                   <div>
-                    <p className="text-sm text-slate-200">Profilo ricercabile</p>
-                    <p className="text-xs text-slate-500">Appari nei risultati di ricerca per le deleghe</p>
+                    <p className="text-sm text-slate-200">Searchable profile</p>
+                    <p className="text-xs text-slate-500">Appear in search results for delegations</p>
                   </div>
                 </div>
                 <div
@@ -308,28 +308,13 @@ export default function SettingsPage() {
             <div className="card p-6">
               <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
                 <Flag className="w-5 h-5 text-pangea-400" />
-                Pesi Voto Partiti
+                Party Vote Weights
               </h2>
-              <div className="text-sm text-slate-400 mb-4 leading-relaxed space-y-2">
-                <p>
-                  Se sei iscritto a più partiti e non voti direttamente su una proposta, il tuo voto viene
-                  automaticamente diviso tra i tuoi partiti in base ai pesi che assegni qui sotto.
-                </p>
-                <p>
-                  <strong className="text-slate-300">I pesi sono relativi tra loro</strong>, non percentuali fisse.
-                  Conta solo il rapporto tra i numeri, non il valore assoluto.
-                </p>
-                <div className="bg-slate-800/60 rounded-lg p-3 mt-2 space-y-1.5">
-                  <p className="text-xs text-slate-300 font-medium">Esempio pratico:</p>
-                  <p className="text-xs">Immagina di essere iscritto a 3 partiti con questi pesi:</p>
-                  <p className="text-xs">🌿 Partito Verde = <strong className="text-slate-300">4</strong> · 🔬 Partito Scientifico = <strong className="text-slate-300">2</strong> · ⚖️ Partito Giuridico = <strong className="text-slate-300">2</strong></p>
-                  <p className="text-xs">Il totale è 8, quindi il tuo voto si dividerebbe così: 50% al Verde, 25% allo Scientifico, 25% al Giuridico.</p>
-                  <p className="text-xs">Se cambiassi i pesi a 2, 1, 1 il risultato sarebbe identico — conta solo la proporzione.</p>
-                </div>
-                <p className="text-xs text-slate-500 mt-1">
-                  Ricorda: se voti direttamente su una proposta, il tuo voto personale prevale sempre su quello dei partiti.
-                </p>
-              </div>
+              <p className="text-xs text-slate-500 mb-4">
+                If you are a member of multiple parties and don&apos;t vote directly on a proposal, your vote is split among parties
+                based on these weights. By default all have equal weight (1). You can customize the weights to give more
+                influence to one party over another.
+              </p>
               <div className="space-y-3">
                 {partyMemberships.map((pm) => {
                   const totalWeight = partyMemberships.reduce((s, p) => s + p.vote_weight, 0);
@@ -341,7 +326,7 @@ export default function SettingsPage() {
                         <Link href={`/parties/${pm.party_id}`} className="text-sm text-slate-200 hover:text-pangea-300 transition-colors">
                           {pm.party_name}
                         </Link>
-                        <p className="text-[10px] text-slate-500">{percentage}% del tuo voto</p>
+                        <p className="text-[10px] text-slate-500">{percentage}% of your vote</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -373,7 +358,7 @@ export default function SettingsPage() {
               </div>
               {weightsSuccess && (
                 <div className="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Pesi aggiornati!
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Weights updated!
                 </div>
               )}
               <button
@@ -382,7 +367,7 @@ export default function SettingsPage() {
                 className="mt-3 btn-secondary w-full flex items-center justify-center gap-2 text-sm"
               >
                 {savingWeights ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {savingWeights ? "Salvando..." : "Salva pesi partiti"}
+                {savingWeights ? "Saving..." : "Save party weights"}
               </button>
             </div>
           )}
@@ -395,7 +380,7 @@ export default function SettingsPage() {
           )}
           {success && (
             <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" /> Profilo aggiornato con successo!
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> Profile updated successfully!
             </div>
           )}
           <button
@@ -404,32 +389,32 @@ export default function SettingsPage() {
             className="btn-primary w-full flex items-center justify-center gap-2 py-3"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saving ? "Salvando..." : "Salva modifiche"}
+            {saving ? "Saving..." : "Save changes"}
           </button>
 
           {/* Change password */}
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
               <Shield className="w-5 h-5 text-amber-400" />
-              Cambia Password
+              Change Password
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="label">Nuova password</label>
+                <label className="label">New password</label>
                 <input
                   type="password"
                   className="input-field"
-                  placeholder="Minimo 8 caratteri"
+                  placeholder="Minimum 8 characters"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div>
-                <label className="label">Conferma password</label>
+                <label className="label">Confirm password</label>
                 <input
                   type="password"
                   className="input-field"
-                  placeholder="Ripeti la password"
+                  placeholder="Repeat the password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -441,7 +426,7 @@ export default function SettingsPage() {
               )}
               {passwordSuccess && (
                 <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" /> Password aggiornata!
+                  <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated!
                 </div>
               )}
               <button
@@ -450,7 +435,7 @@ export default function SettingsPage() {
                 className="btn-secondary w-full flex items-center justify-center gap-2"
               >
                 {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
-                {changingPassword ? "Aggiornando..." : "Aggiorna password"}
+                {changingPassword ? "Updating..." : "Update password"}
               </button>
             </div>
           </div>

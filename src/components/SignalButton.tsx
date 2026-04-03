@@ -4,13 +4,13 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Flame, Loader2, CheckCircle2 } from "lucide-react";
 
-interface SignalButtonProps {
+export interface SignalButtonProps {
   proposalId: string;
   userId: string;
   initialSignalCount: number;
   initialHasSignaled: boolean;
-  threshold: number;
-  activeUsersCount: number;
+  threshold?: number;
+  activeUsersCount?: number;
 }
 
 export default function SignalButton({
@@ -18,8 +18,7 @@ export default function SignalButton({
   userId,
   initialSignalCount,
   initialHasSignaled,
-  threshold,
-  activeUsersCount,
+  threshold = 100,
 }: SignalButtonProps) {
   const [signalCount, setSignalCount] = useState(initialSignalCount);
   const [hasSignaled, setHasSignaled] = useState(initialHasSignaled);
@@ -35,7 +34,7 @@ export default function SignalButton({
 
     try {
       if (hasSignaled) {
-        // Ritira segnale
+        // Withdraw signal
         const { error: deleteError } = await supabase
           .from("proposal_signals")
           .delete()
@@ -46,7 +45,7 @@ export default function SignalButton({
         setSignalCount((c) => Math.max(0, c - 1));
         setHasSignaled(false);
       } else {
-        // Invia segnale
+        // Send signal
         const { error: insertError } = await supabase
           .from("proposal_signals")
           .insert({
@@ -66,7 +65,7 @@ export default function SignalButton({
         setHasSignaled(true);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Errore";
+      const msg = err instanceof Error ? err.message : "Error";
       setError(msg);
     } finally {
       setLoading(false);
@@ -75,16 +74,12 @@ export default function SignalButton({
 
   return (
     <div className="space-y-3">
-      {/* Progress bar verso la soglia */}
+      {/* Progress bar toward threshold */}
       <div>
         <div className="flex justify-between text-xs text-slate-400 mb-1.5">
-          <span>Segnali di supporto</span>
+          <span>Support signals</span>
           <span className="font-medium">
-            {signalCount} / {threshold} segnali (
-            {activeUsersCount > 0
-              ? ((threshold / activeUsersCount) * 100).toFixed(0)
-              : "0"}
-            % degli utenti attivi)
+            {signalCount} / {threshold}
           </span>
         </div>
         <div className="bg-slate-700 rounded-full h-2.5">
@@ -95,12 +90,12 @@ export default function SignalButton({
         </div>
         <p className="text-xs text-slate-600 mt-1">
           {signalCount >= threshold
-            ? "Soglia raggiunta — in attesa di promozione"
-            : `Mancano ${threshold - signalCount} segnali per la fase deliberativa`}
+            ? "Threshold reached — awaiting promotion"
+            : `${threshold - signalCount} signals needed for the deliberation phase`}
         </p>
       </div>
 
-      {/* Bottone segnala */}
+      {/* Signal button */}
       <button
         onClick={toggleSignal}
         disabled={loading}
@@ -118,10 +113,10 @@ export default function SignalButton({
           <Flame className="w-4 h-4" />
         )}
         {loading
-          ? "Aggiornamento..."
+          ? "Updating..."
           : hasSignaled
-          ? "Segnale inviato — Ritira"
-          : "Supporta questa proposta"}
+          ? "Signal sent — Withdraw"
+          : "Support this proposal"}
       </button>
 
       {error && (

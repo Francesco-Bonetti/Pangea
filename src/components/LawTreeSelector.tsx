@@ -134,7 +134,7 @@ function TreeNode({
                   : "bg-slate-700/50 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
               }
             `}
-            title="Aggiungi sotto"
+            title="Add below"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -148,7 +148,7 @@ function TreeNode({
                   : "bg-slate-700/50 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
               }
             `}
-            title="Sostituisci"
+            title="Replace"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -211,7 +211,7 @@ export default function LawTreeSelector({
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Errore nel caricamento delle leggi"
+          err instanceof Error ? err.message : "Error loading laws"
         );
       } finally {
         setLoading(false);
@@ -253,13 +253,13 @@ export default function LawTreeSelector({
         `}
       >
         <X className="w-4 h-4" />
-        <span>Nessuna posizione specifica</span>
+        <span>No specific position</span>
       </button>
 
       {/* Info messages */}
       {selectedParentNode && (
         <div className="px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-md text-sm text-slate-300">
-          La nuova legge sarà aggiunta sotto:{" "}
+          The new law will be added under:{" "}
           <span className="font-semibold text-slate-100">
             {selectedParentNode.title}
           </span>
@@ -268,7 +268,7 @@ export default function LawTreeSelector({
 
       {replacesNode && (
         <div className="px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-md text-sm text-slate-300">
-          La nuova legge sostituirà:{" "}
+          The new law will replace:{" "}
           <span className="font-semibold text-slate-100">
             {replacesNode.title}
           </span>
@@ -279,7 +279,7 @@ export default function LawTreeSelector({
       <div className="border border-slate-700 rounded-md bg-[#0c1220] overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center p-8">
-            <div className="text-slate-400 text-sm">Caricamento leggi...</div>
+            <div className="text-slate-400 text-sm">Loading laws...</div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center p-8">
@@ -287,7 +287,7 @@ export default function LawTreeSelector({
           </div>
         ) : treeData.length === 0 ? (
           <div className="flex items-center justify-center p-8">
-            <div className="text-slate-400 text-sm">Nessuna legge trovata</div>
+            <div className="text-slate-400 text-sm">No laws found</div>
           </div>
         ) : (
           <div className="max-h-96 overflow-y-auto">

@@ -46,7 +46,7 @@ export default function VotingBooth({
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
   const [allocations, setAllocations] = useState<Record<string, number>>(
     () => {
-      // Inizializza allocazioni equamente distribuite
+      // Initialize evenly distributed allocations
       const initial: Record<string, number> = {};
       if (options.length > 0) {
         const equalShare = Math.floor(100 / options.length);
@@ -105,14 +105,14 @@ export default function VotingBooth({
         const otherTotal = otherKeys.reduce((sum, k) => sum + prev[k], 0);
         const newValue = Math.min(value, 100);
 
-        // Se la somma sforerebbe 100, riduci proporzionalmente gli altri
+        // If the sum would exceed 100, reduce others proportionally
         if (newValue + otherTotal > 100 && otherTotal > 0) {
           const scale = (100 - newValue) / otherTotal;
           const updated: Record<string, number> = { [optionId]: newValue };
           otherKeys.forEach((k) => {
             updated[k] = Math.round(prev[k] * scale);
           });
-          // Correggi arrotondamenti
+          // Fix rounding
           const sum = Object.values(updated).reduce((a, b) => a + b, 0);
           if (sum !== 100 && otherKeys.length > 0) {
             updated[otherKeys[0]] += 100 - sum;
@@ -132,19 +132,19 @@ export default function VotingBooth({
     setVoting(true);
 
     try {
-      // Step 1: Calcola il peso del voto
+      // Step 1: Calculate voting weight
       const { data: weight } = await supabase.rpc("calculate_voting_weight", {
         p_proposal_id: proposal.id,
         p_voter_id: userId,
       });
 
-      // Step 2: Inserisci il voto (testata)
+      // Step 2: Insert the vote (header)
       const { data: voteData, error: voteError } = await supabase
         .from("votes")
         .insert({
           proposal_id: proposal.id,
           voter_id: userId,
-          vote_type: "yea", // Nel sistema distribuito, il vote_type è un placeholder
+          vote_type: "yea", // In distributed system, vote_type is a placeholder
           voting_weight: weight ?? 1,
         })
         .select("id")
@@ -153,13 +153,13 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError("Hai già partecipato a questa delibera.");
+          setError("You have already participated in this deliberation.");
           return;
         }
         throw voteError;
       }
 
-      // Step 3: Inserisci le allocazioni percentuali
+      // Step 3: Insert percentage allocations
       const allocationRows = Object.entries(allocations)
         .filter(([, pct]) => pct > 0)
         .map(([optionId, pct]) => ({
@@ -174,7 +174,7 @@ export default function VotingBooth({
 
       if (allocError) throw allocError;
 
-      // Step 4: Aggiorna risultati
+      // Step 4: Update results
       const { data: newResults } = await supabase.rpc(
         "get_distributed_proposal_results",
         { p_proposal_id: proposal.id }
@@ -187,7 +187,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Errore durante la votazione";
+        err instanceof Error ? err.message : "Error during voting";
       setError(msg);
     } finally {
       setVoting(false);
@@ -222,7 +222,7 @@ export default function VotingBooth({
       setHasVoted(false);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Errore durante la revoca del voto";
+        err instanceof Error ? err.message : "Error revoking vote";
       setError(msg);
     } finally {
       setRevoking(false);
@@ -254,7 +254,7 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError("Hai già partecipato a questa delibera.");
+          setError("You have already participated in this deliberation.");
           return;
         }
         throw voteError;
@@ -278,7 +278,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Errore durante la votazione";
+        err instanceof Error ? err.message : "Error during voting";
       setError(msg);
     } finally {
       setRevoking(false);
@@ -291,42 +291,42 @@ export default function VotingBooth({
       <div className="card p-5 mb-4">
         <h2 className="text-base font-semibold text-slate-200 mb-1 flex items-center gap-2">
           <Shield className="w-4 h-4 text-pangea-400" />
-          {isCuration ? "Raccolta Supporto" : "Cabina Elettorale"}
+          {isCuration ? "Community Review" : "Voting Booth"}
         </h2>
         <p className="text-xs text-slate-500">
           {isCuration
-            ? "Questa proposta è in fase di valutazione comunitaria"
-            : "I voti sono anonimi. Puoi modificare il tuo voto finché la proposta è attiva."}
+            ? "This proposal is under community review"
+            : "Votes are anonymous. You can change your vote while the proposal is active."}
         </p>
       </div>
 
-      {/* Warning deleghe attive */}
+      {/* Active delegation warning */}
       {hasActiveDelegation && isActive && !hasVoted && (
         <div className="card p-4 mb-4 bg-amber-900/10 border-amber-700/30">
           <div className="flex gap-3">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <div className="text-xs text-amber-300">
-              <p className="font-medium mb-1">Delega attiva{categoryName ? ` in "${categoryName}"` : ""}</p>
+              <p className="font-medium mb-1">Active delegation{categoryName ? ` in "${categoryName}"` : ""}</p>
               <p className="text-amber-400/80">
-                Votando direttamente, il tuo voto personale avrà la supremazia
-                sulla delega assegnata per questa categoria.
+                By voting directly, your personal vote will take precedence
+                over the delegation assigned for this category.
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Risultati */}
+      {/* Results */}
       {results.length > 0 && (
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-slate-300">
-              Risultati in tempo reale
+              Live Results
             </h3>
             <div className="flex items-center gap-1 text-xs text-slate-500">
               <Users className="w-3.5 h-3.5" />
               <span>
-                {totalVotes} {totalVotes === 1 ? "voto" : "voti"}
+                {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
               </span>
             </div>
           </div>
@@ -356,25 +356,25 @@ export default function VotingBooth({
         </div>
       )}
 
-      {/* Risultati legacy (yea/nay/abstain) per proposte senza opzioni distribuite */}
+      {/* Legacy results (yea/nay/abstain) for proposals without distributed options */}
       {legacyResults && options.length === 0 && (legacyResults.yea > 0 || legacyResults.nay > 0 || legacyResults.abstain > 0) && (
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-slate-300">
-              Risultati
+              Results
             </h3>
             <div className="flex items-center gap-1 text-xs text-slate-500">
               <Users className="w-3.5 h-3.5" />
               <span>
-                {legacyResults.yea + legacyResults.nay + legacyResults.abstain} voti
+                {legacyResults.yea + legacyResults.nay + legacyResults.abstain} votes
               </span>
             </div>
           </div>
           <div className="space-y-3">
             {[
-              { label: "Favorevole", count: legacyResults.yea, color: "bg-green-500" },
-              { label: "Contrario", count: legacyResults.nay, color: "bg-red-500" },
-              { label: "Astenuto", count: legacyResults.abstain, color: "bg-slate-500" },
+              { label: "In Favor", count: legacyResults.yea, color: "bg-green-500" },
+              { label: "Against", count: legacyResults.nay, color: "bg-red-500" },
+              { label: "Abstain", count: legacyResults.abstain, color: "bg-slate-500" },
             ].map((item) => {
               const total = legacyResults.yea + legacyResults.nay + legacyResults.abstain;
               const pct = total > 0 ? (item.count / total) * 100 : 0;
@@ -397,18 +397,18 @@ export default function VotingBooth({
         </div>
       )}
 
-      {/* Interfaccia di voto — Multiple Sliders */}
+      {/* Voting interface — Multiple Sliders */}
       <div className="card p-5">
-        {/* Ha votato */}
+        {/* Already voted */}
         {hasVoted && (
           <div className="text-center py-4">
             <CheckCircle2 className="w-10 h-10 text-green-400 mx-auto mb-3" />
             <p className="text-slate-200 font-semibold mb-1">
-              Voto registrato
+              Vote recorded
             </p>
             <p className="text-xs text-slate-500 leading-relaxed">
-              La tua allocazione è stata registrata in modo sicuro e anonimo.
-              Conforme al GDPR.
+              Your allocation has been securely and anonymously recorded.
+              GDPR compliant.
             </p>
             {isActive && (
               <button
@@ -421,64 +421,64 @@ export default function VotingBooth({
                 ) : (
                   <RotateCcw className="w-4 h-4" />
                 )}
-                {revoking ? "Revocando..." : "Modifica voto"}
+                {revoking ? "Revoking..." : "Change vote"}
               </button>
             )}
           </div>
         )}
 
-        {/* Proposta chiusa */}
+        {/* Proposal closed */}
         {proposal.status === "closed" && !hasVoted && (
           <div className="text-center py-4">
             <Lock className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400 font-medium mb-1">Delibera chiusa</p>
+            <p className="text-slate-400 font-medium mb-1">Vote concluded</p>
             <p className="text-xs text-slate-600">
-              La votazione su questa proposta si è conclusa.
+              Voting on this proposal has ended.
             </p>
           </div>
         )}
 
-        {/* In promozione — non si vota ancora */}
+        {/* Community Review — no voting yet */}
         {isCuration && (
           <div className="text-center py-4">
             <Flame className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-            <p className="text-slate-300 font-medium mb-1">Raccolta Supporto</p>
+            <p className="text-slate-300 font-medium mb-1">Community Review</p>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Questa proposta deve raccogliere abbastanza supporto dalla comunità
-              prima di passare alla votazione. Sostienila con un segnale.
+              This proposal needs to reach the signal threshold before
+              moving to the voting phase. Support it with a signal.
             </p>
           </div>
         )}
 
-        {/* Ospite — invito a registrarsi */}
+        {/* Guest — invite to sign up */}
         {isGuest && isActive && (
           <div className="text-center py-4">
             <LogIn className="w-10 h-10 text-pangea-400 mx-auto mb-3" />
             <p className="text-slate-200 font-semibold mb-1">
-              Vuoi votare?
+              Want to vote?
             </p>
             <p className="text-xs text-slate-500 leading-relaxed mb-4">
-              Registrati per partecipare alla delibera e far sentire la tua voce.
+              Sign up to participate in the vote and make your voice heard.
             </p>
             <Link href="/auth" className="btn-primary inline-flex items-center gap-2 text-sm">
               <LogIn className="w-4 h-4" />
-              Registrati per votare
+              Sign up to vote
             </Link>
           </div>
         )}
 
-        {/* Può votare — Sliders */}
+        {/* Can vote — Sliders */}
         {canVote && !isGuest && (
           <>
             <div className="flex items-center gap-2 mb-4">
               <Sliders className="w-4 h-4 text-pangea-400" />
               <p className="text-sm text-slate-300 font-medium">
-                Distribuisci il tuo voto
+                Distribute your vote
               </p>
             </div>
             <p className="text-xs text-slate-500 mb-5">
-              Assegna il 100% del tuo potere decisionale tra le opzioni. Puoi
-              concentrare tutto su una o distribuire proporzionalmente.
+              Allocate 100% of your decision-making power among the options. You can
+              concentrate it all on one or distribute proportionally.
             </p>
 
             <div className="space-y-4">
@@ -529,13 +529,13 @@ export default function VotingBooth({
                 isValidAllocation ? "text-green-400" : "text-red-400"
               }`}
             >
-              <span className="text-sm font-medium">Totale allocato</span>
+              <span className="text-sm font-medium">Total allocated</span>
               <span className="text-lg font-bold">{totalAllocated}%</span>
             </div>
 
             {!isValidAllocation && (
               <p className="text-xs text-red-400 mt-1">
-                La somma deve essere esattamente 100% per confermare il voto.
+                The total must be exactly 100% to confirm your vote.
               </p>
             )}
 
@@ -549,23 +549,23 @@ export default function VotingBooth({
               ) : (
                 <CheckCircle2 className="w-4 h-4" />
               )}
-              {voting ? "Registrando voto..." : "Conferma allocazione"}
+              {voting ? "Recording vote..." : "Confirm allocation"}
             </button>
           </>
         )}
 
-        {/* Nessuna opzione definita — Fallback a Favorevole/Contrario/Astenuto */}
+        {/* No options defined — Fallback to In Favor/Against/Abstain */}
         {isActive && !hasVoted && options.length === 0 && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <ThumbsUp className="w-4 h-4 text-pangea-400" />
               <p className="text-sm text-slate-300 font-medium">
-                Esprimi la tua posizione
+                Cast your vote
               </p>
             </div>
             <p className="text-xs text-slate-500 mb-5">
-              Nessuna opzione deliberativa è stata definita. Puoi comunque
-              partecipare votando Favorevole, Contrario o Astenuto.
+              No voting options have been defined. You can still
+              participate by voting In Favor, Against, or Abstain.
             </p>
 
             <div className="grid grid-cols-3 gap-3">
@@ -579,7 +579,7 @@ export default function VotingBooth({
                 ) : (
                   <ThumbsUp className="w-4 h-4" />
                 )}
-                <span className="text-xs font-medium">Favorevole</span>
+                <span className="text-xs font-medium">In Favor</span>
               </button>
 
               <button
@@ -592,7 +592,7 @@ export default function VotingBooth({
                 ) : (
                   <ThumbsDown className="w-4 h-4" />
                 )}
-                <span className="text-xs font-medium">Contrario</span>
+                <span className="text-xs font-medium">Against</span>
               </button>
 
               <button
@@ -605,13 +605,13 @@ export default function VotingBooth({
                 ) : (
                   <MinusCircle className="w-4 h-4" />
                 )}
-                <span className="text-xs font-medium">Astenuto</span>
+                <span className="text-xs font-medium">Abstain</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* Errore */}
+        {/* Error */}
         {error && (
           <div className="mt-4 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-xs">
             {error}
@@ -623,7 +623,7 @@ export default function VotingBooth({
           <div className="flex items-start gap-2">
             <Shield className="w-3.5 h-3.5 text-slate-600 mt-0.5 shrink-0" />
             <p className="text-xs text-slate-600 leading-relaxed">
-              Le preferenze di voto non sono mai accessibili a terze parti.
+              Voting preferences are never accessible to third parties.
               Privacy by Design — GDPR Art. 9.
             </p>
           </div>

@@ -15,7 +15,7 @@ export default function GuestBanner() {
         <div className="flex items-center gap-2 text-sm text-amber-200">
           <UserPlus className="w-4 h-4 shrink-0" />
           <span>
-            Stai esplorando Agora come <strong>ospite</strong>. Le azioni non vengono salvate.
+            You are exploring Agora as a <strong>guest</strong>. Actions are not saved.
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -23,7 +23,7 @@ export default function GuestBanner() {
             href="/auth"
             className="text-xs font-medium bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg transition-colors"
           >
-            Registrati
+            Register
           </Link>
           <button
             onClick={() => setDismissed(true)}

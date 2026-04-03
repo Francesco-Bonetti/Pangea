@@ -16,7 +16,7 @@ export function getTotalVotes(results: ProposalResults): number {
 }
 
 export function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("it-IT", {
+  return new Date(dateStr).toLocaleDateString("en-US", {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -24,7 +24,7 @@ export function formatDate(dateStr: string): string {
 }
 
 export function formatDateTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleString("it-IT", {
+  return new Date(dateStr).toLocaleString("en-US", {
     day: "2-digit",
     month: "long",
     year: "numeric",

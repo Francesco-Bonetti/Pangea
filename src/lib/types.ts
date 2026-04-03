@@ -1,6 +1,6 @@
 // ============================================
-// TIPI AGORA - Piattaforma Democratica Pangea
-// Fase 2: Democrazia Liquida + Mercato di Curatela + Voto Multiplo Distribuito
+// AGORA TYPES - Pangea Democratic Platform
+// Phase 2: Liquid Democracy + Community Review + Distributed Multi-Vote
 // ============================================
 
 // --- Status & Enums ---
@@ -71,7 +71,7 @@ export interface Delegation {
   categories?: Category;
 }
 
-// --- Mercato di Curatela ---
+// --- Community Review ---
 export interface ProposalSignal {
   id: string;
   proposal_id: string;
@@ -80,7 +80,7 @@ export interface ProposalSignal {
   created_at: string;
 }
 
-// --- Voto Multiplo Distribuito ---
+// --- Distributed Plural Voting ---
 export interface ProposalOption {
   id: string;
   proposal_id: string;
@@ -96,16 +96,16 @@ export interface VoteAllocation {
   allocation_percentage: number;
 }
 
-// --- Risultati Aggregati (RPC) ---
+// --- Aggregated Results (RPC) ---
 
-// Risultati legacy (voto binario)
+// Legacy results (binary vote)
 export interface ProposalResults {
   yea_count: number;
   nay_count: number;
   abstain_count: number;
 }
 
-// Risultati Voto Multiplo Distribuito
+// Distributed Plural Voting Results
 export interface DistributedResult {
   option_id: string;
   option_title: string;

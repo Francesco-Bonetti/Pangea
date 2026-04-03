@@ -2,47 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://v0-agora-pangea-dashboard.vercel.app"),
-  title: {
-    default: "Agora Pangea — Democrazia Digitale Globale",
-    template: "%s | Agora Pangea",
-  },
+  title: "Agora — Pangea Democratic Platform",
   description:
-    "Agora Pangea è la piattaforma di democrazia digitale della Repubblica Democratica Globale Pangea. Proponi leggi, vota proposte, delega il tuo voto e partecipa al primo governo democratico globale.",
-  keywords: [
-    "democrazia digitale",
-    "voto online",
-    "proposte di legge",
-    "democrazia liquida",
-    "partecipazione civica",
-    "Pangea",
-    "Agora",
-    "e-democracy",
-    "governo globale",
-  ],
-  authors: [{ name: "Pangea" }],
+    "The digital democracy platform of the Global Democratic Republic of Pangea. Propose, debate, deliberate.",
+  keywords: ["democracy", "vote", "proposals", "Pangea", "Agora", "digital"],
   openGraph: {
-    title: "Agora Pangea — Democrazia Digitale Globale",
-    description:
-      "Proponi leggi, vota, delega il tuo voto a esperti e partecipa alla prima democrazia digitale globale.",
+    title: "Agora — Pangea",
+    description: "Propose laws, vote, build global democracy.",
     type: "website",
-    url: "https://v0-agora-pangea-dashboard.vercel.app",
-    siteName: "Agora Pangea",
-    locale: "it_IT",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Agora Pangea — Democrazia Digitale Globale",
-    description:
-      "Proponi leggi, vota, delega il tuo voto a esperti e partecipa alla prima democrazia digitale globale.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
   },
 };
 
@@ -52,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it" className="dark">
+    <html lang="en" className="dark">
       <body className="min-h-screen bg-[#0c1220]">{children}</body>
     </html>
   );
