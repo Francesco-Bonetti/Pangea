@@ -14,7 +14,6 @@ export type ProposalType = "new" | "amendment" | "repeal";
 export interface Profile {
   id: string;
   full_name: string | null;
-  previous_name?: string | null;
   bio: string | null;
   role?: UserRole;
   user_code?: string | null;
@@ -41,7 +40,6 @@ export interface Proposal {
   status: ProposalStatus;
   proposal_type?: ProposalType;
   parent_proposal_id?: string | null;
-  jurisdiction_id?: string | null;
   created_at: string;
   expires_at: string | null;
   category_id: string | null;
@@ -205,51 +203,6 @@ export interface PartyForumPost {
   profiles?: { full_name: string | null };
 }
 
-// --- Sotto-giurisdizioni (Fase 4) ---
-export type JurisdictionType = "virtual" | "geographic";
-export type JurisdictionMemberRole = "member" | "admin" | "founder";
-
-export interface Jurisdiction {
-  id: string;
-  name: string;
-  description: string | null;
-  type: JurisdictionType;
-  logo_emoji: string;
-  founder_id: string;
-  parent_jurisdiction_id: string | null;
-  location_name: string | null;
-  location_coords: Record<string, number> | null;
-  is_active: boolean;
-  created_at: string;
-  // Join
-  profiles?: Profile;
-  member_count?: number;
-}
-
-export interface JurisdictionMember {
-  id: string;
-  jurisdiction_id: string;
-  user_id: string;
-  role: JurisdictionMemberRole;
-  joined_at: string;
-  // Join
-  profiles?: Profile;
-  jurisdictions?: Jurisdiction;
-}
-
-export interface LawConflict {
-  new_law_id: string;
-  new_law_title: string;
-  new_law_code: string;
-  existing_law_id: string;
-  existing_law_title: string;
-  existing_law_code: string;
-  existing_jurisdiction_name: string;
-  new_jurisdiction_name: string;
-  parent_law_title: string;
-  parent_law_code: string;
-}
-
 // --- Compositi ---
 export interface ProposalWithResults extends Proposal {
   results?: ProposalResults;
@@ -258,3 +211,72 @@ export interface ProposalWithResults extends Proposal {
   options?: ProposalOption[];
   signal_count?: number;
 }
+
+// --- Discussion Forum ---
+export type DiscussionChannel = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  emoji: string;
+  color: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type Discussion = {
+  id: string;
+  author_id: string;
+  channel_id: string;
+  title: string;
+  body: string;
+  is_pinned: boolean;
+  is_locked: boolean;
+  upvotes_count: number;
+  downvotes_count: number;
+  replies_count: number;
+  views_count: number;
+  created_at: string;
+  updated_at: string;
+  // Joins
+  profiles?: { full_name: string | null };
+  discussion_channels?: DiscussionChannel;
+  tags?: Tag[];
+};
+
+export type DiscussionReply = {
+  id: string;
+  discussion_id: string;
+  author_id: string;
+  body: string;
+  parent_reply_id: string | null;
+  upvotes_count: number;
+  downvotes_count: number;
+  created_at: string;
+  updated_at: string;
+  // Joins
+  profiles?: { full_name: string | null };
+};
+
+export type DiscussionVote = {
+  id: string;
+  user_id: string;
+  discussion_id: string | null;
+  reply_id: string | null;
+  vote_type: 'up' | 'down';
+  created_at: string;
+};
+
+export type ReportReason = 'spam' | 'offensive' | 'off_topic' | 'misinformation' | 'other';
+
+export type DiscussionReport = {
+  id: string;
+  reporter_id: string;
+  discussion_id: string | null;
+  reply_id: string | null;
+  reason: ReportReason;
+  description: string | null;
+  status: 'pending' | 'reviewed' | 'dismissed' | 'action_taken';
+  created_at: string;
+};

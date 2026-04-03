@@ -1,16 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import GuestBanner from "@/components/GuestBanner";
-import CommentSection from "@/components/CommentSection";
+import NewDiscussionForm from "@/components/NewDiscussionForm";
+import ForumClient from "@/components/ForumClient";
+import { MessageCircle, TrendingUp, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { MessageCircle, ArrowLeft, Hash, FileText, Scale, TrendingUp } from "lucide-react";
+import type { DiscussionChannel, Discussion, Tag } from "@/lib/types";
 
 export const metadata = {
-  title: "Discussioni — Agora Pangea",
-  description: "Partecipa alle discussioni della comunità di Pangea",
+  title: "Community Forum — Agora Pangea",
+  description: "Join the community discussion forum",
 };
 
-export default async function SocialPage() {
+export default async function SocialPage({
+  searchParams,
+}: {
+  searchParams: { channel?: string; sort?: string; search?: string; tag?: string };
+}) {
   const supabase = await createClient();
 
   const {
@@ -29,37 +35,97 @@ export default async function SocialPage() {
     profile = data;
   }
 
-  // Recupera discussioni recenti legate a proposte (per il feed laterale)
-  const { data: recentProposalComments } = await supabase
-    .from("comments")
-    .select("id, proposal_id, body, created_at, proposals(title)")
-    .not("proposal_id", "is", null)
-    .is("parent_id", null)
-    .order("created_at", { ascending: false })
-    .limit(5);
+  // Fetch channels
+  const { data: channels } = await supabase
+    .from("discussion_channels")
+    .select("*")
+    .eq("is_active", true)
+    .order("sort_order");
 
-  // Recupera discussioni recenti legate a leggi
-  const { data: recentLawComments } = await supabase
-    .from("comments")
-    .select("id, law_id, body, created_at, laws(title)")
-    .not("law_id", "is", null)
-    .is("parent_id", null)
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  // Tag più usati
+  // Fetch trending tags
   const { data: trendingTags } = await supabase
     .from("tags")
-    .select("name, slug, usage_count")
+    .select("*")
     .order("usage_count", { ascending: false })
-    .limit(10);
+    .limit(15);
+
+  // Build query for discussions
+  let query = supabase
+    .from("discussions")
+    .select(
+      `*,
+       profiles(full_name),
+       discussion_channels(id, name, slug, description, emoji, color, sort_order, is_active),
+       discussion_tags(tags(id, name, slug, usage_count))`
+    );
+
+  // Apply channel filter
+  if (searchParams.channel) {
+    query = query.eq("channel_id", searchParams.channel);
+  }
+
+  // Apply tag filter
+  if (searchParams.tag) {
+    // For tag filtering, we need to join through discussion_tags
+    const { data: taggedDiscussionIds } = await supabase
+      .from("discussion_tags")
+      .select("discussion_id")
+      .eq("tag_id", searchParams.tag);
+
+    if (taggedDiscussionIds && taggedDiscussionIds.length > 0) {
+      const ids = taggedDiscussionIds.map((t: { discussion_id: string }) => t.discussion_id);
+      query = query.in("id", ids);
+    } else {
+      query = query.eq("id", null); // Return empty results
+    }
+  }
+
+  // Apply search filter
+  if (searchParams.search) {
+    const searchTerm = `%${searchParams.search}%`;
+    query = query.or(`title.ilike.${searchTerm},body.ilike.${searchTerm}`);
+  }
+
+  // Apply sorting
+  const sort = searchParams.sort || "newest";
+  if (sort === "newest") {
+    query = query.order("created_at", { ascending: false });
+  } else if (sort === "most_upvoted") {
+    query = query.order("upvotes_count", { ascending: false });
+  } else if (sort === "most_discussed") {
+    query = query.order("replies_count", { ascending: false });
+  } else if (sort === "trending") {
+    // Trending = recent + high engagement
+    query = query.order("created_at", { ascending: false });
+  }
+
+  query = query.limit(50);
+
+  const { data: discussions } = await query;
+
+  // Transform discussions to include tags
+  const discussionsWithTags: Discussion[] = (discussions || []).map(
+    (d: Record<string, unknown>) => ({
+      ...d,
+      tags: ((d.discussion_tags as Array<{ tags: Tag }>) || []).map(
+        (dt) => dt.tags
+      ),
+      discussion_channels: d.discussion_channels,
+      profiles: d.profiles,
+    })
+  );
 
   return (
     <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={isGuest} />
+      <Navbar
+        userEmail={user?.email}
+        userName={profile?.full_name}
+        userRole={profile?.role}
+        isGuest={isGuest}
+      />
       {isGuest && <GuestBanner />}
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link
@@ -69,111 +135,159 @@ export default async function SocialPage() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <MessageCircle className="w-6 h-6 text-pangea-400" />
-              Discussioni
+            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+              <MessageCircle className="w-8 h-8 text-pangea-400" />
+              Community Forum
             </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
-              Confrontati con la comunità su qualsiasi argomento
+            <p className="text-sm text-slate-400 mt-1">
+              Join discussions with the community
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main feed: discussione generale */}
-          <div className="lg:col-span-2">
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <MessageCircle className="w-5 h-5 text-pangea-400" />
-                Discussione Generale
-              </h2>
-              <p className="text-sm text-slate-400 mb-6">
-                Scrivi un messaggio visibile a tutta la comunità. Per commentare una proposta o una legge specifica, vai direttamente sulla sua pagina.
-              </p>
-              <CommentSection
-                targetType="general"
-                userId={user?.id}
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left Sidebar: Channels & Tags */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* New Discussion CTA */}
+            <div>
+              {user ? (
+                <a
+                  href="#new-discussion"
+                  className="w-full block px-4 py-3 bg-pangea-600 hover:bg-pangea-700 text-white font-medium rounded-lg text-center transition-colors"
+                >
+                  + New Discussion
+                </a>
+              ) : (
+                <a
+                  href="/auth"
+                  className="w-full block px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg text-center transition-colors"
+                >
+                  Sign In
+                </a>
+              )}
             </div>
-          </div>
 
-          {/* Sidebar: link alle discussioni specifiche */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Trending tags */}
+            {/* Channels */}
+            {channels && channels.length > 0 && (
+              <div className="card p-4">
+                <h3 className="text-sm font-semibold text-slate-200 mb-3">
+                  Channels
+                </h3>
+                <div className="space-y-2">
+                  <a
+                    href="/social"
+                    className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
+                      !searchParams.channel
+                        ? "bg-pangea-900/40 text-pangea-300 border border-pangea-700/50"
+                        : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                    }`}
+                  >
+                    All Channels
+                  </a>
+                  {(channels as DiscussionChannel[]).map((ch) => (
+                    <a
+                      key={ch.id}
+                      href={`/social?channel=${ch.id}`}
+                      className={`block px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                        searchParams.channel === ch.id
+                          ? "bg-pangea-900/40 text-pangea-300 border border-pangea-700/50"
+                          : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                      }`}
+                    >
+                      <span className="text-base">{ch.emoji}</span>
+                      <span className="truncate">{ch.name}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tags */}
             {trendingTags && trendingTags.length > 0 && (
-              <div className="card p-5">
-                <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <div className="card p-4">
+                <h3 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-pangea-400" />
-                  Tag popolari
+                  Popular Tags
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {trendingTags.map((tag: { name: string; slug: string; usage_count: number }) => (
-                    <span
-                      key={tag.slug}
-                      className="text-xs text-pangea-400 bg-pangea-900/20 px-2 py-1 rounded-full border border-pangea-800/30 flex items-center gap-1"
+                  {(trendingTags as Tag[]).map((tag) => (
+                    <a
+                      key={tag.id}
+                      href={`/social?tag=${tag.id}`}
+                      className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                        searchParams.tag === tag.id
+                          ? "text-pangea-300 bg-pangea-900/40 border-pangea-700/50"
+                          : "text-pangea-400 bg-pangea-900/20 border-pangea-800/30 hover:border-pangea-700/50"
+                      }`}
                     >
-                      <Hash className="w-3 h-3" />
-                      {tag.name}
-                      {tag.usage_count > 0 && (
-                        <span className="text-slate-500 ml-0.5">{tag.usage_count}</span>
-                      )}
-                    </span>
+                      #{tag.name}
+                    </a>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Main Content: Discussions */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* New Discussion Form */}
+            {user && (
+              <div id="new-discussion">
+                <h2 className="text-lg font-semibold text-slate-200 mb-4">
+                  Start a Discussion
+                </h2>
+                <NewDiscussionForm userId={user.id} />
               </div>
             )}
 
-            {/* Discussioni recenti su proposte */}
-            {recentProposalComments && recentProposalComments.length > 0 && (
-              <div className="card p-5">
-                <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-amber-400" />
-                  Ultime su proposte
-                </h3>
-                <div className="space-y-3">
-                  {recentProposalComments.map((c: Record<string, unknown>) => (
-                    <Link
-                      key={c.id as string}
-                      href={`/proposals/${c.proposal_id}`}
-                      className="block group"
-                    >
-                      <p className="text-xs text-pangea-400 group-hover:text-pangea-300 font-medium truncate">
-                        {(c.proposals as { title: string })?.title}
-                      </p>
-                      <p className="text-xs text-slate-500 truncate mt-0.5">
-                        {(c.body as string).slice(0, 80)}...
-                      </p>
-                    </Link>
-                  ))}
+            {/* Forum Controls */}
+            <div>
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-200">
+                  {searchParams.channel
+                    ? channels?.find((c: DiscussionChannel) => c.id === searchParams.channel)?.name ||
+                      "Discussions"
+                    : "All Discussions"}
+                </h2>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <select
+                    value={searchParams.sort || "newest"}
+                    onChange={(e) => {
+                      const params = new URLSearchParams(searchParams as Record<string, string>);
+                      params.set("sort", e.target.value);
+                      window.location.href = `/social?${params.toString()}`;
+                    }}
+                    className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-pangea-600"
+                  >
+                    <option value="newest">Newest</option>
+                    <option value="most_upvoted">Most Upvoted</option>
+                    <option value="most_discussed">Most Discussed</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    defaultValue={searchParams.search || ""}
+                    onChange={(e) => {
+                      const params = new URLSearchParams(searchParams as Record<string, string>);
+                      if (e.target.value) {
+                        params.set("search", e.target.value);
+                      } else {
+                        params.delete("search");
+                      }
+                      window.location.href = `/social?${params.toString()}`;
+                    }}
+                    className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-pangea-600"
+                  />
                 </div>
               </div>
-            )}
 
-            {/* Discussioni recenti su leggi */}
-            {recentLawComments && recentLawComments.length > 0 && (
-              <div className="card p-5">
-                <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-blue-400" />
-                  Ultime su leggi
-                </h3>
-                <div className="space-y-3">
-                  {recentLawComments.map((c: Record<string, unknown>) => (
-                    <Link
-                      key={c.id as string}
-                      href={`/laws#${c.law_id}`}
-                      className="block group"
-                    >
-                      <p className="text-xs text-blue-400 group-hover:text-blue-300 font-medium truncate">
-                        {(c.laws as { title: string })?.title}
-                      </p>
-                      <p className="text-xs text-slate-500 truncate mt-0.5">
-                        {(c.body as string).slice(0, 80)}...
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+              {/* Discussions List */}
+              <ForumClient
+                discussions={discussionsWithTags}
+                userId={user?.id}
+                channels={channels}
+              />
+            </div>
           </div>
         </div>
       </main>
