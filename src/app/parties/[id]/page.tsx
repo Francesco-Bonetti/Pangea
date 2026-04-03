@@ -30,7 +30,7 @@ export default function PartyDetailPage() {
   const [myMembership, setMyMembership] = useState<PartyMember | null>(null);
   const [partyVotes, setPartyVotes] = useState<(PartyVote & { proposals?: Proposal })[]>([]);
   const [forumPosts, setForumPosts] = useState<PartyForumPost[]>([]);
-  const [activeProposals, setActiveProposals] = useState<Proposal[]>([]);
+  const [activeProposals, setActiveProposals] = useState<{ id: string; title: string; status: string }[]>([]);
 
   // UI state
   const [activeTab, setActiveTab] = useState<Tab>("info");
