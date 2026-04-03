@@ -203,6 +203,51 @@ export interface PartyForumPost {
   profiles?: { full_name: string | null };
 }
 
+// --- Sotto-giurisdizioni (Fase 4) ---
+export type JurisdictionType = "virtual" | "geographic";
+export type JurisdictionMemberRole = "member" | "admin" | "founder";
+
+export interface Jurisdiction {
+  id: string;
+  name: string;
+  description: string | null;
+  type: JurisdictionType;
+  logo_emoji: string;
+  founder_id: string;
+  parent_jurisdiction_id: string | null;
+  location_name: string | null;
+  location_coords: Record<string, number> | null;
+  is_active: boolean;
+  created_at: string;
+  // Join
+  profiles?: Profile;
+  member_count?: number;
+}
+
+export interface JurisdictionMember {
+  id: string;
+  jurisdiction_id: string;
+  user_id: string;
+  role: JurisdictionMemberRole;
+  joined_at: string;
+  // Join
+  profiles?: Profile;
+  jurisdictions?: Jurisdiction;
+}
+
+export interface LawConflict {
+  new_law_id: string;
+  new_law_title: string;
+  new_law_code: string;
+  existing_law_id: string;
+  existing_law_title: string;
+  existing_law_code: string;
+  existing_jurisdiction_name: string;
+  new_jurisdiction_name: string;
+  parent_law_title: string;
+  parent_law_code: string;
+}
+
 // --- Compositi ---
 export interface ProposalWithResults extends Proposal {
   results?: ProposalResults;
