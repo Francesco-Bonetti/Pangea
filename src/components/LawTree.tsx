@@ -1,311 +1,248 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, ChevronDown, BookOpen, FileText, Scale, Scroll, Edit3, Trash2, Save, X, Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import {
+  ChevronRight,
+  ChevronDown,
+  BookOpen,
+  FileText,
+  Scale,
+  Scroll,
+  Lightbulb,
+  Clock,
+  History,
+} from "lucide-react";
+import Link from "next/link";
 import type { LawNode } from "@/app/laws/page";
 
 interface LawTreeProps {
   node: LawNode;
   depth: number;
-  isAdmin?: boolean;
-  onDelete?: (id: string) => void;
-  onUpdate?: (id: string, updates: Partial<LawNode>) => void;
+  showActiveStatus?: boolean;
 }
 
-const typeConfig: Record<string, { icon: typeof BookOpen; color: string; bg: string; label: string }> = {
-  code: { icon: Scale, color: "text-blue-400", bg: "bg-blue-900/20 border-blue-800/30", label: "Codice" },
-  book: { icon: BookOpen, color: "text-pangea-400", bg: "bg-pangea-900/20 border-pangea-800/30", label: "Libro" },
-  title: { icon: Scroll, color: "text-amber-400", bg: "bg-amber-900/20 border-amber-800/30", label: "Titolo" },
-  chapter: { icon: FileText, color: "text-green-400", bg: "bg-green-900/20 border-green-800/30", label: "Capitolo" },
-  section: { icon: FileText, color: "text-slate-400", bg: "bg-slate-800/50 border-slate-700/30", label: "Sezione" },
-  article: { icon: FileText, color: "text-slate-300", bg: "bg-slate-800/30 border-slate-700/20", label: "Articolo" },
+const typeConfig: Record<
+  string,
+  { icon: typeof BookOpen; color: string; bg: string; inactiveBg: string; label: string }
+> = {
+  code: {
+    icon: Scale,
+    color: "text-blue-400",
+    bg: "bg-blue-900/20 border-blue-800/30",
+    inactiveBg: "bg-slate-800/40 border-slate-700/20",
+    label: "Code",
+  },
+  book: {
+    icon: BookOpen,
+    color: "text-pangea-400",
+    bg: "bg-pangea-900/20 border-pangea-800/30",
+    inactiveBg: "bg-slate-800/30 border-slate-700/20",
+    label: "Book",
+  },
+  title: {
+    icon: Scroll,
+    color: "text-amber-400",
+    bg: "bg-amber-900/20 border-amber-800/30",
+    inactiveBg: "bg-slate-800/30 border-slate-700/20",
+    label: "Title",
+  },
+  chapter: {
+    icon: FileText,
+    color: "text-green-400",
+    bg: "bg-green-900/20 border-green-800/30",
+    inactiveBg: "bg-slate-800/30 border-slate-700/20",
+    label: "Chapter",
+  },
+  section: {
+    icon: FileText,
+    color: "text-slate-400",
+    bg: "bg-slate-800/50 border-slate-700/30",
+    inactiveBg: "bg-slate-800/30 border-slate-700/20",
+    label: "Section",
+  },
+  article: {
+    icon: FileText,
+    color: "text-slate-300",
+    bg: "bg-slate-800/30 border-slate-700/20",
+    inactiveBg: "bg-slate-900/30 border-slate-800/10",
+    label: "Article",
+  },
 };
 
-export default function LawTree({ node, depth, isAdmin, onDelete, onUpdate }: LawTreeProps) {
+export default function LawTree({ node, depth, showActiveStatus }: LawTreeProps) {
   const [expanded, setExpanded] = useState(depth === 0);
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [editTitle, setEditTitle] = useState(node.title);
-  const [editSummary, setEditSummary] = useState(node.summary ?? "");
-  const [editContent, setEditContent] = useState(node.content ?? "");
-  const [editCode, setEditCode] = useState(node.code ?? "");
-  const [localNode, setLocalNode] = useState(node);
-  const [deleted, setDeleted] = useState(false);
-  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
-
-  const hasChildren = localNode.children && localNode.children.length > 0;
-  const isArticle = localNode.law_type === "article";
-  const config = typeConfig[localNode.law_type] || typeConfig.section;
+  const [showSimplified, setShowSimplified] = useState(false);
+  const hasChildren = node.children && node.children.length > 0;
+  const isArticle = node.law_type === "article";
+  const hasContent = !!node.content;
+  const isExpandable = hasChildren || (isArticle && hasContent);
+  const config = typeConfig[node.law_type] || typeConfig.section;
   const Icon = config.icon;
-
-  if (deleted) return null;
-
-  async function handleSave() {
-    setSaving(true);
-    setMessage(null);
-    const supabase = createClient();
-
-    const updates: Record<string, string | null> = {
-      title: editTitle.trim(),
-      summary: editSummary.trim() || null,
-      content: editContent.trim() || null,
-      code: editCode.trim() || null,
-    };
-
-    const { error } = await supabase
-      .from("laws")
-      .update(updates)
-      .eq("id", localNode.id);
-
-    if (error) {
-      setMessage({ type: "error", text: error.message });
-    } else {
-      setLocalNode(prev => ({ ...prev, ...updates }));
-      setEditing(false);
-      setMessage({ type: "success", text: "Salvato" });
-      if (onUpdate) onUpdate(localNode.id, updates);
-      setTimeout(() => setMessage(null), 2000);
-    }
-    setSaving(false);
-  }
-
-  async function handleDelete() {
-    if (!confirm(`Eliminare "${localNode.title}"${hasChildren ? ` e tutti i suoi ${localNode.children!.length} sotto-elementi` : ""}? L'azione è irreversibile.`)) return;
-    setDeleting(true);
-    setMessage(null);
-    const supabase = createClient();
-
-    // Recursive delete: children first (DB cascade may handle this, but let's be safe)
-    async function deleteRecursive(id: string) {
-      // Get children
-      const { data: children } = await supabase.from("laws").select("id").eq("parent_id", id);
-      if (children) {
-        for (const child of children) {
-          await deleteRecursive(child.id);
-        }
-      }
-      await supabase.from("laws").delete().eq("id", id);
-    }
-
-    try {
-      await deleteRecursive(localNode.id);
-      setDeleted(true);
-      if (onDelete) onDelete(localNode.id);
-    } catch {
-      setMessage({ type: "error", text: "Errore durante l'eliminazione" });
-    }
-    setDeleting(false);
-  }
-
-  function startEditing(e: React.MouseEvent) {
-    e.stopPropagation();
-    setEditTitle(localNode.title);
-    setEditSummary(localNode.summary ?? "");
-    setEditContent(localNode.content ?? "");
-    setEditCode(localNode.code ?? "");
-    setEditing(true);
-    setExpanded(true);
-  }
-
-  function cancelEditing(e: React.MouseEvent) {
-    e.stopPropagation();
-    setEditing(false);
-  }
-
-  function handleChildDelete(childId: string) {
-    setLocalNode(prev => ({
-      ...prev,
-      children: prev.children?.filter(c => c.id !== childId),
-    }));
-  }
+  const isInactive = !node.is_active;
+  const bgClass = isInactive ? config.inactiveBg : config.bg;
 
   return (
     <div className={depth === 0 ? "" : "ml-4 sm:ml-6"}>
-      {/* Message feedback */}
-      {message && (
-        <div className={`mb-1 px-3 py-1.5 rounded text-xs ${
-          message.type === "success" ? "bg-green-900/30 text-green-300 border border-green-700/30" : "bg-red-900/30 text-red-300 border border-red-700/30"
-        }`}>
-          {message.text}
-        </div>
-      )}
-
-      {/* Nodo header */}
+      {/* Node header */}
       <div
-        className={`card border ${config.bg} transition-all duration-200 ${
-          hasChildren || isArticle ? "cursor-pointer hover:border-slate-500" : ""
-        } ${expanded && (hasChildren || (isArticle && (localNode.content || editing))) ? "rounded-b-none border-b-0" : ""}`}
+        className={`card border ${bgClass} transition-all duration-200 ${
+          isExpandable ? "cursor-pointer hover:border-slate-500" : ""
+        } ${expanded && (hasChildren || hasContent) ? "rounded-b-none border-b-0" : ""} ${
+          isInactive && showActiveStatus ? "opacity-70" : ""
+        }`}
         onClick={() => {
-          if (!editing && (hasChildren || isArticle)) setExpanded(!expanded);
+          if (isExpandable) setExpanded(!expanded);
         }}
       >
         <div className="p-4 flex items-start gap-3">
           {/* Expand/collapse indicator */}
           <div className="mt-0.5 shrink-0">
-            {hasChildren ? (
+            {isExpandable ? (
               expanded ? (
-                <ChevronDown className={`w-4 h-4 ${config.color}`} />
+                <ChevronDown className={`w-4 h-4 ${isInactive ? "text-slate-500" : config.color}`} />
               ) : (
-                <ChevronRight className={`w-4 h-4 ${config.color}`} />
+                <ChevronRight className={`w-4 h-4 ${isInactive ? "text-slate-500" : config.color}`} />
               )
             ) : (
-              <Icon className={`w-4 h-4 ${config.color}`} />
+              <Icon className={`w-4 h-4 ${isInactive ? "text-slate-500" : config.color}`} />
             )}
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              {localNode.article_number && (
+              {node.article_number && (
                 <span className="text-xs font-medium text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded shrink-0">
-                  {localNode.article_number}
+                  {node.article_number}
                 </span>
               )}
-              {localNode.code && depth === 0 && (
+              {node.code && depth === 0 && (
                 <span className="text-xs font-medium text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded shrink-0">
-                  {editCode || localNode.code}
+                  {node.code}
                 </span>
               )}
-              <h3 className={`font-semibold ${
-                depth === 0 ? "text-lg text-white" :
-                depth === 1 ? "text-base text-slate-200" :
-                "text-sm text-slate-300"
-              }`}>
-                {localNode.title}
+              <h3
+                className={`font-semibold ${
+                  depth === 0
+                    ? `text-lg ${isInactive ? "text-slate-400" : "text-white"}`
+                    : depth === 1
+                    ? `text-base ${isInactive ? "text-slate-400" : "text-slate-200"}`
+                    : `text-sm ${isInactive ? "text-slate-500" : "text-slate-300"}`
+                }`}
+              >
+                {node.title}
               </h3>
+
+              {/* Active/Inactive badge */}
+              {showActiveStatus && node.law_type === "code" && (
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full ${
+                    isInactive
+                      ? "bg-slate-700/50 text-slate-500"
+                      : "bg-green-900/30 text-green-400"
+                  }`}
+                >
+                  {isInactive ? "Not yet active" : "Active"}
+                </span>
+              )}
             </div>
 
-            {/* Summary (per nodi non-articolo) */}
-            {localNode.summary && !isArticle && !editing && (
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                {localNode.summary}
+            {/* Summary */}
+            {node.summary && !expanded && (
+              <p className={`text-xs mt-1 leading-relaxed ${isInactive ? "text-slate-600" : "text-slate-500"}`}>
+                {node.summary}
               </p>
             )}
 
-            {/* Conteggio figli */}
+            {/* Children count when collapsed */}
             {hasChildren && !expanded && (
               <p className="text-xs text-slate-600 mt-1">
-                {localNode.children!.length} {localNode.children!.length === 1 ? "elemento" : "elementi"}
+                {node.children!.length} {node.children!.length === 1 ? "element" : "elements"}
               </p>
             )}
           </div>
 
-          {/* Admin action buttons */}
-          {isAdmin && !editing && (
-            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-              <button
-                onClick={startEditing}
-                className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-900/30 transition-colors"
-                title="Modifica"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(); }}
-                disabled={deleting}
-                className="p-1.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
-                title="Elimina"
-              >
-                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-              </button>
-            </div>
+          {/* Simplified content toggle button */}
+          {node.simplified_content && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSimplified(!showSimplified);
+              }}
+              className={`shrink-0 p-1.5 rounded-md transition-all ${
+                showSimplified
+                  ? "bg-amber-500/20 text-amber-400"
+                  : "bg-slate-700/30 text-slate-500 hover:text-amber-400 hover:bg-amber-500/10"
+              }`}
+              title={showSimplified ? "Show technical text" : "Show simplified explanation"}
+            >
+              <Lightbulb className="w-4 h-4" />
+            </button>
           )}
         </div>
+
+        {/* Simplified explanation (shown inline when toggle is on) */}
+        {showSimplified && node.simplified_content && (
+          <div className="px-4 pb-4 pl-11">
+            <div className="bg-amber-900/10 border border-amber-800/20 rounded-lg p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs font-medium text-amber-400">Simplified Explanation</span>
+              </div>
+              <p className="text-sm text-amber-200/80 leading-relaxed">
+                {node.simplified_content}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Edit form */}
-      {editing && (
-        <div className={`card border ${config.bg} rounded-t-none border-t border-slate-700/20 p-4`} onClick={(e) => e.stopPropagation()}>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">Titolo</label>
-              <input
-                type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-pangea-500"
-              />
-            </div>
-            {depth === 0 && (
-              <div>
-                <label className="block text-xs text-slate-400 mb-1">Codice</label>
-                <input
-                  type="text"
-                  value={editCode}
-                  onChange={(e) => setEditCode(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-pangea-500"
-                  placeholder="Es. LUX, ADM, COM"
-                />
-              </div>
-            )}
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">Sommario</label>
-              <textarea
-                value={editSummary}
-                onChange={(e) => setEditSummary(e.target.value)}
-                rows={2}
-                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-pangea-500 resize-y"
-                placeholder="Breve descrizione..."
-              />
-            </div>
-            {(isArticle || localNode.content) && (
-              <div>
-                <label className="block text-xs text-slate-400 mb-1">Contenuto</label>
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  rows={6}
-                  className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-pangea-500 resize-y font-mono"
-                  placeholder="Testo completo dell'articolo..."
-                />
-              </div>
-            )}
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                onClick={(e) => { e.stopPropagation(); handleSave(); }}
-                disabled={saving || !editTitle.trim()}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-pangea-600 hover:bg-pangea-500 text-white text-sm rounded-lg transition-colors disabled:opacity-50"
+      {/* Article content when expanded */}
+      {expanded && hasContent && isArticle && (
+        <div className={`card border ${isInactive ? "border-slate-800/10" : "border-slate-700/20"} rounded-t-none border-t-0 bg-slate-900/50`}>
+          <div className="p-4 pl-11">
+            <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isInactive ? "text-slate-500" : "text-slate-300"}`}>
+              {node.content}
+            </p>
+            <div className="flex items-center gap-3 mt-3 pt-2 border-t border-slate-800/30">
+              {node.updated_at && (
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3 h-3 text-slate-600" />
+                  <span className="text-xs text-slate-600">
+                    Last updated: {new Date(node.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                  </span>
+                </div>
+              )}
+              <Link
+                href={`/laws/${node.id}/history`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-400 transition-colors ml-auto"
               >
-                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                Salva
-              </button>
-              <button
-                onClick={cancelEditing}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm rounded-lg transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-                Annulla
-              </button>
+                <History className="w-3 h-3" />
+                Version History
+              </Link>
             </div>
           </div>
         </div>
       )}
 
-      {/* Contenuto articolo espanso (non in editing) */}
-      {expanded && isArticle && localNode.content && !editing && (
-        <div className="card border border-slate-700/20 rounded-t-none border-t-0 bg-slate-900/50">
+      {/* Non-article content when expanded */}
+      {expanded && hasContent && !isArticle && !hasChildren && (
+        <div className={`card border ${isInactive ? "border-slate-800/10" : "border-slate-700/20"} rounded-t-none border-t-0 bg-slate-900/50`}>
           <div className="p-4 pl-11">
-            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {localNode.content}
+            <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isInactive ? "text-slate-500" : "text-slate-300"}`}>
+              {node.content}
             </p>
           </div>
         </div>
       )}
 
-      {/* Figli espansi */}
-      {expanded && hasChildren && !editing && (
-        <div className={`card border ${config.bg} rounded-t-none border-t border-slate-700/20 pb-2 pt-1`}>
+      {/* Children when expanded */}
+      {expanded && hasChildren && (
+        <div className={`card border ${bgClass} rounded-t-none border-t border-slate-700/20 pb-2 pt-1`}>
           <div className="space-y-2 px-2">
-            {localNode.children!.map((child) => (
-              <LawTree
-                key={child.id}
-                node={child}
-                depth={depth + 1}
-                isAdmin={isAdmin}
-                onDelete={handleChildDelete}
-              />
+            {node.children!.map((child) => (
+              <LawTree key={child.id} node={child} depth={depth + 1} showActiveStatus={showActiveStatus} />
             ))}
           </div>
         </div>
