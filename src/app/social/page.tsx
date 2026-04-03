@@ -53,12 +53,11 @@ export default async function SocialPage({
     .order("usage_count", { ascending: false })
     .limit(15);
 
-  // Build query for discussions
+  // Build query for discussions (no profiles join — FK goes to auth.users, not profiles)
   let query = supabase
     .from("discussions")
     .select(
       `*,
-       profiles(full_name),
        discussion_channels(id, name, slug, description, emoji, color, sort_order, is_active),
        discussion_tags(tags(id, name, slug, usage_count))`
     );
@@ -105,13 +104,24 @@ export default async function SocialPage({
 
   query = query.limit(50);
 
-  const { data: discussions, error: discussionsError } = await query;
-  if (discussionsError) {
-    console.error("DISCUSSIONS QUERY ERROR:", JSON.stringify(discussionsError));
-  }
-  console.log("DISCUSSIONS COUNT:", discussions?.length ?? 0);
+  const { data: discussions } = await query;
 
-  // Transform discussions to include tags
+  // Fetch author profiles separately (discussions.author_id → auth.users, not profiles)
+  const authorIds = Array.from(new Set((discussions || []).map((d: Record<string, unknown>) => d.author_id as string)));
+  let profilesMap: Record<string, { full_name: string | null }> = {};
+  if (authorIds.length > 0) {
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", authorIds);
+    if (profilesData) {
+      profilesMap = Object.fromEntries(
+        profilesData.map((p: { id: string; full_name: string | null }) => [p.id, { full_name: p.full_name }])
+      );
+    }
+  }
+
+  // Transform discussions to include tags and profiles
   const discussionsWithTags = (discussions || []).map(
     (d: Record<string, unknown>) => ({
       ...d,
@@ -119,7 +129,7 @@ export default async function SocialPage({
         (dt) => dt.tags
       ),
       discussion_channels: d.discussion_channels,
-      profiles: d.profiles,
+      profiles: profilesMap[d.author_id as string] || { full_name: null },
     })
   ) as unknown as Discussion[];
 
