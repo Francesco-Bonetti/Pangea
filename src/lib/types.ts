@@ -465,7 +465,73 @@ export type FeedEventType =
   | "law_approved"
   | "discussion_created"
   | "party_vote"
-  | "member_joined";
+  | "member_joined"
+  | "election_created"
+  | "candidate_registered";
+
+// --- Elections & Candidatures (Phase 4) ---
+export type ElectionStatus = "upcoming" | "candidature" | "voting" | "closed" | "cancelled";
+export type CandidateStatus = "registered" | "approved" | "withdrawn" | "disqualified";
+export type ElectionType = "general" | "jurisdiction" | "party" | "position";
+
+export interface Election {
+  id: string;
+  title: string;
+  description: string | null;
+  election_type: ElectionType;
+  jurisdiction_id: string | null;
+  party_id: string | null;
+  position_name: string;
+  max_winners: number;
+  status: ElectionStatus;
+  candidature_start: string;
+  candidature_end: string;
+  voting_start: string;
+  voting_end: string;
+  created_by: string;
+  created_at: string;
+  results_summary: ElectionResultEntry[] | null;
+  // Joins
+  profiles?: Profile;
+  jurisdictions?: { name: string; logo_emoji: string };
+  parties?: { name: string; logo_emoji: string };
+  candidate_count?: number;
+}
+
+export interface Candidate {
+  id: string;
+  election_id: string;
+  user_id: string;
+  party_id: string | null;
+  platform: string | null;
+  status: CandidateStatus;
+  created_at: string;
+  withdrawn_at: string | null;
+  // Joins
+  profiles?: Profile;
+  parties?: { name: string; logo_emoji: string };
+}
+
+export interface ElectionVote {
+  id: string;
+  election_id: string;
+  voter_id: string;
+  candidate_id: string;
+  voting_weight: number;
+  created_at: string;
+}
+
+export interface ElectionResultEntry {
+  candidate_id: string;
+  candidate_user_id: string;
+  candidate_name: string;
+  candidate_party_id: string | null;
+  candidate_party_name: string | null;
+  candidate_platform: string | null;
+  total_weighted_votes: number;
+  vote_count: number;
+  rank?: number;
+}
 
 export interface FeedEvent {
   id: string;

@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info } from "lucide-react";
+import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 interface NavbarProps {
@@ -83,6 +83,13 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             >
               <Flag className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" />
               Parties
+            </Link>
+            <Link
+              href="/elections"
+              className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors duration-150 group"
+            >
+              <Vote className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" />
+              Elections
             </Link>
             <Link
               href="/social"
@@ -282,6 +289,14 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             >
               <Flag className="w-4 h-4" />
               Parties
+            </Link>
+            <Link
+              href="/elections"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors duration-150"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Vote className="w-4 h-4" />
+              Elections
             </Link>
             <Link
               href="/social"

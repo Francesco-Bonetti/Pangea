@@ -1,0 +1,54 @@
+import { createClient } from "@/lib/supabase/server";
+import Navbar from "@/components/Navbar";
+import ElectionsClient from "@/components/ElectionsClient";
+
+export const metadata = {
+  title: "Elections — Agora Pangea",
+  description: "Vote for candidates, run for office, and shape the governance of Pangea.",
+};
+
+export default async function ElectionsPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let userName: string | null = null;
+  let userEmail: string | null = null;
+  let userRole = "citizen";
+  let pendingDelegations = 0;
+  const isGuest = !user;
+
+  if (user) {
+    userEmail = user.email ?? null;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name, role")
+      .eq("id", user.id)
+      .single();
+
+    userName = profile?.full_name ?? null;
+    userRole = profile?.role ?? "citizen";
+
+    const { count } = await supabase
+      .from("delegations")
+      .select("*", { count: "exact", head: true })
+      .eq("delegate_id", user.id)
+      .eq("status", "pending");
+
+    pendingDelegations = count ?? 0;
+  }
+
+  const isAdmin = userRole === "admin" || userRole === "moderator";
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      <Navbar
+        userEmail={userEmail}
+        userName={userName}
+        userRole={userRole}
+        isGuest={isGuest}
+        pendingDelegations={pendingDelegations}
+      />
+      <ElectionsClient isAdmin={isAdmin} />
+    </div>
+  );
+}

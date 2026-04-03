@@ -22,7 +22,10 @@ export async function GET(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // 0. Close expired proposals
+    // 0a. Update election statuses (upcoming → candidature → voting → closed)
+    await supabase.rpc("update_election_statuses");
+
+    // 0b. Close expired proposals
     const { data: closedCount } = await supabase.rpc("close_expired_proposals");
 
     // 1. Evaluate curation markets (promote proposals to active)
