@@ -56,12 +56,12 @@
   }
 
   .card {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm transition-all duration-300 hover:border-slate-600/80 hover:bg-slate-800/70 hover:shadow-lg hover:shadow-slate-900/50;
+    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5 transition-all duration-300 hover:border-slate-500/80 hover:bg-slate-800/80 hover:shadow-lg hover:shadow-slate-900/50;
   }
 
   /* Static card variant — no hover transform (for containers, info boxes) */
   .card-static {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm;
+    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5;
   }
 
   .input-field {
@@ -121,11 +121,11 @@
 
   /* Info box — for explanations, tips. Always clearly visible on dark bg. */
   .info-box {
-    @apply rounded-xl p-4 border border-pangea-700/40 border-l-4 border-l-pangea-500 bg-pangea-950/40 backdrop-blur-sm;
+    @apply rounded-xl p-4 border border-pangea-600/50 border-l-4 border-l-pangea-400 bg-pangea-950/50 backdrop-blur-sm;
   }
 
   .info-box-amber {
-    @apply rounded-xl p-4 border border-amber-700/40 border-l-4 border-l-amber-500 bg-amber-950/40 backdrop-blur-sm;
+    @apply rounded-xl p-4 border border-amber-600/50 border-l-4 border-l-amber-400 bg-amber-950/50 backdrop-blur-sm;
   }
 
   /* Page loading bar animation */

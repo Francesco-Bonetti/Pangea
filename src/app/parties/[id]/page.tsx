@@ -444,9 +444,9 @@ export default function PartyDetailPage() {
         {activeTab === "members" && (
           <div className="space-y-2">
             {members.map((m) => (
-              <div key={m.id} className="card flex items-center gap-3 py-3">
-                <div className="w-10 h-10 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-pangea-300 font-bold text-sm">
-                  <PrivacyName userId={m.user_id} fullName={m.profiles?.full_name ?? null} currentUserId={user?.id} className="inline" />
+              <div key={m.id} className="card flex items-center gap-3">
+                <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-pangea-300 font-bold text-sm overflow-hidden">
+                  {(m.profiles?.full_name ?? "?").split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1">
                   <Link href={`/citizens/${m.user_id}`} className="text-sm font-medium text-white hover:text-pangea-300 transition-colors">

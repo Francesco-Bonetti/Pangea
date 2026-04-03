@@ -443,7 +443,7 @@ export default function ChatThread({
       )}
 
       {/* Message input */}
-      <div className="border-t border-slate-700 bg-slate-900/95 backdrop-blur-md px-4 py-3">
+      <div className="border-t border-slate-600 bg-slate-800/95 backdrop-blur-md px-4 py-3">
         <div className="flex items-end gap-2">
           <textarea
             ref={inputRef}
@@ -457,7 +457,7 @@ export default function ChatThread({
             }
             disabled={!otherHasKeys || sending}
             rows={1}
-            className="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-slate-700 border border-slate-500 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ maxHeight: "120px" }}
             onInput={(e) => {
               const target = e.target as HTMLTextAreaElement;
