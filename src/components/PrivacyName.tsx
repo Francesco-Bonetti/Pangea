@@ -41,13 +41,15 @@ export function PrivacyCacheProvider({ children }: { children: React.ReactNode }
         return pendingRef.current.get(userId)!;
       }
 
-      // Fetch
-      const promise = supabase
-        .from("privacy_settings")
-        .select("*")
-        .eq("user_id", userId)
-        .single()
-        .then(({ data }: { data: PrivacySettings | null }) => {
+      // Fetch — wrap in Promise.resolve() because Supabase returns PromiseLike (no .catch)
+      const promise = Promise.resolve(
+        supabase
+          .from("privacy_settings")
+          .select("*")
+          .eq("user_id", userId)
+          .single()
+      )
+        .then(({ data }) => {
           const result = (data as PrivacySettings) || null;
           cacheRef.current.set(userId, result);
           pendingRef.current.delete(userId);
