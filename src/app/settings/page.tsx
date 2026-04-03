@@ -310,11 +310,26 @@ export default function SettingsPage() {
                 <Flag className="w-5 h-5 text-pangea-400" />
                 Pesi Voto Partiti
               </h2>
-              <p className="text-sm text-slate-400 mb-4 leading-relaxed">
-                Se sei iscritto a più partiti e non voti direttamente su una proposta, il tuo voto viene diviso tra i partiti
-                in base a questi pesi. Di default tutti hanno peso uguale (1). I pesi sono relativi tra loro: se
-                un partito ha peso 2 e un altro peso 1, il primo riceverà il doppio dell&apos;influenza del secondo.
-              </p>
+              <div className="text-sm text-slate-400 mb-4 leading-relaxed space-y-2">
+                <p>
+                  Se sei iscritto a più partiti e non voti direttamente su una proposta, il tuo voto viene
+                  automaticamente diviso tra i tuoi partiti in base ai pesi che assegni qui sotto.
+                </p>
+                <p>
+                  <strong className="text-slate-300">I pesi sono relativi tra loro</strong>, non percentuali fisse.
+                  Conta solo il rapporto tra i numeri, non il valore assoluto.
+                </p>
+                <div className="bg-slate-800/60 rounded-lg p-3 mt-2 space-y-1.5">
+                  <p className="text-xs text-slate-300 font-medium">Esempio pratico:</p>
+                  <p className="text-xs">Immagina di essere iscritto a 3 partiti con questi pesi:</p>
+                  <p className="text-xs">🌿 Partito Verde = <strong className="text-slate-300">4</strong> · 🔬 Partito Scientifico = <strong className="text-slate-300">2</strong> · ⚖️ Partito Giuridico = <strong className="text-slate-300">2</strong></p>
+                  <p className="text-xs">Il totale è 8, quindi il tuo voto si dividerebbe così: 50% al Verde, 25% allo Scientifico, 25% al Giuridico.</p>
+                  <p className="text-xs">Se cambiassi i pesi a 2, 1, 1 il risultato sarebbe identico — conta solo la proporzione.</p>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Ricorda: se voti direttamente su una proposta, il tuo voto personale prevale sempre su quello dei partiti.
+                </p>
+              </div>
               <div className="space-y-3">
                 {partyMemberships.map((pm) => {
                   const totalWeight = partyMemberships.reduce((s, p) => s + p.vote_weight, 0);

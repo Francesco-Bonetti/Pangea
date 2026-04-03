@@ -234,12 +234,19 @@ function NewProposalPage() {
           <Info className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
           <div className="text-sm text-slate-400">
             <p className="text-slate-300 font-medium mb-1">Come funziona</p>
-            <p>
-              La tua proposta viene prima pubblicata in <strong className="text-amber-300">bacheca</strong> dove
-              i cittadini possono sostenerla con un click. Quando riceve abbastanza supporto,
-              passa alla <strong className="text-pangea-300">votazione</strong> dove tutti possono esprimere
-              la propria preferenza tra le scelte che hai definito.
+            <p className="mb-2">
+              La tua proposta segue due fasi: prima viene pubblicata in <strong className="text-amber-300">bacheca</strong> dove
+              i cittadini possono sostenerla con un click. Quando raggiunge il <strong className="text-slate-300">20% di supporto</strong> degli utenti attivi,
+              passa alla <strong className="text-pangea-300">votazione</strong> dove tutti esprimono la propria preferenza tra le scelte che hai definito.
             </p>
+            <div className="bg-slate-800/60 rounded-lg p-2.5 mt-1">
+              <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
+              <p className="text-xs">
+                Proponi una legge sulla tutela ambientale. Viene pubblicata in bacheca: se 20 cittadini su 100 attivi
+                la sostengono, entra in votazione. A quel punto tutti possono distribuire il proprio voto tra le opzioni
+                che hai scritto (es. &quot;Approvare&quot; 60%, &quot;Modificare&quot; 30%, &quot;Respingere&quot; 10%).
+              </p>
+            </div>
           </div>
         </div>
 
@@ -437,14 +444,20 @@ function NewProposalPage() {
             </label>
             <div className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-3 mb-3">
               <p className="text-sm text-slate-300 mb-2">
-                In Pangea non si vota solo &quot;sì o no&quot;: ogni cittadino distribuisce il proprio voto
-                in percentuale tra le opzioni che proponi tu. Questo permette di esprimere sfumature,
+                In Pangea non si vota solo &quot;sì o no&quot;: ogni cittadino <strong>distribuisce il proprio voto
+                in percentuale</strong> tra le opzioni che proponi tu. Questo permette di esprimere sfumature e preferenze multiple,
                 non solo posizioni nette.
               </p>
+              <div className="bg-slate-900/50 rounded p-2.5 my-2">
+                <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
+                <p className="text-xs text-slate-400">
+                  Per una proposta sulla mobilità urbana potresti offrire 3 scelte: &quot;Approvare com&apos;è&quot;, &quot;Approvare
+                  con piste ciclabili obbligatorie&quot;, &quot;Respingere e riscrivere&quot;. Un cittadino potrebbe dare 60% alla seconda,
+                  30% alla prima e 10% alla terza — mostrando che preferisce la versione con piste ciclabili ma accetterebbe anche il testo base.
+                </p>
+              </div>
               <p className="text-xs text-slate-400">
-                Scrivi almeno 2 alternative. Per esempio: &quot;Approvare il testo così com&apos;è&quot;,
-                &quot;Approvare con modifiche&quot;, &quot;Respingere e riscrivere&quot;.
-                Più opzioni dai, più ricca sarà la discussione.
+                Scrivi almeno 2 alternative. Più opzioni dai, più ricca e sfumata sarà la deliberazione.
               </p>
             </div>
 

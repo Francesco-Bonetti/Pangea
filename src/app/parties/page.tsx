@@ -181,13 +181,20 @@ export default function PartiesPage() {
         {/* Info card */}
         <div className="card mb-6 border-l-4 border-pangea-500">
           <h3 className="text-sm font-semibold text-pangea-300 mb-2">Come funzionano i Partiti</h3>
-          <ul className="text-xs text-slate-400 space-y-1">
-            <li>• Puoi iscriverti a <strong className="text-slate-300">più partiti</strong> contemporaneamente</li>
-            <li>• I partiti esprimono un <strong className="text-slate-300">voto pubblico</strong> su ogni proposta</li>
-            <li>• Se non voti direttamente, il tuo voto viene <strong className="text-slate-300">diviso tra i partiti</strong> in base ai pesi che scegli</li>
-            <li>• Il tuo <strong className="text-slate-300">voto diretto</strong> annulla sempre il voto dei partiti (e puoi ripristinarlo)</li>
-            <li>• Per creare un partito devi avere la <strong className="text-slate-300">funzione delega attivata</strong></li>
+          <ul className="text-sm text-slate-400 space-y-2 leading-relaxed">
+            <li>• Puoi iscriverti a <strong className="text-slate-300">più partiti</strong> contemporaneamente — ad esempio al Partito Verde e al Partito Scientifico insieme</li>
+            <li>• I partiti esprimono un <strong className="text-slate-300">voto pubblico</strong> su ogni proposta. Se non voti direttamente, il tuo voto viene automaticamente diviso tra i partiti a cui sei iscritto, secondo i pesi che imposti nelle <strong className="text-slate-300">Impostazioni</strong></li>
+            <li>• Il tuo <strong className="text-slate-300">voto diretto</strong> ha sempre la priorità: se voti personalmente su una proposta, il voto dei partiti viene ignorato per quella proposta (e puoi ripristinarlo in qualsiasi momento)</li>
+            <li>• Per creare un nuovo partito devi avere la <strong className="text-slate-300">funzione delega attivata</strong> nelle impostazioni del profilo</li>
           </ul>
+          <div className="bg-slate-800/60 rounded-lg p-3 mt-3">
+            <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
+            <p className="text-xs text-slate-400">
+              Mario è iscritto al Partito Verde (peso 3) e al Partito Scientifico (peso 1). Su una proposta dove non vota direttamente,
+              il 75% del suo voto segue la posizione del Partito Verde e il 25% quella del Partito Scientifico.
+              Se Mario decide di votare in prima persona, il suo voto diretto sostituisce completamente quello dei partiti.
+            </p>
+          </div>
         </div>
 
         {/* Search */}

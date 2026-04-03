@@ -230,15 +230,23 @@ export default function DelegationsPage() {
         {/* Info card */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
           <Globe className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
-          <div className="text-sm text-slate-400">
+          <div className="text-sm text-slate-400 space-y-2">
             <p>
               La <strong className="text-slate-300">Democrazia Liquida</strong>{" "}
               ti permette di delegare il tuo voto a un altro cittadino per tutti
               i temi o per una categoria specifica. La delega è sempre{" "}
               <strong className="text-slate-300">revocabile</strong> e il tuo{" "}
               <strong className="text-slate-300">voto diretto</strong> ha sempre
-              la supremazia.
+              la priorità assoluta.
             </p>
+            <div className="bg-slate-800/60 rounded-lg p-2.5">
+              <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
+              <p className="text-xs text-slate-400">
+                Non ti intendi di economia? Puoi delegare il voto sulle proposte economiche a un cittadino esperto di cui ti fidi.
+                Quando si vota una proposta economica, il tuo voto segue la sua scelta. Ma se un giorno vuoi votare direttamente
+                su una proposta specifica, il tuo voto personale prevale automaticamente. Puoi anche revocare la delega in qualsiasi momento.
+              </p>
+            </div>
           </div>
         </div>
 

@@ -209,12 +209,20 @@ export default function JurisdictionsPage() {
         <div className="card p-6 mb-8 border-l-4 border-pangea-500">
           <h3 className="text-sm font-semibold text-pangea-300 mb-3">Come funzionano le Sotto-giurisdizioni</h3>
           <ul className="text-sm text-slate-400 space-y-2 leading-relaxed">
-            <li>• Esistono due tipi: <strong className="text-slate-300">Virtuali</strong> (unite da un ideale) e <strong className="text-slate-300">Geografiche</strong> (legate a un luogo fisico)</li>
-            <li>• Puoi appartenere a <strong className="text-slate-300">più giurisdizioni</strong>, purché le loro leggi non siano in conflitto</li>
-            <li>• Le leggi di Pangea sono sempre <strong className="text-slate-300">superiori</strong> — le sotto-leggi possono solo specificare, non contraddire</li>
-            <li>• Ogni giurisdizione può creare <strong className="text-slate-300">sotto-leggi specifiche</strong> collegate all&apos;albero legislativo di Pangea</li>
-            <li>• Il sistema rileva automaticamente i <strong className="text-slate-300">conflitti tra leggi</strong> quando tenti di iscriverti</li>
+            <li>• Esistono due tipi: <strong className="text-slate-300">Virtuali</strong> (comunità unite da un ideale, come &quot;Ambientalisti Globali&quot;) e <strong className="text-slate-300">Geografiche</strong> (legate a un luogo, come &quot;Comunità di Milano&quot;)</li>
+            <li>• Puoi appartenere a <strong className="text-slate-300">più giurisdizioni</strong> contemporaneamente, purché le loro sotto-leggi non siano in conflitto tra loro</li>
+            <li>• Le leggi di Pangea sono sempre <strong className="text-slate-300">superiori</strong> — le sotto-leggi possono aggiungere dettagli o regole locali, ma mai contraddire la legge madre</li>
+            <li>• Ogni giurisdizione può proporre <strong className="text-slate-300">sotto-leggi specifiche</strong> collegate a una legge di Pangea esistente</li>
+            <li>• Il sistema rileva automaticamente i <strong className="text-slate-300">conflitti</strong>: se provi a iscriverti a una giurisdizione le cui leggi contraddicono quelle di una a cui già appartieni, verrai avvisato</li>
           </ul>
+          <div className="bg-slate-800/60 rounded-lg p-3 mt-3">
+            <p className="text-xs text-slate-300 font-medium mb-1">Esempio:</p>
+            <p className="text-xs text-slate-400">
+              La giurisdizione &quot;Comunità Verde&quot; potrebbe creare una sotto-legge collegata al Codice Ambientale di Pangea
+              che stabilisce regole più stringenti sulla gestione dei rifiuti per i propri membri. Questa sotto-legge non può
+              contraddire il Codice Ambientale, ma può aggiungere obblighi specifici per chi aderisce volontariamente.
+            </p>
+          </div>
         </div>
 
         {/* Search + Filter */}
