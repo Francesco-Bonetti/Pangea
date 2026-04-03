@@ -84,7 +84,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
       </div>
 
       {/* Preview */}
-      <p className="text-sm text-slate-400 line-clamp-2 mb-5">
+      <p className="text-sm text-slate-300 line-clamp-2 mb-5">
         {proposal.content}
       </p>
 
@@ -176,7 +176,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
-        <div className="flex items-center gap-1 text-xs text-slate-500">
+        <div className="flex items-center gap-1 text-xs text-slate-400">
           {proposal.status === "curation" ? (
             <>
               <Flame className="w-3 h-3" />
@@ -189,7 +189,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
             </>
           )}
         </div>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-400">
           {formatDate(proposal.created_at)}
         </span>
       </div>

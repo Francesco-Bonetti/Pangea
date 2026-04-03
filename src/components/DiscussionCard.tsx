@@ -132,7 +132,7 @@ export default function DiscussionCard({
         </div>
 
         {/* Preview text */}
-        <p className="text-sm text-slate-400 line-clamp-2 mb-4">
+        <p className="text-sm text-slate-300 line-clamp-2 mb-4">
           {preview}
         </p>
 
@@ -154,14 +154,11 @@ export default function DiscussionCard({
         )}
 
         {/* Author info */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-          {discussion.profiles?.full_name && (
-            <>
-              <span>by {discussion.profiles.full_name}</span>
-              <span className="text-slate-600">•</span>
-            </>
-          )}
-        </div>
+        {discussion.profiles?.full_name && (
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
+            <span>by {discussion.profiles.full_name}</span>
+          </div>
+        )}
 
         {/* Footer: voting + reply count */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">

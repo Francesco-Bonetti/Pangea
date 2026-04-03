@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import GuestBanner from "@/components/GuestBanner";
 import NewDiscussionForm from "@/components/NewDiscussionForm";
 import ForumClient from "@/components/ForumClient";
+import ForumControls from "@/components/ForumControls";
 import { MessageCircle, TrendingUp, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { DiscussionChannel, Discussion, Tag } from "@/lib/types";
@@ -249,36 +250,10 @@ export default async function SocialPage({
                       "Discussions"
                     : "All Discussions"}
                 </h2>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <select
-                    value={searchParams.sort || "newest"}
-                    onChange={(e) => {
-                      const params = new URLSearchParams(searchParams as Record<string, string>);
-                      params.set("sort", e.target.value);
-                      window.location.href = `/social?${params.toString()}`;
-                    }}
-                    className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-pangea-600"
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="most_upvoted">Most Upvoted</option>
-                    <option value="most_discussed">Most Discussed</option>
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    defaultValue={searchParams.search || ""}
-                    onChange={(e) => {
-                      const params = new URLSearchParams(searchParams as Record<string, string>);
-                      if (e.target.value) {
-                        params.set("search", e.target.value);
-                      } else {
-                        params.delete("search");
-                      }
-                      window.location.href = `/social?${params.toString()}`;
-                    }}
-                    className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-pangea-600"
-                  />
-                </div>
+                <ForumControls
+                  currentSort={searchParams.sort || "newest"}
+                  currentSearch={searchParams.search || ""}
+                />
               </div>
 
               {/* Discussions List */}

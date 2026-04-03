@@ -10,6 +10,8 @@
 
   body {
     @apply bg-[#0c1220] text-slate-100 antialiased;
+    font-size: 16px;
+    line-height: 1.6;
   }
 
   * {
@@ -24,6 +26,11 @@
   /* Links should be clearly visible */
   a {
     @apply text-pangea-400 hover:text-pangea-300 transition-colors duration-200;
+  }
+
+  /* Headings: always high contrast */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-white;
   }
 }
 
@@ -44,44 +51,58 @@
     @apply text-slate-300 hover:text-slate-100 hover:bg-slate-800/80 px-4 py-2 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95;
   }
 
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg hover:shadow-red-500/30;
+  }
+
   .card {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm transition-all duration-300 hover:border-slate-600/80 hover:bg-slate-800/70 hover:shadow-lg hover:shadow-slate-900/50 hover:scale-[1.01];
+    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm transition-all duration-300 hover:border-slate-600/80 hover:bg-slate-800/70 hover:shadow-lg hover:shadow-slate-900/50;
+  }
+
+  /* Static card variant — no hover transform (for containers, info boxes) */
+  .card-static {
+    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm;
   }
 
   .input-field {
-    @apply w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-500 focus:ring-2 focus:ring-pangea-500/40 transition-all duration-300 hover:border-slate-500;
+    @apply w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 text-base placeholder-slate-400 focus:outline-none focus:border-pangea-500 focus:ring-2 focus:ring-pangea-500/40 transition-all duration-300 hover:border-slate-500;
   }
 
   .label {
     @apply block text-sm font-medium text-slate-200 mb-1.5;
   }
 
+  /* Textarea with better defaults */
+  .textarea-field {
+    @apply w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 text-base placeholder-slate-400 focus:outline-none focus:border-pangea-500 focus:ring-2 focus:ring-pangea-500/40 transition-all duration-300 hover:border-slate-500 resize-y min-h-[120px];
+  }
+
   /* Status badges with improved contrast */
   .status-draft {
-    @apply bg-slate-700 text-slate-200 text-xs font-medium px-2.5 py-1 rounded-full transition-colors duration-200;
+    @apply bg-slate-700 text-slate-100 text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
   }
 
   .status-active {
-    @apply bg-pangea-900/50 text-pangea-200 text-xs font-medium px-2.5 py-1 rounded-full border border-pangea-700/50 transition-colors duration-200;
+    @apply bg-pangea-900/50 text-pangea-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-pangea-700/50 transition-colors duration-200;
   }
 
   .status-review {
-    @apply bg-amber-900/30 text-amber-200 text-xs font-medium px-2.5 py-1 rounded-full border border-amber-700/50 transition-colors duration-200;
+    @apply bg-amber-900/30 text-amber-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-700/50 transition-colors duration-200;
   }
 
   .status-curation {
-    @apply bg-amber-900/30 text-amber-200 text-xs font-medium px-2.5 py-1 rounded-full border border-amber-700/50 transition-colors duration-200;
+    @apply bg-amber-900/30 text-amber-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-700/50 transition-colors duration-200;
   }
 
   .status-closed {
-    @apply bg-slate-700/50 text-slate-300 text-xs font-medium px-2.5 py-1 rounded-full transition-colors duration-200;
+    @apply bg-slate-700/50 text-slate-200 text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
   }
 
   .status-repealed {
-    @apply bg-red-900/30 text-red-200 text-xs font-medium px-2.5 py-1 rounded-full border border-red-700/50 transition-colors duration-200;
+    @apply bg-red-900/30 text-red-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-red-700/50 transition-colors duration-200;
   }
 
-  /* Text contrast utilities */
+  /* Text contrast utilities — WCAG AA minimum on dark bg */
   .text-readable {
     @apply text-slate-100 font-medium;
   }
@@ -92,6 +113,19 @@
 
   .text-tertiary {
     @apply text-slate-400;
+  }
+
+  .text-muted {
+    @apply text-slate-500;
+  }
+
+  /* Info box — for explanations, tips */
+  .info-box {
+    @apply card-static p-4 border-l-4 border-l-pangea-500 bg-pangea-900/10;
+  }
+
+  .info-box-amber {
+    @apply card-static p-4 border-l-4 border-l-amber-500 bg-amber-900/10;
   }
 
   /* Page loading bar animation */
@@ -109,6 +143,19 @@
   /* Glass morphism effect */
   .glass-effect {
     @apply bg-slate-800/40 backdrop-blur-md border border-slate-700/40;
+  }
+
+  /* Skeleton loading placeholder */
+  .skeleton {
+    @apply bg-slate-700/50 rounded-lg animate-pulse;
+  }
+
+  .skeleton-text {
+    @apply h-4 bg-slate-700/50 rounded animate-pulse;
+  }
+
+  .skeleton-card {
+    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 space-y-4;
   }
 }
 
@@ -191,12 +238,54 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
-/* Smooth transitions everywhere */
-* {
+/* Smooth transitions on interactive elements only — avoids perf issues on * */
+a, button, input, select, textarea,
+[role="button"], [tabindex] {
   @apply transition-colors duration-200;
 }
 
 /* Disabled state styling */
 :disabled {
   @apply opacity-50 cursor-not-allowed;
+}
+
+/* Law content — better readability for long text */
+.law-content {
+  @apply text-slate-200 text-[15px] leading-[1.75] whitespace-pre-wrap;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-600;
+}
+
+/* Empty state styling */
+.empty-state {
+  @apply text-center py-16;
+}
+
+.empty-state-icon {
+  @apply w-16 h-16 text-slate-600 mx-auto mb-4;
+}
+
+.empty-state-title {
+  @apply text-lg font-semibold text-slate-300 mb-2;
+}
+
+.empty-state-text {
+  @apply text-slate-400 max-w-md mx-auto text-sm;
 }

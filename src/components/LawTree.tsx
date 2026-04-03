@@ -150,14 +150,14 @@ export default function LawTree({ node, depth, showActiveStatus }: LawTreeProps)
 
             {/* Summary */}
             {node.summary && !expanded && (
-              <p className={`text-xs mt-1 leading-relaxed ${isInactive ? "text-slate-600" : "text-slate-500"}`}>
+              <p className={`text-sm mt-1 leading-relaxed ${isInactive ? "text-slate-500" : "text-slate-400"}`}>
                 {node.summary}
               </p>
             )}
 
             {/* Children count when collapsed */}
             {hasChildren && !expanded && (
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 {node.children!.length} {node.children!.length === 1 ? "element" : "elements"}
               </p>
             )}
@@ -202,7 +202,7 @@ export default function LawTree({ node, depth, showActiveStatus }: LawTreeProps)
       {expanded && hasContent && isArticle && (
         <div className={`card border ${isInactive ? "border-slate-800/10" : "border-slate-700/20"} rounded-t-none border-t-0 bg-slate-900/50`}>
           <div className="p-4 pl-11">
-            <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isInactive ? "text-slate-500" : "text-slate-300"}`}>
+            <p className={isInactive ? "text-sm leading-relaxed whitespace-pre-wrap text-slate-500" : "law-content"}>
               {node.content}
             </p>
             <div className="flex items-center gap-3 mt-3 pt-2 border-t border-slate-800/30">

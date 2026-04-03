@@ -168,7 +168,7 @@ export default async function DiscussionPage({
 
           {/* Discussion body */}
           <div className="py-6 prose prose-invert max-w-none">
-            <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+            <p className="text-slate-200 leading-relaxed whitespace-pre-wrap text-[15px]">
               {discussion.body}
             </p>
           </div>
