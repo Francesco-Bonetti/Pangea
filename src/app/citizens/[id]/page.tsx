@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { User, Calendar, FileText, Users, Vote, BookOpen, Shield } from "lucide-react";
+import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash } from "lucide-react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 
@@ -77,8 +77,11 @@ export default async function CitizenProfilePage({ params }: Props) {
               {citizen.role === "admin" ? "Amministratore" : citizen.role === "moderator" ? "Moderatore" : "Cittadino"}
             </span>
           </div>
+          {citizen.user_code && (
+            <p className="text-xs text-pangea-300 font-mono font-semibold tracking-wider mt-1">{citizen.user_code}</p>
+          )}
           {citizen.bio && (
-            <p className="text-slate-400 text-sm max-w-md mx-auto">{citizen.bio}</p>
+            <p className="text-slate-400 text-sm max-w-md mx-auto mt-2">{citizen.bio}</p>
           )}
           <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-slate-500">
             <Calendar className="w-3.5 h-3.5" />
@@ -124,7 +127,7 @@ export default async function CitizenProfilePage({ params }: Props) {
                     <p className="text-xs text-slate-500">{formatDate(p.created_at)}</p>
                   </div>
                   <span className={statusConfig[p.status] || "status-draft"}>
-                    {p.status === "active" ? "In Votazione" : p.status === "closed" ? "Approvata" : "In Promozione"}
+                    {p.status === "active" ? "In Delibera" : p.status === "closed" ? "Deliberata" : "In Curatela"}
                   </span>
                 </Link>
               ))}

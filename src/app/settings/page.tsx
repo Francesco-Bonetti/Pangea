@@ -18,6 +18,7 @@ import {
   Mail,
   Calendar,
   Flag,
+  Hash,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -201,6 +202,13 @@ export default function SettingsPage() {
                 <div>
                   <p className="text-xs text-slate-500">Ruolo</p>
                   <p className="text-sm text-slate-200 capitalize">{profile?.role || "citizen"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Hash className="w-4 h-4 text-slate-500" />
+                <div>
+                  <p className="text-xs text-slate-500">Codice Cittadino</p>
+                  <p className="text-sm text-pangea-300 font-mono font-semibold tracking-wider">{profile?.user_code || "—"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
