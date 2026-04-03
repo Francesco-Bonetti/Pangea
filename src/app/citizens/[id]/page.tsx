@@ -19,15 +19,19 @@ export default async function CitizenProfilePage({ params }: Props) {
 
   const isSelf = user?.id === id;
 
-  // Fetch viewer profile (for admin check)
+  // Fetch viewer profile (for admin check and navbar)
   let viewerIsAdmin = false;
+  let viewerName: string | null = null;
+  let viewerRole: string = "citizen";
   if (user) {
     const { data: viewerProfile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, full_name")
       .eq("id", user.id)
       .single();
     viewerIsAdmin = viewerProfile?.role === "admin";
+    viewerName = viewerProfile?.full_name ?? null;
+    viewerRole = viewerProfile?.role ?? "citizen";
   }
 
   // Fetch target citizen profile
@@ -109,7 +113,7 @@ export default async function CitizenProfilePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} isGuest={!user} />
+      <Navbar userEmail={user?.email} userName={viewerName} userRole={viewerRole} isGuest={!user} />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link href="/dashboard" className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-6 inline-block overflow-hidden">

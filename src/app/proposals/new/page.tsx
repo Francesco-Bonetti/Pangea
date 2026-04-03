@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import TagInput from "@/components/TagInput";
 import LawTreeSelector from "@/components/LawTreeSelector";
+import { useEffect } from "react";
 import {
   ArrowLeft,
   Save,
@@ -51,8 +52,29 @@ export default function NewProposalPage() {
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>("citizen");
   const router = useRouter();
   const supabase = createClient();
+
+  // Load user info for Navbar
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email ?? null);
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("full_name, role")
+          .eq("id", user.id)
+          .single();
+        setUserName(prof?.full_name ?? null);
+        setUserRole(prof?.role ?? "citizen");
+      }
+    }
+    loadUser();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function addOption() {
     if (options.length < 10) {
@@ -172,7 +194,7 @@ export default function NewProposalPage() {
 
   return (
     <div className="min-h-screen bg-[#0c1220]">
-      <Navbar />
+      <Navbar userEmail={userEmail} userName={userName} userRole={userRole} />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
