@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import MessagesClient from "@/components/MessagesClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function MessagesPage() {
   const supabase = await createClient();
 
@@ -48,10 +50,10 @@ export default async function MessagesPage() {
   }[] = [];
 
   if (conversationIds.length > 0) {
-    // Get all participants for these conversations (to find the other user)
+    // Get all participants for these conversations (separate queries - no cross-schema joins)
     const { data: allParticipants } = await supabase
       .from("dm_participants")
-      .select("conversation_id, user_id, profiles(full_name, user_code)")
+      .select("conversation_id, user_id")
       .in("conversation_id", conversationIds);
 
     // Get conversations metadata
@@ -65,6 +67,18 @@ export default async function MessagesPage() {
     const otherUserIds = (allParticipants || [])
       .filter((p: { user_id: string }) => p.user_id !== user.id)
       .map((p: { user_id: string }) => p.user_id);
+
+    // Get profiles for other users (direct query, no embedded join)
+    const { data: otherProfiles } = otherUserIds.length > 0
+      ? await supabase
+          .from("profiles")
+          .select("id, full_name, user_code")
+          .in("id", otherUserIds)
+      : { data: [] };
+
+    const profileMap = new Map(
+      (otherProfiles || []).map((p: { id: string; full_name: string | null; user_code: string | null }) => [p.id, p])
+    );
 
     const { data: otherKeys } = otherUserIds.length > 0
       ? await supabase
@@ -89,9 +103,9 @@ export default async function MessagesPage() {
         (p: any) => p.conversation_id === conv.id
       );
 
-      const otherProfile = otherParticipant?.profiles as
-        | { full_name: string | null; user_code: string | null }
-        | undefined;
+      const otherProfile = otherParticipant
+        ? profileMap.get(otherParticipant.user_id)
+        : undefined;
 
       return {
         id: conv.id,
