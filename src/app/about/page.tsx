@@ -14,8 +14,7 @@ export default async function AboutPage() {
     .from("profiles")
     .select("*")
     .eq("id", user?.id || "")
-    .single()
-    .catch(() => ({ data: null }));
+    .maybeSingle();
 
   // Global statistics
   const stats = await supabase.rpc("get_platform_stats");

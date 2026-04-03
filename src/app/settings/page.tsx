@@ -76,7 +76,7 @@ export default function SettingsPage() {
         memberships.map((m: Record<string, unknown>) => ({
           id: m.id as string,
           party_id: m.party_id as string,
-          party_name: (m.parties as Record<string, string>)?.name || "Partito",
+          party_name: (m.parties as Record<string, string>)?.name || "Party",
           logo_emoji: (m.parties as Record<string, string>)?.logo_emoji || "🏛️",
           vote_weight: m.vote_weight as number,
         }))
