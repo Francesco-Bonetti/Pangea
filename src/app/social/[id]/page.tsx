@@ -6,6 +6,17 @@ import { ArrowLeft, MessageCircle, Hash } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+// Server-side privacy name resolver
+function resolvePrivacyName(
+  fullName: string | null,
+  privacy: { show_full_name?: boolean; display_name?: string | null; profile_visibility?: string } | null
+): string {
+  if (!privacy) return fullName || "Anonymous Citizen";
+  if (privacy.profile_visibility === "private") return privacy.display_name || "Private Citizen";
+  if (privacy.show_full_name === false) return privacy.display_name || "Anonymous Citizen";
+  return fullName || "Anonymous Citizen";
+}
+
 export const metadata = {
   title: "Discussion Thread — Agora Pangea",
   description: "Read and join the discussion",
@@ -70,6 +81,25 @@ export default async function DiscussionPage({
     )
     .eq("discussion_id", params.id)
     .order("created_at", { ascending: true });
+
+  // Fetch privacy settings for discussion author and reply authors
+  const allAuthorIds = new Set<string>();
+  if (discussion.author_id) allAuthorIds.add(discussion.author_id);
+  if (replies) {
+    for (const r of replies) {
+      if (r.author_id) allAuthorIds.add(r.author_id as string);
+    }
+  }
+  const { data: privacyData } = await supabase
+    .from("privacy_settings")
+    .select("user_id, show_full_name, display_name, profile_visibility")
+    .in("user_id", Array.from(allAuthorIds));
+  const privacyMap = new Map<string, { show_full_name?: boolean; display_name?: string | null; profile_visibility?: string }>();
+  if (privacyData) {
+    for (const p of privacyData) {
+      privacyMap.set(p.user_id, p);
+    }
+  }
 
   // Check user votes on discussion
   let userVote: { vote_type: "up" | "down" } | null = null;
@@ -144,7 +174,7 @@ export default async function DiscussionPage({
           <div className="flex items-center gap-3 py-4 border-b border-slate-700">
             <div>
               <p className="text-sm font-medium text-slate-200">
-                {discussion.profiles?.full_name || "Anonymous"}
+                {resolvePrivacyName(discussion.profiles?.full_name, privacyMap.get(discussion.author_id) || null)}
               </p>
               {discussion.profiles?.bio && (
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -256,8 +286,10 @@ export default async function DiscussionPage({
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <p className="font-medium text-slate-200">
-                          {(reply.profiles as { full_name: string } | null)
-                            ?.full_name || "Anonymous"}
+                          {resolvePrivacyName(
+                            (reply.profiles as { full_name: string } | null)?.full_name ?? null,
+                            privacyMap.get(reply.author_id as string) || null
+                          )}
                         </p>
                         <p className="text-xs text-slate-500">
                           {formatTimeAgo(reply.created_at as string)}

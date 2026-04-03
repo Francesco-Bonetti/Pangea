@@ -7,6 +7,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { Flag, Plus, Users, Search, X, AlertCircle, ChevronRight } from "lucide-react";
 import type { Party, Profile } from "@/lib/types";
+import PrivacyName from "@/components/PrivacyName";
 
 export default function PartiesPage() {
   const supabase = createClient();
@@ -247,7 +248,7 @@ export default function PartiesPage() {
                         <Users className="w-3 h-3" />
                         {party.member_count} {party.member_count === 1 ? "member" : "members"}
                       </span>
-                      <span>Founded by {party.profiles?.full_name || "Anonymous"}</span>
+                      <span>Founded by <PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={user?.id} /></span>
                       <span>{new Date(party.created_at).toLocaleDateString("en-US")}</span>
                     </div>
                   </div>

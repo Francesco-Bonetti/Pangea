@@ -52,11 +52,16 @@ export default async function ProposalDetailPage({ params }: Props) {
     currentProfile = data;
   }
 
-  // Fetch author profile
+  // Fetch author profile + privacy settings
   const { data: authorProfile } = await supabase
     .from("profiles")
     .select("full_name")
     .eq("id", proposal.author_id)
+    .single();
+  const { data: authorPrivacy } = await supabase
+    .from("privacy_settings")
+    .select("show_full_name, display_name, profile_visibility")
+    .eq("user_id", proposal.author_id)
     .single();
 
   // Fetch deliberative options
@@ -218,7 +223,11 @@ export default async function ProposalDetailPage({ params }: Props) {
             <Link href={`/citizens/${proposal.author_id}`} className="flex items-center gap-1.5 hover:text-pangea-300 transition-colors">
               <User className="w-4 h-4" />
               <span>
-                {authorProfile?.full_name ?? "Citizen"}
+                {authorPrivacy && authorPrivacy.profile_visibility === "private"
+                  ? (authorPrivacy.display_name || "Private Citizen")
+                  : authorPrivacy && authorPrivacy.show_full_name === false
+                    ? (authorPrivacy.display_name || "Anonymous Citizen")
+                    : (authorProfile?.full_name ?? "Citizen")}
               </span>
             </Link>
             <div className="flex items-center gap-1.5">

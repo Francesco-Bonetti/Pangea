@@ -10,6 +10,7 @@ import {
   User,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import PrivacyName from "@/components/PrivacyName";
 
 interface Comment {
   id: string;
@@ -140,7 +141,7 @@ function CommentCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="font-medium text-slate-200">
-              {comment.profiles?.full_name || "Anonymous"}
+              <PrivacyName userId={comment.author_id} fullName={comment.profiles?.full_name ?? null} currentUserId={userId} />
             </span>
             <span className="text-xs text-slate-500">
               {timeAgo(comment.created_at)}

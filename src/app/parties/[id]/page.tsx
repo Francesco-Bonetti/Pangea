@@ -10,6 +10,7 @@ import {
   ThumbsUp, ThumbsDown, MinusCircle, Lock, ChevronDown, ChevronUp, AlertCircle, X
 } from "lucide-react";
 import type { Party, PartyMember, PartyVote, PartyForumPost, Profile, Proposal } from "@/lib/types";
+import PrivacyName from "@/components/PrivacyName";
 
 type Tab = "info" | "members" | "votes" | "forum";
 
@@ -295,7 +296,7 @@ export default function PartyDetailPage() {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-white">{party.name}</h1>
               <p className="text-sm text-slate-400 mt-1">
-                Founded by <span className="text-slate-300">{party.profiles?.full_name || "Anonymous"}</span>
+                Founded by <span className="text-slate-300"><PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={profile?.id} /></span>
                 {" · "}{new Date(party.created_at).toLocaleDateString("en-US")}
                 {" · "}{members.length} {members.length === 1 ? "member" : "members"}
               </p>
@@ -434,11 +435,11 @@ export default function PartyDetailPage() {
             {members.map((m) => (
               <div key={m.id} className="card flex items-center gap-3 py-3">
                 <div className="w-10 h-10 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-pangea-300 font-bold text-sm">
-                  {(m.profiles?.full_name || "?")[0].toUpperCase()}
+                  <PrivacyName userId={m.user_id} fullName={m.profiles?.full_name ?? null} currentUserId={user?.id} className="inline" />
                 </div>
                 <div className="flex-1">
                   <Link href={`/citizens/${m.user_id}`} className="text-sm font-medium text-white hover:text-pangea-300 transition-colors">
-                    {m.profiles?.full_name || "Anonymous"}
+                    <PrivacyName userId={m.user_id} fullName={m.profiles?.full_name ?? null} currentUserId={user?.id} />
                   </Link>
                   <div className="flex items-center gap-2 mt-0.5">
                     {m.role === "founder" && <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">Founder</span>}
@@ -611,7 +612,7 @@ export default function PartyDetailPage() {
                   <div key={post.id} className={`card ${post.is_admin_only ? "border-l-4 border-amber-500/50" : ""}`}>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-sm font-medium text-slate-300">
-                        {post.profiles?.full_name || "Anonymous"}
+                        <PrivacyName userId={post.author_id} fullName={post.profiles?.full_name ?? null} currentUserId={user?.id} />
                       </span>
                       {post.is_admin_only && (
                         <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">

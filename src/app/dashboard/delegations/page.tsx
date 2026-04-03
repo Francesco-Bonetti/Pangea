@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Navbar from "@/components/Navbar";
 import type { Category, Delegation, Profile } from "@/lib/types";
+import PrivacyName from "@/components/PrivacyName";
 import {
   ArrowLeft,
   Users,
@@ -411,11 +412,11 @@ export default function DelegationsPage() {
                     className="card p-4 flex items-center gap-4"
                   >
                     <div className="w-10 h-10 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-sm text-pangea-300 font-bold">
-                      {(delegateProfile?.full_name ?? "?")[0].toUpperCase()}
+                      {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} className="text-xs" /> : "?"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-slate-200 font-medium">
-                        {delegateProfile?.full_name ?? "Citizen"}
+                        {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
                       </p>
                       <p className="text-xs text-slate-500 flex items-center gap-1">
                         {category ? (
@@ -480,11 +481,11 @@ export default function DelegationsPage() {
                     className="card p-4 flex items-center gap-4"
                   >
                     <div className="w-10 h-10 rounded-full bg-amber-900/30 border border-amber-700/50 flex items-center justify-center text-sm text-amber-300 font-bold">
-                      {(delegatorProfile?.full_name ?? "?")[0].toUpperCase()}
+                      {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} className="text-xs" /> : "?"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-slate-200 font-medium">
-                        {delegatorProfile?.full_name ?? "Citizen"}
+                        {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
                       </p>
                       <p className="text-xs text-slate-500 flex items-center gap-1">
                         {category ? (

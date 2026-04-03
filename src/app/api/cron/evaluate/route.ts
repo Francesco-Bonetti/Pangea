@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Endpoint invocato da Vercel Cron per valutare il Mercato di Curatela.
-// Chiama la funzione RPC evaluate_curation_markets() che:
-// 1. Interroga tutte le proposte con status = 'curation'
-// 2. Calcola la somma aggregata dei segnali (SUM(signal_strength))
-// 3. Promuove a 'active' quelle che superano la soglia (100 segnali MVP)
-// 4. Imposta automaticamente expires_at
+// Endpoint called by Vercel Cron to evaluate Community Review.
+// Calls the RPC evaluate_curation_markets() which:
+// 1. Queries all proposals with status = 'curation'
+// 2. Calculates aggregate signal sum (SUM(signal_strength))
+// 3. Promotes to 'active' those exceeding the threshold (100 signals MVP)
+// 4. Automatically sets expires_at
 
 export async function GET(request: Request) {
-  // Verifica che la chiamata provenga da Vercel Cron
+  // Verify the call comes from Vercel Cron
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    // Usa la service role key per bypassare RLS e invocare SECURITY DEFINER
+    // Use service role key to bypass RLS and invoke SECURITY DEFINER
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.rpc("evaluate_curation_markets");
 
     if (error) {
-      console.error("Errore evaluate_curation_markets:", error);
+      console.error("Error evaluate_curation_markets:", error);
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     const { data: convertedCount, error: convertError } = await supabase.rpc("convert_closed_proposals_to_laws");
 
     if (convertError) {
-      console.error("Errore convert_closed_proposals_to_laws:", convertError);
+      console.error("Error convert_closed_proposals_to_laws:", convertError);
     }
 
     return NextResponse.json({
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
       timestamp: new Date().toISOString(),
     });
   } catch (err) {
-    console.error("Errore imprevisto nel cron:", err);
+    console.error("Unexpected cron error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

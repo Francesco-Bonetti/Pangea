@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { Send, Loader2, Trash2, AlertTriangle } from "lucide-react";
+import { Send, Trash2, Loader2, AlertTriangle } from "lucide-react";
 
 interface DraftActionsProps {
   proposalId: string;
@@ -18,145 +18,103 @@ export default function DraftActions({
   userId,
   hasOptions,
 }: DraftActionsProps) {
-  const [publishing, setPublishing] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const supabase = createClient();
+  const router = useRouter();
 
-  // Solo l'autore vede le azioni
+  // Only the author can see draft actions
   if (authorId !== userId) return null;
 
-  async function publishToCuration() {
-    setError(null);
-    setPublishing(true);
-
-    try {
-      const { error: updateError } = await supabase
-        .from("proposals")
-        .update({ status: "curation" })
-        .eq("id", proposalId)
-        .eq("author_id", userId);
-
-      if (updateError) throw updateError;
-
-      router.refresh();
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Errore durante la pubblicazione";
-      setError(msg);
-    } finally {
-      setPublishing(false);
+  async function publishDraft() {
+    if (!hasOptions) {
+      setError("You need at least 2 deliberative options before publishing.");
+      return;
     }
+
+    setLoading(true);
+    setError(null);
+
+    const { error: updateError } = await supabase
+      .from("proposals")
+      .update({ status: "curation" })
+      .eq("id", proposalId)
+      .eq("author_id", userId);
+
+    if (updateError) {
+      setError(updateError.message);
+      setLoading(false);
+      return;
+    }
+
+    router.refresh();
   }
 
-  async function deleteProposal() {
+  async function deleteDraft() {
+    if (!confirm("Are you sure you want to delete this draft? This action cannot be undone.")) return;
+
+    setLoading(true);
     setError(null);
-    setDeleting(true);
 
-    try {
-      // Prima elimina le opzioni collegate
-      await supabase
-        .from("proposal_options")
-        .delete()
-        .eq("proposal_id", proposalId);
+    // Delete options first
+    await supabase
+      .from("proposal_options")
+      .delete()
+      .eq("proposal_id", proposalId);
 
-      // Poi elimina la proposta
-      const { error: deleteError } = await supabase
-        .from("proposals")
-        .delete()
-        .eq("id", proposalId)
-        .eq("author_id", userId);
+    const { error: deleteError } = await supabase
+      .from("proposals")
+      .delete()
+      .eq("id", proposalId)
+      .eq("author_id", userId);
 
-      if (deleteError) throw deleteError;
-
-      router.push("/dashboard");
-      router.refresh();
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Errore durante l'eliminazione";
-      setError(msg);
-    } finally {
-      setDeleting(false);
-      setConfirmDelete(false);
+    if (deleteError) {
+      setError(deleteError.message);
+      setLoading(false);
+      return;
     }
+
+    router.push("/dashboard");
   }
 
   return (
-    <div className="card p-5 mb-6 bg-amber-900/5 border-amber-800/20">
-      <h3 className="text-base font-semibold text-slate-200 mb-2">
-        Azioni Bozza
-      </h3>
-      <p className="text-xs text-slate-500 mb-4">
-        Questa proposta è ancora una bozza. Pubblicala per raccogliere
-        il supporto dei cittadini.
-      </p>
-
-      {!hasOptions && (
-        <div className="flex gap-2 p-3 mb-4 bg-amber-900/20 border border-amber-700/30 rounded-lg">
-          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-300">
-            Questa bozza non ha opzioni deliberative. Verrà votata con il
-            sistema semplice (Favorevole / Contrario / Astenuto).
-          </p>
+    <div className="card p-4 mb-6 bg-amber-900/10 border-amber-800/30">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2 text-amber-300 text-sm font-medium">
+          <AlertTriangle className="w-4 h-4" />
+          This is a draft — only you can see it
         </div>
-      )}
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-xs">
-          {error}
-        </div>
-      )}
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button
-          onClick={publishToCuration}
-          disabled={publishing || deleting}
-          className="btn-primary flex items-center justify-center gap-2 flex-1"
-        >
-          {publishing ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Send className="w-4 h-4" />
-          )}
-          {publishing
-            ? "Pubblicazione..."
-            : "Pubblica Proposta"}
-        </button>
-
-        {!confirmDelete ? (
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setConfirmDelete(true)}
-            disabled={publishing || deleting}
-            className="btn-ghost flex items-center justify-center gap-2 text-slate-500 hover:text-red-400"
+            onClick={deleteDraft}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-900/20 border border-red-800/30 hover:border-red-700/50 transition-colors disabled:opacity-50"
           >
-            <Trash2 className="w-4 h-4" />
-            Elimina
+            <Trash2 className="w-3.5 h-3.5" />
+            Delete
           </button>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              onClick={deleteProposal}
-              disabled={deleting}
-              className="btn-ghost flex items-center justify-center gap-2 text-red-400 hover:bg-red-900/20 border-red-700/50"
-            >
-              {deleting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4" />
-              )}
-              Conferma
-            </button>
-            <button
-              onClick={() => setConfirmDelete(false)}
-              className="btn-ghost text-slate-500"
-            >
-              Annulla
-            </button>
-          </div>
-        )}
+          <button
+            onClick={publishDraft}
+            disabled={loading || !hasOptions}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-green-300 bg-green-900/20 border border-green-800/30 hover:border-green-700/50 transition-colors disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Send className="w-3.5 h-3.5" />
+            )}
+            Publish for Review
+          </button>
+        </div>
       </div>
+      {error && (
+        <p className="text-xs text-red-400 mt-2">{error}</p>
+      )}
+      {!hasOptions && (
+        <p className="text-xs text-amber-400/70 mt-2">
+          Add at least 2 deliberative options before publishing.
+        </p>
+      )}
     </div>
   );
 }

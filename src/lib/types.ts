@@ -10,6 +10,11 @@ export type UserRole = "citizen" | "moderator" | "admin";
 export type DelegationStatus = "pending" | "accepted" | "rejected";
 export type ProposalType = "new" | "amendment" | "repeal";
 
+// --- Privacy Enums ---
+export type ProfileVisibility = "public" | "registered_only" | "private";
+export type DmPolicy = "everyone" | "followed_only" | "nobody";
+export type ActivityVisibility = "public" | "registered_only" | "private";
+
 // --- Entità Base ---
 export interface Profile {
   id: string;
@@ -246,6 +251,70 @@ export interface LawConflict {
   new_jurisdiction_name: string;
   parent_law_title: string;
   parent_law_code: string;
+}
+
+// --- Privacy Settings ---
+export interface PrivacySettings {
+  id: string;
+  user_id: string;
+
+  // Profile visibility
+  profile_visibility: ProfileVisibility;
+
+  // Individual field toggles
+  show_full_name: boolean;
+  show_bio: boolean;
+  show_email: boolean;
+  show_join_date: boolean;
+  show_user_code: boolean;
+
+  // Activity & social visibility
+  show_activity: boolean;
+  show_delegations: boolean;
+  show_party_membership: boolean;
+  show_jurisdiction_membership: boolean;
+  show_online_status: boolean;
+
+  // Display name (alternative to real name)
+  display_name: string | null;
+
+  // Messaging & social policies
+  dm_policy: DmPolicy;
+  allow_friend_requests: boolean;
+  allow_mentions: boolean;
+
+  // Activity visibility granularity
+  activity_visibility: ActivityVisibility;
+
+  // Notification preferences
+  notify_mentions: boolean;
+  notify_replies: boolean;
+  notify_delegations: boolean;
+  notify_proposals: boolean;
+  notify_dm: boolean;
+
+  // Timestamps
+  created_at: string;
+  updated_at: string;
+}
+
+// Privacy-safe display profile (returned by get_display_profile RPC)
+export interface DisplayProfile {
+  id: string;
+  full_name: string | null;
+  display_name: string | null;
+  bio: string | null;
+  role: UserRole;
+  user_code: string | null;
+  created_at: string | null;
+  show_activity?: boolean;
+  show_delegations?: boolean;
+  show_party_membership?: boolean;
+  show_jurisdiction_membership?: boolean;
+  dm_policy?: DmPolicy;
+  allow_mentions?: boolean;
+  is_private?: boolean;
+  is_restricted?: boolean;
 }
 
 // --- Compositi ---

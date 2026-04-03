@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Flag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Discussion } from "@/lib/types";
+import PrivacyName from "@/components/PrivacyName";
 
 interface DiscussionCardProps {
   discussion: Discussion;
@@ -154,11 +155,9 @@ export default function DiscussionCard({
         )}
 
         {/* Author info */}
-        {discussion.profiles?.full_name && (
-          <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
-            <span>by {discussion.profiles.full_name}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
+          <span>by <PrivacyName userId={discussion.author_id} fullName={discussion.profiles?.full_name ?? null} currentUserId={userId} /></span>
+        </div>
 
         {/* Footer: voting + reply count */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
