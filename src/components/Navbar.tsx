@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss } from "lucide-react";
+import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 interface NavbarProps {
@@ -93,14 +93,16 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             </Link>
             <Link
               href="/jurisdictions"
-              className="text-sm text-slate-300 hover:text-white transition-colors duration-150"
+              className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors duration-150 group"
             >
+              <Map className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" />
               Jurisdictions
             </Link>
             <Link
               href="/about"
-              className="text-sm text-slate-300 hover:text-white transition-colors duration-150"
+              className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors duration-150 group"
             >
+              <Info className="w-4 h-4 group-hover:scale-110 transition-transform duration-150" />
               About
             </Link>
           </div>
@@ -294,6 +296,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors duration-150"
               onClick={() => setMobileMenuOpen(false)}
             >
+              <Map className="w-4 h-4" />
               Jurisdictions
             </Link>
             <Link
@@ -301,6 +304,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors duration-150"
               onClick={() => setMobileMenuOpen(false)}
             >
+              <Info className="w-4 h-4" />
               About
             </Link>
 

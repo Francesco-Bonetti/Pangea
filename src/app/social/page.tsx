@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/Navbar";
 import GuestBanner from "@/components/GuestBanner";
 import NewDiscussionForm from "@/components/NewDiscussionForm";
+import NewChannelForm from "@/components/NewChannelForm";
 import ForumClient from "@/components/ForumClient";
 import ForumControls from "@/components/ForumControls";
 import { MessageCircle, TrendingUp, ArrowLeft } from "lucide-react";
@@ -199,6 +200,12 @@ export default async function SocialPage({
                       <span className="truncate">{ch.name}</span>
                     </a>
                   ))}
+                  {/* Create Channel */}
+                  {user && (
+                    <div className="mt-2 pt-2 border-t border-slate-700/50">
+                      <NewChannelForm userId={user.id} />
+                    </div>
+                  )}
                 </div>
               </div>
             )}

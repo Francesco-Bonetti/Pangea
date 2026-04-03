@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { X, Search } from "lucide-react";
 import type { DiscussionChannel, Tag } from "@/lib/types";
@@ -17,6 +18,7 @@ export default function NewDiscussionForm({
   onSuccess,
 }: NewDiscussionFormProps) {
   const supabase = createClient();
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [selectedChannel, setSelectedChannel] = useState(channelId || "");
@@ -151,6 +153,8 @@ export default function NewDiscussionForm({
       setSelectedTags([]);
       setTagSearch("");
 
+      // Refresh page to show new discussion
+      router.refresh();
       onSuccess?.();
     } catch (error) {
       console.error("Error creating discussion:", error);
