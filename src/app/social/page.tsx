@@ -9,6 +9,8 @@ import { MessageCircle, TrendingUp, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { DiscussionChannel, Discussion, Tag } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Community Forum — Agora Pangea",
   description: "Join the community discussion forum",
