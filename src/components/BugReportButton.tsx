@@ -3,17 +3,19 @@
 import { useState, useRef, useEffect } from "react";
 import { Bug, X, Send, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/language-provider";
 
 type ReportCategory = "bug" | "suggestion" | "question" | "other";
 
-const CATEGORIES: { value: ReportCategory; label: string }[] = [
-  { value: "bug", label: "Bug Report" },
-  { value: "suggestion", label: "Suggestion" },
-  { value: "question", label: "Question" },
-  { value: "other", label: "Other" },
+const getCategoriesWithTranslations = (t: (key: string) => string): { value: ReportCategory; label: string }[] => [
+  { value: "bug", label: t("bugReport.bugReport") },
+  { value: "suggestion", label: t("bugReport.suggestion") },
+  { value: "question", label: t("bugReport.question") },
+  { value: "other", label: t("bugReport.other") },
 ];
 
 export default function BugReportButton() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<ReportCategory>("bug");
   const [title, setTitle] = useState("");
@@ -48,7 +50,7 @@ export default function BugReportButton() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
-      setError("Please provide a title.");
+      setError(t("bugReport.pleaseProvideTitle"));
       return;
     }
 
@@ -108,7 +110,7 @@ export default function BugReportButton() {
             }}
           >
             <h3 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
-              Report an Issue
+              {t("bugReport.title")}
             </h3>
             <button
               onClick={() => setOpen(false)}
@@ -124,10 +126,10 @@ export default function BugReportButton() {
             <div className="p-8 text-center">
               <CheckCircle2 className="w-12 h-12 mx-auto mb-3" style={{ color: "var(--success)" }} />
               <p className="font-medium" style={{ color: "var(--foreground)" }}>
-                Thank you!
+                {t("bugReport.thankYou")}
               </p>
               <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>
-                Your report has been submitted.
+                {t("bugReport.reportSubmitted")}
               </p>
             </div>
           ) : (
@@ -135,10 +137,10 @@ export default function BugReportButton() {
               {/* Category */}
               <div>
                 <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted-foreground)" }}>
-                  Category
+                  {t("bugReport.category")}
                 </label>
                 <div className="flex gap-1.5 flex-wrap">
-                  {CATEGORIES.map((cat) => (
+                  {getCategoriesWithTranslations(t).map((cat) => (
                     <button
                       key={cat.value}
                       type="button"
@@ -164,13 +166,13 @@ export default function BugReportButton() {
               {/* Title */}
               <div>
                 <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted-foreground)" }}>
-                  Title *
+                  {t("bugReport.titleLabel")}
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Brief description of the issue"
+                  placeholder={t("bugReport.titlePlaceholder")}
                   className="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors"
                   style={{
                     backgroundColor: "var(--background)",
@@ -185,12 +187,12 @@ export default function BugReportButton() {
               {/* Description */}
               <div>
                 <label className="text-xs font-medium mb-1 block" style={{ color: "var(--muted-foreground)" }}>
-                  Details (optional)
+                  {t("bugReport.detailsLabel")}
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Steps to reproduce, expected behavior, etc."
+                  placeholder={t("bugReport.detailsPlaceholder")}
                   className="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors resize-none"
                   style={{
                     backgroundColor: "var(--background)",
@@ -224,11 +226,11 @@ export default function BugReportButton() {
                 ) : (
                   <Send className="w-4 h-4" />
                 )}
-                {loading ? "Submitting..." : "Submit Report"}
+                {loading ? t("bugReport.submitting") : t("bugReport.submit")}
               </button>
 
               <p className="text-xs text-center" style={{ color: "var(--muted-foreground)" }}>
-                Current page and browser info will be included automatically.
+                {t("bugReport.autoInclude")}
               </p>
             </form>
           )}
@@ -250,8 +252,8 @@ export default function BugReportButton() {
           backgroundColor: "var(--primary)",
           color: "#fff",
         }}
-        title="Report a bug or suggestion"
-        aria-label="Report a bug or suggestion"
+        title={t("bugReport.reportTooltip")}
+        aria-label={t("bugReport.reportTooltip")}
       >
         {open ? <X className="w-5 h-5" /> : <Bug className="w-5 h-5" />}
       </button>

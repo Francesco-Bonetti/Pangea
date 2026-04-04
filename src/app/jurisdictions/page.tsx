@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useCallback } from "react";
+import { useLanguage } from "@/components/language-provider";
 import AppShell from "@/components/AppShell";
 import PrivacyName from "@/components/PrivacyName";
 import {
@@ -24,6 +25,7 @@ import type { Jurisdiction, Profile } from "@/lib/types";
 
 export default function JurisdictionsPage() {
   const supabase = createClient();
+  const { t } = useLanguage();
 
   // Auth state
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -263,9 +265,9 @@ export default function JurisdictionsPage() {
           <div className="flex items-center gap-3 min-w-0">
             <Map className="w-7 h-7 text-fg-primary shrink-0" />
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-fg truncate">Jurisdictions</h1>
+              <h1 className="text-2xl font-bold text-fg truncate">{t("jurisdictions.title")}</h1>
               <p className="text-sm text-fg-muted">
-                Communities and regions within Pangea
+                {t("jurisdictions.subtitle")}
               </p>
             </div>
           </div>
@@ -275,7 +277,7 @@ export default function JurisdictionsPage() {
               className="btn-primary flex items-center gap-2 shrink-0"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Create</span>
+              <span className="hidden sm:inline">{t("jurisdictions.createJurisdiction")}</span>
             </button>
           )}
         </div>
@@ -284,16 +286,9 @@ export default function JurisdictionsPage() {
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
           <Info className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
           <div className="text-sm text-fg-muted">
-            <p className="text-fg font-medium mb-1">What are jurisdictions?</p>
+            <p className="text-fg font-medium mb-1">{t("jurisdictions.whatAreJurisdictions")}</p>
             <p>
-              Jurisdictions are self-governing communities within Pangea. They can be{" "}
-              <strong className="text-blue-300">virtual</strong> (topic-based, like
-              &quot;Open Source Alliance&quot;) or{" "}
-              <strong className="text-fg-success">geographic</strong> (location-based, like
-              &quot;Lisbon District&quot;). Each jurisdiction can propose its own laws and
-              hold local elections. For example, a &quot;Digital Sustainability&quot;
-              jurisdiction could propose laws about open-source software for all its
-              members.
+              {t("jurisdictions.whatAreJurisdictionsDesc")}
             </p>
           </div>
         </div>
@@ -304,7 +299,7 @@ export default function JurisdictionsPage() {
           <input
             type="text"
             className="input-field pl-10"
-            placeholder="Search jurisdictions..."
+            placeholder={t("jurisdictions.searchJurisdictions")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -323,12 +318,12 @@ export default function JurisdictionsPage() {
           <div className="card p-12 text-center">
             <Map className="w-12 h-12 text-fg-muted mx-auto mb-4" />
             <p className="text-fg-muted mb-2">
-              {searchQuery ? "No jurisdictions found" : "No jurisdictions yet"}
+              {searchQuery ? t("jurisdictions.noJurisdictionsFound") : t("jurisdictions.noJurisdictionsYet")}
             </p>
             <p className="text-sm text-fg-muted">
               {searchQuery
-                ? "Try a different search term"
-                : "Be the first to create a jurisdiction!"}
+                ? t("jurisdictions.tryDifferentSearch")
+                : t("jurisdictions.beFirstJurisdiction")}
             </p>
           </div>
         ) : (
@@ -371,13 +366,13 @@ export default function JurisdictionsPage() {
                             className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1"
                           >
                             {editSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-                            Save
+                            {t("common.save")}
                           </button>
                           <button
                             onClick={() => setEditingId(null)}
                             className="btn-secondary text-xs px-3 py-1.5"
                           >
-                            Cancel
+                            {t("common.cancel")}
                           </button>
                         </div>
                       </div>
@@ -390,7 +385,7 @@ export default function JurisdictionsPage() {
                           </h3>
                           {j.is_member && (
                             <span className="text-xs bg-pangea-900/40 text-fg-primary px-2 py-0.5 rounded-full shrink-0">
-                              Joined
+                              {t("jurisdictions.joined")}
                             </span>
                           )}
                           <span
@@ -402,11 +397,11 @@ export default function JurisdictionsPage() {
                           >
                             {j.type === "virtual" ? (
                               <span className="flex items-center gap-1">
-                                <Globe className="w-3 h-3" /> Virtual
+                                <Globe className="w-3 h-3" /> {t("jurisdictions.virtual")}
                               </span>
                             ) : (
                               <span className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" /> Geographic
+                                <MapPin className="w-3 h-3" /> {t("jurisdictions.geographic")}
                               </span>
                             )}
                           </span>
@@ -435,10 +430,10 @@ export default function JurisdictionsPage() {
                         <div className="flex items-center gap-4 text-xs text-fg-muted">
                           <span className="flex items-center gap-1">
                             <Users className="w-3 h-3" /> {j.member_count}{" "}
-                            {j.member_count === 1 ? "member" : "members"}
+                            {t(`jurisdictions.${j.member_count === 1 ? "member" : "members"}`)}
                           </span>
                           <span>
-                            Founded by{" "}
+                            {t("jurisdictions.foundedBy")}{" "}
                             <PrivacyName userId={j.founder_id} fullName={j.founder_name} />
                           </span>
                         </div>
@@ -452,7 +447,7 @@ export default function JurisdictionsPage() {
                         onClick={() => handleJoin(j.id)}
                         className="btn-secondary text-sm flex items-center gap-1.5"
                       >
-                        <Plus className="w-3.5 h-3.5" /> Join
+                        <Plus className="w-3.5 h-3.5" /> {t("jurisdictions.join")}
                       </button>
                     ) : editingId !== j.id ? (
                       <ChevronRight className="w-5 h-5 text-fg-muted" />
@@ -471,7 +466,7 @@ export default function JurisdictionsPage() {
           <div className="card p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-fg">
-                Create Jurisdiction
+                {t("jurisdictions.createJurisdiction")}
               </h2>
               <button
                 onClick={() => {
@@ -487,7 +482,7 @@ export default function JurisdictionsPage() {
             <div className="space-y-4">
               {/* Type */}
               <div>
-                <label className="label">Type</label>
+                <label className="label">{t("jurisdictions.type")}</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -501,8 +496,8 @@ export default function JurisdictionsPage() {
                     }`}
                   >
                     <Globe className="w-4 h-4 text-blue-400 mb-1" />
-                    <p className="font-medium text-fg">Virtual</p>
-                    <p className="text-xs text-fg-muted">Topic or interest-based</p>
+                    <p className="font-medium text-fg">{t("jurisdictions.virtual")}</p>
+                    <p className="text-xs text-fg-muted">{t("jurisdictions.topicBased")}</p>
                   </button>
                   <button
                     type="button"
@@ -516,15 +511,15 @@ export default function JurisdictionsPage() {
                     }`}
                   >
                     <MapPin className="w-4 h-4 text-fg-success mb-1" />
-                    <p className="font-medium text-fg">Geographic</p>
-                    <p className="text-xs text-fg-muted">Location-based</p>
+                    <p className="font-medium text-fg">{t("jurisdictions.geographic")}</p>
+                    <p className="text-xs text-fg-muted">{t("jurisdictions.locationBased")}</p>
                   </button>
                 </div>
               </div>
 
               {/* Emoji */}
               <div>
-                <label className="label">Symbol</label>
+                <label className="label">{t("jurisdictions.symbol")}</label>
                 <div className="flex flex-wrap gap-2">
                   {emojiOptions.map((emoji) => (
                     <button
@@ -548,7 +543,7 @@ export default function JurisdictionsPage() {
               {/* Name */}
               <div>
                 <label className="label">
-                  Name <span className="text-fg-danger">*</span>
+                  {t("jurisdictions.name")} <span className="text-fg-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -564,10 +559,10 @@ export default function JurisdictionsPage() {
 
               {/* Description */}
               <div>
-                <label className="label">Description</label>
+                <label className="label">{t("jurisdictions.descriptionLabel")}</label>
                 <textarea
                   className="input-field min-h-[80px] resize-y"
-                  placeholder="What is this jurisdiction about?"
+                  placeholder={t("jurisdictions.whatIsAbout")}
                   value={newJurisdiction.description}
                   onChange={(e) =>
                     setNewJurisdiction({
@@ -582,11 +577,11 @@ export default function JurisdictionsPage() {
               {/* Location (geographic only) */}
               {newJurisdiction.type === "geographic" && (
                 <div>
-                  <label className="label">Location name</label>
+                  <label className="label">{t("jurisdictions.locationName")}</label>
                   <input
                     type="text"
                     className="input-field"
-                    placeholder="e.g. Lisbon, Portugal"
+                    placeholder={t("jurisdictions.locationPlaceholder")}
                     value={newJurisdiction.location_name}
                     onChange={(e) =>
                       setNewJurisdiction({
@@ -614,7 +609,7 @@ export default function JurisdictionsPage() {
                   }}
                   className="btn-secondary flex-1"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={handleCreate}
@@ -626,7 +621,7 @@ export default function JurisdictionsPage() {
                   ) : (
                     <Plus className="w-4 h-4" />
                   )}
-                  Create
+                  {t("jurisdictions.create")}
                 </button>
               </div>
             </div>

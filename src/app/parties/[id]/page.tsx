@@ -12,6 +12,7 @@ import {
 import type { Party, PartyMember, PartyVote, PartyForumPost, Profile, Proposal } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import FollowButton from "@/components/FollowButton";
+import { useLanguage } from "@/components/language-provider";
 
 type Tab = "info" | "members" | "votes" | "forum";
 
@@ -20,6 +21,7 @@ export default function PartyDetailPage() {
   const router = useRouter();
   const params = useParams();
   const partyId = params.id as string;
+  const { t } = useLanguage();
 
   // Auth
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -139,20 +141,20 @@ export default function PartyDetailPage() {
       .from("party_members")
       .insert({ party_id: partyId, user_id: user.id, role: "member" });
     if (err) { setError(err.message); return; }
-    setSuccess("You have joined the party!");
+    setSuccess(t("parties.joinedParty"));
     loadData();
   }
 
   async function handleLeave() {
     if (!user || !myMembership) return;
     if (isFounder) {
-      setError("The founder cannot leave the party. Transfer the role first.");
+      setError(t("parties.founderCannotLeave"));
       return;
     }
     const { error: err } = await supabase
       .from("party_members").delete().eq("id", myMembership.id);
     if (err) { setError(err.message); return; }
-    setSuccess("You have left the party.");
+    setSuccess(t("parties.leftParty"));
     loadData();
   }
 
@@ -161,7 +163,7 @@ export default function PartyDetailPage() {
       .from("party_members").update({ role: "admin" })
       .eq("party_id", partyId).eq("user_id", userId);
     if (err) { setError(err.message); return; }
-    setSuccess("Member promoted to admin.");
+    setSuccess(t("parties.promotedAdmin"));
     loadData();
   }
 
@@ -170,7 +172,7 @@ export default function PartyDetailPage() {
       .from("party_members").update({ role: "member" })
       .eq("party_id", partyId).eq("user_id", userId);
     if (err) { setError(err.message); return; }
-    setSuccess("Admin demoted to member.");
+    setSuccess(t("parties.demotedMember"));
     loadData();
   }
 
@@ -179,7 +181,7 @@ export default function PartyDetailPage() {
       .from("party_members").delete()
       .eq("party_id", partyId).eq("user_id", userId);
     if (err) { setError(err.message); return; }
-    setSuccess("Member removed.");
+    setSuccess(t("parties.memberRemoved"));
     loadData();
   }
 
@@ -191,7 +193,7 @@ export default function PartyDetailPage() {
     });
     if (err) { setError(err.message); return; }
     setShowTransfer(false);
-    setSuccess("Founder role transferred!");
+    setSuccess(t("parties.founderTransferred"));
     loadData();
   }
 
@@ -211,7 +213,7 @@ export default function PartyDetailPage() {
         .insert({ party_id: partyId, proposal_id: proposalId, vote_type: voteType, decided_by: user.id });
       if (err) { setError(err.message); return; }
     }
-    setSuccess("Party position recorded!");
+    setSuccess(t("parties.positionRecorded"));
     loadData();
   }
 
@@ -222,7 +224,7 @@ export default function PartyDetailPage() {
       .eq("id", partyId);
     if (err) { setError(err.message); return; }
     setEditing(false);
-    setSuccess("Party updated!");
+    setSuccess(t("parties.partyUpdated"));
     loadData();
   }
 
@@ -239,14 +241,14 @@ export default function PartyDetailPage() {
     if (err) { setError(err.message); setPosting(false); return; }
     setNewPost({ title: "", body: "", is_admin_only: false });
     setPosting(false);
-    setSuccess("Post published!");
+    setSuccess(t("parties.postPublished"));
     loadData();
   }
 
   if (loading) {
     return (
       <AppShell isGuest={true}>
-        <div className="text-center text-fg-muted py-20">Loading...</div>
+        <div className="text-center text-fg-muted py-20">{t("common.loading")}</div>
       </AppShell>
     );
   }
@@ -254,10 +256,10 @@ export default function PartyDetailPage() {
   if (!party) return null;
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: "info", label: "Info", icon: <Flag className="w-4 h-4" /> },
-    { key: "members", label: `Members (${members.length})`, icon: <Users className="w-4 h-4" /> },
-    { key: "votes", label: "Vote Positions", icon: <ThumbsUp className="w-4 h-4" /> },
-    ...(isMember ? [{ key: "forum" as Tab, label: "Internal Forum", icon: <Send className="w-4 h-4" /> }] : []),
+    { key: "info", label: t("parties.info"), icon: <Flag className="w-4 h-4" /> },
+    { key: "members", label: `${t("parties.members")} (${members.length})`, icon: <Users className="w-4 h-4" /> },
+    { key: "votes", label: t("parties.votePositions"), icon: <ThumbsUp className="w-4 h-4" /> },
+    ...(isMember ? [{ key: "forum" as Tab, label: t("parties.internalForum"), icon: <Send className="w-4 h-4" /> }] : []),
   ];
 
   return (
@@ -272,7 +274,7 @@ export default function PartyDetailPage() {
         {/* Back link */}
         <Link href="/parties" className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-6 overflow-hidden">
           <ArrowLeft className="w-4 h-4 shrink-0" />
-          <span className="truncate">All parties</span>
+          <span className="truncate">{t("parties.allParties")}</span>
         </Link>
 
         {/* Alerts */}
@@ -296,9 +298,9 @@ export default function PartyDetailPage() {
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-fg truncate">{party.name}</h1>
               <p className="text-sm text-fg-muted mt-1">
-                Founded by <span className="text-fg"><PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={profile?.id} /></span>
+                {t("parties.foundedBy")} <span className="text-fg"><PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={profile?.id} /></span>
                 {" · "}{new Date(party.created_at).toLocaleDateString("en-US")}
-                {" · "}{members.length} {members.length === 1 ? "member" : "members"}
+                {" · "}{members.length} {members.length === 1 ? t("parties.members").slice(0, -1) : t("parties.members")}
               </p>
               {!editing && party.description && (
                 <p className="text-fg mt-3">{party.description}</p>
@@ -318,13 +320,13 @@ export default function PartyDetailPage() {
               {!isGuest && !isMember && (
                 <button onClick={handleJoin} className="btn-primary flex items-center gap-2 overflow-hidden whitespace-nowrap">
                   <UserPlus className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Join</span>
+                  <span className="truncate">{t("parties.joinParty")}</span>
                 </button>
               )}
               {isMember && !isFounder && (
                 <button onClick={handleLeave} className="btn-ghost text-fg-danger flex items-center gap-2 overflow-hidden whitespace-nowrap">
                   <UserMinus className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Leave</span>
+                  <span className="truncate">{t("parties.leaveParty")}</span>
                 </button>
               )}
               {isAdmin && (
@@ -388,36 +390,36 @@ export default function PartyDetailPage() {
           <div className="space-y-6">
             {party.manifesto && (
               <div className="card">
-                <h3 className="text-lg font-semibold text-fg mb-3">Manifesto</h3>
+                <h3 className="text-lg font-semibold text-fg mb-3">{t("parties.manifesto")}</h3>
                 <p className="text-fg whitespace-pre-wrap">{party.manifesto}</p>
               </div>
             )}
             {/* Role badges for current user */}
             {isMember && (
               <div className="card">
-                <h3 className="text-sm font-semibold text-fg-muted mb-2">Your role</h3>
+                <h3 className="text-sm font-semibold text-fg-muted mb-2">{t("parties.yourRole")}</h3>
                 <div className="flex items-center gap-2">
-                  {isFounder && <span className="flex items-center gap-1 bg-amber-500/20 text-amber-400 text-sm px-3 py-1 rounded-full"><Crown className="w-3.5 h-3.5" /> Founder</span>}
-                  {myMembership?.role === "admin" && <span className="flex items-center gap-1 bg-blue-500/20 text-blue-400 text-sm px-3 py-1 rounded-full"><Shield className="w-3.5 h-3.5" /> Admin</span>}
-                  {myMembership?.role === "member" && <span className="flex items-center gap-1 bg-slate-500/20 text-fg-muted text-sm px-3 py-1 rounded-full"><Users className="w-3.5 h-3.5" /> Member</span>}
+                  {isFounder && <span className="flex items-center gap-1 bg-amber-500/20 text-amber-400 text-sm px-3 py-1 rounded-full"><Crown className="w-3.5 h-3.5" /> {t("parties.founder")}</span>}
+                  {myMembership?.role === "admin" && <span className="flex items-center gap-1 bg-blue-500/20 text-blue-400 text-sm px-3 py-1 rounded-full"><Shield className="w-3.5 h-3.5" /> {t("parties.admin")}</span>}
+                  {myMembership?.role === "member" && <span className="flex items-center gap-1 bg-slate-500/20 text-fg-muted text-sm px-3 py-1 rounded-full"><Users className="w-3.5 h-3.5" /> {t("parties.member")}</span>}
                 </div>
                 {isFounder && (
                   <button
                     onClick={() => setShowTransfer(!showTransfer)}
                     className="mt-3 text-xs text-fg-muted hover:text-amber-400 transition-colors"
                   >
-                    Transfer founder role →
+                    {t("parties.transferFounder")} →
                   </button>
                 )}
                 {showTransfer && (
                   <div className="mt-3 p-3 bg-theme-card rounded-lg">
-                    <label className="label">Select new founder</label>
+                    <label className="label">{t("parties.selectNewFounder")}</label>
                     <select
                       value={transferTo}
                       onChange={(e) => setTransferTo(e.target.value)}
                       className="input-field w-full mb-2"
                     >
-                      <option value="">-- Select a member --</option>
+                      <option value="">{t("parties.selectMember")}</option>
                       {members
                         .filter((m) => m.user_id !== user?.id)
                         .map((m) => (
@@ -427,13 +429,13 @@ export default function PartyDetailPage() {
                         ))}
                     </select>
                     <div className="flex gap-2 justify-end">
-                      <button onClick={() => setShowTransfer(false)} className="btn-ghost text-xs">Cancel</button>
+                      <button onClick={() => setShowTransfer(false)} className="btn-ghost text-xs">{t("common.cancel")}</button>
                       <button
                         onClick={handleTransferFounder}
                         disabled={!transferTo}
                         className="btn-primary text-xs bg-amber-600 hover:bg-amber-500"
                       >
-                        Confirm Transfer
+                        {t("parties.confirmTransfer")}
                       </button>
                     </div>
                   </div>
@@ -456,10 +458,10 @@ export default function PartyDetailPage() {
                     <PrivacyName userId={m.user_id} fullName={m.profiles?.full_name ?? null} currentUserId={user?.id} />
                   </Link>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                    {m.role === "founder" && <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full shrink-0">Founder</span>}
-                    {m.role === "admin" && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full shrink-0">Admin</span>}
-                    {m.role === "member" && <span className="text-[10px] bg-slate-500/20 text-fg-muted px-2 py-0.5 rounded-full shrink-0">Member</span>}
-                    <span className="text-[10px] text-fg-muted shrink-0">Since {new Date(m.joined_at).toLocaleDateString("en-US")}</span>
+                    {m.role === "founder" && <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full shrink-0">{t("parties.founder")}</span>}
+                    {m.role === "admin" && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full shrink-0">{t("parties.admin")}</span>}
+                    {m.role === "member" && <span className="text-[10px] bg-slate-500/20 text-fg-muted px-2 py-0.5 rounded-full shrink-0">{t("parties.member")}</span>}
+                    <span className="text-[10px] text-fg-muted shrink-0">{t("parties.joined")} {new Date(m.joined_at).toLocaleDateString("en-US")}</span>
                   </div>
                 </div>
                 {/* Admin actions */}
@@ -491,9 +493,9 @@ export default function PartyDetailPage() {
             {/* Set vote on active proposals (admin only) */}
             {isAdmin && (
               <div className="info-box">
-                <h3 className="text-sm font-semibold text-fg-primary mb-3">Set party position</h3>
+                <h3 className="text-sm font-semibold text-fg-primary mb-3">{t("parties.setPartyPosition")}</h3>
                 {activeProposals.length === 0 ? (
-                  <p className="text-xs text-fg-muted">No active proposals at the moment.</p>
+                  <p className="text-xs text-fg-muted">{t("parties.noActiveProposals")}</p>
                 ) : (
                   <div className="space-y-3">
                     {activeProposals.map((prop) => {
@@ -507,21 +509,21 @@ export default function PartyDetailPage() {
                             <button
                               onClick={() => handleSetPartyVote(prop.id, "yea")}
                               className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "yea" ? "bg-green-500/30 text-fg-success" : "text-fg-muted hover:text-fg-success"}`}
-                              title="In favor"
+                              title={t("parties.inFavor")}
                             >
                               <ThumbsUp className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleSetPartyVote(prop.id, "nay")}
                               className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "nay" ? "bg-red-500/30 text-fg-danger" : "text-fg-muted hover:text-fg-danger"}`}
-                              title="Against"
+                              title={t("parties.against")}
                             >
                               <ThumbsDown className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleSetPartyVote(prop.id, "abstain")}
                               className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "abstain" ? "bg-amber-500/30 text-amber-400" : "text-fg-muted hover:text-amber-400"}`}
-                              title="Abstain"
+                              title={t("proposals.abstain")}
                             >
                               <MinusCircle className="w-4 h-4" />
                             </button>
@@ -536,9 +538,9 @@ export default function PartyDetailPage() {
 
             {/* List of all party votes */}
             <div>
-              <h3 className="text-lg font-semibold text-fg mb-3">Public positions</h3>
+              <h3 className="text-lg font-semibold text-fg mb-3">{t("parties.publicPositions")}</h3>
               {partyVotes.length === 0 ? (
-                <p className="text-fg-muted text-sm">The party has not expressed any positions yet.</p>
+                <p className="text-fg-muted text-sm">{t("parties.noPositionsYet")}</p>
               ) : (
                 <div className="space-y-2">
                   {partyVotes.map((pv) => (
@@ -555,7 +557,7 @@ export default function PartyDetailPage() {
                           {pv.proposals?.title || "Proposal"}
                         </Link>
                         <p className="text-[10px] text-fg-muted mt-0.5">
-                          {pv.vote_type === "yea" ? "In favor" : pv.vote_type === "nay" ? "Against" : "Abstain"}
+                          {pv.vote_type === "yea" ? t("parties.inFavor") : pv.vote_type === "nay" ? t("parties.against") : t("proposals.abstain")}
                           {" · "}{new Date(pv.created_at).toLocaleDateString("en-US")}
                         </p>
                       </div>
@@ -577,19 +579,19 @@ export default function PartyDetailPage() {
           <div className="space-y-6">
             {/* New post form */}
             <div className="card">
-              <h3 className="text-sm font-semibold text-fg mb-3">New post</h3>
+              <h3 className="text-sm font-semibold text-fg mb-3">{t("parties.newPost")}</h3>
               <input
                 type="text"
                 value={newPost.title}
                 onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                placeholder="Title (optional)"
+                placeholder={t("parties.titleOptional")}
                 className="input-field w-full mb-2"
                 maxLength={200}
               />
               <textarea
                 value={newPost.body}
                 onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-                placeholder="Write your message..."
+                placeholder={t("parties.writeMessage")}
                 className="input-field w-full h-24 resize-none mb-2"
                 maxLength={5000}
               />
@@ -603,7 +605,7 @@ export default function PartyDetailPage() {
                       className="rounded border-theme bg-theme-card"
                     />
                     <Lock className="w-3 h-3" />
-                    Admin only
+                    {t("parties.adminOnly")}
                   </label>
                 )}
                 <button
@@ -612,14 +614,14 @@ export default function PartyDetailPage() {
                   className="btn-primary text-sm flex items-center gap-2 ml-auto"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  {posting ? "Sending..." : "Publish"}
+                  {posting ? t("parties.sending") : t("parties.publish")}
                 </button>
               </div>
             </div>
 
             {/* Posts */}
             {forumPosts.length === 0 ? (
-              <p className="text-fg-muted text-sm text-center py-8">No posts in the forum. Start the discussion!</p>
+              <p className="text-fg-muted text-sm text-center py-8">{t("parties.noForumPosts")}</p>
             ) : (
               <div className="space-y-3">
                 {forumPosts.map((post) => (
@@ -630,7 +632,7 @@ export default function PartyDetailPage() {
                       </span>
                       {post.is_admin_only && (
                         <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                          <Lock className="w-2.5 h-2.5" /> Admin only
+                          <Lock className="w-2.5 h-2.5" /> {t("parties.adminOnly")}
                         </span>
                       )}
                       <span className="text-[10px] text-fg-muted">

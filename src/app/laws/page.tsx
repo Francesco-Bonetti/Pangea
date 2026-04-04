@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import AppShell from "@/components/AppShell";
 import LawsPageClient from "@/components/LawsPageClient";
+import LawsPageHeader from "@/components/LawsPageHeader";
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
 
@@ -81,26 +82,7 @@ export default async function LawsPage() {
   return (
     <AppShell userEmail={user?.email} isGuest={isGuest}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/dashboard"
-            className="text-sm text-fg-muted hover:text-fg transition-colors mb-4 inline-block"
-          >
-            &larr; Back to Dashboard
-          </Link>
-          <div className="flex items-center gap-3 mb-2 overflow-hidden">
-            <BookOpen className="w-8 h-8 text-blue-400 shrink-0" strokeWidth={1.5} />
-            <h1 className="text-3xl font-bold text-fg truncate">
-              The Living Codes of Pangea
-            </h1>
-          </div>
-          <p className="text-fg-muted">
-            The complete body of Pangean law — living codes that are amendable
-            and repealable through the democratic process of Pangea. Each law
-            has a technical version and a simplified explanation.
-          </p>
-        </div>
+        <LawsPageHeader />
 
         <LawsPageClient
           fullTree={fullTree}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AppShell from "@/components/AppShell";
+import { useLanguage } from "@/components/language-provider";
 import type { Profile, Proposal, UserRole } from "@/lib/types";
 import {
   Shield,
@@ -47,6 +48,7 @@ interface BugReport {
 }
 
 export default function AdminPage() {
+  const { t } = useLanguage();
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,6 +59,9 @@ export default function AdminPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [laws, setLaws] = useState<LawRow[]>([]);
   const [bugReports, setBugReports] = useState<BugReport[]>([]);
+
+  // Total counts (efficient head queries)
+  const [totalCounts, setTotalCounts] = useState({ users: 0, proposals: 0, laws: 0, openReports: 0 });
 
   // UI State
   const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats">("users");
@@ -82,17 +87,30 @@ export default function AdminPage() {
     }
     setAuthorized(true);
 
-    const [usersRes, proposalsRes, lawsRes, reportsRes] = await Promise.all([
-      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-      supabase.from("proposals").select("*").order("created_at", { ascending: false }),
-      supabase.from("laws").select("id, title, code, law_type, status, created_at").order("created_at", { ascending: false }),
-      supabase.from("bug_reports").select("*").order("created_at", { ascending: false }),
+    // Load data with pagination limits for scalability
+    const PAGE_SIZE = 100;
+    const [usersRes, proposalsRes, lawsRes, reportsRes, userCountRes, proposalCountRes, lawCountRes, reportCountRes] = await Promise.all([
+      supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
+      supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
+      supabase.from("laws").select("id, title, code, law_type, status, created_at").order("created_at", { ascending: false }).limit(PAGE_SIZE),
+      supabase.from("bug_reports").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
+      // Get total counts efficiently (head: true = no data transferred)
+      supabase.from("profiles").select("*", { count: "exact", head: true }),
+      supabase.from("proposals").select("*", { count: "exact", head: true }),
+      supabase.from("laws").select("*", { count: "exact", head: true }),
+      supabase.from("bug_reports").select("*", { count: "exact", head: true }).eq("status", "open"),
     ]);
 
     setUsers(usersRes.data ?? []);
     setProposals(proposalsRes.data ?? []);
     setLaws(lawsRes.data ?? []);
     setBugReports(reportsRes.data ?? []);
+    setTotalCounts({
+      users: userCountRes.count ?? 0,
+      proposals: proposalCountRes.count ?? 0,
+      laws: lawCountRes.count ?? 0,
+      openReports: reportCountRes.count ?? 0,
+    });
     setLoading(false);
   }, [supabase, router]);
 
@@ -109,7 +127,7 @@ export default function AdminPage() {
       .eq("id", userId);
     if (err) setError(err.message);
     else {
-      setSuccess(`Role updated to "${newRole}"`);
+      setSuccess(`Role updated to ${newRole}`);
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
     }
     setActionLoading(null);
@@ -117,7 +135,7 @@ export default function AdminPage() {
 
   async function deleteProposal(proposalId: string) {
     clearMessages();
-    if (!confirm("Are you sure you want to delete this proposal? This action is irreversible.")) return;
+    if (!confirm(t("admin.confirmDeleteProposal"))) return;
     setActionLoading(proposalId);
 
     // Delete related data first
@@ -137,7 +155,7 @@ export default function AdminPage() {
     const { error: err } = await supabase.from("proposals").delete().eq("id", proposalId);
     if (err) setError(err.message);
     else {
-      setSuccess("Proposal deleted");
+      setSuccess(t("admin.proposalDeleted"));
       setProposals(prev => prev.filter(p => p.id !== proposalId));
     }
     setActionLoading(null);
@@ -145,14 +163,14 @@ export default function AdminPage() {
 
   async function deleteLaw(lawId: string) {
     clearMessages();
-    if (!confirm("Are you sure you want to delete this law?")) return;
+    if (!confirm(t("admin.confirmDeleteLaw"))) return;
     setActionLoading(lawId);
     // Delete children first
     await supabase.from("laws").delete().eq("parent_id", lawId);
     const { error: err } = await supabase.from("laws").delete().eq("id", lawId);
     if (err) setError(err.message);
     else {
-      setSuccess("Law deleted");
+      setSuccess(t("admin.lawDeleted"));
       setLaws(prev => prev.filter(l => l.id !== lawId));
     }
     setActionLoading(null);
@@ -167,7 +185,7 @@ export default function AdminPage() {
       .eq("id", reportId);
     if (err) setError(err.message);
     else {
-      setSuccess(`Report status updated to "${newStatus}"`);
+      setSuccess(`Report status: ${newStatus}`);
       setBugReports(prev => prev.map(r => r.id === reportId ? { ...r, status: newStatus } : r));
     }
     setActionLoading(null);
@@ -182,7 +200,7 @@ export default function AdminPage() {
       .eq("id", proposalId);
     if (err) setError(err.message);
     else {
-      setSuccess("Proposal closed");
+      setSuccess(t("admin.proposalClosed"));
       setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, status: "closed" } : p));
     }
     setActionLoading(null);
@@ -197,7 +215,7 @@ export default function AdminPage() {
       .eq("id", proposalId);
     if (err) setError(err.message);
     else {
-      setSuccess("Proposal activated");
+      setSuccess(t("admin.proposalActivated"));
       setProposals(prev => prev.map(p => p.id === proposalId ? { ...p, status: "active" } : p));
     }
     setActionLoading(null);
@@ -218,11 +236,11 @@ export default function AdminPage() {
       <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
           <Shield className="w-16 h-16 text-fg-danger mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-fg mb-2">Access denied</h1>
-          <p className="text-fg-muted mb-6">Only administrators can access this page.</p>
+          <h1 className="text-2xl font-bold text-fg mb-2">{t("admin.accessDenied")}</h1>
+          <p className="text-fg-muted mb-6">{t("admin.adminOnly")}</p>
           <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2 overflow-hidden">
             <ArrowLeft className="w-4 h-4 shrink-0" />
-            <span className="truncate">Back to Dashboard</span>
+            <span className="truncate">{t("common.backToDashboard")}</span>
           </Link>
         </div>
       </AppShell>
@@ -248,10 +266,10 @@ export default function AdminPage() {
           <div>
             <h1 className="text-2xl font-bold text-fg flex items-center gap-2">
               <Shield className="w-6 h-6 text-fg-danger" />
-              Admin Panel
+              {t("admin.title")}
             </h1>
             <p className="text-sm text-fg-muted mt-0.5">
-              Manage users, proposals, and laws of the platform
+              {t("admin.subtitle")}
             </p>
           </div>
         </div>
@@ -273,33 +291,33 @@ export default function AdminPage() {
           <div className="card p-4">
             <Users className="w-5 h-5 text-blue-400 mb-1" />
             <p className="text-2xl font-bold text-fg">{users.length}</p>
-            <p className="text-xs text-fg-muted">Citizens</p>
+            <p className="text-xs text-fg-muted">{t("admin.citizens")}</p>
           </div>
           <div className="card p-4">
             <FileText className="w-5 h-5 text-fg-primary mb-1" />
             <p className="text-2xl font-bold text-fg">{proposals.length}</p>
-            <p className="text-xs text-fg-muted">Proposals</p>
+            <p className="text-xs text-fg-muted">{t("admin.proposals")}</p>
           </div>
           <div className="card p-4">
             <BookOpen className="w-5 h-5 text-blue-400 mb-1" />
             <p className="text-2xl font-bold text-fg">{laws.length}</p>
-            <p className="text-xs text-fg-muted">Laws</p>
+            <p className="text-xs text-fg-muted">{t("admin.laws")}</p>
           </div>
           <div className="card p-4">
             <Bug className="w-5 h-5 text-red-400 mb-1" />
             <p className="text-2xl font-bold text-fg">{bugReports.filter(r => r.status === "open").length}</p>
-            <p className="text-xs text-fg-muted">Open Reports</p>
+            <p className="text-xs text-fg-muted">{t("admin.openReports")}</p>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 border-b border-theme pb-px">
           {([
-            { key: "users", label: "Users", icon: Users },
-            { key: "proposals", label: "Proposals", icon: FileText },
-            { key: "laws", label: "Laws", icon: BookOpen },
-            { key: "reports", label: "Reports", icon: Bug },
-            { key: "stats", label: "Statistics", icon: BarChart3 },
+            { key: "users", label: t("admin.users"), icon: Users },
+            { key: "proposals", label: t("admin.proposals"), icon: FileText },
+            { key: "laws", label: t("admin.laws"), icon: BookOpen },
+            { key: "reports", label: t("admin.reports"), icon: Bug },
+            { key: "stats", label: t("admin.statistics"), icon: BarChart3 },
           ] as const).map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -333,7 +351,7 @@ export default function AdminPage() {
                   u.role === "moderator" ? "text-amber-300 bg-amber-900/30 border border-theme" :
                   "text-fg-muted bg-theme-muted"
                 }`}>
-                  {u.role || "citizen"}
+                  {u.role === "admin" ? t("parties.admin") : u.role === "moderator" ? t("admin.moderator") : t("admin.citizen")}
                 </span>
                 {u.id !== user?.id && (
                   <div className="relative">
@@ -343,9 +361,9 @@ export default function AdminPage() {
                       disabled={actionLoading === u.id}
                       className="appearance-none bg-theme-card border border-theme rounded-lg px-3 py-1.5 pr-8 text-xs text-fg cursor-pointer focus:outline-none focus:border-pangea-500"
                     >
-                      <option value="citizen">Citizen</option>
-                      <option value="moderator">Moderator</option>
-                      <option value="admin">Admin</option>
+                      <option value="citizen">{t("admin.citizen")}</option>
+                      <option value="moderator">{t("admin.moderator")}</option>
+                      <option value="admin">{t("parties.admin")}</option>
                     </select>
                     <ChevronDown className="w-3 h-3 text-fg-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
@@ -360,7 +378,7 @@ export default function AdminPage() {
         {activeTab === "proposals" && (
           <div className="space-y-2">
             {proposals.length === 0 && (
-              <div className="card p-8 text-center text-fg-muted text-sm">No proposals found.</div>
+              <div className="card p-8 text-center text-fg-muted text-sm">{t("admin.noProposals")}</div>
             )}
             {proposals.map((p) => (
               <div key={p.id} className="card p-4 flex items-center gap-4">
@@ -386,7 +404,7 @@ export default function AdminPage() {
                       onClick={() => activateProposal(p.id)}
                       disabled={actionLoading === p.id}
                       className="p-2 rounded-lg text-fg-success hover:bg-green-900/30 transition-colors"
-                      title="Promote to deliberation"
+                      title={t("admin.promoteToDeliberation")}
                     >
                       <CheckCircle2 className="w-4 h-4" />
                     </button>
@@ -396,7 +414,7 @@ export default function AdminPage() {
                       onClick={() => closeProposal(p.id)}
                       disabled={actionLoading === p.id}
                       className="p-2 rounded-lg text-amber-400 hover:bg-amber-900/30 transition-colors"
-                      title="Close deliberation"
+                      title={t("admin.closeDeliberation")}
                     >
                       <XCircle className="w-4 h-4" />
                     </button>
@@ -405,7 +423,7 @@ export default function AdminPage() {
                     onClick={() => deleteProposal(p.id)}
                     disabled={actionLoading === p.id}
                     className="p-2 rounded-lg text-fg-danger hover:bg-danger-tint transition-colors"
-                    title="Delete proposal"
+                    title={t("admin.deleteProposal")}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -420,7 +438,7 @@ export default function AdminPage() {
         {activeTab === "laws" && (
           <div className="space-y-2">
             {laws.length === 0 && (
-              <div className="card p-8 text-center text-fg-muted text-sm">No laws found.</div>
+              <div className="card p-8 text-center text-fg-muted text-sm">{t("admin.noLaws")}</div>
             )}
             {laws.map((l) => (
               <div key={l.id} className="card p-4 flex items-center gap-4">
@@ -439,7 +457,7 @@ export default function AdminPage() {
                   onClick={() => deleteLaw(l.id)}
                   disabled={actionLoading === l.id}
                   className="p-2 rounded-lg text-fg-danger hover:bg-danger-tint transition-colors"
-                  title="Delete law"
+                  title={t("admin.deleteLaw")}
                 >
                   {actionLoading === l.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                 </button>
@@ -452,7 +470,7 @@ export default function AdminPage() {
         {activeTab === "reports" && (
           <div className="space-y-2">
             {bugReports.length === 0 && (
-              <div className="card p-8 text-center text-fg-muted text-sm">No reports yet. Citizens can submit reports using the bug button.</div>
+              <div className="card p-8 text-center text-fg-muted text-sm">{t("admin.noReports")}</div>
             )}
             {bugReports.map((r) => {
               const catColor: Record<string, string> = {
@@ -499,10 +517,10 @@ export default function AdminPage() {
                           disabled={actionLoading === r.id}
                           className="appearance-none bg-theme-card border border-theme rounded-lg px-3 py-1.5 pr-8 text-xs text-fg cursor-pointer focus:outline-none focus:border-pangea-500"
                         >
-                          <option value="open">Open</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="resolved">Resolved</option>
-                          <option value="closed">Closed</option>
+                          <option value="open">{t("admin.statusOpen")}</option>
+                          <option value="in_progress">{t("admin.statusInProgress")}</option>
+                          <option value="resolved">{t("admin.statusResolved")}</option>
+                          <option value="closed">{t("admin.statusClosed")}</option>
                         </select>
                         <ChevronDown className="w-3 h-3 text-fg-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
@@ -521,7 +539,7 @@ export default function AdminPage() {
             <div className="card p-6">
               <h3 className="text-sm font-semibold text-fg mb-4 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-fg-primary" />
-                Proposals by status
+                {t("admin.proposalsByStatus")}
               </h3>
               <div className="space-y-3">
                 {(["draft", "curation", "active", "closed", "repealed"] as const).map((status) => {
@@ -547,7 +565,7 @@ export default function AdminPage() {
             <div className="card p-6">
               <h3 className="text-sm font-semibold text-fg mb-4 flex items-center gap-2">
                 <Users className="w-4 h-4 text-blue-400" />
-                Users by role
+                {t("admin.usersByRole")}
               </h3>
               <div className="space-y-3">
                 {(["citizen", "moderator", "admin"] as const).map((role) => {

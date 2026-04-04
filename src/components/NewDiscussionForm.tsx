@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { X, Search } from "lucide-react";
 import type { DiscussionChannel, Tag } from "@/lib/types";
+import { useLanguage } from "@/components/language-provider";
 
 interface NewDiscussionFormProps {
   userId?: string;
@@ -19,6 +20,7 @@ export default function NewDiscussionForm({
 }: NewDiscussionFormProps) {
   const supabase = createClient();
   const router = useRouter();
+  const { t } = useLanguage();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [selectedChannel, setSelectedChannel] = useState(channelId || "");
@@ -85,9 +87,9 @@ export default function NewDiscussionForm({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!title.trim()) newErrors.title = "Title is required";
-    if (!body.trim()) newErrors.body = "Content is required";
-    if (!selectedChannel) newErrors.channel = "Channel is required";
+    if (!title.trim()) newErrors.title = t("forum.titleRequired");
+    if (!body.trim()) newErrors.body = t("forum.contentRequired");
+    if (!selectedChannel) newErrors.channel = t("forum.channelRequired");
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -95,7 +97,7 @@ export default function NewDiscussionForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) {
-      alert("Please sign in to create a discussion");
+      alert(t("forum.pleaseSignIn"));
       return;
     }
 
@@ -158,7 +160,7 @@ export default function NewDiscussionForm({
       onSuccess?.();
     } catch (error) {
       console.error("Error creating discussion:", error);
-      alert("Failed to create discussion");
+      alert(t("forum.failedToCreate"));
     } finally {
       setIsLoading(false);
     }
@@ -167,12 +169,12 @@ export default function NewDiscussionForm({
   if (!userId) {
     return (
       <div className="card p-8 text-center">
-        <p className="text-fg-muted mb-4">Sign in to create a discussion</p>
+        <p className="text-fg-muted mb-4">{t("forum.signInToCreate")}</p>
         <a
           href="/auth"
           className="inline-block px-4 py-2 bg-pangea-600 hover:bg-pangea-700 text-fg rounded-lg transition-colors"
         >
-          Sign In
+          {t("nav.signIn")}
         </a>
       </div>
     );
@@ -182,13 +184,13 @@ export default function NewDiscussionForm({
     <form onSubmit={handleSubmit} className="card p-6 space-y-5">
       <div>
         <label className="block text-sm font-medium text-fg mb-2">
-          Discussion Title
+          {t("forum.discussionTitle")}
         </label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="What's on your mind?"
+          placeholder={t("forum.whatsOnYourMind")}
           className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         />
         {errors.title && (
@@ -198,12 +200,12 @@ export default function NewDiscussionForm({
 
       <div>
         <label className="block text-sm font-medium text-fg mb-2">
-          Content
+          {t("forum.contentLabel")}
         </label>
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="Share your thoughts, ideas, or questions..."
+          placeholder={t("forum.shareThoughts")}
           rows={6}
           className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
         />
@@ -214,14 +216,14 @@ export default function NewDiscussionForm({
 
       <div>
         <label className="block text-sm font-medium text-fg mb-2">
-          Channel
+          {t("forum.channel")}
         </label>
         <select
           value={selectedChannel}
           onChange={(e) => setSelectedChannel(e.target.value)}
           className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         >
-          <option value="">Select a channel...</option>
+          <option value="">{t("forum.selectChannel")}</option>
           {channels.map((ch) => (
             <option key={ch.id} value={ch.id}>
               {ch.emoji} {ch.name}
@@ -235,7 +237,7 @@ export default function NewDiscussionForm({
 
       <div>
         <label className="block text-sm font-medium text-fg mb-2">
-          Tags (optional)
+          {t("forum.tagsOptional")}
         </label>
         <div className="relative">
           <div className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 flex flex-wrap gap-2 items-center focus-within:border-pangea-600 focus-within:ring-1 focus-within:ring-pangea-600 transition-colors">
@@ -261,7 +263,7 @@ export default function NewDiscussionForm({
               onChange={(e) => setTagSearch(e.target.value)}
               onFocus={() => setShowTagDropdown(true)}
               onBlur={() => setTimeout(() => setShowTagDropdown(false), 200)}
-              placeholder={selectedTags.length === 0 ? "Search or create tags..." : ""}
+              placeholder={selectedTags.length === 0 ? t("forum.searchOrCreateTags") : ""}
               className="flex-1 min-w-[120px] bg-transparent outline-none text-fg placeholder-slate-500"
             />
           </div>
@@ -290,7 +292,7 @@ export default function NewDiscussionForm({
           disabled={isLoading}
           className="flex-1 px-4 py-2.5 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-fg font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
         >
-          {isLoading ? "Creating..." : "Create Discussion"}
+          {isLoading ? t("forum.creating") : t("forum.createDiscussion")}
         </button>
       </div>
     </form>

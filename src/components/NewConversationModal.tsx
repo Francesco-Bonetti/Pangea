@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Search, User, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/language-provider";
 
 interface NewConversationModalProps {
   userId: string;
@@ -28,6 +29,7 @@ export default function NewConversationModal({
   const [starting, setStarting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
+  const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function NewConversationModal({
         .single();
 
       if (privacyData?.dm_policy === "nobody") {
-        setError("This citizen has disabled direct messages.");
+        setError(t("messages.dmDisabled"));
         setStarting(null);
         return;
       }
@@ -83,12 +85,12 @@ export default function NewConversationModal({
       );
 
       if (rpcError) throw rpcError;
-      if (!convId) throw new Error("Failed to create conversation.");
+      if (!convId) throw new Error(t("messages.failedToCreate"));
 
       onSelect(convId);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to start conversation."
+        err instanceof Error ? err.message : t("messages.failedToStart")
       );
       setStarting(null);
     }
@@ -99,7 +101,7 @@ export default function NewConversationModal({
       <div className="w-full max-w-md bg-theme-base border border-theme rounded-xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-theme">
-          <h2 className="text-lg font-bold text-fg">New Message</h2>
+          <h2 className="text-lg font-bold text-fg">{t("messages.newMessage")}</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-theme-card text-fg-muted hover:text-fg transition-colors"
@@ -117,7 +119,7 @@ export default function NewConversationModal({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name or citizen code..."
+              placeholder={t("messages.searchCitizen")}
               className="input-field pl-10 py-2.5 text-sm"
             />
           </div>
@@ -138,11 +140,11 @@ export default function NewConversationModal({
             </div>
           ) : search.trim().length < 2 ? (
             <div className="text-center py-8 text-fg-muted text-sm">
-              Type at least 2 characters to search
+              {t("messages.typeToSearch")}
             </div>
           ) : results.length === 0 ? (
             <div className="text-center py-8 text-fg-muted text-sm">
-              No citizens found
+              {t("messages.noCitizensFound")}
             </div>
           ) : (
             <div className="py-2">
@@ -170,7 +172,7 @@ export default function NewConversationModal({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-fg truncate">
-                        {citizen.full_name || "Anonymous Citizen"}
+                        {citizen.full_name || t("messages.anonymousCitizen")}
                       </p>
                       {citizen.user_code && (
                         <p className="text-xs text-fg-muted">
@@ -193,7 +195,7 @@ export default function NewConversationModal({
         {/* Footer */}
         <div className="px-5 py-3 border-t border-theme bg-theme-card/30">
           <p className="text-xs text-fg-muted text-center">
-            Messages are end-to-end encrypted
+            {t("messages.encrypted")}
           </p>
         </div>
       </div>

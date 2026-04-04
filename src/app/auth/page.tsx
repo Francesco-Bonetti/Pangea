@@ -37,7 +37,7 @@ export default function AuthPage() {
     if (mode === "register" && !consent) {
       setMessage({
         type: "error",
-        text: "Consent to data processing is required to participate in Pangea (Art. 6 GDPR).",
+        text: t("auth.consentRequired"),
       });
       return;
     }
@@ -67,7 +67,7 @@ export default function AuthPage() {
 
         setMessage({
           type: "success",
-          text: t("auth.signUp") + " — " + "Registration complete! Check your email to confirm your account.",
+          text: t("auth.registrationComplete"),
         });
       } else {
         const { error, data } = await supabase.auth.signInWithPassword({
@@ -96,11 +96,11 @@ export default function AuthPage() {
       const msg = error instanceof Error ? error.message : "Unknown error";
       let userMsg = msg;
       if (msg === "Invalid login credentials") {
-        userMsg = "Invalid credentials. Please check your email and password.";
+        userMsg = t("auth.invalidCredentials");
       } else if (msg.includes("security purposes") || msg.includes("rate limit")) {
-        userMsg = "Too many attempts. Please wait a minute and try again.";
+        userMsg = t("auth.tooManyAttempts");
       } else if (msg.includes("already registered") || msg.includes("already been registered")) {
-        userMsg = "This email is already registered. Try signing in instead.";
+        userMsg = t("auth.emailAlreadyRegistered");
       }
       setMessage({
         type: "error",
@@ -130,18 +130,17 @@ export default function AuthPage() {
             Pangea
           </h1>
           <p className="text-fg-primary text-lg mb-2">
-            Global Democratic Commonwealth
+            {t("auth.globalDemocratic")}
           </p>
           <p className="text-fg-muted text-sm max-w-md leading-relaxed mb-12">
-            The platform where ideas become legislative proposals, proposals
-            become debates, and debates become the will of the people.
+            {t("auth.tagline")}
           </p>
 
           <div className="grid grid-cols-1 gap-4 text-left max-w-sm mx-auto">
             {[
-              { icon: Vote, label: "One citizen, one vote", desc: "Mathematically guaranteed integrity" },
-              { icon: Shield, label: "Privacy by Design", desc: "Architectural GDPR compliance" },
-              { icon: Users, label: "Public transparency", desc: "Debates belong to the people" },
+              { icon: Vote, label: t("auth.oneCitizenOneVote"), desc: t("auth.mathematicalIntegrity") },
+              { icon: Shield, label: t("auth.privacyByDesign"), desc: t("auth.gdprCompliance") },
+              { icon: Users, label: t("auth.publicTransparency"), desc: t("auth.debatesBelong") },
             ].map(({ icon: Icon, label, desc }) => (
               <div key={label} className="flex items-start gap-3 p-3 rounded-lg bg-theme-card/30">
                 <Icon className="w-5 h-5 text-fg-primary mt-0.5 shrink-0" />
@@ -162,7 +161,7 @@ export default function AuthPage() {
           <div className="lg:hidden text-center mb-8">
             <Globe className="w-12 h-12 text-fg-primary mx-auto mb-2" strokeWidth={1} />
             <h1 className="text-3xl font-bold text-fg">Pangea</h1>
-            <p className="text-fg-muted text-sm">Global Democratic Commonwealth</p>
+            <p className="text-fg-muted text-sm">{t("auth.globalDemocratic")}</p>
           </div>
 
           {/* Tab switcher */}
@@ -180,7 +179,7 @@ export default function AuthPage() {
                     : "text-fg-muted hover:text-fg"
                 }`}
               >
-                {m === "login" ? "Sign In" : "Register"}
+                {m === "login" ? t("auth.signIn") : t("auth.register")}
               </button>
             ))}
           </div>
@@ -189,11 +188,11 @@ export default function AuthPage() {
             {mode === "register" && (
               <>
                 <div>
-                  <label className="label">Full name</label>
+                  <label className="label">{t("auth.fullName")}</label>
                   <input
                     type="text"
                     className="input-field"
-                    placeholder="John Smith"
+                    placeholder={t("auth.fullNamePlaceholder")}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required={mode === "register"}
@@ -204,7 +203,7 @@ export default function AuthPage() {
                 <div>
                   <label className="label flex items-center gap-2">
                     <Languages className="w-4 h-4" />
-                    Preferred Language
+                    {t("auth.preferredLanguage")}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {SUPPORTED_LOCALES.map((lang) => (
@@ -228,11 +227,11 @@ export default function AuthPage() {
             )}
 
             <div>
-              <label className="label">Email</label>
+              <label className="label">{t("auth.email")}</label>
               <input
                 type="email"
                 className="input-field"
-                placeholder="citizen@pangea.world"
+                placeholder={t("auth.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -240,12 +239,12 @@ export default function AuthPage() {
             </div>
 
             <div>
-              <label className="label">Password</label>
+              <label className="label">{t("auth.password")}</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   className="input-field pr-12"
-                  placeholder="Minimum 8 characters"
+                  placeholder={t("auth.passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -272,11 +271,9 @@ export default function AuthPage() {
                   className="mt-0.5 w-4 h-4 rounded border-theme text-fg-primary focus:ring-pangea-500"
                 />
                 <label htmlFor="consent" className="text-xs text-fg-muted leading-relaxed cursor-pointer">
-                  <span className="text-fg font-medium">Required consent (Art. 6 GDPR)</span>
+                  <span className="text-fg font-medium">{t("auth.gdprConsent")}</span>
                   <br />
-                  I consent to the processing of my personal data for
-                  participation in the Pangea democratic platform.
-                  My voting preferences will never be disclosed.
+                  {t("auth.gdprConsentText")}
                 </label>
               </div>
             )}
@@ -302,14 +299,14 @@ export default function AuthPage() {
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : null}
-              {mode === "login" ? "Enter Pangea" : "Become a Citizen"}
+              {mode === "login" ? t("auth.enterPangea") : t("auth.becomeCitizen")}
             </button>
           </form>
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-theme-muted" />
-            <span className="text-xs text-fg-muted">or</span>
+            <span className="text-xs text-fg-muted">{t("common.or")}</span>
             <div className="flex-1 h-px bg-theme-muted" />
           </div>
 
@@ -322,11 +319,11 @@ export default function AuthPage() {
             className="btn-secondary w-full flex items-center justify-center gap-2 text-sm"
           >
             <Globe className="w-4 h-4" />
-            Explore as guest
+            {t("auth.exploreAsGuest")}
           </button>
 
           <p className="text-center text-xs text-fg-muted mt-8">
-            Pangea · pangea.vote · Privacy by Design
+            {t("auth.footer")}
           </p>
         </div>
       </div>

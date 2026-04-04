@@ -158,9 +158,9 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
     });
 
     if (error) {
-      setFeedback({ type: "error", text: error.message.includes("duplicate") ? "You have already applied for this position." : error.message });
+      setFeedback({ type: "error", text: error.message.includes("duplicate") ? t("lawPositions.alreadyApplied") : error.message });
     } else {
-      setFeedback({ type: "success", text: "Your candidacy has been submitted!" });
+      setFeedback({ type: "success", text: t("lawPositions.candidacySubmitted") });
       setShowApplyForm(null);
       setStatement("");
       loadPositions();
@@ -218,7 +218,7 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
             onClick={() => setShowNewPosition(!showNewPosition)}
             className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-700 text-fg transition-colors"
           >
-            + Add Position
+            + {t("lawPositions.addPosition")}
           </button>
         )}
       </div>
@@ -228,20 +228,20 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
         <div className="p-3 rounded-lg border space-y-2" style={{ borderColor: "var(--border)", backgroundColor: "var(--muted)" }}>
           <input
             type="text"
-            placeholder="Position title (e.g. Chief Justice)"
+            placeholder={t("lawPositions.positionTitlePlaceholder")}
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             className="input-field text-sm"
           />
           <textarea
-            placeholder="Description (optional)"
+            placeholder={t("lawPositions.descriptionOptional")}
             value={newDesc}
             onChange={(e) => setNewDesc(e.target.value)}
             className="input-field text-sm"
             rows={2}
           />
           <div className="flex items-center gap-2">
-            <label className="text-xs text-fg-muted">Max holders:</label>
+            <label className="text-xs text-fg-muted">{t("lawPositions.maxHolders")}</label>
             <input
               type="number"
               min={1}
@@ -257,7 +257,7 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
               disabled={applying === "new" || !newTitle.trim()}
               className="btn-primary text-xs px-3 py-1.5"
             >
-              {applying === "new" ? <Loader2 className="w-3 h-3 animate-spin" /> : "Create"}
+              {applying === "new" ? <Loader2 className="w-3 h-3 animate-spin" /> : t("common.submit")}
             </button>
             <button onClick={() => setShowNewPosition(false)} className="btn-secondary text-xs px-3 py-1.5">
               {t("common.cancel")}
@@ -392,7 +392,7 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
 
                     {hasAlreadyApplied(pos.id) && (
                       <p className="text-xs text-blue-400 flex items-center gap-1 mt-1">
-                        <CheckCircle2 className="w-3 h-3" /> Candidacy submitted
+                        <CheckCircle2 className="w-3 h-3" /> {t("lawPositions.candidacySubmitted")}
                       </p>
                     )}
                   </div>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useLanguage } from "@/components/language-provider";
 
 interface NavbarProps {
   userEmail?: string | null;
@@ -18,6 +19,7 @@ interface NavbarProps {
 export default function Navbar({ userEmail, userName, userRole, isGuest = false, pendingDelegations = 0 }: NavbarProps) {
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
   const [loggingOut, setLoggingOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -76,42 +78,42 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <BookOpen className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              Laws
+              {t("nav.laws")}
             </Link>
             <Link
               href="/parties"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <Flag className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              Parties
+              {t("nav.parties")}
             </Link>
             <Link
               href="/elections"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <Vote className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              Elections
+              {t("nav.elections")}
             </Link>
             <Link
               href="/social"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              Forum
+              {t("nav.forum")}
             </Link>
             <Link
               href="/jurisdictions"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <Map className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              Jurisdictions
+              {t("nav.jurisdictions")}
             </Link>
             <Link
               href="/about"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <Info className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              About
+              {t("nav.about")}
             </Link>
           </div>
 
@@ -127,8 +129,8 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95 shrink-0"
               >
                 <LogIn className="w-4 h-4 shrink-0" />
-                <span className="hidden sm:inline shrink-0">Sign In</span>
-                <span className="sm:hidden shrink-0">Sign In</span>
+                <span className="hidden sm:inline shrink-0">{t("nav.signIn")}</span>
+                <span className="sm:hidden shrink-0">{t("nav.signIn")}</span>
               </Link>
             ) : (
               /* Authenticated User */
@@ -137,7 +139,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                 <Link
                   href="/feed"
                   className="relative p-2 rounded-lg hover:bg-theme-card text-fg-muted hover:text-fg transition-all duration-150 shrink-0"
-                  title="Your Feed"
+                  title={t("nav.yourFeed")}
                 >
                   <Rss className="w-5 h-5 shrink-0" />
                 </Link>
@@ -146,7 +148,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                 <Link
                   href="/messages"
                   className="relative p-2 rounded-lg hover:bg-theme-card text-fg-muted hover:text-fg transition-all duration-150 shrink-0"
-                  title="Messages"
+                  title={t("nav.messages")}
                 >
                   <Mail className="w-5 h-5 shrink-0" />
                 </Link>
@@ -157,7 +159,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95 shadow-lg shrink-0"
                 >
                   <Plus className="w-4 h-4 shrink-0" />
-                  New Proposal
+                  {t("nav.newProposal")}
                 </Link>
                 <Link
                   href="/proposals/new"
@@ -199,7 +201,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                           onClick={() => setDropdownOpen(false)}
                         >
                           <Mail className="w-4 h-4 shrink-0" />
-                          Messages
+                          {t("nav.messages")}
                         </Link>
 
                         {/* Settings */}
@@ -209,7 +211,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                           onClick={() => setDropdownOpen(false)}
                         >
                           <Settings className="w-4 h-4 shrink-0" />
-                          Settings
+                          {t("nav.settings")}
                         </Link>
 
                         {/* My Delegations */}
@@ -220,7 +222,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                         >
                           <div className="flex items-center gap-3 w-full min-w-0">
                             <MessageCircle className="w-4 h-4 shrink-0" />
-                            <span className="min-w-0">My Delegations</span>
+                            <span className="min-w-0">{t("nav.myDelegations")}</span>
                             {pendingDelegations > 0 && (
                               <span className="ml-auto px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full shrink-0">
                                 {pendingDelegations}
@@ -239,7 +241,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                               onClick={() => setDropdownOpen(false)}
                             >
                               <Shield className="w-4 h-4 text-amber-500 shrink-0" />
-                              Admin Panel
+                              {t("nav.adminPanel")}
                             </Link>
                           </>
                         )}
@@ -255,7 +257,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <LogOut className="w-4 h-4 text-fg-danger shrink-0" />
-                          {loggingOut ? "Logging out..." : "Logout"}
+                          {loggingOut ? t("nav.loggingOut") : t("nav.logout")}
                         </button>
                       </div>
                     </div>
@@ -284,7 +286,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               <BookOpen className="w-4 h-4 shrink-0" />
-              Laws
+              {t("nav.laws")}
             </Link>
             <Link
               href="/parties"
@@ -292,7 +294,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               <Flag className="w-4 h-4 shrink-0" />
-              Parties
+              {t("nav.parties")}
             </Link>
             <Link
               href="/elections"
@@ -300,7 +302,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               <Vote className="w-4 h-4 shrink-0" />
-              Elections
+              {t("nav.elections")}
             </Link>
             <Link
               href="/social"
@@ -308,7 +310,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               <MessageCircle className="w-4 h-4 shrink-0" />
-              Forum
+              {t("nav.forum")}
             </Link>
             <Link
               href="/jurisdictions"
@@ -316,7 +318,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               <Map className="w-4 h-4 shrink-0" />
-              Jurisdictions
+              {t("nav.jurisdictions")}
             </Link>
             <Link
               href="/about"
@@ -324,7 +326,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               <Info className="w-4 h-4 shrink-0" />
-              About
+              {t("nav.about")}
             </Link>
 
             {!isGuest && (
@@ -336,7 +338,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="w-4 h-4 shrink-0" />
-                  New Proposal
+                  {t("nav.newProposal")}
                 </Link>
                 <Link
                   href="/feed"
@@ -344,7 +346,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Rss className="w-4 h-4 shrink-0" />
-                  Feed
+                  {t("nav.yourFeed")}
                 </Link>
                 <Link
                   href="/messages"
@@ -352,7 +354,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Mail className="w-4 h-4 shrink-0" />
-                  Messages
+                  {t("nav.messages")}
                 </Link>
                 <Link
                   href="/settings"
@@ -360,7 +362,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Settings className="w-4 h-4 shrink-0" />
-                  Settings
+                  {t("nav.settings")}
                 </Link>
                 <Link
                   href="/dashboard/delegations"
@@ -368,7 +370,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <MessageCircle className="w-4 h-4 shrink-0" />
-                  <span className="min-w-0">My Delegations</span>
+                  <span className="min-w-0">{t("nav.myDelegations")}</span>
                   {pendingDelegations > 0 && (
                     <span className="ml-auto px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full shrink-0">
                       {pendingDelegations}
@@ -382,7 +384,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Shield className="w-4 h-4 text-amber-500 shrink-0" />
-                    Admin Panel
+                    {t("nav.adminPanel")}
                   </Link>
                 )}
                 <button
@@ -394,7 +396,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-danger hover:text-fg-danger hover:bg-theme-card rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <LogOut className="w-4 h-4 shrink-0" />
-                  {loggingOut ? "Logging out..." : "Logout"}
+                  {loggingOut ? t("nav.loggingOut") : t("nav.logout")}
                 </button>
               </>
             )}

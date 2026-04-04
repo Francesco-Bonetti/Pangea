@@ -7,6 +7,7 @@ import AppShell from "@/components/AppShell";
 import TagInput from "@/components/TagInput";
 import LawTreeSelector from "@/components/LawTreeSelector";
 import { useEffect } from "react";
+import { useLanguage } from "@/components/language-provider";
 import {
   ArrowLeft,
   Save,
@@ -31,6 +32,7 @@ interface OptionDraft {
 type ProposalType = "new" | "amendment" | "repeal";
 
 export default function NewProposalPage() {
+  const { t } = useLanguage();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [dispositivo, setDispositivo] = useState("");
@@ -217,10 +219,10 @@ export default function NewProposalPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-fg flex items-center gap-2 overflow-hidden">
               <FileText className="w-6 h-6 text-fg-primary shrink-0" />
-              <span className="truncate">New Proposal</span>
+              <span className="truncate">{t("proposals.newProposal")}</span>
             </h1>
             <p className="text-sm text-fg-muted mt-0.5">
-              Write your proposal and let citizens evaluate it
+              {t("proposals.writeYourProposal")}
             </p>
           </div>
         </div>
@@ -229,12 +231,9 @@ export default function NewProposalPage() {
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
           <Info className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
           <div className="text-sm text-fg-muted">
-            <p className="text-fg font-medium mb-1">How it works</p>
+            <p className="text-fg font-medium mb-1">{t("proposals.howItWorks")}</p>
             <p>
-              Your proposal is first published for <strong className="text-amber-300">community review</strong> where
-              citizens can support it with a click. When it receives enough support,
-              it moves to the <strong className="text-fg-primary">voting phase</strong> where everyone can express
-              their preference among the options you defined.
+              {t("proposals.howItWorksDesc")}
             </p>
           </div>
         </div>
@@ -242,12 +241,12 @@ export default function NewProposalPage() {
         <div className="space-y-6">
           {/* Proposal type */}
           <div>
-            <label className="label">Proposal type</label>
+            <label className="label">{t("proposals.proposalType")}</label>
             <div className="grid grid-cols-3 gap-3">
               {([
-                { type: "new" as ProposalType, label: "New Law", icon: FileText, desc: "Propose a new law" },
-                { type: "amendment" as ProposalType, label: "Amendment", icon: Edit3, desc: "Modify an existing law" },
-                { type: "repeal" as ProposalType, label: "Repeal", icon: Trash2, desc: "Repeal an existing law" },
+                { type: "new" as ProposalType, label: t("proposals.newLaw"), icon: FileText, desc: t("proposals.proposeNewLaw") },
+                { type: "amendment" as ProposalType, label: t("proposals.amendment"), icon: Edit3, desc: t("proposals.modifyExistingLaw") },
+                { type: "repeal" as ProposalType, label: t("proposals.repeal"), icon: Trash2, desc: t("proposals.repealExistingLaw") },
               ]).map(({ type, label, icon: Icon, desc }) => (
                 <button
                   key={type}
@@ -279,7 +278,7 @@ export default function NewProposalPage() {
               <div className="mt-4 card p-4">
                 <label className="label flex items-center gap-1.5 overflow-hidden">
                   <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{proposalType === "amendment" ? "Law to amend" : "Law to repeal"}</span>
+                  <span className="truncate">{proposalType === "amendment" ? t("proposals.lawToAmend") : t("proposals.lawToRepeal")}</span>
                 </label>
                 {parentLawTitle ? (
                   <div className="flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3 overflow-hidden">
@@ -294,7 +293,7 @@ export default function NewProposalPage() {
                     <input
                       type="text"
                       className="input-field"
-                      placeholder="Search for a law by title..."
+                      placeholder={t("proposals.searchLaw")}
                       value={lawSearchQuery}
                       onChange={(e) => searchLaws(e.target.value)}
                     />
@@ -331,21 +330,21 @@ export default function NewProposalPage() {
           {/* Title */}
           <div>
             <label className="label">
-              Proposal Title <span className="text-fg-danger">*</span>
+              {t("proposals.titleLabel")} <span className="text-fg-danger">*</span>
             </label>
             <p className="text-xs text-fg-muted mb-2">
-              A clear, concise title that summarizes what this proposal does. Citizens will see this first when browsing proposals. Example: &quot;Universal Right to Digital Education&quot; or &quot;Carbon Tax on Imports Above 50 Tons&quot;.
+              {t("proposals.titleHelp")}
             </p>
             <input
               type="text"
               className="input-field text-lg"
-              placeholder="e.g. Establishment of the universal right to digital education"
+              placeholder={t("proposals.titlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={200}
               required
             />
-            <p className="text-xs text-fg-muted mt-1.5">{title.length}/200 characters</p>
+            <p className="text-xs text-fg-muted mt-1.5">{title.length}{t("proposals.charLimit")}</p>
           </div>
 
           {/* Hashtag */}
@@ -357,11 +356,11 @@ export default function NewProposalPage() {
           <div>
             <label className="label flex items-center gap-1.5 overflow-hidden">
               <GitBranch className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Position in the law tree</span>
+              <span className="truncate">{t("proposals.positionInTree")}</span>
               <span className="text-xs font-normal text-fg-muted ml-1 shrink-0">(optional)</span>
             </label>
             <p className="text-xs text-fg-muted mb-2">
-              Choose where this law should be placed in Pangea&apos;s legal framework. You can add it as a child of an existing code, or replace an existing article. If you&apos;re unsure, skip this — the community can suggest a placement later.
+              {t("proposals.choosePosition")}
             </p>
             <button
               type="button"
@@ -376,10 +375,10 @@ export default function NewProposalPage() {
             >
               <GitBranch className="w-4 h-4 shrink-0" />
               {lawParentId || replacesNodeId
-                ? "Position selected — click to change"
+                ? t("proposals.positionSelected")
                 : showTreeSelector
-                  ? "Close tree selector"
-                  : "Open tree selector to choose position"
+                  ? t("proposals.closeTreeSelector")
+                  : t("proposals.openTreeSelector")
               }
             </button>
             {showTreeSelector && (
@@ -399,10 +398,10 @@ export default function NewProposalPage() {
           {/* Contesto */}
           <div>
             <label className="label">
-              Why is this law needed? <span className="text-fg-danger">*</span>
+              {t("proposals.whyNeeded")} <span className="text-fg-danger">*</span>
             </label>
             <p className="text-xs text-fg-muted mb-2">
-              Explain the problem this proposal solves and why citizens should care. This is the most important part — a well-argued motivation helps others understand your vision. Example: &quot;Currently, 40% of Pangea&apos;s citizens lack access to online courses. This law would guarantee free digital education to every citizen, reducing inequality and boosting innovation.&quot;
+              {t("proposals.whyNeededPlaceholder")}
             </p>
             <textarea
               className="input-field min-h-[180px] resize-y"
@@ -411,18 +410,18 @@ export default function NewProposalPage() {
               onChange={(e) => setContent(e.target.value)}
               required
             />
-            <p className="text-xs text-fg-muted mt-1.5">{content.length} characters (min. 20)</p>
+            <p className="text-xs text-fg-muted mt-1.5">{content.length} {t("proposals.charsMin20")}</p>
           </div>
 
           {/* Dispositivo normativo */}
           <div>
-            <label className="label">Proposed law text</label>
+            <label className="label">{t("proposals.proposedLawText")}</label>
             <p className="text-xs text-fg-muted mb-2">
-              Write the actual articles of the law, if you have them. This is optional — you can propose an idea without a full text and let the community help refine it. Example: &quot;Art. 1 — Every citizen has the right to free digital education. Art. 2 — The Ministry of Education shall provide...&quot;
+              {t("proposals.proposedLawTextPlaceholder")}
             </p>
             <textarea
               className="input-field min-h-[150px] font-mono text-sm resize-y"
-              placeholder={"Art. 1 - What is established\nThe Commonwealth of Pangea guarantees...\n\nArt. 2 - How it works\nTo enforce this law..."}
+              placeholder={t("proposals.proposedLawExample")}
               value={dispositivo}
               onChange={(e) => setDispositivo(e.target.value)}
             />
@@ -430,18 +429,18 @@ export default function NewProposalPage() {
 
           {/* Durata delibera */}
           <div>
-            <label className="label">Voting duration</label>
+            <label className="label">{t("proposals.votingDurationLabel")}</label>
             <p className="text-xs text-fg-muted mb-2">
-              Choose how long citizens can vote on this proposal. Shorter durations are good for urgent matters, longer ones allow more participation. After expiration, the proposal is automatically closed and the result becomes final.
+              {t("proposals.votingDurationHelp")}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
               {[
-                { value: "3", label: "3 days" },
-                { value: "7", label: "7 days" },
-                { value: "14", label: "14 days" },
-                { value: "30", label: "30 days" },
-                { value: "0", label: "No expiration" },
-                { value: "custom", label: "Custom..." },
+                { value: "3", label: t("proposals.days3") },
+                { value: "7", label: t("proposals.days7") },
+                { value: "14", label: t("proposals.days14") },
+                { value: "30", label: t("proposals.days30") },
+                { value: "0", label: t("proposals.noExpiration") },
+                { value: "custom", label: t("proposals.customDays") },
               ].map((opt) => (
                 <button
                   key={opt.value}
@@ -466,13 +465,13 @@ export default function NewProposalPage() {
             {expiresIn === "custom" && (
               <div className="card p-4 space-y-3">
                 <div>
-                  <label className="text-xs text-fg-muted font-medium block mb-1">Exact number of days</label>
+                  <label className="text-xs text-fg-muted font-medium block mb-1">{t("proposals.exactDays")}</label>
                   <input
                     type="number"
                     min="1"
                     max="365"
                     className="input-field"
-                    placeholder="e.g. 45"
+                    placeholder={t("proposals.daysPlaceholder")}
                     value={customDays}
                     onChange={(e) => {
                       setCustomDays(e.target.value);
@@ -480,9 +479,9 @@ export default function NewProposalPage() {
                     }}
                   />
                 </div>
-                <div className="text-xs text-fg-muted text-center">or</div>
+                <div className="text-xs text-fg-muted text-center">{t("proposals.or")}</div>
                 <div>
-                  <label className="text-xs text-fg-muted font-medium block mb-1">Pick a specific end date</label>
+                  <label className="text-xs text-fg-muted font-medium block mb-1">{t("proposals.pickEndDate")}</label>
                   <input
                     type="date"
                     className="input-field"
@@ -501,18 +500,14 @@ export default function NewProposalPage() {
           {/* Opzioni deliberative */}
           <div>
             <label className="label">
-              Voting options <span className="text-fg-danger">*</span>
+              {t("proposals.votingOptions")} <span className="text-fg-danger">*</span>
             </label>
             <div className="bg-theme-card/40 border border-theme/40 rounded-lg p-3 mb-3">
               <p className="text-sm text-fg mb-2">
-                In Pangea, voting is not just &quot;yes or no&quot;: each citizen distributes their vote
-                as a percentage among the options you propose. This allows for nuanced positions,
-                not just binary choices.
+                {t("proposals.votingOptionsDesc")}
               </p>
               <p className="text-xs text-fg-muted">
-                Write at least 2 alternatives. For example: &quot;Approve the text as is&quot;,
-                &quot;Approve with modifications&quot;, &quot;Reject and rewrite&quot;.
-                The more options you offer, the richer the discussion.
+                {t("proposals.writeAtLeast2")}
               </p>
             </div>
 
@@ -521,7 +516,7 @@ export default function NewProposalPage() {
                 <div key={i} className="card p-4 relative">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-fg-muted font-medium">
-                      Option {i + 1}
+                      {`${t("proposals.optionN")} ${i + 1}`}
                     </span>
                     {options.length > 2 && (
                       <button
@@ -535,14 +530,14 @@ export default function NewProposalPage() {
                   <input
                     type="text"
                     className="input-field mb-2"
-                    placeholder={`Option ${i + 1} title`}
+                    placeholder={t("proposals.optionTitle")}
                     value={opt.title}
                     onChange={(e) => updateOption(i, "title", e.target.value)}
                     maxLength={200}
                   />
                   <textarea
                     className="input-field text-sm min-h-[60px] resize-y"
-                    placeholder="Briefly explain this option (optional)"
+                    placeholder={t("proposals.optionDesc")}
                     value={opt.description}
                     onChange={(e) => updateOption(i, "description", e.target.value)}
                   />
@@ -556,7 +551,7 @@ export default function NewProposalPage() {
                 className="mt-3 btn-ghost text-sm flex items-center gap-1.5 text-fg-primary hover:text-fg-primary overflow-hidden"
               >
                 <Plus className="w-4 h-4 shrink-0" />
-                <span className="truncate">Add option</span>
+                <span className="truncate">{t("proposals.addOption")}</span>
               </button>
             )}
           </div>
@@ -576,7 +571,7 @@ export default function NewProposalPage() {
               className="btn-secondary flex items-center justify-center gap-2 overflow-hidden"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <Save className="w-4 h-4 shrink-0" />}
-              <span className="truncate">Save as Draft</span>
+              <span className="truncate">{t("proposals.saveDraft")}</span>
             </button>
 
             <button
@@ -585,15 +580,15 @@ export default function NewProposalPage() {
               className="btn-primary flex items-center justify-center gap-2 sm:ml-auto overflow-hidden"
             >
               {publishing ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <Send className="w-4 h-4 shrink-0" />}
-              <span className="truncate">Publish for Review</span>
+              <span className="truncate">{t("proposals.publishForReview")}</span>
             </button>
           </div>
 
           {!isPublishValid && (
             <p className="text-xs text-fg-muted text-center">
               {!isValid
-                ? "Enter a title (min. 5 characters) and a reason (min. 20 characters)"
-                : "Add at least 2 voting options"}
+                ? t("proposals.validationTitleReason")
+                : t("proposals.validationOptions")}
             </p>
           )}
         </div>

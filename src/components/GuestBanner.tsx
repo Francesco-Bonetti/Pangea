@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { UserPlus, X } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/components/language-provider";
 
 export default function GuestBanner() {
   const [dismissed, setDismissed] = useState(false);
+  const { t } = useLanguage();
 
   if (dismissed) return null;
 
@@ -15,7 +17,7 @@ export default function GuestBanner() {
         <div className="flex items-center gap-2 text-sm text-amber-200">
           <UserPlus className="w-4 h-4 shrink-0" />
           <span>
-            You are exploring Pangea as a <strong>guest</strong>. Actions are not saved.
+            {t("guest.exploreAsGuest")}
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -23,7 +25,7 @@ export default function GuestBanner() {
             href="/auth"
             className="text-xs font-medium bg-amber-600 hover:bg-amber-500 text-fg px-3 py-1.5 rounded-lg transition-colors"
           >
-            Register
+            {t("guest.register")}
           </Link>
           <button
             onClick={() => setDismissed(true)}

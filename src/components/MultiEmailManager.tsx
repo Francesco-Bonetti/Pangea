@@ -92,7 +92,7 @@ export default function MultiEmailManager() {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail.trim())) {
-      setFeedback({ type: "error", text: "Please enter a valid email address." });
+      setFeedback({ type: "error", text: t("multiEmail.invalidEmail") });
       setAdding(false);
       return;
     }
@@ -106,12 +106,12 @@ export default function MultiEmailManager() {
 
     if (error) {
       if (error.message.includes("duplicate") || error.message.includes("unique")) {
-        setFeedback({ type: "error", text: "This email is already registered." });
+        setFeedback({ type: "error", text: t("multiEmail.alreadyRegistered") });
       } else {
         setFeedback({ type: "error", text: error.message });
       }
     } else {
-      setFeedback({ type: "success", text: "Email added! Verification will be available soon." });
+      setFeedback({ type: "success", text: t("multiEmail.emailAdded") });
       setNewEmail("");
       setShowAddForm(false);
       loadEmails();
@@ -127,7 +127,7 @@ export default function MultiEmailManager() {
     if (error) {
       setFeedback({ type: "error", text: error.message });
     } else {
-      setFeedback({ type: "success", text: "Email removed." });
+      setFeedback({ type: "success", text: t("multiEmail.emailRemoved") });
       loadEmails();
     }
   }
@@ -145,7 +145,7 @@ export default function MultiEmailManager() {
     if (error) {
       setFeedback({ type: "error", text: error.message });
     } else {
-      setFeedback({ type: "success", text: "Primary email updated." });
+      setFeedback({ type: "success", text: t("multiEmail.primaryUpdated") });
       loadEmails();
     }
   }
@@ -179,8 +179,7 @@ export default function MultiEmailManager() {
       <div className="flex items-start gap-2 p-3 rounded-lg text-xs" style={{ backgroundColor: "var(--muted)", color: "var(--muted-foreground)" }}>
         <Shield className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
         <p>
-          You can add multiple email addresses to your account. Your primary email is used for login and notifications.
-          For example, you might add both a personal and work email so you can be reached either way.
+          {t("multiEmail.infoText")}
         </p>
       </div>
 
@@ -199,7 +198,7 @@ export default function MultiEmailManager() {
             type="email"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
-            placeholder="your-other-email@example.com"
+            placeholder={t("multiEmail.placeholder")}
             className="input-field text-sm flex-1"
             onKeyDown={(e) => e.key === "Enter" && handleAddEmail()}
           />
@@ -209,7 +208,7 @@ export default function MultiEmailManager() {
             className="btn-primary text-xs px-3 py-2 flex items-center gap-1"
           >
             {adding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
-            Add
+            {t("multiEmail.add")}
           </button>
           <button
             onClick={() => { setShowAddForm(false); setNewEmail(""); }}
@@ -241,11 +240,11 @@ export default function MultiEmailManager() {
                   )}
                   {email.verified ? (
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 flex items-center gap-0.5">
-                      <CheckCircle2 className="w-2.5 h-2.5" /> Verified
+                      <CheckCircle2 className="w-2.5 h-2.5" /> {t("multiEmail.verified")}
                     </span>
                   ) : (
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
-                      Unverified
+                      {t("multiEmail.unverified")}
                     </span>
                   )}
                 </div>

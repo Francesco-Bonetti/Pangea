@@ -4,6 +4,8 @@ import AppShell from "@/components/AppShell";
 import FeedClient from "@/components/FeedClient";
 import { Rss } from "lucide-react";
 
+import FeedPageHeader from "@/components/FeedPageHeader";
+
 export default async function FeedPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -27,10 +29,7 @@ export default async function FeedPage() {
   return (
     <AppShell userEmail={user.email} userName={profile?.full_name} userRole={profile?.role} pendingDelegations={pendingDelegations ?? 0}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Rss className="w-6 h-6 text-fg-primary" />
-          <h1 className="text-2xl font-bold text-fg">Your Feed</h1>
-        </div>
+        <FeedPageHeader />
 
         <FeedClient userId={user.id} />
       </div>

@@ -8,10 +8,12 @@ import AppShell from "@/components/AppShell";
 import { Flag, Plus, Users, Search, X, AlertCircle, ChevronRight } from "lucide-react";
 import type { Party, Profile } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
+import { useLanguage } from "@/components/language-provider";
 
 export default function PartiesPage() {
   const supabase = createClient();
   const router = useRouter();
+  const { t } = useLanguage();
 
   // Auth state
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -97,7 +99,7 @@ export default function PartiesPage() {
 
   async function handleCreateParty() {
     if (!newParty.name.trim()) {
-      setError("Party name is required");
+      setError(t("parties.partyNameRequired"));
       return;
     }
     setCreating(true);
@@ -112,9 +114,9 @@ export default function PartiesPage() {
 
     if (err) {
       if (err.message.includes("delega")) {
-        setError("To create a party you need to enable the delegation feature in your personal settings.");
+        setError(t("parties.enableDelegation"));
       } else if (err.message.includes("unique") || err.message.includes("duplicate")) {
-        setError("A party with this name already exists.");
+        setError(t("parties.partyNameExists"));
       } else {
         setError(err.message);
       }
@@ -160,10 +162,10 @@ export default function PartiesPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-fg flex items-center gap-3 overflow-hidden">
               <Flag className="w-7 h-7 text-fg-primary shrink-0" />
-              <span className="truncate">Political Parties</span>
+              <span className="truncate">{t("parties.title")}</span>
             </h1>
             <p className="text-fg-muted mt-1">
-              Organize into parties to influence votes on proposals. You can join multiple parties.
+              {t("parties.subtitle")}
             </p>
           </div>
           {!isGuest && (
@@ -172,20 +174,20 @@ export default function PartiesPage() {
               className="btn-primary flex items-center gap-2 whitespace-nowrap shrink-0 overflow-hidden"
             >
               <Plus className="w-4 h-4 shrink-0" />
-              <span className="truncate">Create Party</span>
+              <span className="truncate">{t("parties.createParty")}</span>
             </button>
           )}
         </div>
 
         {/* Info card */}
         <div className="info-box mb-6">
-          <h3 className="text-sm font-semibold text-fg-primary mb-2">How Parties Work</h3>
+          <h3 className="text-sm font-semibold text-fg-primary mb-2">{t("parties.howPartiesWork")}</h3>
           <ul className="text-xs text-fg-muted space-y-1">
-            <li>• You can join <strong className="text-fg">multiple parties</strong> at the same time</li>
-            <li>• Parties cast a <strong className="text-fg">public vote</strong> on each proposal</li>
-            <li>• If you don&apos;t vote directly, your vote is <strong className="text-fg">split among parties</strong> based on the weights you choose</li>
-            <li>• Your <strong className="text-fg">direct vote</strong> always overrides party votes (and you can restore them)</li>
-            <li>• To create a party you must have the <strong className="text-fg">delegation feature enabled</strong></li>
+            <li>• {t("parties.howPartiesDesc1")}</li>
+            <li>• {t("parties.howPartiesDesc2")}</li>
+            <li>• {t("parties.howPartiesDesc3")}</li>
+            <li>• {t("parties.howPartiesDesc4")}</li>
+            <li>• {t("parties.howPartiesDesc5")}</li>
           </ul>
         </div>
 
@@ -194,7 +196,7 @@ export default function PartiesPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-muted" />
           <input
             type="text"
-            placeholder="Search parties..."
+            placeholder={t("parties.searchParties")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input-field pl-10 w-full"
@@ -227,7 +229,7 @@ export default function PartiesPage() {
           </div>
         ) : filteredParties.length === 0 ? (
           <div className="text-center text-fg-muted py-12">
-            {searchQuery ? "No parties found." : "No parties created yet. Be the first!"}
+            {searchQuery ? t("parties.noPartiesFound") : t("parties.noPartiesYet")}
           </div>
         ) : (
           <div className="grid gap-4">
@@ -246,7 +248,7 @@ export default function PartiesPage() {
                       </h2>
                       {party.is_member && (
                         <span className="text-[10px] bg-pangea-800 text-fg-primary px-2 py-0.5 rounded-full font-medium shrink-0">
-                          Joined
+                          {t("parties.joined")}
                         </span>
                       )}
                     </div>
@@ -256,9 +258,9 @@ export default function PartiesPage() {
                     <div className="flex items-center gap-4 text-xs text-fg-muted flex-wrap">
                       <span className="flex items-center gap-1 shrink-0">
                         <Users className="w-3 h-3 shrink-0" />
-                        {party.member_count} {party.member_count === 1 ? "member" : "members"}
+                        {party.member_count} {party.member_count === 1 ? t("parties.members").slice(0, -1) : t("parties.members")}
                       </span>
-                      <span className="flex-1 min-w-0 truncate">Founded by <PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={user?.id} /></span>
+                      <span className="flex-1 min-w-0 truncate">{t("parties.foundedBy")} <PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={user?.id} /></span>
                       <span className="shrink-0">{new Date(party.created_at).toLocaleDateString("en-US")}</span>
                     </div>
                   </div>
@@ -291,7 +293,7 @@ export default function PartiesPage() {
             <div className="flex items-center justify-between mb-6 overflow-hidden">
               <h2 className="text-xl font-bold text-fg flex items-center gap-2 overflow-hidden flex-1">
                 <Flag className="w-5 h-5 text-fg-primary shrink-0" />
-                <span className="truncate">Create Party</span>
+                <span className="truncate">{t("parties.createParty")}</span>
               </h2>
               <button onClick={() => { setShowCreate(false); setError(null); }} className="text-fg-muted hover:text-fg shrink-0">
                 <X className="w-5 h-5" />
@@ -303,8 +305,8 @@ export default function PartiesPage() {
               <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium">Delegation feature not enabled</p>
-                  <p className="text-xs mt-1">To create a party you need to enable the delegation feature in your{" "}
+                  <p className="font-medium">{t("parties.delegationNotEnabled")}</p>
+                  <p className="text-xs mt-1">{t("parties.enableDelegation")}{" "}
                     <Link href="/settings" className="underline text-amber-300">personal settings</Link>.
                   </p>
                 </div>
@@ -320,7 +322,7 @@ export default function PartiesPage() {
 
             {/* Emoji selector */}
             <div className="mb-4">
-              <label className="label">Symbol</label>
+              <label className="label">{t("parties.symbol")}</label>
               <div className="flex flex-wrap gap-2">
                 {emojiOptions.map((e) => (
                   <button
@@ -339,7 +341,7 @@ export default function PartiesPage() {
             </div>
 
             <div className="mb-4">
-              <label className="label">Party Name *</label>
+              <label className="label">{t("parties.partyName")}</label>
               <input
                 type="text"
                 value={newParty.name}
@@ -351,7 +353,7 @@ export default function PartiesPage() {
             </div>
 
             <div className="mb-4">
-              <label className="label">Short description</label>
+              <label className="label">{t("parties.shortDescription")}</label>
               <textarea
                 value={newParty.description}
                 onChange={(e) => setNewParty({ ...newParty, description: e.target.value })}
@@ -362,7 +364,7 @@ export default function PartiesPage() {
             </div>
 
             <div className="mb-6">
-              <label className="label">Manifesto (optional)</label>
+              <label className="label">{t("parties.manifestoOptional")}</label>
               <textarea
                 value={newParty.manifesto}
                 onChange={(e) => setNewParty({ ...newParty, manifesto: e.target.value })}
@@ -377,14 +379,14 @@ export default function PartiesPage() {
                 onClick={() => { setShowCreate(false); setError(null); }}
                 className="btn-ghost px-4 py-2"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 onClick={handleCreateParty}
                 disabled={creating || !newParty.name.trim()}
                 className="btn-primary px-6 py-2"
               >
-                {creating ? "Creating..." : "Create Party"}
+                {creating ? t("parties.creating") : t("parties.createParty")}
               </button>
             </div>
           </div>

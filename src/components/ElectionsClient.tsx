@@ -4,15 +4,18 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { Vote, Plus, Users, Calendar, Trophy, Clock, ChevronRight, MapPin, Flag } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 import type { Election, ElectionStatus } from "@/lib/types";
 
-const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {
-  upcoming: { label: "Upcoming", color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },
-  candidature: { label: "Open for Candidates", color: "text-amber-400", bg: "bg-amber-500/20 border-amber-500/30" },
-  voting: { label: "Voting Open", color: "text-fg-success", bg: "bg-green-500/20 border-green-500/30" },
-  closed: { label: "Closed", color: "text-fg-muted", bg: "bg-slate-500/20 border-slate-500/30" },
-  cancelled: { label: "Cancelled", color: "text-fg-danger", bg: "bg-red-500/20 border-red-500/30" },
-};
+function getStatusConfig(t: (key: string) => string): Record<ElectionStatus, { label: string; color: string; bg: string }> {
+  return {
+    upcoming: { label: t("elections.upcoming"), color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },
+    candidature: { label: t("elections.openForCandidates"), color: "text-amber-400", bg: "bg-amber-500/20 border-amber-500/30" },
+    voting: { label: t("elections.votingOpen"), color: "text-fg-success", bg: "bg-green-500/20 border-green-500/30" },
+    closed: { label: t("elections.votingClosed"), color: "text-fg-muted", bg: "bg-slate-500/20 border-slate-500/30" },
+    cancelled: { label: t("elections.cancelled"), color: "text-fg-danger", bg: "bg-red-500/20 border-red-500/30" },
+  };
+}
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -22,22 +25,24 @@ function formatDate(dateStr: string) {
   });
 }
 
-function getPhaseInfo(election: Election) {
+function getPhaseInfo(election: Election, t: (key: string) => string) {
   const now = new Date();
   if (election.status === "candidature") {
     const end = new Date(election.candidature_end);
     const diff = end.getTime() - now.getTime();
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return days > 0 ? `${days} day${days !== 1 ? "s" : ""} left to register` : "Closing soon";
+    const dayText = days !== 1 ? t("elections.daysLeft") : t("elections.day");
+    return days > 0 ? `${days} ${dayText} ${t("elections.leftToRegister")}` : t("elections.closingSoon");
   }
   if (election.status === "voting") {
     const end = new Date(election.voting_end);
     const diff = end.getTime() - now.getTime();
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return days > 0 ? `${days} day${days !== 1 ? "s" : ""} left to vote` : "Closing soon";
+    const dayText = days !== 1 ? t("elections.daysLeft") : t("elections.day");
+    return days > 0 ? `${days} ${dayText} ${t("elections.leftToVote")}` : t("elections.closingSoon");
   }
   if (election.status === "upcoming") {
-    return `Starts ${formatDate(election.candidature_start)}`;
+    return `${t("elections.starts")} ${formatDate(election.candidature_start)}`;
   }
   return null;
 }
@@ -47,6 +52,7 @@ interface ElectionsClientProps {
 }
 
 export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
+  const { t } = useLanguage();
   const supabase = createClient();
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,11 +99,11 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
   }
 
   const filters: { key: "all" | ElectionStatus; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "voting", label: "Voting" },
-    { key: "candidature", label: "Candidates" },
-    { key: "upcoming", label: "Upcoming" },
-    { key: "closed", label: "Closed" },
+    { key: "all", label: t("elections.all") },
+    { key: "voting", label: t("elections.voting") },
+    { key: "candidature", label: t("elections.candidates") },
+    { key: "upcoming", label: t("elections.upcoming") },
+    { key: "closed", label: t("elections.closed") },
   ];
 
   return (
@@ -109,10 +115,10 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-purple-700">
               <Vote className="w-6 h-6 text-fg" />
             </div>
-            Elections
+            {t("elections.title")}
           </h1>
           <p className="text-fg-muted mt-2">
-            Vote for candidates, run for office, and shape the governance of Pangea.
+            {t("elections.description")}
           </p>
         </div>
         {isAdmin && (
@@ -121,7 +127,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
             className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95 shadow-lg"
           >
             <Plus className="w-4 h-4" />
-            New Election
+            {t("elections.newElection")}
           </Link>
         )}
       </div>
@@ -129,8 +135,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
       {/* Info Box */}
       <div className="mb-6 p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
         <p className="text-sm text-purple-300">
-          <strong>How elections work:</strong> Each election goes through phases — first candidates register, then citizens vote.
-          Your vote is private and weighted by any delegations you hold. For example, if 3 citizens delegated their vote to you, your vote counts as 4.
+          <strong>{t("elections.howElectionsWork")}</strong> {t("elections.howElectionsDesc")}
         </p>
       </div>
 
@@ -161,16 +166,17 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
       ) : elections.length === 0 ? (
         <div className="text-center py-16 bg-theme-card/30 rounded-xl border border-theme">
           <Vote className="w-12 h-12 text-fg-muted mx-auto mb-3" />
-          <p className="text-fg-muted text-lg">No elections found</p>
+          <p className="text-fg-muted text-lg">{t("elections.noElections")}</p>
           <p className="text-fg-muted text-sm mt-1">
-            {filter !== "all" ? "Try a different filter" : "Elections will appear here when created by administrators"}
+            {filter !== "all" ? t("elections.tryDifferentFilter") : t("elections.electionsWillAppear")}
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {elections.map((election) => {
-            const config = STATUS_CONFIG[election.status];
-            const phaseInfo = getPhaseInfo(election);
+            const statusConfig = getStatusConfig(t);
+            const config = statusConfig[election.status];
+            const phaseInfo = getPhaseInfo(election, t);
             return (
               <Link
                 key={election.id}
@@ -194,7 +200,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
                       <Trophy className="w-4 h-4 text-amber-500" />
                       <span className="text-sm text-fg">{election.position_name}</span>
                       {election.max_winners > 1 && (
-                        <span className="text-xs text-fg-muted">({election.max_winners} seats)</span>
+                        <span className="text-xs text-fg-muted">({election.max_winners} {t("elections.seats")})</span>
                       )}
                     </div>
 
@@ -207,7 +213,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
                     <div className="flex items-center gap-4 flex-wrap text-xs text-fg-muted">
                       <span className="flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5" />
-                        {election.candidate_count || 0} candidate{(election.candidate_count || 0) !== 1 ? "s" : ""}
+                        {election.candidate_count || 0} {(election.candidate_count || 0) !== 1 ? t("elections.candidates") : t("elections.candidate")}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5" />
