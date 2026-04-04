@@ -33,7 +33,7 @@ export default function AuthPage() {
     if (mode === "register" && !consent) {
       setMessage({
         type: "error",
-        text: "Consent to data processing is required to participate in Agora (Art. 6 GDPR).",
+        text: "Consent to data processing is required to participate in Pangea (Art. 6 GDPR).",
       });
       return;
     }
@@ -101,10 +101,10 @@ export default function AuthPage() {
             <Globe className="w-16 h-16 text-fg-primary" strokeWidth={1} />
           </div>
           <h1 className="text-5xl font-display font-bold text-fg mb-3">
-            Agora
+            Pangea
           </h1>
           <p className="text-fg-primary text-lg mb-2">
-            Pangea Global Democratic Commonwealth
+            Global Democratic Commonwealth
           </p>
           <p className="text-fg-muted text-sm max-w-md leading-relaxed mb-12">
             The platform where ideas become legislative proposals, proposals
@@ -135,8 +135,8 @@ export default function AuthPage() {
           {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">
             <Globe className="w-12 h-12 text-fg-primary mx-auto mb-2" strokeWidth={1} />
-            <h1 className="text-3xl font-bold text-fg">Agora</h1>
-            <p className="text-fg-muted text-sm">Pangea Global Democratic Commonwealth</p>
+            <h1 className="text-3xl font-bold text-fg">Pangea</h1>
+            <p className="text-fg-muted text-sm">Global Democratic Commonwealth</p>
           </div>
 
           {/* Tab switcher */}
@@ -222,7 +222,7 @@ export default function AuthPage() {
                   <span className="text-fg font-medium">Required consent (Art. 6 GDPR)</span>
                   <br />
                   I consent to the processing of my personal data for
-                  participation in the Agora democratic platform of Pangea.
+                  participation in the Pangea democratic platform.
                   My voting preferences will never be disclosed.
                 </label>
               </div>
@@ -249,7 +249,7 @@ export default function AuthPage() {
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : null}
-              {mode === "login" ? "Enter the Agora" : "Become a Citizen"}
+              {mode === "login" ? "Enter Pangea" : "Become a Citizen"}
             </button>
           </form>
 
@@ -273,7 +273,7 @@ export default function AuthPage() {
           </button>
 
           <p className="text-center text-xs text-fg-muted mt-8">
-            Agora · Pangea World · Privacy by Design
+            Pangea · pangea.vote · Privacy by Design
           </p>
         </div>
       </div>

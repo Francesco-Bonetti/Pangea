@@ -4,7 +4,7 @@ import AppShell from "@/components/AppShell";
 import NewElectionForm from "@/components/NewElectionForm";
 
 export const metadata = {
-  title: "Create Election — Agora Pangea",
+  title: "Create Election — Pangea",
 };
 
 export default async function NewElectionPage() {

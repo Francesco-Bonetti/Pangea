@@ -33,7 +33,7 @@ export default async function AboutPage() {
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-4">
             <Globe className="w-10 h-10 text-fg-primary" strokeWidth={1.5} />
-            <h1 className="text-4xl font-bold text-fg">Agora Pangea</h1>
+            <h1 className="text-4xl font-bold text-fg">Pangea</h1>
           </div>
           <p className="text-xl text-fg-muted max-w-2xl">
             The digital democracy platform of the Global Democratic Commonwealth of Pangea.
@@ -70,11 +70,11 @@ export default async function AboutPage() {
               {[
                 {
                   title: "1. Register",
-                  desc: "Create your citizen profile on Agora. Registration is free and requires GDPR consent to protect your privacy.",
+                  desc: "Create your citizen profile on Pangea. Registration is free and requires GDPR consent to protect your privacy.",
                 },
                 {
                   title: "2. Explore Proposals",
-                  desc: "Browse the Agora to see proposals in active voting. Each proposal shows the legislative context, proposed articles, and real-time results.",
+                  desc: "Browse Pangea to see proposals in active voting. Each proposal shows the legislative context, proposed articles, and real-time results.",
                 },
                 {
                   title: "3. Propose Laws",
@@ -166,7 +166,7 @@ export default async function AboutPage() {
               {user ? (
                 <>
                   <Link href="/dashboard" className="btn-primary">
-                    Back to the Agora
+                    Back to Dashboard
                   </Link>
                   <Link href="/proposals/new" className="btn-secondary">
                     Propose a Law

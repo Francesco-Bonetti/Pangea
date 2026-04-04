@@ -213,7 +213,7 @@ export default function FeedClient({ userId }: FeedClientProps) {
                   <Flag className="w-4 h-4" /> Browse Parties
                 </Link>
                 <Link href="/dashboard" className="btn-secondary px-4 py-2 text-sm inline-flex items-center gap-2">
-                  <Globe className="w-4 h-4" /> Explore the Agora
+                  <Globe className="w-4 h-4" /> Explore Pangea
                 </Link>
               </div>
             </div>

@@ -3,7 +3,7 @@ import AppShell from "@/components/AppShell";
 import ElectionsClient from "@/components/ElectionsClient";
 
 export const metadata = {
-  title: "Elections — Agora Pangea",
+  title: "Elections — Pangea",
   description: "Vote for candidates, run for office, and shape the governance of Pangea.",
 };
 

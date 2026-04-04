@@ -17,7 +17,7 @@ function resolvePrivacyName(
 }
 
 export const metadata = {
-  title: "Discussion Thread — Agora Pangea",
+  title: "Discussion Thread — Pangea",
   description: "Read and join the discussion",
 };
 

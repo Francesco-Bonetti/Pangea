@@ -115,7 +115,7 @@ export default async function CitizenProfilePage({ params }: Props) {
     <AppShell userEmail={user?.email} userName={viewerName} userRole={viewerRole} isGuest={!user}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link href="/dashboard" className="text-sm text-fg-muted hover:text-fg transition-colors mb-6 inline-block overflow-hidden">
-          <span className="inline-block truncate">&larr; Back to the Agora</span>
+          <span className="inline-block truncate">&larr; Back to Dashboard</span>
         </Link>
 
         {/* Restricted access banner */}

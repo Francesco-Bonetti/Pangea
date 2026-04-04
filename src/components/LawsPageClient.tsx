@@ -98,7 +98,7 @@ export default function LawsPageClient({
               The complete collection of all Pangean laws — both those currently
               in force and those that will be progressively activated. Inactive laws
               are shown with a slightly different style. All laws can be amended or
-              repealed through the Agora&apos;s democratic process.
+              repealed through Pangea&apos;s democratic process.
             </p>
           </div>
 

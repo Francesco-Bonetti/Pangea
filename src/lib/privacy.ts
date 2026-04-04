@@ -1,5 +1,5 @@
 // ============================================
-// PRIVACY UTILITIES - Agora Pangea
+// PRIVACY UTILITIES - Pangea Democratic Platform
 // Centralized privacy-aware profile rendering
 // ============================================
 

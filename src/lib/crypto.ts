@@ -1,6 +1,6 @@
 // ============================================
 // E2E ENCRYPTION UTILITIES — tweetnacl
-// Agora Pangea — Direct Messages
+// Pangea — Direct Messages
 // ============================================
 // Uses tweetnacl box (Curve25519-XSalsa20-Poly1305)
 // Server NEVER sees plaintext messages.

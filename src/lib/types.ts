@@ -1,5 +1,5 @@
 // ============================================
-// AGORA TYPES - Pangea Democratic Platform
+// PANGEA TYPES - Global Democratic Platform
 // Phase 2: Liquid Democracy + Community Review + Distributed Multi-Vote
 // ============================================
 

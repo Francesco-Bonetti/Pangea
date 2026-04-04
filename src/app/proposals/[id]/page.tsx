@@ -147,7 +147,7 @@ export default async function ProposalDetailPage({ params }: Props) {
           className="inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to the Agora
+          Back to Dashboard
         </Link>
 
         {/* Draft Actions — only for author's drafts */}

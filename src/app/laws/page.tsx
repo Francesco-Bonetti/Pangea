@@ -87,7 +87,7 @@ export default async function LawsPage() {
             href="/dashboard"
             className="text-sm text-fg-muted hover:text-fg transition-colors mb-4 inline-block"
           >
-            &larr; Back to the Agora
+            &larr; Back to Dashboard
           </Link>
           <div className="flex items-center gap-3 mb-2 overflow-hidden">
             <BookOpen className="w-8 h-8 text-blue-400 shrink-0" strokeWidth={1.5} />
@@ -97,7 +97,7 @@ export default async function LawsPage() {
           </div>
           <p className="text-fg-muted">
             The complete body of Pangean law — living codes that are amendable
-            and repealable through the democratic process of the Agora. Each law
+            and repealable through the democratic process of Pangea. Each law
             has a technical version and a simplified explanation.
           </p>
         </div>

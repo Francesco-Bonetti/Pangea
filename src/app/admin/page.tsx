@@ -18,6 +18,8 @@ import {
   XCircle,
   Scale,
   BarChart3,
+  Bug,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,6 +34,18 @@ interface LawRow {
   created_at: string;
 }
 
+interface BugReport {
+  id: string;
+  user_id: string | null;
+  category: string;
+  title: string;
+  description: string | null;
+  page_url: string | null;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+}
+
 export default function AdminPage() {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -42,9 +56,10 @@ export default function AdminPage() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [laws, setLaws] = useState<LawRow[]>([]);
+  const [bugReports, setBugReports] = useState<BugReport[]>([]);
 
   // UI State
-  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "stats">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats">("users");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -67,15 +82,17 @@ export default function AdminPage() {
     }
     setAuthorized(true);
 
-    const [usersRes, proposalsRes, lawsRes] = await Promise.all([
+    const [usersRes, proposalsRes, lawsRes, reportsRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("proposals").select("*").order("created_at", { ascending: false }),
       supabase.from("laws").select("id, title, code, law_type, status, created_at").order("created_at", { ascending: false }),
+      supabase.from("bug_reports").select("*").order("created_at", { ascending: false }),
     ]);
 
     setUsers(usersRes.data ?? []);
     setProposals(proposalsRes.data ?? []);
     setLaws(lawsRes.data ?? []);
+    setBugReports(reportsRes.data ?? []);
     setLoading(false);
   }, [supabase, router]);
 
@@ -141,6 +158,21 @@ export default function AdminPage() {
     setActionLoading(null);
   }
 
+  async function updateReportStatus(reportId: string, newStatus: string) {
+    clearMessages();
+    setActionLoading(reportId);
+    const { error: err } = await supabase
+      .from("bug_reports")
+      .update({ status: newStatus })
+      .eq("id", reportId);
+    if (err) setError(err.message);
+    else {
+      setSuccess(`Report status updated to "${newStatus}"`);
+      setBugReports(prev => prev.map(r => r.id === reportId ? { ...r, status: newStatus } : r));
+    }
+    setActionLoading(null);
+  }
+
   async function closeProposal(proposalId: string) {
     clearMessages();
     setActionLoading(proposalId);
@@ -190,7 +222,7 @@ export default function AdminPage() {
           <p className="text-fg-muted mb-6">Only administrators can access this page.</p>
           <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2 overflow-hidden">
             <ArrowLeft className="w-4 h-4 shrink-0" />
-            <span className="truncate">Back to the Agora</span>
+            <span className="truncate">Back to Dashboard</span>
           </Link>
         </div>
       </AppShell>
@@ -254,9 +286,9 @@ export default function AdminPage() {
             <p className="text-xs text-fg-muted">Laws</p>
           </div>
           <div className="card p-4">
-            <Scale className="w-5 h-5 text-fg-success mb-1" />
-            <p className="text-2xl font-bold text-fg">{proposals.filter(p => p.status === "active").length}</p>
-            <p className="text-xs text-fg-muted">Active</p>
+            <Bug className="w-5 h-5 text-red-400 mb-1" />
+            <p className="text-2xl font-bold text-fg">{bugReports.filter(r => r.status === "open").length}</p>
+            <p className="text-xs text-fg-muted">Open Reports</p>
           </div>
         </div>
 
@@ -266,6 +298,7 @@ export default function AdminPage() {
             { key: "users", label: "Users", icon: Users },
             { key: "proposals", label: "Proposals", icon: FileText },
             { key: "laws", label: "Laws", icon: BookOpen },
+            { key: "reports", label: "Reports", icon: Bug },
             { key: "stats", label: "Statistics", icon: BarChart3 },
           ] as const).map(({ key, label, icon: Icon }) => (
             <button
@@ -412,6 +445,73 @@ export default function AdminPage() {
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Reports tab */}
+        {activeTab === "reports" && (
+          <div className="space-y-2">
+            {bugReports.length === 0 && (
+              <div className="card p-8 text-center text-fg-muted text-sm">No reports yet. Citizens can submit reports using the bug button.</div>
+            )}
+            {bugReports.map((r) => {
+              const catColor: Record<string, string> = {
+                bug: "text-red-400 bg-red-900/20",
+                suggestion: "text-blue-400 bg-blue-900/20",
+                question: "text-amber-400 bg-amber-900/20",
+                other: "text-fg-muted bg-theme-muted",
+              };
+              const statusBadge: Record<string, string> = {
+                open: "text-red-400 bg-red-900/20",
+                in_progress: "text-amber-400 bg-amber-900/20",
+                resolved: "text-fg-success bg-success-tint",
+                closed: "text-fg-muted bg-theme-muted",
+              };
+              return (
+                <div key={r.id} className="card p-4">
+                  <div className="flex items-start gap-3">
+                    <Bug className="w-5 h-5 text-fg-muted shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-fg font-medium">{r.title}</p>
+                      {r.description && (
+                        <p className="text-xs text-fg-muted mt-1 line-clamp-2">{r.description}</p>
+                      )}
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${catColor[r.category] || ""}`}>
+                          {r.category}
+                        </span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusBadge[r.status] || ""}`}>
+                          {r.status.replace("_", " ")}
+                        </span>
+                        <span className="text-xs text-fg-muted">{formatDateTime(r.created_at)}</span>
+                        {r.page_url && (
+                          <span className="text-xs text-fg-muted truncate max-w-[200px]" title={r.page_url}>
+                            {r.page_url.replace(/^https?:\/\/[^/]+/, "")}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="relative">
+                        <select
+                          value={r.status}
+                          onChange={(e) => updateReportStatus(r.id, e.target.value)}
+                          disabled={actionLoading === r.id}
+                          className="appearance-none bg-theme-card border border-theme rounded-lg px-3 py-1.5 pr-8 text-xs text-fg cursor-pointer focus:outline-none focus:border-pangea-500"
+                        >
+                          <option value="open">Open</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="resolved">Resolved</option>
+                          <option value="closed">Closed</option>
+                        </select>
+                        <ChevronDown className="w-3 h-3 text-fg-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                      {actionLoading === r.id && <Loader2 className="w-4 h-4 text-fg-primary animate-spin" />}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 

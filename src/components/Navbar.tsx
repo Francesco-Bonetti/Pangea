@@ -66,7 +66,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 group-hover:from-blue-500 group-hover:to-blue-600 transition-all duration-200 shrink-0">
               <Globe className="w-5 h-5 text-fg shrink-0" strokeWidth={2} />
             </div>
-            <span className="text-lg font-bold text-fg tracking-tight shrink-0">AGORA</span>
+            <span className="text-lg font-bold text-fg tracking-tight shrink-0">PANGEA</span>
           </Link>
 
           {/* Desktop Navigation */}

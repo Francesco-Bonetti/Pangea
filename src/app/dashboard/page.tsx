@@ -160,7 +160,7 @@ export default async function DashboardPage() {
                 style={{ color: "var(--primary)" }}
                 strokeWidth={1.5}
               />
-              The Agora
+              Pangea
             </h1>
             <p
               className="text-sm mt-1"
@@ -487,7 +487,7 @@ export default async function DashboardPage() {
                 className="text-lg font-semibold mb-2"
                 style={{ color: "var(--foreground)" }}
               >
-                The Agora is quiet for now
+                Pangea is quiet for now
               </h3>
               <p
                 className="mb-6 max-w-md mx-auto text-sm"

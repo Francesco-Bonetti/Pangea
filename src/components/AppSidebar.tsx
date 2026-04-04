@@ -133,7 +133,7 @@ export default function AppSidebar({
               <Globe className="w-5 h-5 text-fg" strokeWidth={2} />
             </div>
             <span className="text-lg font-bold tracking-tight" style={{ color: "var(--foreground)" }}>
-              AGORA
+              PANGEA
             </span>
           </Link>
           {/* Collapse on desktop / close on mobile */}

@@ -15,7 +15,7 @@ export default function GuestBanner() {
         <div className="flex items-center gap-2 text-sm text-amber-200">
           <UserPlus className="w-4 h-4 shrink-0" />
           <span>
-            You are exploring Agora as a <strong>guest</strong>. Actions are not saved.
+            You are exploring Pangea as a <strong>guest</strong>. Actions are not saved.
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">

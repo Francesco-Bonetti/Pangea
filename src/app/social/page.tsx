@@ -11,7 +11,7 @@ import type { DiscussionChannel, Discussion, Tag } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Community Forum — Agora Pangea",
+  title: "Community Forum — Pangea",
   description: "Join the community discussion forum",
 };
 

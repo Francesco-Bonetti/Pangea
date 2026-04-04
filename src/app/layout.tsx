@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Merriweather } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/Toast";
+import BugReportButton from "@/components/BugReportButton";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,12 +19,12 @@ const merriweather = Merriweather({
 });
 
 export const metadata: Metadata = {
-  title: "Agora — Pangea Democratic Platform",
+  title: "Pangea — Global Democratic Platform",
   description:
     "The digital democracy platform of the Global Democratic Commonwealth of Pangea. Propose, debate, deliberate.",
-  keywords: ["democracy", "vote", "proposals", "Pangea", "Agora", "digital"],
+  keywords: ["democracy", "vote", "proposals", "Pangea", "pangea.vote", "digital"],
   openGraph: {
-    title: "Agora — Pangea",
+    title: "Pangea — Global Democracy",
     description: "Propose laws, vote, build global democracy.",
     type: "website",
   },
@@ -49,6 +50,7 @@ export default function RootLayout({
         >
           <ToastProvider>
             {children}
+            <BugReportButton />
           </ToastProvider>
         </ThemeProvider>
       </body>

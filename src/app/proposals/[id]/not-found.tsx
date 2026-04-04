@@ -12,7 +12,7 @@ export default function NotFound() {
         </p>
         <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2">
           <ArrowLeft className="w-4 h-4" />
-          Back to the Agora
+          Back to Dashboard
         </Link>
       </div>
     </div>
