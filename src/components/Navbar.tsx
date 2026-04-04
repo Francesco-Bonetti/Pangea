@@ -115,7 +115,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3 overflow-hidden">
+          <div className="flex items-center gap-3">
             {isGuest ? (
               /* Guest: Sign In Button */
               <Link
