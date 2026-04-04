@@ -637,6 +637,19 @@ const en = {
   feedPage: {
     title: "Your Feed",
   },
+
+  // ── Translate ──
+  translate: {
+    translate: "Translate",
+    translating: "Translating...",
+    showOriginal: "Show original",
+    showTranslation: "Show translation",
+    viewOriginal: "auto-translated",
+    autoTranslated: "view original",
+    autoNotice: "Translated automatically — may contain errors",
+    error: "Translation failed. Please try again.",
+    rateLimited: "Too many requests. Please wait a moment.",
+  },
 };
 
 export default en;

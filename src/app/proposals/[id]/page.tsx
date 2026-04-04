@@ -9,6 +9,7 @@ import type { DistributedResult, ProposalOption } from "@/lib/types";
 import { ArrowLeft, Calendar, Clock, User, FileText, Hash, Flame, BarChart3, Users, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { formatDateTime } from "@/lib/utils";
+import TranslatedContent from "@/components/TranslatedContent";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -211,7 +212,11 @@ export default async function ProposalDetailPage({ params }: Props) {
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-fg leading-snug mb-6">
-            {proposal.title}
+            <TranslatedContent
+              text={proposal.title}
+              contentType="proposal_title"
+              contentId={proposal.id}
+            />
           </h1>
 
           {/* Metadata */}
@@ -252,9 +257,13 @@ export default async function ProposalDetailPage({ params }: Props) {
                 <span className="truncate">Context and Motivation</span>
               </h2>
               <div className="prose prose-invert prose-sm max-w-none">
-                <p className="text-fg leading-relaxed whitespace-pre-wrap">
-                  {proposal.content}
-                </p>
+                <TranslatedContent
+                  text={proposal.content}
+                  contentType="proposal_content"
+                  contentId={proposal.id}
+                  as="p"
+                  className="text-fg leading-relaxed whitespace-pre-wrap"
+                />
               </div>
             </div>
 
@@ -265,9 +274,13 @@ export default async function ProposalDetailPage({ params }: Props) {
                   Legal Provision
                 </h2>
                 <div className="bg-theme-base rounded-lg p-4 border border-theme">
-                  <p className="text-fg text-sm font-mono leading-relaxed whitespace-pre-wrap">
-                    {proposal.dispositivo}
-                  </p>
+                  <TranslatedContent
+                    text={proposal.dispositivo}
+                    contentType="proposal_dispositivo"
+                    contentId={proposal.id}
+                    as="p"
+                    className="text-fg text-sm font-mono leading-relaxed whitespace-pre-wrap"
+                  />
                 </div>
               </div>
             )}

@@ -6,6 +6,7 @@ import SendMessageButton from "@/components/SendMessageButton";
 import FollowButton from "@/components/FollowButton";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import TranslatedContent from "@/components/TranslatedContent";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -188,7 +189,9 @@ export default async function CitizenProfilePage({ params }: Props) {
                 <p className="text-xs text-fg-primary font-mono font-semibold tracking-wider mt-1">{citizen.user_code}</p>
               )}
               {showBio && citizen.bio && (
-                <p className="text-fg-muted text-sm max-w-md mx-auto mt-2">{citizen.bio}</p>
+                <p className="text-fg-muted text-sm max-w-md mx-auto mt-2">
+                  <TranslatedContent text={citizen.bio} contentType="citizen_bio" contentId={citizen.id} />
+                </p>
               )}
               {showJoinDate && (
                 <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-fg-muted flex-wrap">

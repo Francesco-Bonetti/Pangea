@@ -638,6 +638,19 @@ const it: TranslationKeys = {
   feedPage: {
     title: "Le Tue Notizie",
   },
+
+  // ── Translate ──
+  translate: {
+    translate: "Traduci",
+    translating: "Traduzione in corso...",
+    showOriginal: "Mostra originale",
+    showTranslation: "Mostra traduzione",
+    viewOriginal: "tradotto automaticamente",
+    autoTranslated: "vedi originale",
+    autoNotice: "Tradotto automaticamente — potrebbe contenere errori",
+    error: "Traduzione fallita. Riprova.",
+    rateLimited: "Troppe richieste. Attendi un momento.",
+  },
 };
 
 export default it;

@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { Vote, CheckCircle, XCircle, User, Users, Trophy, Flag, AlertTriangle, LogIn } from "lucide-react";
 import Link from "next/link";
 import type { Election, ElectionResultEntry } from "@/lib/types";
+import { triggerTranslation } from "@/lib/translate";
+import TranslatedContent from "@/components/TranslatedContent";
 
 interface CandidateRow {
   candidate_id: string;
@@ -150,11 +152,11 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
     setRegistering(true);
     setError(null);
 
-    const { error: insertError } = await supabase.from("candidates").insert({
+    const { data: candidateData, error: insertError } = await supabase.from("candidates").insert({
       election_id: election.id,
       user_id: userId,
       platform: platform.trim() || null,
-    });
+    }).select("id").single();
 
     if (insertError) {
       if (insertError.code === "23505") {
@@ -163,6 +165,10 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
         setError(insertError.message);
       }
     } else {
+      // Trigger translation for candidate platform
+      if (candidateData?.id && platform.trim()) {
+        triggerTranslation(platform.trim(), "candidate_platform", candidateData.id);
+      }
       setIsCandidate(true);
       setShowRegisterForm(false);
       setPlatform("");
@@ -459,7 +465,9 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
 
                   {/* Platform */}
                   {candidate.candidate_platform && (
-                    <p className="text-sm text-fg-muted mt-2 pl-11">{candidate.candidate_platform}</p>
+                    <p className="text-sm text-fg-muted mt-2 pl-11">
+                      <TranslatedContent text={candidate.candidate_platform} contentType="candidate_platform" contentId={candidate.candidate_id} />
+                    </p>
                   )}
 
                   {/* Vote bar */}

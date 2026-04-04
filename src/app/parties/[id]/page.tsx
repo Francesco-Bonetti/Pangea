@@ -13,6 +13,8 @@ import type { Party, PartyMember, PartyVote, PartyForumPost, Profile, Proposal }
 import PrivacyName from "@/components/PrivacyName";
 import FollowButton from "@/components/FollowButton";
 import { useLanguage } from "@/components/language-provider";
+import { triggerMultiFieldTranslation, triggerTranslation } from "@/lib/translate";
+import TranslatedContent from "@/components/TranslatedContent";
 
 type Tab = "info" | "members" | "votes" | "forum";
 
@@ -21,7 +23,7 @@ export default function PartyDetailPage() {
   const router = useRouter();
   const params = useParams();
   const partyId = params.id as string;
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   // Auth
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -223,6 +225,15 @@ export default function PartyDetailPage() {
       .update({ description: editData.description || null, manifesto: editData.manifesto || null })
       .eq("id", partyId);
     if (err) { setError(err.message); return; }
+    // Trigger translations for updated party fields
+    const editFields: Array<{ text: string; contentType: "party_description" | "party_manifesto"; contentId: string }> = [];
+    if (editData.description?.trim()) {
+      editFields.push({ text: editData.description.trim(), contentType: "party_description", contentId: partyId });
+    }
+    if (editData.manifesto?.trim()) {
+      editFields.push({ text: editData.manifesto.trim(), contentType: "party_manifesto", contentId: partyId });
+    }
+    if (editFields.length > 0) triggerMultiFieldTranslation(editFields, locale);
     setEditing(false);
     setSuccess(t("parties.partyUpdated"));
     loadData();
@@ -231,14 +242,23 @@ export default function PartyDetailPage() {
   async function handlePostForum() {
     if (!newPost.body.trim() || !user) return;
     setPosting(true);
-    const { error: err } = await supabase.from("party_forum_posts").insert({
+    const { data: postData, error: err } = await supabase.from("party_forum_posts").insert({
       party_id: partyId,
       author_id: user.id,
       title: newPost.title.trim() || null,
       body: newPost.body.trim(),
       is_admin_only: newPost.is_admin_only,
-    });
+    }).select("id").single();
     if (err) { setError(err.message); setPosting(false); return; }
+    // Trigger translations for party forum post
+    if (postData?.id) {
+      const postFields: Array<{ text: string; contentType: "party_post_title" | "party_post_body"; contentId: string }> = [];
+      if (newPost.title.trim()) {
+        postFields.push({ text: newPost.title.trim(), contentType: "party_post_title", contentId: postData.id });
+      }
+      postFields.push({ text: newPost.body.trim(), contentType: "party_post_body", contentId: postData.id });
+      triggerMultiFieldTranslation(postFields, locale);
+    }
     setNewPost({ title: "", body: "", is_admin_only: false });
     setPosting(false);
     setSuccess(t("parties.postPublished"));
@@ -303,7 +323,9 @@ export default function PartyDetailPage() {
                 {" · "}{members.length} {members.length === 1 ? t("parties.members").slice(0, -1) : t("parties.members")}
               </p>
               {!editing && party.description && (
-                <p className="text-fg mt-3">{party.description}</p>
+                <p className="text-fg mt-3">
+                  <TranslatedContent text={party.description} contentType="party_description" contentId={partyId} />
+                </p>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
@@ -391,7 +413,9 @@ export default function PartyDetailPage() {
             {party.manifesto && (
               <div className="card">
                 <h3 className="text-lg font-semibold text-fg mb-3">{t("parties.manifesto")}</h3>
-                <p className="text-fg whitespace-pre-wrap">{party.manifesto}</p>
+                <p className="text-fg whitespace-pre-wrap">
+                  <TranslatedContent text={party.manifesto} contentType="party_manifesto" contentId={partyId} />
+                </p>
               </div>
             )}
             {/* Role badges for current user */}
@@ -639,8 +663,8 @@ export default function PartyDetailPage() {
                         {new Date(post.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                    {post.title && <h4 className="text-fg font-medium mb-1">{post.title}</h4>}
-                    <p className="text-sm text-fg-muted whitespace-pre-wrap">{post.body}</p>
+                    {post.title && <h4 className="text-fg font-medium mb-1"><TranslatedContent text={post.title} contentType="party_post_title" contentId={post.id} /></h4>}
+                    <p className="text-sm text-fg-muted whitespace-pre-wrap"><TranslatedContent text={post.body} contentType="party_post_body" contentId={post.id} /></p>
                   </div>
                 ))}
               </div>

@@ -367,6 +367,17 @@ const es: TranslationKeys = {
     candidacySubmitted: "¡Tu candidatura ha sido enviada!",
   },
   feedPage: { title: "Tu Feed" },
+  translate: {
+    translate: "Traducir",
+    translating: "Traduciendo...",
+    showOriginal: "Mostrar original",
+    showTranslation: "Mostrar traducción",
+    viewOriginal: "traducido automáticamente",
+    autoTranslated: "ver original",
+    autoNotice: "Traducido automáticamente — puede contener errores",
+    error: "Error de traducción. Inténtalo de nuevo.",
+    rateLimited: "Demasiadas solicitudes. Espera un momento.",
+  },
 };
 
 export default es;

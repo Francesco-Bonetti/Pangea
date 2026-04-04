@@ -9,11 +9,12 @@ import { Flag, Plus, Users, Search, X, AlertCircle, ChevronRight } from "lucide-
 import type { Party, Profile } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import { useLanguage } from "@/components/language-provider";
+import { triggerMultiFieldTranslation } from "@/lib/translate";
 
 export default function PartiesPage() {
   const supabase = createClient();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   // Auth state
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -122,6 +123,18 @@ export default function PartiesPage() {
       }
       setCreating(false);
       return;
+    }
+
+    // Trigger batch translations (fire & forget)
+    if (data) {
+      const fields: Array<{ text: string; contentType: "party_description" | "party_manifesto"; contentId: string }> = [];
+      if (newParty.description.trim()) {
+        fields.push({ text: newParty.description.trim(), contentType: "party_description", contentId: data });
+      }
+      if (newParty.manifesto.trim()) {
+        fields.push({ text: newParty.manifesto.trim(), contentType: "party_manifesto", contentId: data });
+      }
+      if (fields.length > 0) triggerMultiFieldTranslation(fields, locale);
     }
 
     // Navigate to the new party

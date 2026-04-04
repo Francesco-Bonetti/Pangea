@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import PrivacyName from "@/components/PrivacyName";
+import { triggerTranslation } from "@/lib/translate";
+import TranslatedContent from "@/components/TranslatedContent";
 
 interface Comment {
   id: string;
@@ -149,7 +151,7 @@ function CommentCard({
           </div>
 
           <p className="text-[var(--muted-foreground)] text-sm mb-3 break-words">
-            {comment.body}
+            <TranslatedContent text={comment.body} contentType="comment" contentId={comment.id} />
           </p>
 
           <div className="flex items-center gap-2 overflow-hidden flex-wrap">
@@ -243,7 +245,7 @@ function RepliesSection({
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("comments").insert([
+      const { data: commentData, error } = await supabase.from("comments").insert([
         {
           author_id: userId,
           body: replyText,
@@ -251,9 +253,14 @@ function RepliesSection({
           proposal_id: null,
           law_id: null,
         },
-      ]);
+      ]).select("id").single();
 
       if (error) throw error;
+
+      // Trigger translation for comment
+      if (commentData?.id) {
+        triggerTranslation(replyText.trim(), "comment", commentData.id);
+      }
 
       setReplyText("");
       setReplyingTo(null);
@@ -443,11 +450,18 @@ export default function CommentSection({
         insertData.law_id = targetId;
       }
 
-      const { error } = await supabase
+      const { data: newCommentData, error } = await supabase
         .from("comments")
-        .insert([insertData]);
+        .insert([insertData])
+        .select("id")
+        .single();
 
       if (error) throw error;
+
+      // Trigger translation for new comment
+      if (newCommentData?.id) {
+        triggerTranslation(newCommentText.trim(), "comment", newCommentData.id);
+      }
 
       setNewCommentText("");
       await fetchComments();

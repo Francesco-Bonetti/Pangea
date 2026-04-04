@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ArrowBigUp, ArrowBigDown, Flag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ReportModal from "./ReportModal";
+import { triggerTranslation } from "@/lib/translate";
 
 interface DiscussionThreadClientProps {
   discussionId: string;
@@ -40,16 +41,20 @@ export default function DiscussionThreadClient({
 
     setIsSubmittingReply(true);
     try {
-      const { error } = await supabase.from("discussion_replies").insert([
+      const { data: replyData, error } = await supabase.from("discussion_replies").insert([
         {
           discussion_id: discussionId,
           author_id: userId,
           body: replyBody.trim(),
           parent_reply_id: null,
         },
-      ]);
+      ]).select("id").single();
 
       if (!error) {
+        // Trigger translation (fire & forget)
+        if (replyData?.id) {
+          triggerTranslation(replyBody.trim(), "forum_reply", replyData.id);
+        }
         setReplyBody("");
         // Increment replies count on discussion
         await supabase.rpc("increment_discussion_replies", {

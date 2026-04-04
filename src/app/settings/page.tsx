@@ -35,6 +35,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils";
+import { triggerTranslation } from "@/lib/translate";
 
 // Reusable toggle component
 function Toggle({
@@ -245,7 +246,13 @@ export default function SettingsPage() {
       .eq("id", user.id);
 
     if (err) setError(err.message);
-    else setSuccess(true);
+    else {
+      setSuccess(true);
+      // Trigger translation for bio if it changed
+      if (bio.trim() && user?.id) {
+        triggerTranslation(bio.trim(), "citizen_bio", user.id);
+      }
+    }
     setSaving(false);
     setTimeout(() => setSuccess(false), 3000);
   }

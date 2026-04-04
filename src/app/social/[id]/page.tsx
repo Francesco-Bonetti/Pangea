@@ -4,6 +4,7 @@ import DiscussionThreadClient from "@/components/DiscussionThreadClient";
 import { ArrowLeft, MessageCircle, Hash } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import TranslatedContent from "@/components/TranslatedContent";
 
 // Server-side privacy name resolver
 function resolvePrivacyName(
@@ -163,7 +164,11 @@ export default async function DiscussionPage({
 
           {/* Title */}
           <h1 className="text-3xl font-bold text-fg mb-4 truncate">
-            {discussion.title}
+            <TranslatedContent
+              text={discussion.title}
+              contentType="forum_post_title"
+              contentId={discussion.id}
+            />
           </h1>
 
           {/* Author info */}
@@ -194,9 +199,13 @@ export default async function DiscussionPage({
 
           {/* Discussion body */}
           <div className="py-6 prose prose-invert max-w-none">
-            <p className="text-fg leading-relaxed whitespace-pre-wrap text-[15px]">
-              {discussion.body}
-            </p>
+            <TranslatedContent
+              text={discussion.body}
+              contentType="forum_post_body"
+              contentId={discussion.id}
+              as="p"
+              className="text-fg leading-relaxed whitespace-pre-wrap text-[15px]"
+            />
           </div>
 
           {/* Tags */}
@@ -294,9 +303,13 @@ export default async function DiscussionPage({
                     </div>
 
                     {/* Reply body */}
-                    <p className="text-fg text-sm leading-relaxed whitespace-pre-wrap mb-3">
-                      {reply.body as string}
-                    </p>
+                    <TranslatedContent
+                      text={reply.body as string}
+                      contentType="forum_reply"
+                      contentId={reply.id as string}
+                      as="p"
+                      className="text-fg text-sm leading-relaxed whitespace-pre-wrap mb-3"
+                    />
 
                     {/* Reply voting */}
                     <div className="flex items-center gap-3 text-xs">

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { X, Search } from "lucide-react";
 import type { DiscussionChannel, Tag } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
+import { triggerMultiFieldTranslation } from "@/lib/translate";
 
 interface NewDiscussionFormProps {
   userId?: string;
@@ -20,7 +21,7 @@ export default function NewDiscussionForm({
 }: NewDiscussionFormProps) {
   const supabase = createClient();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [selectedChannel, setSelectedChannel] = useState(channelId || "");
@@ -146,6 +147,14 @@ export default function NewDiscussionForm({
           );
           if (updateError) console.error("Error updating tag counts:", updateError);
         }
+      }
+
+      // Trigger batch translations (fire & forget)
+      if (discussion) {
+        triggerMultiFieldTranslation([
+          { text: title.trim(), contentType: "forum_post_title", contentId: discussion.id },
+          { text: body.trim(), contentType: "forum_post_body", contentId: discussion.id },
+        ], locale);
       }
 
       // Reset form

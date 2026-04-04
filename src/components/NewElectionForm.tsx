@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Vote, Calendar, Trophy, Info, MapPin, Flag } from "lucide-react";
+import { triggerTranslation } from "@/lib/translate";
 import type { ElectionType } from "@/lib/types";
 
 interface Jurisdiction {
@@ -115,6 +116,11 @@ export default function NewElectionForm() {
       setError(insertError.message);
       setSubmitting(false);
       return;
+    }
+
+    // Trigger translation for election description
+    if (data?.id && description.trim()) {
+      triggerTranslation(description.trim(), "election_description", data.id);
     }
 
     router.push(`/elections/${data.id}`);

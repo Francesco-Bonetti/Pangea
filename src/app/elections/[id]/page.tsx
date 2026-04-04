@@ -5,6 +5,7 @@ import ElectionVotingBooth from "@/components/ElectionVotingBooth";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Trophy, MapPin, Flag, User, Clock } from "lucide-react";
 import type { Election, ElectionStatus } from "@/lib/types";
+import TranslatedContent from "@/components/TranslatedContent";
 
 const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {
   upcoming: { label: "Upcoming", color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },
@@ -125,7 +126,9 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
 
           {/* Description */}
           {election.description && (
-            <p className="text-fg-muted mb-4 leading-relaxed">{election.description}</p>
+            <p className="text-fg-muted mb-4 leading-relaxed">
+              <TranslatedContent text={election.description} contentType="election_description" contentId={election.id} />
+            </p>
           )}
 
           {/* Meta */}

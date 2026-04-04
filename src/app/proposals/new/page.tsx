@@ -8,6 +8,7 @@ import TagInput from "@/components/TagInput";
 import LawTreeSelector from "@/components/LawTreeSelector";
 import { useEffect } from "react";
 import { useLanguage } from "@/components/language-provider";
+import { triggerMultiFieldTranslation } from "@/lib/translate";
 import {
   ArrowLeft,
   Save,
@@ -32,7 +33,7 @@ interface OptionDraft {
 type ProposalType = "new" | "amendment" | "repeal";
 
 export default function NewProposalPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [dispositivo, setDispositivo] = useState("");
@@ -184,6 +185,18 @@ export default function NewProposalPage() {
 
           if (optError) throw optError;
         }
+      }
+
+      // Trigger batch translations for all text fields (fire & forget)
+      if (data && status === "curation") {
+        const fields: Array<{ text: string; contentType: import("@/lib/translate").ContentType; contentId: string }> = [
+          { text: title.trim(), contentType: "proposal_title", contentId: data.id },
+          { text: content.trim(), contentType: "proposal_content", contentId: data.id },
+        ];
+        if (dispositivo.trim()) {
+          fields.push({ text: dispositivo.trim(), contentType: "proposal_dispositivo", contentId: data.id });
+        }
+        triggerMultiFieldTranslation(fields, locale);
       }
 
       if (status === "draft") {

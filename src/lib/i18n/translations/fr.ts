@@ -368,6 +368,17 @@ const fr: TranslationKeys = {
     candidacySubmitted: "Votre candidature a été soumise !",
   },
   feedPage: { title: "Votre Fil" },
+  translate: {
+    translate: "Traduire",
+    translating: "Traduction en cours...",
+    showOriginal: "Afficher l'original",
+    showTranslation: "Afficher la traduction",
+    viewOriginal: "traduit automatiquement",
+    autoTranslated: "voir l'original",
+    autoNotice: "Traduit automatiquement — peut contenir des erreurs",
+    error: "Échec de la traduction. Veuillez réessayer.",
+    rateLimited: "Trop de demandes. Veuillez patienter.",
+  },
 };
 
 export default fr;
