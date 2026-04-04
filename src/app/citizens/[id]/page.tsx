@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff, MessageSquare } from "lucide-react";
 import SendMessageButton from "@/components/SendMessageButton";
 import FollowButton from "@/components/FollowButton";
@@ -112,10 +112,8 @@ export default async function CitizenProfilePage({ params }: Props) {
     : displayName[0].toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} userName={viewerName} userRole={viewerRole} isGuest={!user} />
-
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user?.email} userName={viewerName} userRole={viewerRole} isGuest={!user}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link href="/dashboard" className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-6 inline-block overflow-hidden">
           <span className="inline-block truncate">&larr; Back to the Agora</span>
         </Link>
@@ -272,7 +270,7 @@ export default async function CitizenProfilePage({ params }: Props) {
             )}
           </>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

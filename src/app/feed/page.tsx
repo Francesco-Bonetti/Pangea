@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import FeedClient from "@/components/FeedClient";
 import { Rss } from "lucide-react";
 
@@ -25,22 +25,15 @@ export default async function FeedPage() {
     .eq("status", "pending");
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar
-        userEmail={user.email}
-        userName={profile?.full_name}
-        userRole={profile?.role}
-        pendingDelegations={pendingDelegations ?? 0}
-      />
-
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user.email} userName={profile?.full_name} userRole={profile?.role} pendingDelegations={pendingDelegations ?? 0}>
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-3 mb-6">
           <Rss className="w-6 h-6 text-pangea-400" />
           <h1 className="text-2xl font-bold text-white">Your Feed</h1>
         </div>
 
         <FeedClient userId={user.id} />
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

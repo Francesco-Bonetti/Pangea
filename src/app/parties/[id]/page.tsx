@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import {
   Flag, Users, ArrowLeft, Crown, Shield, UserPlus, UserMinus, Edit2, Send,
   ThumbsUp, ThumbsDown, MinusCircle, Lock, ChevronDown, ChevronUp, AlertCircle, X
@@ -245,10 +245,9 @@ export default function PartyDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c1220]">
-        <Navbar isGuest={true} />
+      <AppShell isGuest={true}>
         <div className="text-center text-slate-500 py-20">Loading...</div>
-      </div>
+      </AppShell>
     );
   }
 
@@ -262,16 +261,14 @@ export default function PartyDetailPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar
-        userEmail={user?.email}
-        userName={profile?.full_name}
-        userRole={profile?.role}
-        isGuest={isGuest}
-        pendingDelegations={pendingDelegations}
-      />
-
-      <main className="max-w-5xl mx-auto px-4 py-8">
+    <AppShell
+      userEmail={user?.email}
+      userName={profile?.full_name}
+      userRole={profile?.role}
+      isGuest={isGuest}
+      pendingDelegations={pendingDelegations}
+    >
+      <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Back link */}
         <Link href="/parties" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-300 mb-6 overflow-hidden">
           <ArrowLeft className="w-4 h-4 shrink-0" />
@@ -648,7 +645,7 @@ export default function PartyDetailPage() {
             )}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

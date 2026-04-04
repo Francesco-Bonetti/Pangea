@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import type { Profile, PrivacySettings, ProfileVisibility, DmPolicy, ActivityVisibility } from "@/lib/types";
 import {
   Settings,
@@ -343,10 +343,8 @@ export default function SettingsPage() {
   const isPrivate = profileVisibility === "private";
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} />
-
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8 overflow-hidden">
           <Link
@@ -896,7 +894,7 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

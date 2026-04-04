@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Navbar from "@/components/Navbar";
-import GuestBanner from "@/components/GuestBanner";
+import AppShell from "@/components/AppShell";
 import NewDiscussionForm from "@/components/NewDiscussionForm";
 import NewChannelForm from "@/components/NewChannelForm";
 import ForumClient from "@/components/ForumClient";
@@ -134,16 +133,13 @@ export default async function SocialPage({
   ) as unknown as Discussion[];
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar
-        userEmail={user?.email}
-        userName={profile?.full_name}
-        userRole={profile?.role}
-        isGuest={isGuest}
-      />
-      {isGuest && <GuestBanner />}
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell
+      userEmail={user?.email}
+      userName={profile?.full_name}
+      userRole={profile?.role}
+      isGuest={isGuest}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8 overflow-hidden">
           <Link
@@ -288,7 +284,7 @@ export default async function SocialPage({
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

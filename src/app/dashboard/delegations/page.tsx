@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import type { Category, Delegation, Profile } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import {
@@ -197,17 +197,17 @@ export default function DelegationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c1220] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
-      </div>
+      <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
+        </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} />
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8 overflow-hidden">
           <Link
@@ -536,7 +536,7 @@ export default function DelegationsPage() {
             </div>
           )}
         </section>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

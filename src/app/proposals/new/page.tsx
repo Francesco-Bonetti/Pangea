@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import TagInput from "@/components/TagInput";
 import LawTreeSelector from "@/components/LawTreeSelector";
 import { useEffect } from "react";
@@ -193,10 +193,8 @@ export default function NewProposalPage() {
   const isPublishValid = isValid && validOptions.length >= 2;
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={userEmail} userName={userName} userRole={userRole} />
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={userEmail} userName={userName} userRole={userRole}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8 overflow-hidden">
           <Link
@@ -516,7 +514,7 @@ export default function NewProposalPage() {
             </p>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

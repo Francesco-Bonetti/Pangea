@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import Navbar from "@/components/Navbar";
-import GuestBanner from "@/components/GuestBanner";
+import AppShell from "@/components/AppShell";
 import VotingBooth from "@/components/VotingBooth";
 import SignalButton from "@/components/SignalButton";
 import DraftActions from "@/components/DraftActions";
@@ -140,11 +139,8 @@ export default async function ProposalDetailPage({ params }: Props) {
     : null;
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} userName={currentProfile?.full_name} userRole={currentProfile?.role} isGuest={isGuest} />
-      {isGuest && <GuestBanner />}
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user?.email} userName={currentProfile?.full_name} userRole={currentProfile?.role} isGuest={isGuest}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <Link
           href="/dashboard"
@@ -374,7 +370,7 @@ export default async function ProposalDetailPage({ params }: Props) {
             />
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

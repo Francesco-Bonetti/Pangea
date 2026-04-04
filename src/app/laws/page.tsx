@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Navbar from "@/components/Navbar";
-import GuestBanner from "@/components/GuestBanner";
+import AppShell from "@/components/AppShell";
 import LawsPageClient from "@/components/LawsPageClient";
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
@@ -80,11 +79,8 @@ export default async function LawsPage() {
   const activeArticles = activeLaws.filter((l) => l.law_type === "article").length;
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} isGuest={isGuest} />
-      {isGuest && <GuestBanner />}
-
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user?.email} isGuest={isGuest}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -115,7 +111,7 @@ export default async function LawsPage() {
           activeArticles={activeArticles}
           isAdmin={isAdmin}
         />
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

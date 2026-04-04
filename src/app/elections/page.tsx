@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import ElectionsClient from "@/components/ElectionsClient";
 
 export const metadata = {
@@ -43,15 +43,14 @@ export default async function ElectionsPage() {
   const isAdmin = userRole === "admin" || userRole === "moderator";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      <Navbar
-        userEmail={userEmail}
-        userName={userName}
-        userRole={userRole}
-        isGuest={isGuest}
-        pendingDelegations={pendingDelegations}
-      />
+    <AppShell
+      userEmail={userEmail}
+      userName={userName}
+      userRole={userRole}
+      isGuest={isGuest}
+      pendingDelegations={pendingDelegations}
+    >
       <ElectionsClient isAdmin={isAdmin} />
-    </div>
+    </AppShell>
   );
 }

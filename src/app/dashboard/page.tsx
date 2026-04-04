@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Navbar from "@/components/Navbar";
-import GuestBanner from "@/components/GuestBanner";
+import AppShell from "@/components/AppShell";
 import ProposalCard from "@/components/ProposalCard";
 import type { Proposal, ProposalResults, ProposalWithResults } from "@/lib/types";
 import { Plus, Globe, FileText, Clock, CheckCircle2, Flame, Users, BookOpen, Vote, TrendingUp, Flag } from "lucide-react";
@@ -122,17 +121,8 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar
-        userEmail={user?.email}
-        userName={profile?.full_name}
-        userRole={profile?.role}
-        isGuest={isGuest}
-        pendingDelegations={pendingDelegations}
-      />
-      {isGuest && <GuestBanner />}
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={isGuest} pendingDelegations={pendingDelegations}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header + Compact stats */}
         <div className="mb-8">
           <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 mb-4 overflow-hidden">
@@ -311,7 +301,7 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

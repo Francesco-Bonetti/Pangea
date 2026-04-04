@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import { Globe, BookOpen, Users, Vote, FileText, Shield } from "lucide-react";
 import Link from "next/link";
 
@@ -27,10 +27,8 @@ export default async function AboutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={!user} />
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={!user}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero */}
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-4">
@@ -182,7 +180,7 @@ export default async function AboutPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

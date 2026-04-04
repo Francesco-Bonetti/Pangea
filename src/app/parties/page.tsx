@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import { Flag, Plus, Users, Search, X, AlertCircle, ChevronRight } from "lucide-react";
 import type { Party, Profile } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
@@ -147,16 +147,14 @@ export default function PartiesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar
-        userEmail={user?.email}
-        userName={profile?.full_name}
-        userRole={profile?.role}
-        isGuest={isGuest}
-        pendingDelegations={pendingDelegations}
-      />
-
-      <main className="max-w-5xl mx-auto px-4 py-8">
+    <AppShell
+      userEmail={user?.email}
+      userName={profile?.full_name}
+      userRole={profile?.role}
+      isGuest={isGuest}
+      pendingDelegations={pendingDelegations}
+    >
+      <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex-1 min-w-0">
@@ -284,7 +282,7 @@ export default function PartiesPage() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Create party modal */}
       {showCreate && (
@@ -392,6 +390,6 @@ export default function PartiesPage() {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

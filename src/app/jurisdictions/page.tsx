@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useCallback } from "react";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import PrivacyName from "@/components/PrivacyName";
 import {
   Map,
@@ -195,7 +195,7 @@ export default function JurisdictionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c1220]">
+      <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={isGuest} pendingDelegations={pendingDelegations}>
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="h-8 w-48 bg-slate-800 rounded-lg animate-pulse mb-6" />
           <div className="grid gap-4">
@@ -212,21 +212,19 @@ export default function JurisdictionsPage() {
             ))}
           </div>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar
-        userEmail={user?.email}
-        userName={profile?.full_name}
-        userRole={profile?.role}
-        isGuest={isGuest}
-        pendingDelegations={pendingDelegations}
-      />
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell
+      userEmail={user?.email}
+      userName={profile?.full_name}
+      userRole={profile?.role}
+      isGuest={isGuest}
+      pendingDelegations={pendingDelegations}
+    >
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 overflow-hidden">
           <div className="flex items-center gap-3 min-w-0">
@@ -380,7 +378,7 @@ export default function JurisdictionsPage() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Create Modal */}
       {showCreate && (
@@ -550,6 +548,6 @@ export default function JurisdictionsPage() {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

@@ -28,6 +28,13 @@
     --input: #e2e8f0;
     --ring: #1e3a8a;
     --radius: 0.5rem;
+
+    /* Sidebar — light theme */
+    --sidebar-bg: #f1f5f9;             /* Slate 100 */
+    --sidebar-nav-hover: #e2e8f0;      /* Slate 200 */
+    --sidebar-nav-active-bg: #dbeafe;  /* Blue 100 */
+    --sidebar-nav-active-text: #1e3a8a;/* Blue 900 */
+    --sidebar-nav-text: #475569;       /* Slate 600 */
   }
 
   /* ============================================
@@ -54,6 +61,13 @@
     --border: #334155;           /* Slate 700 */
     --input: #334155;
     --ring: #3b82f6;
+
+    /* Sidebar — dark theme */
+    --sidebar-bg: #0b1120;             /* Deeper than background for hierarchy */
+    --sidebar-nav-hover: #1e293b;      /* Slate 800 */
+    --sidebar-nav-active-bg: #1e3a5f;  /* Blue-tinted dark */
+    --sidebar-nav-active-text: #60a5fa;/* Blue 400 — high contrast on dark */
+    --sidebar-nav-text: #94a3b8;       /* Slate 400 */
   }
 
   /* Global base styles */
@@ -474,4 +488,44 @@ a, button, input, select, textarea,
 .empty-state-text {
   @apply max-w-md mx-auto text-sm;
   color: var(--muted-foreground);
+}
+
+/* ============================================
+   SIDEBAR NAVIGATION
+   ============================================ */
+.sidebar-container {
+  background-color: var(--sidebar-bg);
+}
+
+.sidebar-nav-item {
+  min-height: 44px; /* WCAG touch target */
+}
+
+.sidebar-nav-active {
+  background-color: var(--sidebar-nav-active-bg);
+  color: var(--sidebar-nav-active-text);
+  font-weight: 600;
+}
+
+.sidebar-nav-inactive {
+  color: var(--sidebar-nav-text);
+}
+.sidebar-nav-inactive:hover {
+  background-color: var(--sidebar-nav-hover);
+  color: var(--foreground);
+}
+
+/* Sidebar custom scrollbar — thinner, subtle */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 9999px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
 }

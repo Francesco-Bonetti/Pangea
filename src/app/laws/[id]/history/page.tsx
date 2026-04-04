@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import Link from "next/link";
 import { History, ArrowLeft, Clock, RotateCcw, FileText } from "lucide-react";
 import LawHistoryClient from "@/components/LawHistoryClient";
@@ -27,16 +27,15 @@ export default async function LawHistoryPage({ params }: PageProps) {
 
   if (!law) {
     return (
-      <div className="min-h-screen bg-[#0c1220]">
-        <Navbar userEmail={user?.email} isGuest={isGuest} />
-        <main className="max-w-3xl mx-auto px-4 py-16 text-center">
+      <AppShell userEmail={user?.email} isGuest={isGuest}>
+        <div className="max-w-3xl mx-auto px-4 py-16 text-center">
           <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
           <h2 className="text-xl text-slate-300 mb-2">Law not found</h2>
           <Link href="/laws" className="text-blue-400 hover:text-blue-300">
             &larr; Back to Living Codes
           </Link>
-        </main>
-      </div>
+        </div>
+      </AppShell>
     );
   }
 
@@ -59,10 +58,8 @@ export default async function LawHistoryPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <Navbar userEmail={user?.email} isGuest={isGuest} />
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppShell userEmail={user?.email} isGuest={isGuest}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/laws"
           className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-4 inline-flex items-center gap-1 overflow-hidden"
@@ -127,7 +124,7 @@ export default async function LawHistoryPage({ params }: PageProps) {
             </p>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

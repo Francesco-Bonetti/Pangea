@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import NewElectionForm from "@/components/NewElectionForm";
 
 export const metadata = {
@@ -31,14 +31,15 @@ export default async function NewElectionPage() {
     .eq("status", "pending");
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      <Navbar
-        userEmail={user.email}
-        userName={profile?.full_name}
-        userRole={userRole}
-        pendingDelegations={count ?? 0}
-      />
-      <NewElectionForm />
-    </div>
+    <AppShell
+      userEmail={user.email}
+      userName={profile?.full_name}
+      userRole={userRole}
+      pendingDelegations={count ?? 0}
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <NewElectionForm />
+      </div>
+    </AppShell>
   );
 }

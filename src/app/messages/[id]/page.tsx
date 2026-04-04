@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import ChatThread from "@/components/ChatThread";
 import Link from "next/link";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
@@ -117,13 +117,7 @@ export default async function ConversationPage({ params }: Props) {
     .eq("status", "pending");
 
   return (
-    <div className="min-h-screen bg-[#0c1220] flex flex-col">
-      <Navbar
-        userEmail={user.email}
-        userName={profile?.full_name}
-        userRole={profile?.role}
-        pendingDelegations={pendingDelegations || 0}
-      />
+    <AppShell userEmail={user.email} userName={profile?.full_name} userRole={profile?.role} pendingDelegations={pendingDelegations || 0}>
       <ChatThread
         conversationId={conversationId}
         userId={user.id}
@@ -136,6 +130,6 @@ export default async function ConversationPage({ params }: Props) {
         otherUserPublicKey={otherKeys?.public_key || null}
         initialMessages={(messages || []).reverse()}
       />
-    </div>
+    </AppShell>
   );
 }

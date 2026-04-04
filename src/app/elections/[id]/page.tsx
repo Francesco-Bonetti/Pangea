@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 import ElectionVotingBooth from "@/components/ElectionVotingBooth";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Trophy, MapPin, Flag, User, Clock } from "lucide-react";
@@ -85,15 +85,13 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      <Navbar
-        userEmail={userEmail}
-        userName={userName}
-        userRole={userRole}
-        isGuest={!user}
-        pendingDelegations={pendingDelegations}
-      />
-
+    <AppShell
+      userEmail={userEmail}
+      userName={userName}
+      userRole={userRole}
+      isGuest={!user}
+      pendingDelegations={pendingDelegations}
+    >
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back */}
         <Link
@@ -191,6 +189,6 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
           isGuest={!user}
         />
       </div>
-    </div>
+    </AppShell>
   );
 }
