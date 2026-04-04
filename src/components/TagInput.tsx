@@ -21,7 +21,7 @@ interface TagInputProps {
 export default function TagInput({
   selectedTags,
   onTagsChange,
-  maxTags = 5,
+  maxTags = 50,
 }: TagInputProps) {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -178,7 +178,7 @@ export default function TagInput({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={selectedTags.length < maxTags ? "Type tag name or press Enter to create..." : "Tag limit reached"}
+            placeholder="Type tag name or press Enter to create..."
             disabled={selectedTags.length >= maxTags}
             className="input-field pl-10 pr-10 w-full"
           />
@@ -241,7 +241,7 @@ export default function TagInput({
 
       {/* Tag count indicator */}
       <div className="text-xs text-fg-muted">
-        {selectedTags.length} / {maxTags} tags selected
+        {selectedTags.length} {selectedTags.length === 1 ? "tag" : "tags"} selected
       </div>
     </div>
   );

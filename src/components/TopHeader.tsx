@@ -30,9 +30,8 @@ export default function TopHeader({ userName, isGuest = false }: TopHeaderProps)
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      // Future: route to search results page
-      // For now, close search
+    if (searchQuery.trim().length >= 2) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
     }
   }

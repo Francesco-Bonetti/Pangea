@@ -241,7 +241,7 @@ export default function DelegationsPage() {
         {/* Info card */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
           <Globe className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
-          <div className="text-sm text-fg-muted">
+          <div className="text-sm text-fg-muted space-y-2">
             <p>
               <strong className="text-fg">Liquid Democracy</strong>{" "}
               lets you delegate your vote to another citizen for all topics
@@ -249,6 +249,16 @@ export default function DelegationsPage() {
               <strong className="text-fg">revocable</strong> and your{" "}
               <strong className="text-fg">direct vote</strong> always
               takes precedence.
+            </p>
+            <p>
+              <strong className="text-amber-400">How it works:</strong>{" "}
+              When you create a delegation, it starts as{" "}
+              <strong className="text-amber-300">Pending</strong> — the other citizen must accept it before it becomes active.
+              If they accept, their vote will count for you on proposals where you don&apos;t vote directly.
+              If they reject it, the delegation won&apos;t take effect. You can revoke a delegation at any time.
+            </p>
+            <p className="text-xs">
+              <strong className="text-fg">Example:</strong> You delegate your vote to Alice on &quot;Environment&quot; topics. When a proposal about carbon tax comes up and you don&apos;t vote, Alice&apos;s vote counts for both of you. If you do vote directly, your vote overrides the delegation.
             </p>
           </div>
         </div>
@@ -432,12 +442,25 @@ export default function DelegationsPage() {
                         )}
                       </p>
                     </div>
-                    <span className={`shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-                      d.status === "accepted" ? "text-fg-success bg-success-tint border border-theme" :
-                      d.status === "rejected" ? "text-fg-danger bg-danger-tint border border-theme" :
-                      "text-amber-300 bg-warning-tint border border-theme"
-                    }`}>
-                      {d.status === "accepted" ? "Accepted" : d.status === "rejected" ? "Rejected" : "Pending"}
+                    <span
+                      className={`shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap cursor-help ${
+                        d.status === "accepted" ? "text-fg-success bg-success-tint border border-theme" :
+                        d.status === "rejected" ? "text-fg-danger bg-danger-tint border border-theme" :
+                        "text-amber-300 bg-warning-tint border border-theme"
+                      }`}
+                      title={
+                        d.status === "accepted" ? "This citizen accepted your delegation — their vote counts for you when you don't vote directly" :
+                        d.status === "rejected" ? "This citizen rejected your delegation — it won't take effect" :
+                        "Waiting for this citizen to accept or reject your delegation request"
+                      }
+                    >
+                      {d.status === "accepted" ? "Accepted" :
+                       d.status === "rejected" ? "Rejected" :
+                       <>
+                         <Clock className="w-3 h-3 inline mr-1" />
+                         Pending
+                       </>
+                      }
                     </span>
                     <button
                       onClick={() => revokeDelegation(d.id)}

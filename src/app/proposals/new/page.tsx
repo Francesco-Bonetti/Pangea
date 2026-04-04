@@ -43,6 +43,8 @@ export default function NewProposalPage() {
   const [showTreeSelector, setShowTreeSelector] = useState(false);
   const [showLawPicker, setShowLawPicker] = useState(false);
   const [expiresIn, setExpiresIn] = useState<string>("7");
+  const [customDate, setCustomDate] = useState<string>("");
+  const [customDays, setCustomDays] = useState<string>("");
   const [lawSearchQuery, setLawSearchQuery] = useState("");
   const [lawSearchResults, setLawSearchResults] = useState<{id: string; title: string; code: string | null}[]>([]);
   const [options, setOptions] = useState<OptionDraft[]>([
@@ -123,8 +125,17 @@ export default function NewProposalPage() {
       }
 
       // Calculate expiration date
-      const days = parseInt(expiresIn);
-      const expiresAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null;
+      let expiresAt: string | null = null;
+      if (expiresIn === "custom") {
+        if (customDate) {
+          expiresAt = new Date(customDate + "T23:59:59Z").toISOString();
+        } else if (customDays && parseInt(customDays) > 0) {
+          expiresAt = new Date(Date.now() + parseInt(customDays) * 86400000).toISOString();
+        }
+      } else {
+        const days = parseInt(expiresIn);
+        expiresAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null;
+      }
 
       const payload: Record<string, unknown> = {
         author_id: user.id,
@@ -322,6 +333,9 @@ export default function NewProposalPage() {
             <label className="label">
               Proposal Title <span className="text-fg-danger">*</span>
             </label>
+            <p className="text-xs text-fg-muted mb-2">
+              A clear, concise title that summarizes what this proposal does. Citizens will see this first when browsing proposals. Example: &quot;Universal Right to Digital Education&quot; or &quot;Carbon Tax on Imports Above 50 Tons&quot;.
+            </p>
             <input
               type="text"
               className="input-field text-lg"
@@ -341,29 +355,44 @@ export default function NewProposalPage() {
 
           {/* Position in the law tree */}
           <div>
-            <button
-              type="button"
-              onClick={() => setShowTreeSelector(!showTreeSelector)}
-              className="label flex items-center gap-1.5 cursor-pointer hover:text-fg transition-colors overflow-hidden"
-            >
+            <label className="label flex items-center gap-1.5 overflow-hidden">
               <GitBranch className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">Position in the law tree</span>
               <span className="text-xs font-normal text-fg-muted ml-1 shrink-0">(optional)</span>
+            </label>
+            <p className="text-xs text-fg-muted mb-2">
+              Choose where this law should be placed in Pangea&apos;s legal framework. You can add it as a child of an existing code, or replace an existing article. If you&apos;re unsure, skip this — the community can suggest a placement later.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowTreeSelector(!showTreeSelector)}
+              className={`w-full px-4 py-3 rounded-lg border text-sm font-medium transition-colors text-left flex items-center gap-2 ${
+                showTreeSelector
+                  ? "border-fg-primary/50 bg-fg-primary/10 text-fg-primary"
+                  : lawParentId || replacesNodeId
+                    ? "border-fg-success/50 bg-fg-success/10 text-fg-success"
+                    : "border-theme text-fg-muted hover:border-fg-primary/30 hover:text-fg"
+              }`}
+            >
+              <GitBranch className="w-4 h-4 shrink-0" />
+              {lawParentId || replacesNodeId
+                ? "Position selected — click to change"
+                : showTreeSelector
+                  ? "Close tree selector"
+                  : "Open tree selector to choose position"
+              }
             </button>
-            {!showTreeSelector && (
-              <p className="text-xs text-fg-muted mt-1">
-                Click to choose where to place the law in the legal framework or which rule to replace
-              </p>
-            )}
             {showTreeSelector && (
-              <LawTreeSelector
-                selectedParentId={lawParentId}
-                replacesNodeId={replacesNodeId}
-                onSelect={(parentId, replaces) => {
-                  setLawParentId(parentId);
-                  setReplacesNodeId(replaces);
-                }}
-              />
+              <div className="mt-3">
+                <LawTreeSelector
+                  selectedParentId={lawParentId}
+                  replacesNodeId={replacesNodeId}
+                  onSelect={(parentId, replaces) => {
+                    setLawParentId(parentId);
+                    setReplacesNodeId(replaces);
+                  }}
+                />
+              </div>
             )}
           </div>
 
@@ -372,6 +401,9 @@ export default function NewProposalPage() {
             <label className="label">
               Why is this law needed? <span className="text-fg-danger">*</span>
             </label>
+            <p className="text-xs text-fg-muted mb-2">
+              Explain the problem this proposal solves and why citizens should care. This is the most important part — a well-argued motivation helps others understand your vision. Example: &quot;Currently, 40% of Pangea&apos;s citizens lack access to online courses. This law would guarantee free digital education to every citizen, reducing inequality and boosting innovation.&quot;
+            </p>
             <textarea
               className="input-field min-h-[180px] resize-y"
               placeholder="Explain the problem you want to solve and why you think it matters to the community..."
@@ -379,40 +411,91 @@ export default function NewProposalPage() {
               onChange={(e) => setContent(e.target.value)}
               required
             />
-            <p className="text-xs text-fg-muted mt-1.5">{content.length} characters</p>
+            <p className="text-xs text-fg-muted mt-1.5">{content.length} characters (min. 20)</p>
           </div>
 
           {/* Dispositivo normativo */}
           <div>
             <label className="label">Proposed law text</label>
+            <p className="text-xs text-fg-muted mb-2">
+              Write the actual articles of the law, if you have them. This is optional — you can propose an idea without a full text and let the community help refine it. Example: &quot;Art. 1 — Every citizen has the right to free digital education. Art. 2 — The Ministry of Education shall provide...&quot;
+            </p>
             <textarea
               className="input-field min-h-[150px] font-mono text-sm resize-y"
               placeholder={"Art. 1 - What is established\nThe Commonwealth of Pangea guarantees...\n\nArt. 2 - How it works\nTo enforce this law..."}
               value={dispositivo}
               onChange={(e) => setDispositivo(e.target.value)}
             />
-            <p className="text-xs text-fg-muted mt-1.5">
-              Optional — write the actual articles of the proposed law
-            </p>
           </div>
 
           {/* Durata delibera */}
           <div>
             <label className="label">Voting duration</label>
-            <select
-              className="input-field"
-              value={expiresIn}
-              onChange={(e) => setExpiresIn(e.target.value)}
-            >
-              <option value="3">3 days</option>
-              <option value="7">7 days</option>
-              <option value="14">14 days</option>
-              <option value="30">30 days</option>
-              <option value="0">No expiration</option>
-            </select>
-            <p className="text-xs text-fg-muted mt-1.5">
-              After expiration, the proposal is automatically closed and the result becomes final
+            <p className="text-xs text-fg-muted mb-2">
+              Choose how long citizens can vote on this proposal. Shorter durations are good for urgent matters, longer ones allow more participation. After expiration, the proposal is automatically closed and the result becomes final.
             </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+              {[
+                { value: "3", label: "3 days" },
+                { value: "7", label: "7 days" },
+                { value: "14", label: "14 days" },
+                { value: "30", label: "30 days" },
+                { value: "0", label: "No expiration" },
+                { value: "custom", label: "Custom..." },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    setExpiresIn(opt.value);
+                    if (opt.value !== "custom") {
+                      setCustomDate("");
+                      setCustomDays("");
+                    }
+                  }}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    expiresIn === opt.value
+                      ? "border-fg-primary/50 bg-fg-primary/10 text-fg-primary"
+                      : "border-theme text-fg-muted hover:border-fg-primary/30 hover:text-fg"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {expiresIn === "custom" && (
+              <div className="card p-4 space-y-3">
+                <div>
+                  <label className="text-xs text-fg-muted font-medium block mb-1">Exact number of days</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="365"
+                    className="input-field"
+                    placeholder="e.g. 45"
+                    value={customDays}
+                    onChange={(e) => {
+                      setCustomDays(e.target.value);
+                      setCustomDate("");
+                    }}
+                  />
+                </div>
+                <div className="text-xs text-fg-muted text-center">or</div>
+                <div>
+                  <label className="text-xs text-fg-muted font-medium block mb-1">Pick a specific end date</label>
+                  <input
+                    type="date"
+                    className="input-field"
+                    min={new Date(Date.now() + 86400000).toISOString().split("T")[0]}
+                    value={customDate}
+                    onChange={(e) => {
+                      setCustomDate(e.target.value);
+                      setCustomDays("");
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Opzioni deliberative */}
