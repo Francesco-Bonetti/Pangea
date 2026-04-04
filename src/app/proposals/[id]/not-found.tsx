@@ -3,7 +3,7 @@ import { Globe, ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0c1220] flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
       <div className="text-center">
         <Globe className="w-16 h-16 text-slate-600 mx-auto mb-4" strokeWidth={1} />
         <h1 className="text-2xl font-bold text-slate-300 mb-2">Proposal not found</h1>

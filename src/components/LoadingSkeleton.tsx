@@ -26,7 +26,7 @@ export default function LoadingSkeleton({ cards = 3, showHeader = true }: Loadin
             <div className="skeleton-text w-full h-5" />
             <div className="skeleton-text w-3/4 h-4" />
             <div className="skeleton-text w-1/2 h-4" />
-            <div className="flex justify-between pt-4 border-t border-slate-700/50">
+            <div className="flex justify-between pt-4 border-t border-[var(--border)]">
               <div className="skeleton-text w-16 h-3" />
               <div className="skeleton-text w-20 h-3" />
             </div>
@@ -40,7 +40,7 @@ export default function LoadingSkeleton({ cards = 3, showHeader = true }: Loadin
 /** Full page loading state with centered spinner */
 export function PageLoader() {
   return (
-    <div className="min-h-screen bg-[#0c1220] flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
       <div className="text-center">
         <Globe className="w-10 h-10 text-pangea-400 mx-auto mb-3 animate-spin" style={{ animationDuration: "2s" }} />
         <p className="text-slate-400 text-sm">Loading...</p>

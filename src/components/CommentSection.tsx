@@ -130,25 +130,25 @@ function CommentCard({
   };
 
   return (
-    <div className="bg-[#0c1220] border border-slate-700 rounded-lg p-4 mb-3 overflow-hidden">
+    <div className="bg-[var(--background)] border border-[var(--border)] rounded-lg p-4 mb-3 overflow-hidden">
       <div className="flex items-start gap-3 overflow-hidden">
         <div className="flex-shrink-0">
           <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center shrink-0">
-            <User className="w-4 h-4 text-slate-400 shrink-0" />
+            <User className="w-4 h-4 text-[var(--muted-foreground)] shrink-0" />
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 overflow-hidden flex-wrap">
-            <span className="font-medium text-slate-200 min-w-0">
+            <span className="font-medium text-[var(--foreground)] min-w-0">
               <PrivacyName userId={comment.author_id} fullName={comment.profiles?.full_name ?? null} currentUserId={userId} />
             </span>
-            <span className="text-xs text-slate-500 shrink-0">
+            <span className="text-xs text-[var(--muted-foreground)] shrink-0">
               {timeAgo(comment.created_at)}
             </span>
           </div>
 
-          <p className="text-slate-300 text-sm mb-3 break-words">
+          <p className="text-[var(--muted-foreground)] text-sm mb-3 break-words">
             {comment.body}
           </p>
 
@@ -158,7 +158,7 @@ function CommentCard({
               disabled={isReacting || !userId}
               className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 currentReaction === "like"
-                  ? "bg-pangea-400 text-[#0c1220]"
+                  ? "bg-pangea-400 text-[var(--background)]"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               title={!userId ? "Log in to react" : ""}
@@ -172,7 +172,7 @@ function CommentCard({
               disabled={isReacting || !userId}
               className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 currentReaction === "dislike"
-                  ? "bg-red-400 text-[#0c1220]"
+                  ? "bg-red-400 text-[var(--background)]"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               title={!userId ? "Log in to react" : ""}
@@ -274,7 +274,7 @@ function RepliesSection({
   };
 
   return (
-    <div className="ml-6 mt-3 border-l-2 border-slate-700 pl-4">
+    <div className="ml-6 mt-3 border-l-2 border-[var(--border)] pl-4">
       <button
         onClick={handleToggleExpanded}
         className="text-sm text-pangea-400 hover:text-pangea-300 transition-colors flex items-center gap-2 mb-2 shrink-0"
@@ -290,9 +290,9 @@ function RepliesSection({
       {isExpanded && (
         <div>
           {isLoading ? (
-            <div className="text-slate-500 text-sm py-2">Loading...</div>
+            <div className="text-[var(--muted-foreground)] text-sm py-2">Loading...</div>
           ) : replies.length === 0 ? (
-            <div className="text-slate-500 text-sm py-2">
+            <div className="text-[var(--muted-foreground)] text-sm py-2">
               No replies yet
             </div>
           ) : (
@@ -311,12 +311,12 @@ function RepliesSection({
           )}
 
           {replyingTo === parentCommentId ? (
-            <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 mb-2">
+            <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3 mb-2">
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Write a reply..."
-                className="w-full bg-[#0c1220] text-slate-300 placeholder-slate-500 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none focus:border-pangea-400 resize-none"
+                className="w-full bg-[var(--background)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] rounded-lg p-2 text-sm focus:outline-none focus:border-pangea-400 resize-none"
                 rows={2}
               />
               <div className="flex gap-2 mt-2">
@@ -341,7 +341,7 @@ function RepliesSection({
           ) : (
             <button
               onClick={() => setReplyingTo(parentCommentId)}
-              className="text-sm text-slate-400 hover:text-slate-300 transition-colors"
+              className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
             >
               + Write a reply
             </button>
@@ -469,10 +469,10 @@ export default function CommentSection({
   };
 
   return (
-    <div className="w-full bg-[#0c1220] rounded-lg border border-slate-700 p-6 overflow-hidden">
+    <div className="w-full bg-[var(--background)] rounded-lg border border-[var(--border)] p-6 overflow-hidden">
       <div className="flex items-center gap-2 mb-6 overflow-hidden">
         <MessageCircle className="w-5 h-5 text-pangea-400 shrink-0" />
-        <h2 className="text-lg font-semibold text-slate-200 truncate">Discussion</h2>
+        <h2 className="text-lg font-semibold text-[var(--foreground)] truncate">Discussion</h2>
       </div>
 
       {/* New Comment Form */}
@@ -482,7 +482,7 @@ export default function CommentSection({
             value={newCommentText}
             onChange={(e) => setNewCommentText(e.target.value)}
             placeholder="Share your opinion..."
-            className="w-full bg-slate-900 text-slate-300 placeholder-slate-500 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:border-pangea-400 resize-none mb-3"
+            className="w-full bg-[var(--card)] text-[var(--muted-foreground)] placeholder-[var(--muted-foreground)] border border-[var(--border)] rounded-lg p-3 text-sm focus:outline-none focus:border-pangea-400 resize-none mb-3"
             rows={3}
           />
           <button
@@ -494,8 +494,8 @@ export default function CommentSection({
           </button>
         </div>
       ) : (
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4 mb-6 text-center">
-          <p className="text-slate-400 text-sm mb-3">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-4 mb-6 text-center">
+          <p className="text-[var(--muted-foreground)] text-sm mb-3">
             Log in to join the discussion
           </p>
           <a
@@ -509,9 +509,9 @@ export default function CommentSection({
 
       {/* Comments List */}
       {isLoading ? (
-        <div className="text-center py-8 text-slate-500">Loading...</div>
+        <div className="text-center py-8 text-[var(--muted-foreground)]">Loading...</div>
       ) : comments.length === 0 ? (
-        <div className="text-center py-8 text-slate-500 text-sm">
+        <div className="text-center py-8 text-[var(--muted-foreground)] text-sm">
           No comments yet. Be the first to comment!
         </div>
       ) : (
@@ -536,7 +536,7 @@ export default function CommentSection({
               )}
 
               {comment.replies_count > 0 && !expandedReplies.has(comment.id) && (
-                <div className="ml-6 mt-2 pl-4 border-l-2 border-slate-700">
+                <div className="ml-6 mt-2 pl-4 border-l-2 border-[var(--border)]">
                   <button
                     onClick={() => handleReplyClick(comment.id)}
                     className="text-sm text-pangea-400 hover:text-pangea-300 transition-colors flex items-center gap-2"

@@ -13,7 +13,7 @@ interface Props {
 
 function ConversationNotFound({ reason }: { reason: string }) {
   return (
-    <div className="min-h-screen bg-[#0c1220] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-slate-900/80 border border-slate-700 rounded-xl p-8 text-center">
         <div className="w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-4">
           <AlertTriangle className="w-7 h-7 text-amber-400" />

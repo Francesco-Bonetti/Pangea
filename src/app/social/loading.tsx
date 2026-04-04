@@ -1,7 +1,7 @@
 export default function ForumLoading() {
   return (
-    <div className="min-h-screen bg-[#0c1220]">
-      <div className="h-16 bg-slate-950/80 border-b border-slate-800/50" />
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className="h-16 bg-[var(--card)] border-b border-[var(--border)]" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse mb-8 space-y-3">
@@ -28,7 +28,7 @@ export default function ForumLoading() {
                 <div className="skeleton-text w-3/4 h-5" />
                 <div className="skeleton-text w-full h-4" />
                 <div className="skeleton-text w-1/2 h-4" />
-                <div className="flex justify-between pt-4 border-t border-slate-700/50">
+                <div className="flex justify-between pt-4 border-t border-[var(--border)]">
                   <div className="skeleton-text w-24 h-4" />
                   <div className="skeleton-text w-16 h-4" />
                 </div>

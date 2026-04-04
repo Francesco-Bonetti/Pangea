@@ -1,8 +1,8 @@
 export default function MessagesLoading() {
   return (
-    <div className="min-h-screen bg-[#0c1220]">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Navbar skeleton */}
-      <div className="h-16 border-b border-slate-700 bg-slate-950/95" />
+      <div className="h-16 border-b border-[var(--border)] bg-[var(--card)]" />
 
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header skeleton */}

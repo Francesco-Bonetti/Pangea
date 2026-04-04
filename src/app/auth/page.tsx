@@ -88,7 +88,7 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Brand */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-slate-900 via-[#0c1a2e] to-[#0c1220] flex-col items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-slate-900 via-[#0c1a2e] to-[var(--background)] flex-col items-center justify-center p-12 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-20 w-64 h-64 rounded-full border border-pangea-400" />
@@ -130,7 +130,7 @@ export default function AuthPage() {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-[#0c1220]">
+      <div className="flex-1 flex items-center justify-center p-8 bg-[var(--background)]">
         <div className="w-full max-w-md">
           {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">

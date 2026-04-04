@@ -334,7 +334,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c1220] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
       </div>
     );

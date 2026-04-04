@@ -276,7 +276,7 @@ export default function LawTreeSelector({
       )}
 
       {/* Tree container */}
-      <div className="border border-slate-700 rounded-md bg-[#0c1220] overflow-hidden">
+      <div className="border border-slate-700 rounded-md bg-[var(--background)] overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center p-8">
             <div className="text-slate-400 text-sm">Loading laws...</div>

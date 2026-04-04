@@ -1,8 +1,8 @@
 export default function LawsLoading() {
   return (
-    <div className="min-h-screen bg-[#0c1220]">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Navbar placeholder */}
-      <div className="h-16 bg-slate-950/80 border-b border-slate-800/50" />
+      <div className="h-16 bg-[var(--card)] border-b border-[var(--border)]" />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse mb-8 space-y-3">
@@ -12,7 +12,7 @@ export default function LawsLoading() {
         </div>
 
         {/* Tab bar skeleton */}
-        <div className="flex gap-1 bg-slate-800/50 rounded-lg p-1 mb-8">
+        <div className="flex gap-1 bg-[var(--card)] rounded-lg p-1 mb-8">
           <div className="flex-1 h-12 skeleton rounded-md" />
           <div className="flex-1 h-12 skeleton rounded-md" />
         </div>
