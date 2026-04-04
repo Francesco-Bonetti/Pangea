@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// LibreTranslate public API endpoint
-const LIBRETRANSLATE_URL = "https://libretranslate.com/translate";
+// LibreTranslate instances (primary + fallbacks)
+const LIBRETRANSLATE_ENDPOINTS = [
+  "https://translate.fedilab.app/translate",
+  "https://libretranslate.de/translate",
+  "https://translate.terraprint.co/translate",
+];
 
 // All supported languages on Pangea
 const SUPPORTED_LANGS = ["en", "it", "es", "fr"];
@@ -16,6 +20,7 @@ function sleep(ms: number) {
 
 /**
  * Calls LibreTranslate for a single text → target language pair.
+ * Tries multiple endpoints with automatic fallback.
  * Returns translated text or null on failure.
  */
 async function translateText(
@@ -23,29 +28,39 @@ async function translateText(
   source: string,
   target: string
 ): Promise<string | null> {
-  try {
-    const res = await fetch(LIBRETRANSLATE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        q: text,
-        source,
-        target,
-        format: "text",
-      }),
-    });
+  for (const endpoint of LIBRETRANSLATE_ENDPOINTS) {
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          q: text,
+          source,
+          target,
+          format: "text",
+        }),
+        signal: AbortSignal.timeout(10000), // 10s timeout per endpoint
+      });
 
-    if (!res.ok) {
-      console.error(`LibreTranslate ${source}→${target} failed:`, res.status);
-      return null;
+      if (!res.ok) {
+        console.warn(`LibreTranslate ${source}→${target} failed on ${endpoint}:`, res.status);
+        continue; // try next endpoint
+      }
+
+      const data = await res.json();
+      if (data.translatedText) {
+        return data.translatedText;
+      }
+      console.warn(`LibreTranslate ${source}→${target} empty response from ${endpoint}`);
+      continue;
+    } catch (err) {
+      console.warn(`LibreTranslate ${source}→${target} error on ${endpoint}:`, err);
+      continue; // try next endpoint
     }
-
-    const data = await res.json();
-    return data.translatedText || null;
-  } catch (err) {
-    console.error(`LibreTranslate ${source}→${target} error:`, err);
-    return null;
   }
+
+  console.error(`LibreTranslate ${source}→${target} failed on ALL endpoints`);
+  return null;
 }
 
 /**

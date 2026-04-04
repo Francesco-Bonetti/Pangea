@@ -7,9 +7,10 @@ import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash
 
 interface ProposalCardProps {
   proposal: ProposalWithResults;
+  curationThreshold?: number;
 }
 
-export default function ProposalCard({ proposal }: ProposalCardProps) {
+export default function ProposalCard({ proposal, curationThreshold = 2 }: ProposalCardProps) {
   const results = proposal.results ?? { yea_count: 0, nay_count: 0, abstain_count: 0 };
   const total = getTotalVotes(results);
   const yeaPercent = calcPercentage(results.yea_count, total);
@@ -121,14 +122,14 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
               <span className="truncate">Signals</span>
             </span>
             <span className="shrink-0" style={{ color: "var(--muted-foreground)" }}>
-              {proposal.signal_count} / 100
+              {proposal.signal_count} / {curationThreshold}
             </span>
           </div>
           <div className="rounded-full h-2.5" style={{ backgroundColor: "var(--muted)" }}>
             <div
               className="h-2.5 rounded-full transition-all duration-500"
               style={{
-                width: `${Math.min((proposal.signal_count / 100) * 100, 100)}%`,
+                width: `${Math.min((proposal.signal_count / curationThreshold) * 100, 100)}%`,
                 backgroundColor: "#d97706",
               }}
             />

@@ -31,6 +31,7 @@ interface DashboardClientProps {
     active_proposals: number;
     closed_proposals: number;
   };
+  curationThreshold?: number;
 }
 
 export default function DashboardClient({
@@ -40,6 +41,7 @@ export default function DashboardClient({
   enrichedProposals,
   drafts,
   platformStats,
+  curationThreshold = 2,
 }: DashboardClientProps) {
   const { t } = useLanguage();
 
@@ -288,7 +290,7 @@ export default function DashboardClient({
           {activeProposals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {activeProposals.map((proposal) => (
-                <ProposalCard key={proposal.id} proposal={proposal} />
+                <ProposalCard key={proposal.id} proposal={proposal} curationThreshold={curationThreshold} />
               ))}
             </div>
           ) : (
@@ -316,7 +318,7 @@ export default function DashboardClient({
           {curationProposals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {curationProposals.map((proposal) => (
-                <ProposalCard key={proposal.id} proposal={proposal} />
+                <ProposalCard key={proposal.id} proposal={proposal} curationThreshold={curationThreshold} />
               ))}
             </div>
           ) : (
@@ -344,7 +346,7 @@ export default function DashboardClient({
           {closedProposals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {closedProposals.map((proposal) => (
-                <ProposalCard key={proposal.id} proposal={proposal} />
+                <ProposalCard key={proposal.id} proposal={proposal} curationThreshold={curationThreshold} />
               ))}
             </div>
           ) : (
@@ -366,7 +368,7 @@ export default function DashboardClient({
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {drafts.map((proposal: Proposal) => (
-                <ProposalCard key={proposal.id} proposal={proposal} />
+                <ProposalCard key={proposal.id} proposal={proposal} curationThreshold={curationThreshold} />
               ))}
             </div>
           </section>

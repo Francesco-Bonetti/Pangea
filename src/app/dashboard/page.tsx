@@ -117,6 +117,9 @@ export default async function DashboardPage() {
     closed_proposals: 0,
   };
 
+  // Dynamic curation threshold (proportional to active citizens)
+  const { data: curationThreshold } = await supabase.rpc("get_curation_threshold");
+
   return (
     <AppShell
       userEmail={user?.email}
@@ -132,6 +135,7 @@ export default async function DashboardPage() {
         enrichedProposals={enrichedProposals}
         drafts={drafts}
         platformStats={platformStats}
+        curationThreshold={curationThreshold ?? 2}
       />
     </AppShell>
   );
