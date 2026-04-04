@@ -167,10 +167,10 @@ export default function NewDiscussionForm({
   if (!userId) {
     return (
       <div className="card p-8 text-center">
-        <p className="text-slate-400 mb-4">Sign in to create a discussion</p>
+        <p className="text-fg-muted mb-4">Sign in to create a discussion</p>
         <a
           href="/auth"
-          className="inline-block px-4 py-2 bg-pangea-600 hover:bg-pangea-700 text-white rounded-lg transition-colors"
+          className="inline-block px-4 py-2 bg-pangea-600 hover:bg-pangea-700 text-fg rounded-lg transition-colors"
         >
           Sign In
         </a>
@@ -181,7 +181,7 @@ export default function NewDiscussionForm({
   return (
     <form onSubmit={handleSubmit} className="card p-6 space-y-5">
       <div>
-        <label className="block text-sm font-medium text-slate-200 mb-2">
+        <label className="block text-sm font-medium text-fg mb-2">
           Discussion Title
         </label>
         <input
@@ -189,15 +189,15 @@ export default function NewDiscussionForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What's on your mind?"
-          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
+          className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         />
         {errors.title && (
-          <p className="text-red-400 text-xs mt-1">{errors.title}</p>
+          <p className="text-fg-danger text-xs mt-1">{errors.title}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-200 mb-2">
+        <label className="block text-sm font-medium text-fg mb-2">
           Content
         </label>
         <textarea
@@ -205,21 +205,21 @@ export default function NewDiscussionForm({
           onChange={(e) => setBody(e.target.value)}
           placeholder="Share your thoughts, ideas, or questions..."
           rows={6}
-          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
+          className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
         />
         {errors.body && (
-          <p className="text-red-400 text-xs mt-1">{errors.body}</p>
+          <p className="text-fg-danger text-xs mt-1">{errors.body}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-200 mb-2">
+        <label className="block text-sm font-medium text-fg mb-2">
           Channel
         </label>
         <select
           value={selectedChannel}
           onChange={(e) => setSelectedChannel(e.target.value)}
-          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
+          className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         >
           <option value="">Select a channel...</option>
           {channels.map((ch) => (
@@ -229,20 +229,20 @@ export default function NewDiscussionForm({
           ))}
         </select>
         {errors.channel && (
-          <p className="text-red-400 text-xs mt-1">{errors.channel}</p>
+          <p className="text-fg-danger text-xs mt-1">{errors.channel}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-200 mb-2">
+        <label className="block text-sm font-medium text-fg mb-2">
           Tags (optional)
         </label>
         <div className="relative">
-          <div className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 flex flex-wrap gap-2 items-center focus-within:border-pangea-600 focus-within:ring-1 focus-within:ring-pangea-600 transition-colors">
+          <div className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 flex flex-wrap gap-2 items-center focus-within:border-pangea-600 focus-within:ring-1 focus-within:ring-pangea-600 transition-colors">
             {selectedTags.map((tag) => (
               <span
                 key={tag.id}
-                className="inline-flex items-center gap-1.5 bg-pangea-900/40 text-pangea-300 px-2.5 py-1 rounded-full text-xs border border-pangea-700/50"
+                className="inline-flex items-center gap-1.5 bg-pangea-900/40 text-fg-primary px-2.5 py-1 rounded-full text-xs border border-pangea-700/50"
               >
                 #{tag.name}
                 <button
@@ -262,20 +262,20 @@ export default function NewDiscussionForm({
               onFocus={() => setShowTagDropdown(true)}
               onBlur={() => setTimeout(() => setShowTagDropdown(false), 200)}
               placeholder={selectedTags.length === 0 ? "Search or create tags..." : ""}
-              className="flex-1 min-w-[120px] bg-transparent outline-none text-slate-100 placeholder-slate-500"
+              className="flex-1 min-w-[120px] bg-transparent outline-none text-fg placeholder-slate-500"
             />
           </div>
 
           {showTagDropdown && filteredTags.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-10">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-theme-card border border-theme rounded-lg shadow-lg z-10">
               {filteredTags.map((tag) => (
                 <button
                   key={tag.id}
                   type="button"
                   onClick={() => handleAddTag(tag)}
-                  className="w-full text-left px-4 py-2 hover:bg-slate-700 text-slate-200 text-sm transition-colors flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-theme-muted text-fg text-sm transition-colors flex items-center gap-2"
                 >
-                  <Search className="w-3 h-3 text-slate-500" />
+                  <Search className="w-3 h-3 text-fg-muted" />
                   #{tag.name}
                 </button>
               ))}
@@ -288,7 +288,7 @@ export default function NewDiscussionForm({
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 px-4 py-2.5 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+          className="flex-1 px-4 py-2.5 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-fg font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
         >
           {isLoading ? "Creating..." : "Create Discussion"}
         </button>

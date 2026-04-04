@@ -153,7 +153,7 @@ export default function TagInput({
           {selectedTagObjects.map((tag) => (
             <div
               key={tag.id}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-pangea-400/20 to-pangea-500/20 border border-pangea-400/50 text-pangea-300"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-pangea-400/20 to-pangea-500/20 border border-pangea-400/50 text-fg-primary"
             >
               <Hash size={14} />
               <span className="text-sm font-medium">{tag.name}</span>
@@ -172,7 +172,7 @@ export default function TagInput({
       {/* Input Field */}
       <div className="relative">
         <div className="relative">
-          <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none" size={18} />
+          <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-muted pointer-events-none" size={18} />
           <input
             type="text"
             value={inputValue}
@@ -186,7 +186,7 @@ export default function TagInput({
             <button
               onClick={handleCreateTag}
               disabled={selectedTags.length >= maxTags}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-pangea-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fg-muted hover:text-fg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label="Create new tag"
             >
               <Plus size={18} />
@@ -196,24 +196,24 @@ export default function TagInput({
 
         {/* Filtered Tags Dropdown */}
         {inputValue && filteredTags.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 card border border-slate-700 bg-slate-800 rounded-lg shadow-lg z-50">
+          <div className="absolute top-full left-0 right-0 mt-2 card border border-theme bg-theme-card rounded-lg shadow-lg z-50">
             <div className="max-h-64 overflow-y-auto">
               {filteredTags.map((tag) => (
                 <button
                   key={tag.id}
                   onClick={() => handleSelectTag(tag)}
-                  className="w-full text-left px-4 py-2 hover:bg-slate-700/50 transition-colors border-b border-slate-700/30 last:border-b-0 flex items-center justify-between group"
+                  className="w-full text-left px-4 py-2 hover:bg-theme-muted transition-colors border-b border-theme/30 last:border-b-0 flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-2">
-                    <Hash size={14} className="text-slate-500" />
+                    <Hash size={14} className="text-fg-muted" />
                     <div>
-                      <p className="text-slate-300 text-sm font-medium">{tag.name}</p>
-                      <p className="text-slate-500 text-xs">
+                      <p className="text-fg text-sm font-medium">{tag.name}</p>
+                      <p className="text-fg-muted text-xs">
                         {tag.usage_count} {tag.usage_count === 1 ? "use" : "uses"}
                       </p>
                     </div>
                   </div>
-                  <Plus size={16} className="text-slate-500 group-hover:text-pangea-400 transition-colors" />
+                  <Plus size={16} className="text-fg-muted group-hover:text-fg-primary transition-colors" />
                 </button>
               ))}
             </div>
@@ -227,10 +227,10 @@ export default function TagInput({
             (tag) =>
               tag.name.toLowerCase() === inputValue.toLowerCase()
           ) && (
-            <div className="absolute top-full left-0 right-0 mt-2 card border border-slate-700 bg-slate-800 rounded-lg shadow-lg z-50 p-3">
-              <p className="text-slate-400 text-sm">
+            <div className="absolute top-full left-0 right-0 mt-2 card border border-theme bg-theme-card rounded-lg shadow-lg z-50 p-3">
+              <p className="text-fg-muted text-sm">
                 No tags found. Press{" "}
-                <kbd className="px-2 py-1 bg-slate-700 rounded text-xs font-mono">
+                <kbd className="px-2 py-1 bg-theme-muted rounded text-xs font-mono">
                   Enter
                 </kbd>{" "}
                 to create "{inputValue}"
@@ -240,7 +240,7 @@ export default function TagInput({
       </div>
 
       {/* Tag count indicator */}
-      <div className="text-xs text-slate-500">
+      <div className="text-xs text-fg-muted">
         {selectedTags.length} / {maxTags} tags selected
       </div>
     </div>

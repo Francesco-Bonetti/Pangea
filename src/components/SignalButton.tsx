@@ -76,19 +76,19 @@ export default function SignalButton({
     <div className="space-y-3">
       {/* Progress bar toward threshold */}
       <div>
-        <div className="flex justify-between text-xs text-slate-400 mb-1.5">
+        <div className="flex justify-between text-xs text-fg-muted mb-1.5">
           <span>Support signals</span>
           <span className="font-medium">
             {signalCount} / {threshold}
           </span>
         </div>
-        <div className="bg-slate-700 rounded-full h-2.5">
+        <div className="bg-theme-muted rounded-full h-2.5">
           <div
             className="bg-amber-500 h-2.5 rounded-full transition-all duration-700"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-xs text-slate-600 mt-1">
+        <p className="text-xs text-fg-muted mt-1">
           {signalCount >= threshold
             ? "Threshold reached — awaiting promotion"
             : `${threshold - signalCount} signals needed for the deliberation phase`}
@@ -102,7 +102,7 @@ export default function SignalButton({
         className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 font-semibold text-sm transition-all duration-200 disabled:opacity-50 ${
           hasSignaled
             ? "border-amber-600 bg-amber-900/30 text-amber-300 hover:bg-amber-900/50"
-            : "border-slate-600 bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:border-amber-600"
+            : "border-theme bg-theme-card text-fg hover:bg-theme-muted hover:border-amber-600"
         }`}
       >
         {loading ? (
@@ -120,7 +120,7 @@ export default function SignalButton({
       </button>
 
       {error && (
-        <p className="text-xs text-red-400">{error}</p>
+        <p className="text-xs text-fg-danger">{error}</p>
       )}
     </div>
   );

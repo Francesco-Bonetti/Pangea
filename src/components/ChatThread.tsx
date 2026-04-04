@@ -300,11 +300,11 @@ export default function ChatThread({
   return (
     <div className="flex-1 flex flex-col max-w-3xl mx-auto w-full">
       {/* Chat header */}
-      <div className="sticky top-16 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 px-4 py-3">
+      <div className="sticky top-16 z-40 bg-theme-base/95 backdrop-blur-md border-b border-theme px-4 py-3">
         <div className="flex items-center gap-3">
           <Link
             href="/messages"
-            className="p-2 -ml-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-2 -ml-2 rounded-lg hover:bg-theme-card text-fg-muted hover:text-fg transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
@@ -314,13 +314,13 @@ export default function ChatThread({
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{initials}</span>
+              <span className="text-xs font-bold text-fg">{initials}</span>
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">{displayName}</p>
+              <p className="text-sm font-semibold text-fg">{displayName}</p>
               <div className="flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-green-500" />
-                <span className="text-xs text-slate-400">
+                <ShieldCheck className="w-3 h-3 text-fg-success" />
+                <span className="text-xs text-fg-muted">
                   End-to-end encrypted
                 </span>
               </div>
@@ -337,9 +337,9 @@ export default function ChatThread({
       >
         {/* E2E notice at top */}
         <div className="flex justify-center mb-6">
-          <div className="flex items-center gap-2 bg-slate-800/60 border border-slate-700/50 rounded-full px-4 py-2">
+          <div className="flex items-center gap-2 bg-theme-card/60 border border-theme rounded-full px-4 py-2">
             <Lock className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-fg-muted">
               Messages are end-to-end encrypted. Only you and {displayName} can
               read them.
             </span>
@@ -348,13 +348,13 @@ export default function ChatThread({
 
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4">
-              <User className="w-8 h-8 text-slate-500" />
+            <div className="w-16 h-16 rounded-full bg-theme-card flex items-center justify-center mb-4">
+              <User className="w-8 h-8 text-fg-muted" />
             </div>
-            <p className="text-slate-300 font-medium mb-1">
+            <p className="text-fg font-medium mb-1">
               Start a conversation with {displayName}
             </p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-fg-muted">
               Your messages will be encrypted end-to-end.
             </p>
           </div>
@@ -369,7 +369,7 @@ export default function ChatThread({
               <div key={msg.id}>
                 {showDateSep && (
                   <div className="flex justify-center my-4">
-                    <span className="text-xs text-slate-500 bg-slate-800/80 px-3 py-1 rounded-full">
+                    <span className="text-xs text-fg-muted bg-theme-card/80 px-3 py-1 rounded-full">
                       {formatDateSeparator(msg.created_at)}
                     </span>
                   </div>
@@ -380,13 +380,13 @@ export default function ChatThread({
                   <div
                     className={`max-w-[75%] px-3.5 py-2 rounded-2xl ${
                       isMine
-                        ? "bg-blue-600 text-white rounded-br-md"
-                        : "bg-slate-800 text-slate-100 border border-slate-700/50 rounded-bl-md"
+                        ? "bg-blue-600 text-fg rounded-br-md"
+                        : "bg-theme-card text-fg border border-theme rounded-bl-md"
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap break-words">
                       {msg.decrypted_content || (
-                        <span className="italic text-slate-400 flex items-center gap-1">
+                        <span className="italic text-fg-muted flex items-center gap-1">
                           <Lock className="w-3 h-3" />
                           Encrypted message
                         </span>
@@ -399,7 +399,7 @@ export default function ChatThread({
                     >
                       <span
                         className={`text-[10px] ${
-                          isMine ? "text-blue-200/70" : "text-slate-500"
+                          isMine ? "text-blue-200/70" : "text-fg-muted"
                         }`}
                       >
                         {formatTime(msg.created_at)}
@@ -421,17 +421,17 @@ export default function ChatThread({
 
       {/* Error */}
       {error && (
-        <div className="px-4 py-2 bg-red-900/30 border-t border-red-700/50">
+        <div className="px-4 py-2 bg-danger-tint border-t border-theme">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
-            <p className="text-sm text-red-300">{error}</p>
+            <AlertTriangle className="w-4 h-4 text-fg-danger shrink-0" />
+            <p className="text-sm text-fg-danger">{error}</p>
           </div>
         </div>
       )}
 
       {/* Other user hasn't set up encryption */}
       {!otherHasKeys && (
-        <div className="px-4 py-3 bg-amber-900/20 border-t border-amber-700/30">
+        <div className="px-4 py-3 bg-warning-tint border-t border-theme">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
             <p className="text-sm text-amber-300">
@@ -443,7 +443,7 @@ export default function ChatThread({
       )}
 
       {/* Message input */}
-      <div className="border-t border-slate-600 bg-slate-800/95 backdrop-blur-md px-4 py-3">
+      <div className="border-t border-theme bg-theme-card/95 backdrop-blur-md px-4 py-3">
         <div className="flex items-end gap-2">
           <textarea
             ref={inputRef}
@@ -457,7 +457,7 @@ export default function ChatThread({
             }
             disabled={!otherHasKeys || sending}
             rows={1}
-            className="flex-1 bg-slate-700 border border-slate-500 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-theme-muted border border-slate-500 rounded-xl px-4 py-2.5 text-sm text-fg placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ maxHeight: "120px" }}
             onInput={(e) => {
               const target = e.target as HTMLTextAreaElement;
@@ -468,7 +468,7 @@ export default function ChatThread({
           <button
             onClick={handleSend}
             disabled={!newMessage.trim() || !otherHasKeys || sending}
-            className="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shrink-0"
+            className="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-fg transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shrink-0"
           >
             {sending ? (
               <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full block" />

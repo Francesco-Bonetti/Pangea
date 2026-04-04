@@ -175,7 +175,7 @@ export default function AdminPage() {
     return (
       <AppShell>
         <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-fg-primary animate-spin" />
         </div>
       </AppShell>
     );
@@ -185,9 +185,9 @@ export default function AdminPage() {
     return (
       <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
-          <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Access denied</h1>
-          <p className="text-slate-400 mb-6">Only administrators can access this page.</p>
+          <Shield className="w-16 h-16 text-fg-danger mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-fg mb-2">Access denied</h1>
+          <p className="text-fg-muted mb-6">Only administrators can access this page.</p>
           <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2 overflow-hidden">
             <ArrowLeft className="w-4 h-4 shrink-0" />
             <span className="truncate">Back to the Agora</span>
@@ -198,11 +198,11 @@ export default function AdminPage() {
   }
 
   const statusColor: Record<string, string> = {
-    draft: "text-slate-400 bg-slate-700/50",
+    draft: "text-fg-muted bg-theme-muted",
     curation: "text-amber-300 bg-amber-900/30",
-    active: "text-pangea-300 bg-pangea-900/50",
-    closed: "text-slate-400 bg-slate-700/50",
-    repealed: "text-red-300 bg-red-900/30",
+    active: "text-fg-primary bg-pangea-900/50",
+    closed: "text-fg-muted bg-theme-muted",
+    repealed: "text-fg-danger bg-danger-tint",
   };
 
   return (
@@ -210,15 +210,15 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/dashboard" className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors">
+          <Link href="/dashboard" className="p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-theme-card transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Shield className="w-6 h-6 text-red-400" />
+            <h1 className="text-2xl font-bold text-fg flex items-center gap-2">
+              <Shield className="w-6 h-6 text-fg-danger" />
               Admin Panel
             </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <p className="text-sm text-fg-muted mt-0.5">
               Manage users, proposals, and laws of the platform
             </p>
           </div>
@@ -226,12 +226,12 @@ export default function AdminPage() {
 
         {/* Messages */}
         {error && (
-          <div className="mb-4 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex items-center gap-2">
+          <div className="mb-4 p-3 bg-danger-tint border border-theme rounded-lg text-fg-danger text-sm flex items-center gap-2">
             <XCircle className="w-4 h-4 shrink-0" /> {error}
           </div>
         )}
         {success && (
-          <div className="mb-4 p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
+          <div className="mb-4 p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-sm flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" /> {success}
           </div>
         )}
@@ -240,28 +240,28 @@ export default function AdminPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="card p-4">
             <Users className="w-5 h-5 text-blue-400 mb-1" />
-            <p className="text-2xl font-bold text-white">{users.length}</p>
-            <p className="text-xs text-slate-500">Citizens</p>
+            <p className="text-2xl font-bold text-fg">{users.length}</p>
+            <p className="text-xs text-fg-muted">Citizens</p>
           </div>
           <div className="card p-4">
-            <FileText className="w-5 h-5 text-pangea-400 mb-1" />
-            <p className="text-2xl font-bold text-white">{proposals.length}</p>
-            <p className="text-xs text-slate-500">Proposals</p>
+            <FileText className="w-5 h-5 text-fg-primary mb-1" />
+            <p className="text-2xl font-bold text-fg">{proposals.length}</p>
+            <p className="text-xs text-fg-muted">Proposals</p>
           </div>
           <div className="card p-4">
             <BookOpen className="w-5 h-5 text-blue-400 mb-1" />
-            <p className="text-2xl font-bold text-white">{laws.length}</p>
-            <p className="text-xs text-slate-500">Laws</p>
+            <p className="text-2xl font-bold text-fg">{laws.length}</p>
+            <p className="text-xs text-fg-muted">Laws</p>
           </div>
           <div className="card p-4">
-            <Scale className="w-5 h-5 text-green-400 mb-1" />
-            <p className="text-2xl font-bold text-white">{proposals.filter(p => p.status === "active").length}</p>
-            <p className="text-xs text-slate-500">Active</p>
+            <Scale className="w-5 h-5 text-fg-success mb-1" />
+            <p className="text-2xl font-bold text-fg">{proposals.filter(p => p.status === "active").length}</p>
+            <p className="text-xs text-fg-muted">Active</p>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 border-b border-slate-700/50 pb-px">
+        <div className="flex gap-1 mb-6 border-b border-theme pb-px">
           {([
             { key: "users", label: "Users", icon: Users },
             { key: "proposals", label: "Proposals", icon: FileText },
@@ -273,8 +273,8 @@ export default function AdminPage() {
               onClick={() => { setActiveTab(key); clearMessages(); }}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors ${
                 activeTab === key
-                  ? "text-pangea-300 bg-slate-800/50 border-b-2 border-pangea-400"
-                  : "text-slate-500 hover:text-slate-300"
+                  ? "text-fg-primary bg-theme-card border-b-2 border-pangea-400"
+                  : "text-fg-muted hover:text-fg"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -288,17 +288,17 @@ export default function AdminPage() {
           <div className="space-y-2">
             {users.map((u) => (
               <div key={u.id} className="card p-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-sm text-pangea-300 font-bold">
+                <div className="w-10 h-10 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-sm text-fg-primary font-bold">
                   {(u.full_name ?? "?")[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-200 font-medium">{u.full_name ?? "No name"}</p>
-                  <p className="text-xs text-slate-500">{u.id.slice(0, 8)}...</p>
+                  <p className="text-sm text-fg font-medium">{u.full_name ?? "No name"}</p>
+                  <p className="text-xs text-fg-muted">{u.id.slice(0, 8)}...</p>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  u.role === "admin" ? "text-red-300 bg-red-900/30 border border-red-700/30" :
-                  u.role === "moderator" ? "text-amber-300 bg-amber-900/30 border border-amber-700/30" :
-                  "text-slate-400 bg-slate-700/50"
+                  u.role === "admin" ? "text-fg-danger bg-danger-tint border border-theme" :
+                  u.role === "moderator" ? "text-amber-300 bg-amber-900/30 border border-theme" :
+                  "text-fg-muted bg-theme-muted"
                 }`}>
                   {u.role || "citizen"}
                 </span>
@@ -308,16 +308,16 @@ export default function AdminPage() {
                       value={u.role || "citizen"}
                       onChange={(e) => changeUserRole(u.id, e.target.value as UserRole)}
                       disabled={actionLoading === u.id}
-                      className="appearance-none bg-slate-800 border border-slate-600 rounded-lg px-3 py-1.5 pr-8 text-xs text-slate-300 cursor-pointer focus:outline-none focus:border-pangea-500"
+                      className="appearance-none bg-theme-card border border-theme rounded-lg px-3 py-1.5 pr-8 text-xs text-fg cursor-pointer focus:outline-none focus:border-pangea-500"
                     >
                       <option value="citizen">Citizen</option>
                       <option value="moderator">Moderator</option>
                       <option value="admin">Admin</option>
                     </select>
-                    <ChevronDown className="w-3 h-3 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown className="w-3 h-3 text-fg-muted absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 )}
-                {actionLoading === u.id && <Loader2 className="w-4 h-4 text-pangea-400 animate-spin" />}
+                {actionLoading === u.id && <Loader2 className="w-4 h-4 text-fg-primary animate-spin" />}
               </div>
             ))}
           </div>
@@ -327,12 +327,12 @@ export default function AdminPage() {
         {activeTab === "proposals" && (
           <div className="space-y-2">
             {proposals.length === 0 && (
-              <div className="card p-8 text-center text-slate-500 text-sm">No proposals found.</div>
+              <div className="card p-8 text-center text-fg-muted text-sm">No proposals found.</div>
             )}
             {proposals.map((p) => (
               <div key={p.id} className="card p-4 flex items-center gap-4">
                 <div className="flex-1 min-w-0">
-                  <Link href={`/proposals/${p.id}`} className="text-sm text-slate-200 font-medium hover:text-pangea-300 transition-colors">
+                  <Link href={`/proposals/${p.id}`} className="text-sm text-fg font-medium hover:text-fg-primary transition-colors">
                     {p.title}
                   </Link>
                   <div className="flex items-center gap-2 mt-1">
@@ -340,11 +340,11 @@ export default function AdminPage() {
                       {p.status}
                     </span>
                     {p.proposal_type && p.proposal_type !== "new" && (
-                      <span className="text-xs text-purple-400 bg-purple-900/20 px-2 py-0.5 rounded-full">
+                      <span className="text-xs text-purple-400 bg-purple-tint px-2 py-0.5 rounded-full">
                         {p.proposal_type}
                       </span>
                     )}
-                    <span className="text-xs text-slate-600">{formatDateTime(p.created_at)}</span>
+                    <span className="text-xs text-fg-muted">{formatDateTime(p.created_at)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -352,7 +352,7 @@ export default function AdminPage() {
                     <button
                       onClick={() => activateProposal(p.id)}
                       disabled={actionLoading === p.id}
-                      className="p-2 rounded-lg text-green-400 hover:bg-green-900/30 transition-colors"
+                      className="p-2 rounded-lg text-fg-success hover:bg-green-900/30 transition-colors"
                       title="Promote to deliberation"
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -371,12 +371,12 @@ export default function AdminPage() {
                   <button
                     onClick={() => deleteProposal(p.id)}
                     disabled={actionLoading === p.id}
-                    className="p-2 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
+                    className="p-2 rounded-lg text-fg-danger hover:bg-danger-tint transition-colors"
                     title="Delete proposal"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  {actionLoading === p.id && <Loader2 className="w-4 h-4 text-pangea-400 animate-spin" />}
+                  {actionLoading === p.id && <Loader2 className="w-4 h-4 text-fg-primary animate-spin" />}
                 </div>
               </div>
             ))}
@@ -387,17 +387,17 @@ export default function AdminPage() {
         {activeTab === "laws" && (
           <div className="space-y-2">
             {laws.length === 0 && (
-              <div className="card p-8 text-center text-slate-500 text-sm">No laws found.</div>
+              <div className="card p-8 text-center text-fg-muted text-sm">No laws found.</div>
             )}
             {laws.map((l) => (
               <div key={l.id} className="card p-4 flex items-center gap-4">
                 <BookOpen className="w-5 h-5 text-blue-400 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-200 font-medium">{l.title}</p>
+                  <p className="text-sm text-fg font-medium">{l.title}</p>
                   <div className="flex items-center gap-2 mt-1">
                     {l.code && <span className="text-xs text-blue-400 bg-blue-900/20 px-2 py-0.5 rounded-full">{l.code}</span>}
-                    <span className="text-xs text-slate-500">{l.law_type}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${l.status === "active" ? "text-green-300 bg-green-900/20" : "text-red-300 bg-red-900/20"}`}>
+                    <span className="text-xs text-fg-muted">{l.law_type}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${l.status === "active" ? "text-fg-success bg-success-tint" : "text-fg-danger bg-danger-tint"}`}>
                       {l.status}
                     </span>
                   </div>
@@ -405,7 +405,7 @@ export default function AdminPage() {
                 <button
                   onClick={() => deleteLaw(l.id)}
                   disabled={actionLoading === l.id}
-                  className="p-2 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
+                  className="p-2 rounded-lg text-fg-danger hover:bg-danger-tint transition-colors"
                   title="Delete law"
                 >
                   {actionLoading === l.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
@@ -419,8 +419,8 @@ export default function AdminPage() {
         {activeTab === "stats" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="card p-6">
-              <h3 className="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-pangea-400" />
+              <h3 className="text-sm font-semibold text-fg mb-4 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-fg-primary" />
                 Proposals by status
               </h3>
               <div className="space-y-3">
@@ -429,13 +429,13 @@ export default function AdminPage() {
                   const pct = proposals.length > 0 ? (count / proposals.length) * 100 : 0;
                   return (
                     <div key={status}>
-                      <div className="flex justify-between text-xs text-slate-400 mb-1">
+                      <div className="flex justify-between text-xs text-fg-muted mb-1">
                         <span className="capitalize">{status}</span>
                         <span className="font-medium">{count} ({pct.toFixed(0)}%)</span>
                       </div>
-                      <div className="bg-slate-700 rounded-full h-2">
+                      <div className="bg-theme-muted rounded-full h-2">
                         <div
-                          className="bg-pangea-500 h-2 rounded-full transition-all duration-500"
+                          className="bg-theme-primary h-2 rounded-full transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -445,7 +445,7 @@ export default function AdminPage() {
               </div>
             </div>
             <div className="card p-6">
-              <h3 className="text-sm font-semibold text-slate-200 mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-fg mb-4 flex items-center gap-2">
                 <Users className="w-4 h-4 text-blue-400" />
                 Users by role
               </h3>
@@ -455,11 +455,11 @@ export default function AdminPage() {
                   const pct = users.length > 0 ? (count / users.length) * 100 : 0;
                   return (
                     <div key={role}>
-                      <div className="flex justify-between text-xs text-slate-400 mb-1">
+                      <div className="flex justify-between text-xs text-fg-muted mb-1">
                         <span className="capitalize">{role}</span>
                         <span className="font-medium">{count} ({pct.toFixed(0)}%)</span>
                       </div>
-                      <div className="bg-slate-700 rounded-full h-2">
+                      <div className="bg-theme-muted rounded-full h-2">
                         <div
                           className={`h-2 rounded-full transition-all duration-500 ${
                             role === "admin" ? "bg-red-500" : role === "moderator" ? "bg-amber-500" : "bg-blue-500"

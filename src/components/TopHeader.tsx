@@ -92,7 +92,7 @@ export default function TopHeader({ userName, isGuest = false }: TopHeaderProps)
             className="relative w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500/50 flex items-center justify-center hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-150 shrink-0"
             title="Settings"
           >
-            <span className="text-[10px] font-bold text-white">{initials}</span>
+            <span className="text-[10px] font-bold text-fg">{initials}</span>
           </Link>
         )}
       </div>

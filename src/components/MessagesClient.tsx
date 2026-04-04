@@ -173,7 +173,7 @@ export default function MessagesClient({
       <div className="flex items-center justify-between mb-6 overflow-hidden">
         <div className="flex items-center gap-3 min-w-0">
           <MessageSquare className="w-6 h-6 text-blue-400 shrink-0" />
-          <h1 className="text-2xl font-bold text-white truncate">Messages</h1>
+          <h1 className="text-2xl font-bold text-fg truncate">Messages</h1>
         </div>
         <button
           onClick={() => setShowNewConv(true)}
@@ -185,15 +185,15 @@ export default function MessagesClient({
       </div>
 
       {/* E2E badge */}
-      <div className="flex items-center gap-2 mb-6 text-xs text-slate-400 overflow-hidden flex-wrap">
-        <ShieldCheck className="w-4 h-4 text-green-500 shrink-0" />
+      <div className="flex items-center gap-2 mb-6 text-xs text-fg-muted overflow-hidden flex-wrap">
+        <ShieldCheck className="w-4 h-4 text-fg-success shrink-0" />
         <span>End-to-end encrypted. Only you and the recipient can read these messages.</span>
       </div>
 
       {/* Search */}
       {conversations.length > 0 && (
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-muted" />
           <input
             type="text"
             value={search}
@@ -238,8 +238,8 @@ export default function MessagesClient({
               <Link
                 key={conv.id}
                 href={`/messages/${conv.id}`}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 hover:bg-slate-800/70 group overflow-hidden ${
-                  unread ? "bg-slate-800/40" : ""
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 hover:bg-theme-card group overflow-hidden ${
+                  unread ? "bg-theme-card/40" : ""
                 }`}
               >
                 {/* Avatar */}
@@ -250,7 +250,7 @@ export default function MessagesClient({
                       : "bg-gradient-to-br from-slate-600 to-slate-700 border border-slate-500"
                   }`}
                 >
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-sm font-bold text-fg">
                     {initials}
                   </span>
                 </div>
@@ -261,23 +261,23 @@ export default function MessagesClient({
                     <span
                       className={`text-sm truncate ${
                         unread
-                          ? "font-bold text-white"
-                          : "font-medium text-slate-200"
+                          ? "font-bold text-fg"
+                          : "font-medium text-fg"
                       }`}
                     >
                       {displayName}
                     </span>
-                    <span className="text-xs text-slate-400 shrink-0">
+                    <span className="text-xs text-fg-muted shrink-0">
                       {conv.last_message
                         ? formatTime(conv.last_message.created_at)
                         : ""}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 mt-0.5 min-w-0">
-                    <Lock className="w-3 h-3 text-slate-500 shrink-0" />
+                    <Lock className="w-3 h-3 text-fg-muted shrink-0" />
                     <p
                       className={`text-xs truncate ${
-                        unread ? "text-slate-200 font-medium" : "text-slate-400"
+                        unread ? "text-fg font-medium" : "text-fg-muted"
                       }`}
                     >
                       {conv.last_message
@@ -294,7 +294,7 @@ export default function MessagesClient({
                   {unread && (
                     <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0" />
                   )}
-                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-fg-muted group-hover:text-fg transition-colors shrink-0" />
                 </div>
               </Link>
             );

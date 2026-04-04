@@ -22,7 +22,7 @@ export default function SendMessageButton({
 
   if (dmPolicy === "nobody") {
     return (
-      <div className="flex items-center gap-2 text-xs text-slate-500">
+      <div className="flex items-center gap-2 text-xs text-fg-muted">
         <Lock className="w-3.5 h-3.5" />
         <span>This citizen has disabled direct messages.</span>
       </div>
@@ -53,7 +53,7 @@ export default function SendMessageButton({
     <button
       onClick={handleClick}
       disabled={loading}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
+      className="inline-flex items-center gap-2 px-4 py-2 bg-theme-muted hover:bg-theme-muted text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
     >
       {loading ? (
         <span className="animate-spin w-4 h-4 border-2 border-slate-300 border-t-transparent rounded-full" />

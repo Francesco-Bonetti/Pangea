@@ -78,7 +78,7 @@ export default function DraftActions({
   }
 
   return (
-    <div className="card p-4 mb-6 bg-amber-900/10 border-amber-800/30">
+    <div className="card p-4 mb-6 bg-warning-tint border-amber-800/30">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 text-amber-300 text-sm font-medium">
           <AlertTriangle className="w-4 h-4" />
@@ -88,7 +88,7 @@ export default function DraftActions({
           <button
             onClick={deleteDraft}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-900/20 border border-red-800/30 hover:border-red-700/50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-fg-danger bg-danger-tint border border-red-800/30 hover:border-theme transition-colors disabled:opacity-50"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Delete
@@ -96,7 +96,7 @@ export default function DraftActions({
           <button
             onClick={publishDraft}
             disabled={loading || !hasOptions}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-green-300 bg-green-900/20 border border-green-800/30 hover:border-green-700/50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-fg-success bg-success-tint border border-green-800/30 hover:border-green-700/50 transition-colors disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -108,7 +108,7 @@ export default function DraftActions({
         </div>
       </div>
       {error && (
-        <p className="text-xs text-red-400 mt-2">{error}</p>
+        <p className="text-xs text-fg-danger mt-2">{error}</p>
       )}
       {!hasOptions && (
         <p className="text-xs text-amber-400/70 mt-2">

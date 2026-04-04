@@ -144,7 +144,7 @@ export default async function ProposalDetailPage({ params }: Props) {
         {/* Breadcrumb */}
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to the Agora
@@ -188,35 +188,35 @@ export default async function ProposalDetailPage({ params }: Props) {
                 : "Draft"}
             </span>
             {proposal.proposal_type === "amendment" && (
-              <span className="text-xs text-purple-400 font-medium bg-purple-900/20 px-2 py-1 rounded-full border border-purple-800/30">
+              <span className="text-xs text-purple-400 font-medium bg-purple-tint px-2 py-1 rounded-full border border-purple-800/30">
                 Amendment
               </span>
             )}
             {proposal.proposal_type === "repeal" && (
-              <span className="text-xs text-red-400 font-medium bg-red-900/20 px-2 py-1 rounded-full border border-red-800/30">
+              <span className="text-xs text-fg-danger font-medium bg-danger-tint px-2 py-1 rounded-full border border-red-800/30">
                 Repeal
               </span>
             )}
             {isAuthor && (
-              <span className="text-xs text-amber-400 font-medium bg-amber-900/20 px-2 py-1 rounded-full border border-amber-800/30">
+              <span className="text-xs text-amber-400 font-medium bg-warning-tint px-2 py-1 rounded-full border border-amber-800/30">
                 Your proposal
               </span>
             )}
             {tags.map((tag: { name: string; slug: string }, i: number) => (
-              <span key={i} className="text-xs text-pangea-400 font-medium bg-pangea-900/20 px-2 py-1 rounded-full flex items-center gap-1 border border-pangea-800/30">
+              <span key={i} className="text-xs text-fg-primary font-medium bg-pangea-900/20 px-2 py-1 rounded-full flex items-center gap-1 border border-pangea-800/30">
                 <Hash className="w-3 h-3" />
                 {tag.name}
               </span>
             ))}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-fg leading-snug mb-6">
             {proposal.title}
           </h1>
 
           {/* Metadata */}
-          <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-            <Link href={`/citizens/${proposal.author_id}`} className="flex items-center gap-1.5 hover:text-pangea-300 transition-colors overflow-hidden min-w-0">
+          <div className="flex flex-wrap gap-4 text-sm text-fg-muted">
+            <Link href={`/citizens/${proposal.author_id}`} className="flex items-center gap-1.5 hover:text-fg-primary transition-colors overflow-hidden min-w-0">
               <User className="w-4 h-4 shrink-0" />
               <span className="truncate">
                 {authorPrivacy && authorPrivacy.profile_visibility === "private"
@@ -247,12 +247,12 @@ export default async function ProposalDetailPage({ params }: Props) {
           <div className="lg:col-span-2 space-y-6">
             {/* Context */}
             <div className="card p-6 overflow-hidden">
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2 overflow-hidden">
-                <FileText className="w-5 h-5 text-pangea-400 shrink-0" />
+              <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2 overflow-hidden">
+                <FileText className="w-5 h-5 text-fg-primary shrink-0" />
                 <span className="truncate">Context and Motivation</span>
               </h2>
               <div className="prose prose-invert prose-sm max-w-none">
-                <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+                <p className="text-fg leading-relaxed whitespace-pre-wrap">
                   {proposal.content}
                 </p>
               </div>
@@ -261,11 +261,11 @@ export default async function ProposalDetailPage({ params }: Props) {
             {/* Legal provision */}
             {proposal.dispositivo && (
               <div className="card p-6">
-                <h2 className="text-lg font-semibold text-slate-200 mb-4">
+                <h2 className="text-lg font-semibold text-fg mb-4">
                   Legal Provision
                 </h2>
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
-                  <p className="text-slate-300 text-sm font-mono leading-relaxed whitespace-pre-wrap">
+                <div className="bg-theme-base rounded-lg p-4 border border-theme">
+                  <p className="text-fg text-sm font-mono leading-relaxed whitespace-pre-wrap">
                     {proposal.dispositivo}
                   </p>
                 </div>
@@ -275,7 +275,7 @@ export default async function ProposalDetailPage({ params }: Props) {
             {/* Deliberative options */}
             {proposalOptions.length > 0 && (
               <div className="card p-6 overflow-hidden">
-                <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2 overflow-hidden">
+                <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2 overflow-hidden">
                   <Flame className="w-5 h-5 text-amber-400 shrink-0" />
                   <span className="truncate">Deliberative Options</span>
                 </h2>
@@ -283,18 +283,18 @@ export default async function ProposalDetailPage({ params }: Props) {
                   {proposalOptions.map((opt, i) => (
                     <div
                       key={opt.id}
-                      className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/50"
+                      className="bg-theme-base rounded-lg p-4 border border-theme"
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded font-medium">
+                        <span className="text-xs text-fg-muted bg-theme-card px-2 py-0.5 rounded font-medium">
                           {i + 1}
                         </span>
-                        <h3 className="text-sm font-semibold text-slate-200">
+                        <h3 className="text-sm font-semibold text-fg">
                           {opt.title}
                         </h3>
                       </div>
                       {opt.description && (
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                        <p className="text-xs text-fg-muted mt-1 leading-relaxed">
                           {opt.description}
                         </p>
                       )}
@@ -311,11 +311,11 @@ export default async function ProposalDetailPage({ params }: Props) {
               /* Community Review — SignalButton */
               <div className="sticky top-24">
                 <div className="card p-5 mb-4 overflow-hidden">
-                  <h2 className="text-base font-semibold text-slate-200 mb-1 flex items-center gap-2 overflow-hidden">
+                  <h2 className="text-base font-semibold text-fg mb-1 flex items-center gap-2 overflow-hidden">
                     <Flame className="w-4 h-4 text-amber-400 shrink-0" />
                     <span className="truncate">Community Review</span>
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-fg-muted">
                     Support this proposal to move it to the voting phase
                   </p>
                 </div>
@@ -323,9 +323,9 @@ export default async function ProposalDetailPage({ params }: Props) {
                   {isGuest ? (
                     <div className="text-center py-4">
                       <Flame className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-                      <p className="text-slate-300 font-medium mb-1">Signals: {signalCount} / {curationThreshold}</p>
-                      <p className="text-xs text-slate-500 mb-4">
-                        <Link href="/auth" className="text-pangea-400 hover:underline">Sign up</Link> to support this proposal.
+                      <p className="text-fg font-medium mb-1">Signals: {signalCount} / {curationThreshold}</p>
+                      <p className="text-xs text-fg-muted mb-4">
+                        <Link href="/auth" className="text-fg-primary hover:underline">Sign up</Link> to support this proposal.
                       </p>
                     </div>
                   ) : (
@@ -359,8 +359,8 @@ export default async function ProposalDetailPage({ params }: Props) {
         {/* Discussion section */}
         <div className="mt-8">
           <div className="card p-6 overflow-hidden">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2 overflow-hidden">
-              <MessageCircle className="w-5 h-5 text-pangea-400 shrink-0" />
+            <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2 overflow-hidden">
+              <MessageCircle className="w-5 h-5 text-fg-primary shrink-0" />
               <span className="truncate">Discussion</span>
             </h2>
             <CommentSection

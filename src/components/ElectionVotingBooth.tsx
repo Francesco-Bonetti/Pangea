@@ -192,7 +192,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
 
   if (loading) {
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+      <div className="bg-theme-card border border-theme rounded-xl p-6">
         <div className="h-40 flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-purple-500" />
         </div>
@@ -214,10 +214,10 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
 
           {isGuest ? (
             <div className="flex items-center gap-3">
-              <p className="text-sm text-slate-300">Sign in to register as a candidate.</p>
+              <p className="text-sm text-fg">Sign in to register as a candidate.</p>
               <Link
                 href="/auth"
-                className="flex items-center gap-2 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-fg text-sm rounded-lg transition-colors"
               >
                 <LogIn className="w-4 h-4" />
                 Sign In
@@ -225,14 +225,14 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
             </div>
           ) : isCandidate ? (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-green-400 flex items-center gap-2">
+              <p className="text-sm text-fg-success flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
                 You are registered as a candidate!
               </p>
               <button
                 onClick={handleWithdrawCandidacy}
                 disabled={registering}
-                className="px-3 py-1.5 text-sm text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 text-sm text-fg-danger border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
               >
                 Withdraw
               </button>
@@ -243,20 +243,20 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
                 placeholder="Describe your platform and why citizens should vote for you... (optional)"
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
+                className="w-full px-4 py-3 bg-theme-base border border-theme rounded-lg text-fg text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
                 rows={4}
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleRegisterCandidate}
                   disabled={registering}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-fg text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
                 >
                   {registering ? "Registering..." : "Confirm Registration"}
                 </button>
                 <button
                   onClick={() => setShowRegisterForm(false)}
-                  className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm text-fg-muted hover:text-fg transition-colors"
                 >
                   Cancel
                 </button>
@@ -265,7 +265,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
           ) : (
             <button
               onClick={() => setShowRegisterForm(true)}
-              className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95"
+              className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95"
             >
               Register as Candidate
             </button>
@@ -276,16 +276,16 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
       {/* Voting Phase */}
       {isVotingPhase && !isGuest && !hasVoted && (
         <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
-          <h3 className="text-lg font-semibold text-green-400 flex items-center gap-2 mb-3">
+          <h3 className="text-lg font-semibold text-fg-success flex items-center gap-2 mb-3">
             <Vote className="w-5 h-5" />
             Cast Your Vote
           </h3>
-          <p className="text-sm text-slate-400 mb-4">
+          <p className="text-sm text-fg-muted mb-4">
             Select a candidate below and confirm your choice. Your vote is private and cannot be seen by others.
           </p>
 
           {error && (
-            <div className="mb-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400 flex items-center gap-2">
+            <div className="mb-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-fg-danger flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               {error}
             </div>
@@ -299,7 +299,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                 className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all duration-150 ${
                   selectedCandidate === candidate.candidate_id
                     ? "border-green-500 bg-green-500/10"
-                    : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
+                    : "border-theme bg-theme-card hover:border-theme"
                 }`}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
@@ -312,9 +312,9 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white">{candidate.candidate_name}</p>
+                  <p className="text-sm font-medium text-fg">{candidate.candidate_name}</p>
                   {candidate.candidate_party_name && (
-                    <p className="text-xs text-slate-400 flex items-center gap-1">
+                    <p className="text-xs text-fg-muted flex items-center gap-1">
                       <Flag className="w-3 h-3" /> {candidate.candidate_party_name}
                     </p>
                   )}
@@ -326,7 +326,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
           <button
             onClick={handleVote}
             disabled={!selectedCandidate || voting}
-            className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-medium rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-fg font-medium rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {voting ? "Submitting vote..." : "Confirm Vote"}
           </button>
@@ -337,14 +337,14 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
       {isVotingPhase && hasVoted && (
         <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
           <div className="flex items-center justify-between">
-            <p className="text-green-400 flex items-center gap-2 font-medium">
+            <p className="text-fg-success flex items-center gap-2 font-medium">
               <CheckCircle className="w-5 h-5" />
               You have voted in this election
             </p>
             <button
               onClick={handleRevokeVote}
               disabled={voting}
-              className="px-3 py-1.5 text-sm text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 text-sm text-fg-danger border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
             >
               {voting ? "Revoking..." : "Change Vote"}
             </button>
@@ -354,11 +354,11 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
 
       {/* Guest CTA */}
       {isVotingPhase && isGuest && (
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 text-center">
-          <p className="text-slate-300 mb-3">Sign in to vote in this election.</p>
+        <div className="bg-theme-card border border-theme rounded-xl p-5 text-center">
+          <p className="text-fg mb-3">Sign in to vote in this election.</p>
           <Link
             href="/auth"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-fg text-sm font-medium rounded-lg transition-colors"
           >
             <LogIn className="w-4 h-4" />
             Sign In to Vote
@@ -367,9 +367,9 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
       )}
 
       {/* Results / Candidates List */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5">
+      <div className="bg-theme-card border border-theme rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-fg flex items-center gap-2">
             {isClosed ? (
               <>
                 <Trophy className="w-5 h-5 text-amber-500" />
@@ -383,14 +383,14 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
             )}
           </h3>
           {voterCount > 0 && (
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-fg-muted">
               {voterCount} vote{voterCount !== 1 ? "s" : ""} cast
             </span>
           )}
         </div>
 
         {results.length === 0 ? (
-          <p className="text-sm text-slate-500 text-center py-8">
+          <p className="text-sm text-fg-muted text-center py-8">
             No candidates have registered yet.
           </p>
         ) : (
@@ -408,14 +408,14 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                       ? "border-amber-500/50 bg-amber-500/10"
                       : isMyVote
                       ? "border-green-500/30 bg-green-500/5"
-                      : "border-slate-700 bg-slate-900/50"
+                      : "border-theme bg-theme-base"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3">
                       {/* Rank */}
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-                        isWinner ? "bg-amber-500 text-black" : "bg-slate-700 text-slate-300"
+                        isWinner ? "bg-amber-500 text-black" : "bg-theme-muted text-fg"
                       }`}>
                         {index + 1}
                       </div>
@@ -423,7 +423,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/citizens/${candidate.candidate_user_id}`}
-                            className="text-white font-medium hover:text-purple-300 transition-colors"
+                            className="text-fg font-medium hover:text-purple-300 transition-colors"
                           >
                             {candidate.candidate_name}
                           </Link>
@@ -433,13 +433,13 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                             </span>
                           )}
                           {isMyVote && (
-                            <span className="px-2 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-400 rounded-full border border-green-500/30">
+                            <span className="px-2 py-0.5 text-[10px] font-bold bg-green-500/20 text-fg-success rounded-full border border-green-500/30">
                               Your Vote
                             </span>
                           )}
                         </div>
                         {candidate.candidate_party_name && (
-                          <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                          <p className="text-xs text-fg-muted flex items-center gap-1 mt-0.5">
                             <Flag className="w-3 h-3" /> {candidate.candidate_party_name}
                           </p>
                         )}
@@ -449,23 +449,23 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                     {/* Vote count (show only during voting or after closed) */}
                     {(isVotingPhase || isClosed) && (
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-semibold text-white">
+                        <p className="text-sm font-semibold text-fg">
                           {Number(candidate.total_weighted_votes).toFixed(1)}
                         </p>
-                        <p className="text-[10px] text-slate-500">weighted votes</p>
+                        <p className="text-[10px] text-fg-muted">weighted votes</p>
                       </div>
                     )}
                   </div>
 
                   {/* Platform */}
                   {candidate.candidate_platform && (
-                    <p className="text-sm text-slate-400 mt-2 pl-11">{candidate.candidate_platform}</p>
+                    <p className="text-sm text-fg-muted mt-2 pl-11">{candidate.candidate_platform}</p>
                   )}
 
                   {/* Vote bar */}
                   {(isVotingPhase || isClosed) && pct > 0 && (
                     <div className="mt-3 pl-11">
-                      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-theme-muted rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${
                             isWinner ? "bg-amber-500" : "bg-purple-500"

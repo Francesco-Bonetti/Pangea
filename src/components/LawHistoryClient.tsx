@@ -65,13 +65,13 @@ export default function LawHistoryClient({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-slate-400 mb-4">
+      <h3 className="text-sm font-medium text-fg-muted mb-4">
         {history.length} previous {history.length === 1 ? "version" : "versions"}
       </h3>
 
       {restoredVersion !== null && (
         <div className="card border border-green-800/30 bg-green-900/10 p-4 mb-4">
-          <p className="text-sm text-green-400">
+          <p className="text-sm text-fg-success">
             Successfully restored to version {restoredVersion}. Reloading...
           </p>
         </div>
@@ -84,18 +84,18 @@ export default function LawHistoryClient({
         return (
           <div
             key={entry.id}
-            className="card border border-slate-700/20 overflow-hidden"
+            className="card border border-theme/20 overflow-hidden"
           >
             {/* Header */}
             <div
-              className="p-4 flex items-center gap-3 cursor-pointer hover:bg-slate-800/30 transition-colors"
+              className="p-4 flex items-center gap-3 cursor-pointer hover:bg-theme-card/30 transition-colors"
               onClick={() => setExpandedId(isExpanded ? null : entry.id)}
             >
               <div className="shrink-0">
                 {isExpanded ? (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <ChevronDown className="w-4 h-4 text-fg-muted" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                  <ChevronRight className="w-4 h-4 text-fg-muted" />
                 )}
               </div>
 
@@ -104,13 +104,13 @@ export default function LawHistoryClient({
                   <span className="text-xs font-medium text-blue-400 bg-blue-900/30 px-2 py-0.5 rounded">
                     v{entry.version_number}
                   </span>
-                  <span className="text-sm text-slate-300 truncate">
+                  <span className="text-sm text-fg truncate">
                     {entry.change_description}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <Clock className="w-3 h-3 text-slate-600" />
-                  <span className="text-xs text-slate-600">
+                  <Clock className="w-3 h-3 text-fg-muted" />
+                  <span className="text-xs text-fg-muted">
                     {new Date(entry.changed_at).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
@@ -144,18 +144,18 @@ export default function LawHistoryClient({
 
             {/* Expanded content */}
             {isExpanded && (
-              <div className="border-t border-slate-700/20 p-4 bg-slate-900/30">
+              <div className="border-t border-theme/20 p-4 bg-theme-base">
                 {entry.content ? (
                   <div>
-                    <p className="text-xs font-medium text-slate-500 mb-2">
+                    <p className="text-xs font-medium text-fg-muted mb-2">
                       Content at version {entry.version_number}:
                     </p>
-                    <pre className="text-sm text-slate-400 whitespace-pre-wrap leading-relaxed bg-slate-900/50 p-3 rounded-md border border-slate-800/30 max-h-96 overflow-y-auto">
+                    <pre className="text-sm text-fg-muted whitespace-pre-wrap leading-relaxed bg-theme-base p-3 rounded-md border border-theme/30 max-h-96 overflow-y-auto">
                       {entry.content}
                     </pre>
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500 italic">
+                  <p className="text-sm text-fg-muted italic">
                     No content was recorded for this version.
                   </p>
                 )}
@@ -165,7 +165,7 @@ export default function LawHistoryClient({
                     <p className="text-xs font-medium text-amber-500 mb-2">
                       Simplified version at v{entry.version_number}:
                     </p>
-                    <p className="text-sm text-amber-200/60 bg-amber-900/10 p-3 rounded-md border border-amber-800/20">
+                    <p className="text-sm text-amber-200/60 bg-warning-tint p-3 rounded-md border border-amber-800/20">
                       {entry.simplified_content}
                     </p>
                   </div>

@@ -127,20 +127,20 @@ export default function KeySetup({
 
         {hasExistingKeys ? (
           <>
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-xl font-bold text-fg mb-2">
               Unlock Your Messages
             </h2>
-            <p className="text-slate-300 mb-6 text-sm">
+            <p className="text-fg mb-6 text-sm">
               Enter your encryption password to decrypt your messages.
               This password never leaves your device.
             </p>
           </>
         ) : (
           <>
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-xl font-bold text-fg mb-2">
               Set Up Encrypted Messaging
             </h2>
-            <p className="text-slate-300 mb-4 text-sm">
+            <p className="text-fg mb-4 text-sm">
               Create an encryption password to protect your private messages.
               Messages are encrypted on your device before being sent — no one,
               not even the server, can read them.
@@ -149,10 +149,10 @@ export default function KeySetup({
               <div className="flex items-start gap-2">
                 <ShieldCheck className="w-5 h-5 text-blue-400 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-fg">
                     End-to-end encrypted
                   </p>
-                  <p className="text-xs text-slate-300 mt-1">
+                  <p className="text-xs text-fg mt-1">
                     Your messages are encrypted with Curve25519-XSalsa20-Poly1305.
                     Only you and the recipient can read them. For example, if you
                     send &quot;Hello!&quot; to another citizen, the server only sees
@@ -165,9 +165,9 @@ export default function KeySetup({
         )}
 
         {error && (
-          <div className="flex items-center gap-2 bg-red-900/30 border border-red-700/50 rounded-lg p-3 mb-4 text-left">
-            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
-            <p className="text-sm text-red-300">{error}</p>
+          <div className="flex items-center gap-2 bg-danger-tint border border-theme rounded-lg p-3 mb-4 text-left">
+            <AlertTriangle className="w-4 h-4 text-fg-danger shrink-0" />
+            <p className="text-sm text-fg-danger">{error}</p>
           </div>
         )}
 
@@ -190,7 +190,7 @@ export default function KeySetup({
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg"
               >
                 {showPassword ? (
                   <EyeOff className="w-4 h-4" />
@@ -236,7 +236,7 @@ export default function KeySetup({
           {!hasExistingKeys && (
             <div className="flex items-start gap-2 mt-3">
               <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-fg-muted">
                 Remember this password. If you forget it, you will need to create
                 new keys and old messages will become unreadable.
               </p>

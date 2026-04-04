@@ -246,7 +246,7 @@ export default function PartyDetailPage() {
   if (loading) {
     return (
       <AppShell isGuest={true}>
-        <div className="text-center text-slate-500 py-20">Loading...</div>
+        <div className="text-center text-fg-muted py-20">Loading...</div>
       </AppShell>
     );
   }
@@ -270,21 +270,21 @@ export default function PartyDetailPage() {
     >
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Back link */}
-        <Link href="/parties" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-300 mb-6 overflow-hidden">
+        <Link href="/parties" className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg mb-6 overflow-hidden">
           <ArrowLeft className="w-4 h-4 shrink-0" />
           <span className="truncate">All parties</span>
         </Link>
 
         {/* Alerts */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-fg-danger text-sm rounded-lg p-3 mb-4 overflow-hidden">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span className="truncate">{error}</span>
             <button onClick={() => setError(null)} className="ml-auto shrink-0"><X className="w-4 h-4" /></button>
           </div>
         )}
         {success && (
-          <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm rounded-lg p-3 mb-4">
+          <div className="bg-green-500/10 border border-green-500/30 text-fg-success text-sm rounded-lg p-3 mb-4">
             {success}
           </div>
         )}
@@ -294,14 +294,14 @@ export default function PartyDetailPage() {
           <div className="flex items-start gap-4 overflow-hidden">
             <div className="text-5xl shrink-0">{party.logo_emoji}</div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-white truncate">{party.name}</h1>
-              <p className="text-sm text-slate-400 mt-1">
-                Founded by <span className="text-slate-300"><PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={profile?.id} /></span>
+              <h1 className="text-2xl font-bold text-fg truncate">{party.name}</h1>
+              <p className="text-sm text-fg-muted mt-1">
+                Founded by <span className="text-fg"><PrivacyName userId={party.founder_id} fullName={party.profiles?.full_name ?? null} currentUserId={profile?.id} /></span>
                 {" · "}{new Date(party.created_at).toLocaleDateString("en-US")}
                 {" · "}{members.length} {members.length === 1 ? "member" : "members"}
               </p>
               {!editing && party.description && (
-                <p className="text-slate-300 mt-3">{party.description}</p>
+                <p className="text-fg mt-3">{party.description}</p>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
@@ -322,7 +322,7 @@ export default function PartyDetailPage() {
                 </button>
               )}
               {isMember && !isFounder && (
-                <button onClick={handleLeave} className="btn-ghost text-red-400 flex items-center gap-2 overflow-hidden whitespace-nowrap">
+                <button onClick={handleLeave} className="btn-ghost text-fg-danger flex items-center gap-2 overflow-hidden whitespace-nowrap">
                   <UserMinus className="w-4 h-4 shrink-0" />
                   <span className="truncate">Leave</span>
                 </button>
@@ -338,7 +338,7 @@ export default function PartyDetailPage() {
 
           {/* Edit form */}
           {editing && (
-            <div className="mt-4 border-t border-slate-700 pt-4 space-y-3">
+            <div className="mt-4 border-t border-theme pt-4 space-y-3">
               <div>
                 <label className="label">Description</label>
                 <textarea
@@ -366,15 +366,15 @@ export default function PartyDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-slate-800 mb-6 overflow-x-auto">
+        <div className="flex gap-1 border-b border-theme mb-6 overflow-x-auto">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 overflow-hidden ${
                 activeTab === t.key
-                  ? "border-pangea-400 text-pangea-300"
-                  : "border-transparent text-slate-500 hover:text-slate-300"
+                  ? "border-pangea-400 text-fg-primary"
+                  : "border-transparent text-fg-muted hover:text-fg"
               }`}
             >
               {t.icon}
@@ -388,29 +388,29 @@ export default function PartyDetailPage() {
           <div className="space-y-6">
             {party.manifesto && (
               <div className="card">
-                <h3 className="text-lg font-semibold text-white mb-3">Manifesto</h3>
-                <p className="text-slate-300 whitespace-pre-wrap">{party.manifesto}</p>
+                <h3 className="text-lg font-semibold text-fg mb-3">Manifesto</h3>
+                <p className="text-fg whitespace-pre-wrap">{party.manifesto}</p>
               </div>
             )}
             {/* Role badges for current user */}
             {isMember && (
               <div className="card">
-                <h3 className="text-sm font-semibold text-slate-400 mb-2">Your role</h3>
+                <h3 className="text-sm font-semibold text-fg-muted mb-2">Your role</h3>
                 <div className="flex items-center gap-2">
                   {isFounder && <span className="flex items-center gap-1 bg-amber-500/20 text-amber-400 text-sm px-3 py-1 rounded-full"><Crown className="w-3.5 h-3.5" /> Founder</span>}
                   {myMembership?.role === "admin" && <span className="flex items-center gap-1 bg-blue-500/20 text-blue-400 text-sm px-3 py-1 rounded-full"><Shield className="w-3.5 h-3.5" /> Admin</span>}
-                  {myMembership?.role === "member" && <span className="flex items-center gap-1 bg-slate-500/20 text-slate-400 text-sm px-3 py-1 rounded-full"><Users className="w-3.5 h-3.5" /> Member</span>}
+                  {myMembership?.role === "member" && <span className="flex items-center gap-1 bg-slate-500/20 text-fg-muted text-sm px-3 py-1 rounded-full"><Users className="w-3.5 h-3.5" /> Member</span>}
                 </div>
                 {isFounder && (
                   <button
                     onClick={() => setShowTransfer(!showTransfer)}
-                    className="mt-3 text-xs text-slate-500 hover:text-amber-400 transition-colors"
+                    className="mt-3 text-xs text-fg-muted hover:text-amber-400 transition-colors"
                   >
                     Transfer founder role →
                   </button>
                 )}
                 {showTransfer && (
-                  <div className="mt-3 p-3 bg-slate-800/50 rounded-lg">
+                  <div className="mt-3 p-3 bg-theme-card rounded-lg">
                     <label className="label">Select new founder</label>
                     <select
                       value={transferTo}
@@ -448,18 +448,18 @@ export default function PartyDetailPage() {
           <div className="space-y-2">
             {members.map((m) => (
               <div key={m.id} className="card flex items-center gap-3 overflow-hidden">
-                <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-pangea-300 font-bold text-sm">
+                <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-fg-primary font-bold text-sm">
                   {(m.profiles?.full_name ?? "?").split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Link href={`/citizens/${m.user_id}`} className="text-sm font-medium text-white hover:text-pangea-300 transition-colors truncate block">
+                  <Link href={`/citizens/${m.user_id}`} className="text-sm font-medium text-fg hover:text-fg-primary transition-colors truncate block">
                     <PrivacyName userId={m.user_id} fullName={m.profiles?.full_name ?? null} currentUserId={user?.id} />
                   </Link>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                     {m.role === "founder" && <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full shrink-0">Founder</span>}
                     {m.role === "admin" && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full shrink-0">Admin</span>}
-                    {m.role === "member" && <span className="text-[10px] bg-slate-500/20 text-slate-400 px-2 py-0.5 rounded-full shrink-0">Member</span>}
-                    <span className="text-[10px] text-slate-600 shrink-0">Since {new Date(m.joined_at).toLocaleDateString("en-US")}</span>
+                    {m.role === "member" && <span className="text-[10px] bg-slate-500/20 text-fg-muted px-2 py-0.5 rounded-full shrink-0">Member</span>}
+                    <span className="text-[10px] text-fg-muted shrink-0">Since {new Date(m.joined_at).toLocaleDateString("en-US")}</span>
                   </div>
                 </div>
                 {/* Admin actions */}
@@ -471,11 +471,11 @@ export default function PartyDetailPage() {
                       </button>
                     )}
                     {isFounder && m.role === "admin" && (
-                      <button onClick={() => handleDemote(m.id, m.user_id)} className="btn-ghost text-xs text-slate-400" title="Demote to member">
+                      <button onClick={() => handleDemote(m.id, m.user_id)} className="btn-ghost text-xs text-fg-muted" title="Demote to member">
                         <ChevronDown className="w-3.5 h-3.5" />
                       </button>
                     )}
-                    <button onClick={() => handleRemoveMember(m.user_id)} className="btn-ghost text-xs text-red-400" title="Remove">
+                    <button onClick={() => handleRemoveMember(m.user_id)} className="btn-ghost text-xs text-fg-danger" title="Remove">
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -491,36 +491,36 @@ export default function PartyDetailPage() {
             {/* Set vote on active proposals (admin only) */}
             {isAdmin && (
               <div className="info-box">
-                <h3 className="text-sm font-semibold text-pangea-300 mb-3">Set party position</h3>
+                <h3 className="text-sm font-semibold text-fg-primary mb-3">Set party position</h3>
                 {activeProposals.length === 0 ? (
-                  <p className="text-xs text-slate-500">No active proposals at the moment.</p>
+                  <p className="text-xs text-fg-muted">No active proposals at the moment.</p>
                 ) : (
                   <div className="space-y-3">
                     {activeProposals.map((prop) => {
                       const currentVote = partyVotes.find((v) => v.proposal_id === prop.id);
                       return (
-                        <div key={prop.id} className="flex items-center gap-3 bg-slate-800/50 rounded-lg p-3 overflow-hidden">
-                          <Link href={`/proposals/${prop.id}`} className="flex-1 min-w-0 text-sm text-slate-300 hover:text-white truncate">
+                        <div key={prop.id} className="flex items-center gap-3 bg-theme-card rounded-lg p-3 overflow-hidden">
+                          <Link href={`/proposals/${prop.id}`} className="flex-1 min-w-0 text-sm text-fg hover:text-fg truncate">
                             {prop.title}
                           </Link>
                           <div className="flex items-center gap-1 shrink-0">
                             <button
                               onClick={() => handleSetPartyVote(prop.id, "yea")}
-                              className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "yea" ? "bg-green-500/30 text-green-400" : "text-slate-600 hover:text-green-400"}`}
+                              className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "yea" ? "bg-green-500/30 text-fg-success" : "text-fg-muted hover:text-fg-success"}`}
                               title="In favor"
                             >
                               <ThumbsUp className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleSetPartyVote(prop.id, "nay")}
-                              className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "nay" ? "bg-red-500/30 text-red-400" : "text-slate-600 hover:text-red-400"}`}
+                              className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "nay" ? "bg-red-500/30 text-fg-danger" : "text-fg-muted hover:text-fg-danger"}`}
                               title="Against"
                             >
                               <ThumbsDown className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleSetPartyVote(prop.id, "abstain")}
-                              className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "abstain" ? "bg-amber-500/30 text-amber-400" : "text-slate-600 hover:text-amber-400"}`}
+                              className={`p-1.5 rounded transition-colors ${currentVote?.vote_type === "abstain" ? "bg-amber-500/30 text-amber-400" : "text-fg-muted hover:text-amber-400"}`}
                               title="Abstain"
                             >
                               <MinusCircle className="w-4 h-4" />
@@ -536,9 +536,9 @@ export default function PartyDetailPage() {
 
             {/* List of all party votes */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-3">Public positions</h3>
+              <h3 className="text-lg font-semibold text-fg mb-3">Public positions</h3>
               {partyVotes.length === 0 ? (
-                <p className="text-slate-500 text-sm">The party has not expressed any positions yet.</p>
+                <p className="text-fg-muted text-sm">The party has not expressed any positions yet.</p>
               ) : (
                 <div className="space-y-2">
                   {partyVotes.map((pv) => (
@@ -546,21 +546,21 @@ export default function PartyDetailPage() {
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         pv.vote_type === "yea" ? "bg-green-500/20" : pv.vote_type === "nay" ? "bg-red-500/20" : "bg-amber-500/20"
                       }`}>
-                        {pv.vote_type === "yea" && <ThumbsUp className="w-4 h-4 text-green-400" />}
-                        {pv.vote_type === "nay" && <ThumbsDown className="w-4 h-4 text-red-400" />}
+                        {pv.vote_type === "yea" && <ThumbsUp className="w-4 h-4 text-fg-success" />}
+                        {pv.vote_type === "nay" && <ThumbsDown className="w-4 h-4 text-fg-danger" />}
                         {pv.vote_type === "abstain" && <MinusCircle className="w-4 h-4 text-amber-400" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <Link href={`/proposals/${pv.proposal_id}`} className="text-sm text-white hover:text-pangea-300 transition-colors truncate block">
+                        <Link href={`/proposals/${pv.proposal_id}`} className="text-sm text-fg hover:text-fg-primary transition-colors truncate block">
                           {pv.proposals?.title || "Proposal"}
                         </Link>
-                        <p className="text-[10px] text-slate-600 mt-0.5">
+                        <p className="text-[10px] text-fg-muted mt-0.5">
                           {pv.vote_type === "yea" ? "In favor" : pv.vote_type === "nay" ? "Against" : "Abstain"}
                           {" · "}{new Date(pv.created_at).toLocaleDateString("en-US")}
                         </p>
                       </div>
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
-                        pv.proposals?.status === "active" ? "bg-green-500/10 text-green-400" : "bg-slate-500/10 text-slate-400"
+                        pv.proposals?.status === "active" ? "bg-green-500/10 text-fg-success" : "bg-slate-500/10 text-fg-muted"
                       }`}>
                         {pv.proposals?.status || ""}
                       </span>
@@ -577,7 +577,7 @@ export default function PartyDetailPage() {
           <div className="space-y-6">
             {/* New post form */}
             <div className="card">
-              <h3 className="text-sm font-semibold text-slate-300 mb-3">New post</h3>
+              <h3 className="text-sm font-semibold text-fg mb-3">New post</h3>
               <input
                 type="text"
                 value={newPost.title}
@@ -595,12 +595,12 @@ export default function PartyDetailPage() {
               />
               <div className="flex items-center justify-between">
                 {isAdmin && (
-                  <label className="flex items-center gap-2 text-xs text-slate-400 cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs text-fg-muted cursor-pointer">
                     <input
                       type="checkbox"
                       checked={newPost.is_admin_only}
                       onChange={(e) => setNewPost({ ...newPost, is_admin_only: e.target.checked })}
-                      className="rounded border-slate-600 bg-slate-800"
+                      className="rounded border-theme bg-theme-card"
                     />
                     <Lock className="w-3 h-3" />
                     Admin only
@@ -619,13 +619,13 @@ export default function PartyDetailPage() {
 
             {/* Posts */}
             {forumPosts.length === 0 ? (
-              <p className="text-slate-500 text-sm text-center py-8">No posts in the forum. Start the discussion!</p>
+              <p className="text-fg-muted text-sm text-center py-8">No posts in the forum. Start the discussion!</p>
             ) : (
               <div className="space-y-3">
                 {forumPosts.map((post) => (
                   <div key={post.id} className={`card ${post.is_admin_only ? "border-l-4 border-l-amber-500 bg-amber-950/20" : ""}`}>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium text-slate-300">
+                      <span className="text-sm font-medium text-fg">
                         <PrivacyName userId={post.author_id} fullName={post.profiles?.full_name ?? null} currentUserId={user?.id} />
                       </span>
                       {post.is_admin_only && (
@@ -633,12 +633,12 @@ export default function PartyDetailPage() {
                           <Lock className="w-2.5 h-2.5" /> Admin only
                         </span>
                       )}
-                      <span className="text-[10px] text-slate-600">
+                      <span className="text-[10px] text-fg-muted">
                         {new Date(post.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                    {post.title && <h4 className="text-white font-medium mb-1">{post.title}</h4>}
-                    <p className="text-sm text-slate-400 whitespace-pre-wrap">{post.body}</p>
+                    {post.title && <h4 className="text-fg font-medium mb-1">{post.title}</h4>}
+                    <p className="text-sm text-fg-muted whitespace-pre-wrap">{post.body}</p>
                   </div>
                 ))}
               </div>

@@ -133,7 +133,7 @@ function CommentCard({
     <div className="bg-[var(--background)] border border-[var(--border)] rounded-lg p-4 mb-3 overflow-hidden">
       <div className="flex items-start gap-3 overflow-hidden">
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 bg-theme-muted rounded-full flex items-center justify-center shrink-0">
             <User className="w-4 h-4 text-[var(--muted-foreground)] shrink-0" />
           </div>
         </div>
@@ -158,8 +158,8 @@ function CommentCard({
               disabled={isReacting || !userId}
               className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 currentReaction === "like"
-                  ? "bg-pangea-400 text-[var(--background)]"
-                  : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  ? "bg-theme-primary text-[var(--background)]"
+                  : "bg-theme-card text-fg-muted hover:bg-theme-muted disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               title={!userId ? "Log in to react" : ""}
             >
@@ -173,7 +173,7 @@ function CommentCard({
               className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 currentReaction === "dislike"
                   ? "bg-red-400 text-[var(--background)]"
-                  : "bg-slate-800 text-slate-400 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  : "bg-theme-card text-fg-muted hover:bg-theme-muted disabled:opacity-50 disabled:cursor-not-allowed"
               }`}
               title={!userId ? "Log in to react" : ""}
             >
@@ -186,8 +186,8 @@ function CommentCard({
               disabled={!userId}
               className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm transition-colors shrink-0 ${
                 userId
-                  ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                  : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"
+                  ? "bg-theme-card text-fg-muted hover:bg-theme-muted"
+                  : "bg-theme-card text-fg-muted opacity-50 cursor-not-allowed"
               }`}
               title={!userId ? "Log in to reply" : ""}
             >
@@ -277,7 +277,7 @@ function RepliesSection({
     <div className="ml-6 mt-3 border-l-2 border-[var(--border)] pl-4">
       <button
         onClick={handleToggleExpanded}
-        className="text-sm text-pangea-400 hover:text-pangea-300 transition-colors flex items-center gap-2 mb-2 shrink-0"
+        className="text-sm text-fg-primary hover:text-fg-primary transition-colors flex items-center gap-2 mb-2 shrink-0"
       >
         {isExpanded ? (
           <ChevronUp className="w-4 h-4 shrink-0" />
@@ -323,7 +323,7 @@ function RepliesSection({
                 <button
                   onClick={handleSubmitReply}
                   disabled={isSubmitting || !replyText.trim()}
-                  className="bg-pangea-500 text-white px-3 py-1 rounded-md text-sm hover:bg-pangea-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="bg-theme-primary text-fg px-3 py-1 rounded-md text-sm hover:bg-pangea-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   Reply
                 </button>
@@ -332,7 +332,7 @@ function RepliesSection({
                     setReplyingTo(null);
                     setReplyText("");
                   }}
-                  className="bg-slate-800 text-slate-300 px-3 py-1 rounded-md text-sm hover:bg-slate-700 transition-colors"
+                  className="bg-theme-card text-fg px-3 py-1 rounded-md text-sm hover:bg-theme-muted transition-colors"
                 >
                   Cancel
                 </button>
@@ -471,7 +471,7 @@ export default function CommentSection({
   return (
     <div className="w-full bg-[var(--background)] rounded-lg border border-[var(--border)] p-6 overflow-hidden">
       <div className="flex items-center gap-2 mb-6 overflow-hidden">
-        <MessageCircle className="w-5 h-5 text-pangea-400 shrink-0" />
+        <MessageCircle className="w-5 h-5 text-fg-primary shrink-0" />
         <h2 className="text-lg font-semibold text-[var(--foreground)] truncate">Discussion</h2>
       </div>
 
@@ -488,7 +488,7 @@ export default function CommentSection({
           <button
             onClick={handleSubmitComment}
             disabled={isSubmitting || !newCommentText.trim()}
-            className="bg-pangea-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pangea-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
+            className="bg-theme-primary text-fg px-4 py-2 rounded-lg text-sm hover:bg-pangea-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
           >
             <span>Comment</span>
           </button>
@@ -500,7 +500,7 @@ export default function CommentSection({
           </p>
           <a
             href="/auth"
-            className="inline-block bg-pangea-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pangea-600 transition-colors font-medium"
+            className="inline-block bg-theme-primary text-fg px-4 py-2 rounded-lg text-sm hover:bg-pangea-600 transition-colors font-medium"
           >
             Log in
           </a>
@@ -539,7 +539,7 @@ export default function CommentSection({
                 <div className="ml-6 mt-2 pl-4 border-l-2 border-[var(--border)]">
                   <button
                     onClick={() => handleReplyClick(comment.id)}
-                    className="text-sm text-pangea-400 hover:text-pangea-300 transition-colors flex items-center gap-2"
+                    className="text-sm text-fg-primary hover:text-fg-primary transition-colors flex items-center gap-2"
                   >
                     <ChevronDown className="w-4 h-4" />
                     Show {comment.replies_count} replies

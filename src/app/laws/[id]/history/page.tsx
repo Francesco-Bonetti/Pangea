@@ -29,8 +29,8 @@ export default async function LawHistoryPage({ params }: PageProps) {
     return (
       <AppShell userEmail={user?.email} isGuest={isGuest}>
         <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-          <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <h2 className="text-xl text-slate-300 mb-2">Law not found</h2>
+          <FileText className="w-16 h-16 text-fg-muted mx-auto mb-4" />
+          <h2 className="text-xl text-fg mb-2">Law not found</h2>
           <Link href="/laws" className="text-blue-400 hover:text-blue-300">
             &larr; Back to Living Codes
           </Link>
@@ -62,7 +62,7 @@ export default async function LawHistoryPage({ params }: PageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/laws"
-          className="text-sm text-slate-400 hover:text-slate-200 transition-colors mb-4 inline-flex items-center gap-1 overflow-hidden"
+          className="text-sm text-fg-muted hover:text-fg transition-colors mb-4 inline-flex items-center gap-1 overflow-hidden"
         >
           <ArrowLeft className="w-3 h-3 shrink-0" />
           <span className="truncate">Back to Living Codes</span>
@@ -70,25 +70,25 @@ export default async function LawHistoryPage({ params }: PageProps) {
 
         <div className="flex items-center gap-3 mb-2 mt-4 overflow-hidden">
           <History className="w-7 h-7 text-blue-400 shrink-0" />
-          <h1 className="text-2xl font-bold text-white truncate">Version History</h1>
+          <h1 className="text-2xl font-bold text-fg truncate">Version History</h1>
         </div>
 
         {/* Current law info */}
-        <div className="card border border-slate-700/30 p-4 mb-8 overflow-hidden">
+        <div className="card border border-theme/30 p-4 mb-8 overflow-hidden">
           <div className="flex items-center gap-2 mb-1 overflow-hidden">
             {law.article_number && (
-              <span className="text-xs font-medium text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded shrink-0">
+              <span className="text-xs font-medium text-fg-muted bg-theme-muted px-1.5 py-0.5 rounded shrink-0">
                 {law.article_number}
               </span>
             )}
-            <h2 className="text-lg font-semibold text-white truncate">{law.title}</h2>
+            <h2 className="text-lg font-semibold text-fg truncate">{law.title}</h2>
           </div>
           {law.summary && (
-            <p className="text-sm text-slate-400">{law.summary}</p>
+            <p className="text-sm text-fg-muted">{law.summary}</p>
           )}
           <div className="flex items-center gap-1.5 mt-2 overflow-hidden">
-            <Clock className="w-3 h-3 text-slate-600 shrink-0" />
-            <span className="text-xs text-slate-600 truncate">
+            <Clock className="w-3 h-3 text-fg-muted shrink-0" />
+            <span className="text-xs text-fg-muted truncate">
               Current version &middot; Last updated:{" "}
               {new Date(law.updated_at).toLocaleDateString("en-US", {
                 year: "numeric",
@@ -113,13 +113,13 @@ export default async function LawHistoryPage({ params }: PageProps) {
         ) : (
           <div className="text-center py-16 card">
             <History
-              className="w-12 h-12 text-slate-600 mx-auto mb-3"
+              className="w-12 h-12 text-fg-muted mx-auto mb-3"
               strokeWidth={1}
             />
-            <h3 className="text-lg font-semibold text-slate-300 mb-1">
+            <h3 className="text-lg font-semibold text-fg mb-1">
               No history yet
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-fg-muted">
               Changes to this law will be tracked and shown here.
             </p>
           </div>

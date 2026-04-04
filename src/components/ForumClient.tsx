@@ -36,7 +36,7 @@ export default function ForumClient({
   if (discussions.length === 0) {
     return (
       <div className="card p-12 text-center">
-        <p className="text-slate-400 text-lg">
+        <p className="text-fg-muted text-lg">
           No discussions yet. Be the first to start one!
         </p>
       </div>
@@ -57,7 +57,7 @@ export default function ForumClient({
       </div>
 
       {showSuccess && (
-        <div className="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-green-600 text-fg px-4 py-3 rounded-lg shadow-lg">
           Thank you for your report. Our moderators will review it soon.
         </div>
       )}

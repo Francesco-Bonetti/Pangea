@@ -99,7 +99,7 @@ export default function FollowButton({
 
   if (loading) {
     return (
-      <button disabled className={`inline-flex items-center rounded-lg font-medium bg-slate-700/50 text-slate-500 ${sizeClasses}`}>
+      <button disabled className={`inline-flex items-center rounded-lg font-medium bg-theme-muted text-fg-muted ${sizeClasses}`}>
         <Loader2 className={`animate-spin ${size === "sm" ? "w-3 h-3" : "w-4 h-4"}`} />
         Loading...
       </button>
@@ -113,8 +113,8 @@ export default function FollowButton({
         disabled={toggling}
         className={`inline-flex items-center rounded-lg font-medium transition-all duration-200 ${sizeClasses} ${
           isFollowing
-            ? "bg-pangea-900/40 text-pangea-300 border border-pangea-600/50 hover:bg-red-900/30 hover:text-red-300 hover:border-red-600/50"
-            : "bg-pangea-600 text-white hover:bg-pangea-500"
+            ? "bg-pangea-900/40 text-fg-primary border border-pangea-600/50 hover:bg-danger-tint hover:text-fg-danger hover:border-red-600/50"
+            : "bg-pangea-600 text-fg hover:bg-theme-primary"
         }`}
         title={isFollowing ? `Unfollow ${targetName || ""}` : `Follow ${targetName || ""}`}
       >
@@ -128,7 +128,7 @@ export default function FollowButton({
         {isFollowing ? "Following" : "Follow"}
       </button>
       {showCount && (
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-fg-muted">
           {followerCount} {followerCount === 1 ? "follower" : "followers"}
         </span>
       )}

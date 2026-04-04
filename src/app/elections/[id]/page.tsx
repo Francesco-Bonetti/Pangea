@@ -9,9 +9,9 @@ import type { Election, ElectionStatus } from "@/lib/types";
 const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {
   upcoming: { label: "Upcoming", color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },
   candidature: { label: "Open for Candidates", color: "text-amber-400", bg: "bg-amber-500/20 border-amber-500/30" },
-  voting: { label: "Voting Open", color: "text-green-400", bg: "bg-green-500/20 border-green-500/30" },
-  closed: { label: "Closed", color: "text-slate-400", bg: "bg-slate-500/20 border-slate-500/30" },
-  cancelled: { label: "Cancelled", color: "text-red-400", bg: "bg-red-500/20 border-red-500/30" },
+  voting: { label: "Voting Open", color: "text-fg-success", bg: "bg-green-500/20 border-green-500/30" },
+  closed: { label: "Closed", color: "text-fg-muted", bg: "bg-slate-500/20 border-slate-500/30" },
+  cancelled: { label: "Cancelled", color: "text-fg-danger", bg: "bg-red-500/20 border-red-500/30" },
 };
 
 function formatDate(dateStr: string) {
@@ -96,18 +96,18 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
         {/* Back */}
         <Link
           href="/elections"
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-6 overflow-hidden"
+          className="inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg transition-colors mb-6 overflow-hidden"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" />
           <span className="truncate">Back to Elections</span>
         </Link>
 
         {/* Header */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-6 overflow-hidden">
+        <div className="bg-theme-card border border-theme rounded-xl p-6 mb-6 overflow-hidden">
           <div className="flex items-start justify-between gap-4 mb-4 overflow-hidden">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-3 flex-wrap mb-2 overflow-hidden">
-                <h1 className="text-2xl font-bold text-white truncate">{election.title}</h1>
+                <h1 className="text-2xl font-bold text-fg truncate">{election.title}</h1>
                 <span className={`px-3 py-1 text-xs font-medium rounded-full border shrink-0 ${config.bg} ${config.color}`}>
                   {config.label}
                 </span>
@@ -115,9 +115,9 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
 
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <Trophy className="w-5 h-5 text-amber-500 shrink-0" />
-                <span className="text-base text-slate-300 font-medium">{election.position_name}</span>
+                <span className="text-base text-fg font-medium">{election.position_name}</span>
                 {election.max_winners > 1 && (
-                  <span className="text-sm text-slate-500 shrink-0">({election.max_winners} seats)</span>
+                  <span className="text-sm text-fg-muted shrink-0">({election.max_winners} seats)</span>
                 )}
               </div>
             </div>
@@ -125,11 +125,11 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
 
           {/* Description */}
           {election.description && (
-            <p className="text-slate-400 mb-4 leading-relaxed">{election.description}</p>
+            <p className="text-fg-muted mb-4 leading-relaxed">{election.description}</p>
           )}
 
           {/* Meta */}
-          <div className="flex items-center gap-4 flex-wrap text-sm text-slate-500 overflow-hidden">
+          <div className="flex items-center gap-4 flex-wrap text-sm text-fg-muted overflow-hidden">
             {election.jurisdictions && (
               <span className="flex items-center gap-1.5 shrink-0">
                 <MapPin className="w-4 h-4 shrink-0" />
@@ -150,8 +150,8 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
         </div>
 
         {/* Timeline */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6 overflow-hidden">
-          <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2 overflow-hidden">
+        <div className="bg-theme-card border border-theme rounded-xl p-5 mb-6 overflow-hidden">
+          <h3 className="text-sm font-semibold text-fg uppercase tracking-wider mb-4 flex items-center gap-2 overflow-hidden">
             <Clock className="w-4 h-4 shrink-0" />
             <span className="truncate">Election Timeline</span>
           </h3>
@@ -165,16 +165,16 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
                     phase.active
                       ? "border-purple-500/50 bg-purple-500/10"
                       : isPast
-                      ? "border-slate-700 bg-slate-900/30 opacity-60"
-                      : "border-slate-700 bg-slate-900/50"
+                      ? "border-theme bg-theme-base opacity-60"
+                      : "border-theme bg-theme-base"
                   }`}
                 >
                   <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                    phase.active ? "bg-purple-500 animate-pulse" : isPast ? "bg-slate-600" : "bg-slate-500"
+                    phase.active ? "bg-purple-500 animate-pulse" : isPast ? "bg-theme-muted" : "bg-slate-500"
                   }`} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-slate-500 truncate">{phase.label}</p>
-                    <p className="text-sm text-slate-300 truncate">{formatDate(phase.date)}</p>
+                    <p className="text-xs text-fg-muted truncate">{phase.label}</p>
+                    <p className="text-sm text-fg truncate">{formatDate(phase.date)}</p>
                   </div>
                 </div>
               );

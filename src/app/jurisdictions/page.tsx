@@ -197,15 +197,15 @@ export default function JurisdictionsPage() {
     return (
       <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={isGuest} pendingDelegations={pendingDelegations}>
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="h-8 w-48 bg-slate-800 rounded-lg animate-pulse mb-6" />
+          <div className="h-8 w-48 bg-theme-card rounded-lg animate-pulse mb-6" />
           <div className="grid gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+              <div key={i} className="bg-theme-card border border-theme rounded-xl p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-700 rounded-lg animate-pulse" />
+                  <div className="w-12 h-12 bg-theme-muted rounded-lg animate-pulse" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-5 w-40 bg-slate-700 rounded animate-pulse" />
-                    <div className="h-4 w-64 bg-slate-700/50 rounded animate-pulse" />
+                    <div className="h-5 w-40 bg-theme-muted rounded animate-pulse" />
+                    <div className="h-4 w-64 bg-theme-muted rounded animate-pulse" />
                   </div>
                 </div>
               </div>
@@ -228,10 +228,10 @@ export default function JurisdictionsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6 overflow-hidden">
           <div className="flex items-center gap-3 min-w-0">
-            <Map className="w-7 h-7 text-pangea-400 shrink-0" />
+            <Map className="w-7 h-7 text-fg-primary shrink-0" />
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-white truncate">Jurisdictions</h1>
-              <p className="text-sm text-slate-400">
+              <h1 className="text-2xl font-bold text-fg truncate">Jurisdictions</h1>
+              <p className="text-sm text-fg-muted">
                 Communities and regions within Pangea
               </p>
             </div>
@@ -249,14 +249,14 @@ export default function JurisdictionsPage() {
 
         {/* Info box */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
-          <Info className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
-          <div className="text-sm text-slate-400">
-            <p className="text-slate-300 font-medium mb-1">What are jurisdictions?</p>
+          <Info className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
+          <div className="text-sm text-fg-muted">
+            <p className="text-fg font-medium mb-1">What are jurisdictions?</p>
             <p>
               Jurisdictions are self-governing communities within Pangea. They can be{" "}
               <strong className="text-blue-300">virtual</strong> (topic-based, like
               &quot;Open Source Alliance&quot;) or{" "}
-              <strong className="text-green-300">geographic</strong> (location-based, like
+              <strong className="text-fg-success">geographic</strong> (location-based, like
               &quot;Lisbon District&quot;). Each jurisdiction can propose its own laws and
               hold local elections. For example, a &quot;Digital Sustainability&quot;
               jurisdiction could propose laws about open-source software for all its
@@ -267,7 +267,7 @@ export default function JurisdictionsPage() {
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-muted" />
           <input
             type="text"
             className="input-field pl-10"
@@ -278,7 +278,7 @@ export default function JurisdictionsPage() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg"
             >
               <X className="w-4 h-4" />
             </button>
@@ -288,11 +288,11 @@ export default function JurisdictionsPage() {
         {/* Jurisdictions list */}
         {filtered.length === 0 ? (
           <div className="card p-12 text-center">
-            <Map className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400 mb-2">
+            <Map className="w-12 h-12 text-fg-muted mx-auto mb-4" />
+            <p className="text-fg-muted mb-2">
               {searchQuery ? "No jurisdictions found" : "No jurisdictions yet"}
             </p>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-fg-muted">
               {searchQuery
                 ? "Try a different search term"
                 : "Be the first to create a jurisdiction!"}
@@ -303,21 +303,21 @@ export default function JurisdictionsPage() {
             {filtered.map((j) => (
               <div
                 key={j.id}
-                className="card p-5 hover:border-slate-600 transition-colors"
+                className="card p-5 hover:border-theme transition-colors"
               >
                 <div className="flex items-start gap-4 overflow-hidden">
                   {/* Emoji */}
-                  <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-theme-card flex items-center justify-center text-2xl shrink-0">
                     {j.logo_emoji}
                   </div>
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h3 className="text-lg font-semibold text-white truncate">
+                      <h3 className="text-lg font-semibold text-fg truncate">
                         {j.name}
                       </h3>
                       {j.is_member && (
-                        <span className="text-xs bg-pangea-900/40 text-pangea-300 px-2 py-0.5 rounded-full shrink-0">
+                        <span className="text-xs bg-pangea-900/40 text-fg-primary px-2 py-0.5 rounded-full shrink-0">
                           Joined
                         </span>
                       )}
@@ -325,7 +325,7 @@ export default function JurisdictionsPage() {
                         className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
                           j.type === "virtual"
                             ? "bg-blue-900/30 text-blue-300"
-                            : "bg-green-900/30 text-green-300"
+                            : "bg-green-900/30 text-fg-success"
                         }`}
                       >
                         {j.type === "virtual" ? (
@@ -340,16 +340,16 @@ export default function JurisdictionsPage() {
                       </span>
                     </div>
                     {j.description && (
-                      <p className="text-sm text-slate-400 line-clamp-2 mb-2">
+                      <p className="text-sm text-fg-muted line-clamp-2 mb-2">
                         {j.description}
                       </p>
                     )}
                     {j.location_name && (
-                      <p className="text-xs text-slate-500 flex items-center gap-1 mb-2">
+                      <p className="text-xs text-fg-muted flex items-center gap-1 mb-2">
                         <MapPin className="w-3 h-3" /> {j.location_name}
                       </p>
                     )}
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <div className="flex items-center gap-4 text-xs text-fg-muted">
                       <span className="flex items-center gap-1">
                         <Users className="w-3 h-3" /> {j.member_count}{" "}
                         {j.member_count === 1 ? "member" : "members"}
@@ -370,7 +370,7 @@ export default function JurisdictionsPage() {
                         <Plus className="w-3.5 h-3.5" /> Join
                       </button>
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-600" />
+                      <ChevronRight className="w-5 h-5 text-fg-muted" />
                     )}
                   </div>
                 </div>
@@ -385,7 +385,7 @@ export default function JurisdictionsPage() {
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
           <div className="card p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-fg">
                 Create Jurisdiction
               </h2>
               <button
@@ -393,7 +393,7 @@ export default function JurisdictionsPage() {
                   setShowCreate(false);
                   setError(null);
                 }}
-                className="text-slate-400 hover:text-slate-200"
+                className="text-fg-muted hover:text-fg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -412,12 +412,12 @@ export default function JurisdictionsPage() {
                     className={`card p-3 text-left text-sm transition-all ${
                       newJurisdiction.type === "virtual"
                         ? "border-blue-500 bg-blue-900/20"
-                        : "hover:border-slate-600"
+                        : "hover:border-theme"
                     }`}
                   >
                     <Globe className="w-4 h-4 text-blue-400 mb-1" />
-                    <p className="font-medium text-slate-200">Virtual</p>
-                    <p className="text-xs text-slate-500">Topic or interest-based</p>
+                    <p className="font-medium text-fg">Virtual</p>
+                    <p className="text-xs text-fg-muted">Topic or interest-based</p>
                   </button>
                   <button
                     type="button"
@@ -426,13 +426,13 @@ export default function JurisdictionsPage() {
                     }
                     className={`card p-3 text-left text-sm transition-all ${
                       newJurisdiction.type === "geographic"
-                        ? "border-green-500 bg-green-900/20"
-                        : "hover:border-slate-600"
+                        ? "border-green-500 bg-success-tint"
+                        : "hover:border-theme"
                     }`}
                   >
-                    <MapPin className="w-4 h-4 text-green-400 mb-1" />
-                    <p className="font-medium text-slate-200">Geographic</p>
-                    <p className="text-xs text-slate-500">Location-based</p>
+                    <MapPin className="w-4 h-4 text-fg-success mb-1" />
+                    <p className="font-medium text-fg">Geographic</p>
+                    <p className="text-xs text-fg-muted">Location-based</p>
                   </button>
                 </div>
               </div>
@@ -451,7 +451,7 @@ export default function JurisdictionsPage() {
                       className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all ${
                         newJurisdiction.logo_emoji === emoji
                           ? "bg-pangea-900/40 border-2 border-pangea-500 scale-110"
-                          : "bg-slate-800 border border-slate-700 hover:border-slate-500"
+                          : "bg-theme-card border border-theme hover:border-theme"
                       }`}
                     >
                       {emoji}
@@ -463,7 +463,7 @@ export default function JurisdictionsPage() {
               {/* Name */}
               <div>
                 <label className="label">
-                  Name <span className="text-red-400">*</span>
+                  Name <span className="text-fg-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -515,7 +515,7 @@ export default function JurisdictionsPage() {
               )}
 
               {error && (
-                <div className="p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex items-center gap-2">
+                <div className="p-3 bg-danger-tint border border-theme rounded-lg text-fg-danger text-sm flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   {error}
                 </div>

@@ -111,20 +111,20 @@ export default function DiscussionCard({
 
   return (
     <Link href={`/social/${discussion.id}`}>
-      <div className="card p-6 hover:border-slate-600 hover:bg-slate-800/70 transition-all duration-200 group block overflow-hidden">
+      <div className="card p-6 hover:border-theme hover:bg-theme-card transition-all duration-200 group block overflow-hidden">
         {/* Header row: title + channel badge */}
         <div className="flex items-start justify-between gap-4 mb-3 overflow-hidden">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-slate-100 text-base leading-snug group-hover:text-white truncate">
+            <h3 className="font-semibold text-fg text-base leading-snug group-hover:text-fg truncate">
               {discussion.title}
             </h3>
             {discussion.discussion_channels && (
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="inline-flex items-center gap-1 text-xs text-slate-300 bg-slate-700/40 px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1 text-xs text-fg bg-theme-muted/40 px-2.5 py-1 rounded-full">
                   <span className="text-sm">{discussion.discussion_channels.emoji}</span>
                   {discussion.discussion_channels.name}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-fg-muted">
                   {formatTimeAgo(discussion.created_at)}
                 </span>
               </div>
@@ -133,7 +133,7 @@ export default function DiscussionCard({
         </div>
 
         {/* Preview text */}
-        <p className="text-sm text-slate-300 line-clamp-2 mb-4">
+        <p className="text-sm text-fg line-clamp-2 mb-4">
           {preview}
         </p>
 
@@ -143,24 +143,24 @@ export default function DiscussionCard({
             {discussion.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}
-                className="text-xs text-pangea-400 bg-pangea-900/20 px-2 py-1 rounded-full border border-pangea-800/30"
+                className="text-xs text-fg-primary bg-pangea-900/20 px-2 py-1 rounded-full border border-pangea-800/30"
               >
                 #{tag.name}
               </span>
             ))}
             {discussion.tags.length > 3 && (
-              <span className="text-xs text-slate-500">+{discussion.tags.length - 3}</span>
+              <span className="text-xs text-fg-muted">+{discussion.tags.length - 3}</span>
             )}
           </div>
         )}
 
         {/* Author info */}
-        <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
+        <div className="flex items-center gap-2 text-xs text-fg-muted mb-4">
           <span>by <PrivacyName userId={discussion.author_id} fullName={discussion.profiles?.full_name ?? null} currentUserId={userId} /></span>
         </div>
 
         {/* Footer: voting + reply count */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-700/50 overflow-hidden">
+        <div className="flex items-center justify-between pt-4 border-t border-theme overflow-hidden">
           <div className="flex items-center gap-4 overflow-hidden">
             {/* Upvote button */}
             <button
@@ -171,8 +171,8 @@ export default function DiscussionCard({
               disabled={isVoting}
               className={`flex items-center gap-1 px-2 py-1 rounded transition-colors shrink-0 ${
                 userVote === "up"
-                  ? "text-pangea-400 bg-pangea-900/30"
-                  : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                  ? "text-fg-primary bg-pangea-900/30"
+                  : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <ArrowBigUp className="w-4 h-4 shrink-0" />
@@ -183,10 +183,10 @@ export default function DiscussionCard({
             <span
               className={`text-xs font-semibold px-2 py-1 rounded shrink-0 ${
                 netScore > 0
-                  ? "text-green-400 bg-green-900/20"
+                  ? "text-fg-success bg-success-tint"
                   : netScore < 0
-                    ? "text-red-400 bg-red-900/20"
-                    : "text-slate-400"
+                    ? "text-fg-danger bg-danger-tint"
+                    : "text-fg-muted"
               }`}
             >
               {netScore > 0 ? "+" : ""}{netScore}
@@ -201,8 +201,8 @@ export default function DiscussionCard({
               disabled={isVoting}
               className={`flex items-center gap-1 px-2 py-1 rounded transition-colors shrink-0 ${
                 userVote === "down"
-                  ? "text-red-400 bg-red-900/30"
-                  : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                  ? "text-fg-danger bg-danger-tint"
+                  : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <ArrowBigDown className="w-4 h-4 shrink-0" />
@@ -214,7 +214,7 @@ export default function DiscussionCard({
             {/* Reply count */}
             <div
               onClick={(e) => e.preventDefault()}
-              className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-300 shrink-0"
+              className="flex items-center gap-1 text-xs text-fg-muted hover:text-fg shrink-0"
             >
               <MessageCircle className="w-4 h-4 shrink-0" />
               <span>{discussion.replies_count || 0}</span>
@@ -226,7 +226,7 @@ export default function DiscussionCard({
                 e.preventDefault();
                 onReport?.(discussion.id);
               }}
-              className="p-1 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-700/30 transition-colors shrink-0"
+              className="p-1 rounded text-fg-muted hover:text-fg hover:bg-theme-muted/30 transition-colors shrink-0"
               title="Report"
             >
               <Flag className="w-4 h-4" />

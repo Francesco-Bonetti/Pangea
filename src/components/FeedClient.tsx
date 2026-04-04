@@ -15,10 +15,10 @@ interface FeedClientProps {
 }
 
 const EVENT_ICONS: Record<string, React.ReactNode> = {
-  proposal_created: <FileText className="w-4 h-4 text-pangea-400" />,
+  proposal_created: <FileText className="w-4 h-4 text-fg-primary" />,
   discussion_created: <MessageSquare className="w-4 h-4 text-blue-400" />,
   party_vote: <Vote className="w-4 h-4 text-amber-400" />,
-  vote_cast: <Vote className="w-4 h-4 text-green-400" />,
+  vote_cast: <Vote className="w-4 h-4 text-fg-success" />,
   law_approved: <Globe className="w-4 h-4 text-emerald-400" />,
   member_joined: <Users className="w-4 h-4 text-purple-400" />,
 };
@@ -146,22 +146,22 @@ export default function FeedClient({ userId }: FeedClientProps) {
 
   const entityIcon = (type: FollowTargetType) => {
     switch (type) {
-      case "citizen": return <Users className="w-4 h-4 text-slate-400" />;
+      case "citizen": return <Users className="w-4 h-4 text-fg-muted" />;
       case "party": return <Flag className="w-4 h-4 text-amber-400" />;
-      case "jurisdiction": return <Globe className="w-4 h-4 text-pangea-400" />;
+      case "jurisdiction": return <Globe className="w-4 h-4 text-fg-primary" />;
     }
   };
 
   return (
     <div>
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-slate-800/50 rounded-lg p-1">
+      <div className="flex gap-1 mb-6 bg-theme-card rounded-lg p-1">
         <button
           onClick={() => setTab("feed")}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
             tab === "feed"
-              ? "bg-pangea-600 text-white shadow-lg"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-pangea-600 text-fg shadow-lg"
+              : "text-fg-muted hover:text-fg"
           }`}
         >
           <Rss className="w-4 h-4" />
@@ -171,8 +171,8 @@ export default function FeedClient({ userId }: FeedClientProps) {
           onClick={() => setTab("following")}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
             tab === "following"
-              ? "bg-pangea-600 text-white shadow-lg"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-pangea-600 text-fg shadow-lg"
+              : "text-fg-muted hover:text-fg"
           }`}
         >
           <Heart className="w-4 h-4" />
@@ -188,7 +188,7 @@ export default function FeedClient({ userId }: FeedClientProps) {
             <button
               onClick={() => loadFeed(true)}
               disabled={refreshing}
-              className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-pangea-300 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-fg-muted hover:text-fg-primary transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
               Refresh
@@ -197,13 +197,13 @@ export default function FeedClient({ userId }: FeedClientProps) {
 
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-6 h-6 animate-spin text-pangea-400" />
+              <Loader2 className="w-6 h-6 animate-spin text-fg-primary" />
             </div>
           ) : events.length === 0 ? (
             <div className="card p-12 text-center">
-              <Rss className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">Your feed is empty</h3>
-              <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+              <Rss className="w-12 h-12 text-fg-muted mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-fg mb-2">Your feed is empty</h3>
+              <p className="text-fg-muted text-sm max-w-md mx-auto mb-6">
                 Follow citizens, parties, or jurisdictions to see their activity here.
                 Your personalized feed will show proposals, discussions, and votes from
                 people and organizations you care about.
@@ -222,23 +222,23 @@ export default function FeedClient({ userId }: FeedClientProps) {
               {events.map((event) => (
                 <div
                   key={event.id}
-                  className={`card p-4 border-l-2 ${EVENT_COLORS[event.event_type] || "border-l-slate-600"} hover:bg-slate-800/30 transition-colors overflow-hidden`}
+                  className={`card p-4 border-l-2 ${EVENT_COLORS[event.event_type] || "border-l-slate-600"} hover:bg-theme-card/30 transition-colors overflow-hidden`}
                 >
                   <div className="flex items-start gap-3 overflow-hidden">
                     <div className="mt-0.5 flex-shrink-0">
-                      {EVENT_ICONS[event.event_type] || <FileText className="w-4 h-4 text-slate-400 shrink-0" />}
+                      {EVENT_ICONS[event.event_type] || <FileText className="w-4 h-4 text-fg-muted shrink-0" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-200 font-medium truncate">{event.title}</p>
+                      <p className="text-sm text-fg font-medium truncate">{event.title}</p>
                       {event.description && (
-                        <p className="text-xs text-slate-400 mt-1 truncate">{event.description}</p>
+                        <p className="text-xs text-fg-muted mt-1 truncate">{event.description}</p>
                       )}
-                      <p className="text-xs text-slate-500 mt-1.5">{timeAgo(event.created_at)}</p>
+                      <p className="text-xs text-fg-muted mt-1.5">{timeAgo(event.created_at)}</p>
                     </div>
                     {event.link && (
                       <Link
                         href={event.link}
-                        className="flex-shrink-0 text-pangea-400 hover:text-pangea-300 transition-colors shrink-0"
+                        className="flex-shrink-0 text-fg-primary hover:text-fg-primary transition-colors shrink-0"
                       >
                         <ChevronRight className="w-4 h-4 shrink-0" />
                       </Link>
@@ -256,9 +256,9 @@ export default function FeedClient({ userId }: FeedClientProps) {
         <div>
           {following.length === 0 ? (
             <div className="card p-12 text-center">
-              <Heart className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">Not following anyone yet</h3>
-              <p className="text-slate-400 text-sm max-w-md mx-auto">
+              <Heart className="w-12 h-12 text-fg-muted mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-fg mb-2">Not following anyone yet</h3>
+              <p className="text-fg-muted text-sm max-w-md mx-auto">
                 Visit citizen profiles, parties, or jurisdictions and click the Follow button to start building your network.
               </p>
             </div>
@@ -268,16 +268,16 @@ export default function FeedClient({ userId }: FeedClientProps) {
                 <Link
                   key={`${entity.target_type}-${entity.target_id}`}
                   href={entityLink(entity.target_type, entity.target_id)}
-                  className="card p-4 flex items-center gap-3 hover:bg-slate-800/30 transition-colors overflow-hidden"
+                  className="card p-4 flex items-center gap-3 hover:bg-theme-card/30 transition-colors overflow-hidden"
                 >
-                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-theme-card flex items-center justify-center shrink-0">
                     {entityIcon(entity.target_type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-200 font-medium truncate">{entity.name}</p>
-                    <p className="text-xs text-slate-500 capitalize">{entity.target_type}</p>
+                    <p className="text-sm text-fg font-medium truncate">{entity.name}</p>
+                    <p className="text-xs text-fg-muted capitalize">{entity.target_type}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-fg-muted shrink-0" />
                 </Link>
               ))}
             </div>

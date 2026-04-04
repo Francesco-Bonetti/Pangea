@@ -84,8 +84,8 @@ function TreeNode({
           transition-colors duration-200
           ${
             isSelectedParent || isSelectedReplace
-              ? "bg-slate-700/50 border border-pangea-500"
-              : "hover:bg-slate-800/50 border border-transparent"
+              ? "bg-theme-muted border border-pangea-500"
+              : "hover:bg-theme-card border border-transparent"
           }
         `}
         style={{ paddingLeft: `${12 + depth * 16}px` }}
@@ -93,29 +93,29 @@ function TreeNode({
         {hasChildren ? (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-0 hover:bg-slate-700/50 rounded transition-colors"
+            className="p-0 hover:bg-theme-muted rounded transition-colors"
           >
             {expanded ? (
-              <ChevronDown className="w-4 h-4 text-slate-400" />
+              <ChevronDown className="w-4 h-4 text-fg-muted" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <ChevronRight className="w-4 h-4 text-fg-muted" />
             )}
           </button>
         ) : (
           <div className="w-4" />
         )}
 
-        <div className="text-slate-400">{typeIcons[node.law_type]}</div>
+        <div className="text-fg-muted">{typeIcons[node.law_type]}</div>
 
         <div className="flex-1 min-w-0">
-          <div className="text-slate-200 truncate">
+          <div className="text-fg truncate">
             {node.code && (
-              <span className="text-slate-500 font-mono text-xs mr-2">
+              <span className="text-fg-muted font-mono text-xs mr-2">
                 {node.code}
               </span>
             )}
             {node.article_number && (
-              <span className="text-slate-500 text-xs mr-2">
+              <span className="text-fg-muted text-xs mr-2">
                 Art. {node.article_number}
               </span>
             )}
@@ -130,8 +130,8 @@ function TreeNode({
               p-1 rounded transition-colors
               ${
                 isSelectedParent
-                  ? "bg-pangea-500/30 text-pangea-400"
-                  : "bg-slate-700/50 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
+                  ? "bg-theme-primary/30 text-fg-primary"
+                  : "bg-theme-muted text-fg-muted hover:bg-theme-muted hover:text-fg"
               }
             `}
             title="Add below"
@@ -144,8 +144,8 @@ function TreeNode({
               p-1 rounded transition-colors
               ${
                 isSelectedReplace
-                  ? "bg-pangea-500/30 text-pangea-400"
-                  : "bg-slate-700/50 text-slate-400 hover:bg-slate-600 hover:text-slate-200"
+                  ? "bg-theme-primary/30 text-fg-primary"
+                  : "bg-theme-muted text-fg-muted hover:bg-theme-muted hover:text-fg"
               }
             `}
             title="Replace"
@@ -247,8 +247,8 @@ export default function LawTreeSelector({
           transition-colors duration-200
           ${
             !selectedParentId && !replacesNodeId
-              ? "bg-slate-700/50 border border-pangea-500 text-slate-100"
-              : "border border-slate-700 text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              ? "bg-theme-muted border border-pangea-500 text-fg"
+              : "border border-theme text-fg-muted hover:bg-theme-card hover:text-fg"
           }
         `}
       >
@@ -258,36 +258,36 @@ export default function LawTreeSelector({
 
       {/* Info messages */}
       {selectedParentNode && (
-        <div className="px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-md text-sm text-slate-300">
+        <div className="px-3 py-2 bg-theme-card border border-theme rounded-md text-sm text-fg">
           The new law will be added under:{" "}
-          <span className="font-semibold text-slate-100">
+          <span className="font-semibold text-fg">
             {selectedParentNode.title}
           </span>
         </div>
       )}
 
       {replacesNode && (
-        <div className="px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-md text-sm text-slate-300">
+        <div className="px-3 py-2 bg-theme-card border border-theme rounded-md text-sm text-fg">
           The new law will replace:{" "}
-          <span className="font-semibold text-slate-100">
+          <span className="font-semibold text-fg">
             {replacesNode.title}
           </span>
         </div>
       )}
 
       {/* Tree container */}
-      <div className="border border-slate-700 rounded-md bg-[var(--background)] overflow-hidden">
+      <div className="border border-theme rounded-md bg-[var(--background)] overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center p-8">
-            <div className="text-slate-400 text-sm">Loading laws...</div>
+            <div className="text-fg-muted text-sm">Loading laws...</div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center p-8">
-            <div className="text-red-400 text-sm">{error}</div>
+            <div className="text-fg-danger text-sm">{error}</div>
           </div>
         ) : treeData.length === 0 ? (
           <div className="flex items-center justify-center p-8">
-            <div className="text-slate-400 text-sm">No laws found</div>
+            <div className="text-fg-muted text-sm">No laws found</div>
           </div>
         ) : (
           <div className="max-h-96 overflow-y-auto">

@@ -158,11 +158,11 @@ export default function PartiesPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3 overflow-hidden">
-              <Flag className="w-7 h-7 text-pangea-400 shrink-0" />
+            <h1 className="text-2xl font-bold text-fg flex items-center gap-3 overflow-hidden">
+              <Flag className="w-7 h-7 text-fg-primary shrink-0" />
               <span className="truncate">Political Parties</span>
             </h1>
-            <p className="text-slate-400 mt-1">
+            <p className="text-fg-muted mt-1">
               Organize into parties to influence votes on proposals. You can join multiple parties.
             </p>
           </div>
@@ -179,19 +179,19 @@ export default function PartiesPage() {
 
         {/* Info card */}
         <div className="info-box mb-6">
-          <h3 className="text-sm font-semibold text-pangea-300 mb-2">How Parties Work</h3>
-          <ul className="text-xs text-slate-400 space-y-1">
-            <li>• You can join <strong className="text-slate-300">multiple parties</strong> at the same time</li>
-            <li>• Parties cast a <strong className="text-slate-300">public vote</strong> on each proposal</li>
-            <li>• If you don&apos;t vote directly, your vote is <strong className="text-slate-300">split among parties</strong> based on the weights you choose</li>
-            <li>• Your <strong className="text-slate-300">direct vote</strong> always overrides party votes (and you can restore them)</li>
-            <li>• To create a party you must have the <strong className="text-slate-300">delegation feature enabled</strong></li>
+          <h3 className="text-sm font-semibold text-fg-primary mb-2">How Parties Work</h3>
+          <ul className="text-xs text-fg-muted space-y-1">
+            <li>• You can join <strong className="text-fg">multiple parties</strong> at the same time</li>
+            <li>• Parties cast a <strong className="text-fg">public vote</strong> on each proposal</li>
+            <li>• If you don&apos;t vote directly, your vote is <strong className="text-fg">split among parties</strong> based on the weights you choose</li>
+            <li>• Your <strong className="text-fg">direct vote</strong> always overrides party votes (and you can restore them)</li>
+            <li>• To create a party you must have the <strong className="text-fg">delegation feature enabled</strong></li>
           </ul>
         </div>
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-muted" />
           <input
             type="text"
             placeholder="Search parties..."
@@ -203,7 +203,7 @@ export default function PartiesPage() {
 
         {/* Error */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-fg-danger text-sm rounded-lg p-3 mb-4 overflow-hidden">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span className="truncate">{error}</span>
             <button onClick={() => setError(null)} className="ml-auto shrink-0"><X className="w-4 h-4" /></button>
@@ -214,19 +214,19 @@ export default function PartiesPage() {
         {loading ? (
           <div className="grid gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+              <div key={i} className="bg-theme-card border border-theme rounded-xl p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-700 rounded-lg animate-pulse" />
+                  <div className="w-12 h-12 bg-theme-muted rounded-lg animate-pulse" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-5 w-40 bg-slate-700 rounded animate-pulse" />
-                    <div className="h-4 w-64 bg-slate-700/50 rounded animate-pulse" />
+                    <div className="h-5 w-40 bg-theme-muted rounded animate-pulse" />
+                    <div className="h-4 w-64 bg-theme-muted rounded animate-pulse" />
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ) : filteredParties.length === 0 ? (
-          <div className="text-center text-slate-500 py-12">
+          <div className="text-center text-fg-muted py-12">
             {searchQuery ? "No parties found." : "No parties created yet. Be the first!"}
           </div>
         ) : (
@@ -241,19 +241,19 @@ export default function PartiesPage() {
                   <div className="text-3xl shrink-0 mt-1">{party.logo_emoji}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 overflow-hidden">
-                      <h2 className="text-lg font-semibold text-white group-hover:text-pangea-300 transition-colors truncate">
+                      <h2 className="text-lg font-semibold text-fg group-hover:text-fg-primary transition-colors truncate">
                         {party.name}
                       </h2>
                       {party.is_member && (
-                        <span className="text-[10px] bg-pangea-800 text-pangea-300 px-2 py-0.5 rounded-full font-medium shrink-0">
+                        <span className="text-[10px] bg-pangea-800 text-fg-primary px-2 py-0.5 rounded-full font-medium shrink-0">
                           Joined
                         </span>
                       )}
                     </div>
                     {party.description && (
-                      <p className="text-sm text-slate-400 line-clamp-2 mb-2">{party.description}</p>
+                      <p className="text-sm text-fg-muted line-clamp-2 mb-2">{party.description}</p>
                     )}
-                    <div className="flex items-center gap-4 text-xs text-slate-500 flex-wrap">
+                    <div className="flex items-center gap-4 text-xs text-fg-muted flex-wrap">
                       <span className="flex items-center gap-1 shrink-0">
                         <Users className="w-3 h-3 shrink-0" />
                         {party.member_count} {party.member_count === 1 ? "member" : "members"}
@@ -275,7 +275,7 @@ export default function PartiesPage() {
                         <span className="truncate">Join</span>
                       </button>
                     )}
-                    <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-pangea-400 transition-colors shrink-0" />
+                    <ChevronRight className="w-5 h-5 text-fg-muted group-hover:text-fg-primary transition-colors shrink-0" />
                   </div>
                 </div>
               </Link>
@@ -287,13 +287,13 @@ export default function PartiesPage() {
       {/* Create party modal */}
       {showCreate && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full p-6 overflow-hidden">
+          <div className="bg-theme-base border border-theme rounded-xl max-w-lg w-full p-6 overflow-hidden">
             <div className="flex items-center justify-between mb-6 overflow-hidden">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2 overflow-hidden flex-1">
-                <Flag className="w-5 h-5 text-pangea-400 shrink-0" />
+              <h2 className="text-xl font-bold text-fg flex items-center gap-2 overflow-hidden flex-1">
+                <Flag className="w-5 h-5 text-fg-primary shrink-0" />
                 <span className="truncate">Create Party</span>
               </h2>
-              <button onClick={() => { setShowCreate(false); setError(null); }} className="text-slate-400 hover:text-white shrink-0">
+              <button onClick={() => { setShowCreate(false); setError(null); }} className="text-fg-muted hover:text-fg shrink-0">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -312,7 +312,7 @@ export default function PartiesPage() {
             )}
 
             {error && (
-              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg p-3 mb-4 overflow-hidden">
+              <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-fg-danger text-sm rounded-lg p-3 mb-4 overflow-hidden">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span className="truncate">{error}</span>
               </div>
@@ -329,7 +329,7 @@ export default function PartiesPage() {
                     className={`text-2xl p-2 rounded-lg transition-colors ${
                       newParty.logo_emoji === e
                         ? "bg-pangea-800 border border-pangea-500"
-                        : "bg-slate-800 border border-slate-700 hover:border-slate-600"
+                        : "bg-theme-card border border-theme hover:border-theme"
                     }`}
                   >
                     {e}

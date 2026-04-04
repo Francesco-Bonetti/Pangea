@@ -51,7 +51,7 @@ function Toggle({
       disabled={disabled}
       onClick={() => onChange(!enabled)}
       className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${
-        enabled ? "bg-pangea-600" : "bg-slate-700"
+        enabled ? "bg-pangea-600" : "bg-theme-muted"
       } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
     >
       <div
@@ -80,10 +80,10 @@ function SettingRow({
   return (
     <div className="flex items-center justify-between gap-4 py-2">
       <div className="flex items-center gap-3 min-w-0">
-        <Icon className="w-4 h-4 text-slate-500 shrink-0" />
+        <Icon className="w-4 h-4 text-fg-muted shrink-0" />
         <div className="min-w-0">
-          <p className="text-sm text-slate-200">{label}</p>
-          <p className="text-xs text-slate-500">{description}</p>
+          <p className="text-sm text-fg">{label}</p>
+          <p className="text-xs text-fg-muted">{description}</p>
         </div>
       </div>
       {children}
@@ -335,7 +335,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-fg-primary animate-spin" />
       </div>
     );
   }
@@ -349,55 +349,55 @@ export default function SettingsPage() {
         <div className="flex items-center gap-3 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="shrink-0 p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-theme-card transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-pangea-400 shrink-0" />
+            <h1 className="text-xl sm:text-2xl font-bold text-fg flex items-center gap-2">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-fg-primary shrink-0" />
               <span className="truncate">Account Settings</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5 truncate">Manage your profile, privacy, and preferences</p>
+            <p className="text-xs sm:text-sm text-fg-muted mt-0.5 truncate">Manage your profile, privacy, and preferences</p>
           </div>
         </div>
 
         <div className="space-y-6">
           {/* ──── Account info (read-only) ──── */}
           <div className="card p-6">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-pangea-400" />
+            <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-fg-primary" />
               Account Information
             </h2>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-slate-500" />
+                <Mail className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-slate-500">Email</p>
-                  <p className="text-sm text-slate-200">{user?.email}</p>
+                  <p className="text-xs text-fg-muted">Email</p>
+                  <p className="text-sm text-fg">{user?.email}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4 text-slate-500" />
+                <Shield className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-slate-500">Role</p>
-                  <p className="text-sm text-slate-200 capitalize">{profile?.role || "citizen"}</p>
+                  <p className="text-xs text-fg-muted">Role</p>
+                  <p className="text-sm text-fg capitalize">{profile?.role || "citizen"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Hash className="w-4 h-4 text-slate-500" />
+                <Hash className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-slate-500">Citizen Code</p>
-                  <p className="text-sm text-pangea-300 font-mono font-semibold tracking-wider">
+                  <p className="text-xs text-fg-muted">Citizen Code</p>
+                  <p className="text-sm text-fg-primary font-mono font-semibold tracking-wider">
                     {profile?.user_code || "—"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Calendar className="w-4 h-4 text-slate-500" />
+                <Calendar className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-slate-500">Member since</p>
-                  <p className="text-sm text-slate-200">
+                  <p className="text-xs text-fg-muted">Member since</p>
+                  <p className="text-sm text-fg">
                     {profile?.created_at ? formatDate(profile.created_at) : "—"}
                   </p>
                 </div>
@@ -407,8 +407,8 @@ export default function SettingsPage() {
 
           {/* ──── Public Profile ──── */}
           <div className="card p-6">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <User className="w-5 h-5 text-pangea-400" />
+            <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+              <User className="w-5 h-5 text-fg-primary" />
               Public Profile
             </h2>
             <div className="space-y-4">
@@ -432,7 +432,7 @@ export default function SettingsPage() {
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={500}
                 />
-                <p className="text-xs text-slate-600 mt-1">{bio.length}/500 characters</p>
+                <p className="text-xs text-fg-muted mt-1">{bio.length}/500 characters</p>
               </div>
               <div>
                 <label className="label">Display name (optional)</label>
@@ -444,7 +444,7 @@ export default function SettingsPage() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   maxLength={50}
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-fg-muted mt-1">
                   If you hide your real name, this will be shown instead. For example: &quot;EcoVoter42&quot; or &quot;Citizen X&quot;.
                 </p>
               </div>
@@ -453,8 +453,8 @@ export default function SettingsPage() {
 
           {/* ──── Delegations ──── */}
           <div className="card p-6">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-              <Vote className="w-5 h-5 text-pangea-400" />
+            <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+              <Vote className="w-5 h-5 text-fg-primary" />
               Delegations
             </h2>
             <div className="space-y-3">
@@ -477,12 +477,12 @@ export default function SettingsPage() {
 
           {/* Save profile button */}
           {error && (
-            <div className="p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex items-center gap-2">
+            <div className="p-3 bg-danger-tint border border-theme rounded-lg text-fg-danger text-sm flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
           {success && (
-            <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
+            <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-sm flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" /> Profile updated successfully!
             </div>
           )}
@@ -498,23 +498,23 @@ export default function SettingsPage() {
           {/* ═══════════════════════════════════════════ */}
           {/* ──── PRIVACY & VISIBILITY ──── */}
           {/* ═══════════════════════════════════════════ */}
-          <div className="border-t border-slate-700/50 pt-6">
-            <h2 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+          <div className="border-t border-theme pt-6">
+            <h2 className="text-xl font-bold text-fg mb-1 flex items-center gap-2">
               <Lock className="w-5 h-5 text-amber-400" />
               Privacy & Visibility
             </h2>
-            <p className="text-sm text-slate-400 mb-6">
+            <p className="text-sm text-fg-muted mb-6">
               Control what other citizens can see about you. These settings apply across the entire platform.
             </p>
           </div>
 
           {/* Profile visibility level */}
           <div className="card p-6">
-            <h3 className="text-base font-semibold text-slate-200 mb-3 flex items-center gap-2">
-              <Globe className="w-4 h-4 text-pangea-400" />
+            <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-fg-primary" />
               Profile Visibility
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-fg-muted mb-4">
               Choose who can see your profile page. For example, if you select &quot;Private&quot;, only your display name or citizen code will be visible.
             </p>
             <div className="space-y-2">
@@ -545,7 +545,7 @@ export default function SettingsPage() {
                   className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer border transition-colors ${
                     profileVisibility === opt.value
                       ? "border-pangea-500/50 bg-pangea-900/20"
-                      : "border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50"
+                      : "border-theme bg-theme-card/30 hover:border-theme/50"
                   }`}
                 >
                   <input
@@ -558,10 +558,10 @@ export default function SettingsPage() {
                   />
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <opt.icon className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm text-slate-200 font-medium">{opt.label}</span>
+                      <opt.icon className="w-3.5 h-3.5 text-fg-muted" />
+                      <span className="text-sm text-fg font-medium">{opt.label}</span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">{opt.desc}</p>
+                    <p className="text-xs text-fg-muted mt-0.5">{opt.desc}</p>
                   </div>
                 </label>
               ))}
@@ -570,11 +570,11 @@ export default function SettingsPage() {
 
           {/* Field visibility toggles */}
           <div className="card p-6">
-            <h3 className="text-base font-semibold text-slate-200 mb-3 flex items-center gap-2">
-              <EyeOff className="w-4 h-4 text-pangea-400" />
+            <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
+              <EyeOff className="w-4 h-4 text-fg-primary" />
               Visible Information
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-fg-muted mb-4">
               Choose which details are visible to other citizens. For example, you can hide your real name and show only your display name.
             </p>
 
@@ -597,7 +597,7 @@ export default function SettingsPage() {
             </div>
 
             {isPrivate && (
-              <div className="mt-4 p-3 bg-amber-900/20 border border-amber-700/30 rounded-lg text-amber-300/80 text-xs flex items-start gap-2">
+              <div className="mt-4 p-3 bg-warning-tint border border-theme rounded-lg text-amber-300/80 text-xs flex items-start gap-2">
                 <Lock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                 <span>
                   Your profile is set to Private. Most fields are automatically hidden. Only your citizen code visibility can be toggled.
@@ -608,11 +608,11 @@ export default function SettingsPage() {
 
           {/* Activity visibility */}
           <div className="card p-6">
-            <h3 className="text-base font-semibold text-slate-200 mb-3 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-pangea-400" />
+            <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
+              <Activity className="w-4 h-4 text-fg-primary" />
               Activity Visibility
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-fg-muted mb-4">
               Control who can see your activity on the platform. For example, you can hide your proposals and votes from other citizens.
             </p>
 
@@ -629,7 +629,7 @@ export default function SettingsPage() {
                   className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer border transition-colors ${
                     activityVisibility === opt.value
                       ? "border-pangea-500/50 bg-pangea-900/20"
-                      : "border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50"
+                      : "border-theme bg-theme-card/30 hover:border-theme/50"
                   }`}
                 >
                   <input
@@ -641,8 +641,8 @@ export default function SettingsPage() {
                     className="accent-pangea-500"
                   />
                   <div>
-                    <span className="text-sm text-slate-200">{opt.label}</span>
-                    <p className="text-xs text-slate-500">{opt.desc}</p>
+                    <span className="text-sm text-fg">{opt.label}</span>
+                    <p className="text-xs text-fg-muted">{opt.desc}</p>
                   </div>
                 </label>
               ))}
@@ -666,17 +666,17 @@ export default function SettingsPage() {
 
           {/* Messaging & Social */}
           <div className="card p-6">
-            <h3 className="text-base font-semibold text-slate-200 mb-3 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-pangea-400" />
+            <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
+              <MessageCircle className="w-4 h-4 text-fg-primary" />
               Messaging & Social
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-fg-muted mb-4">
               Control how other citizens can interact with you. These settings will apply to direct messages and social features.
             </p>
 
             {/* DM Policy */}
             <div className="mb-4">
-              <p className="text-sm text-slate-300 mb-2">Who can send you direct messages?</p>
+              <p className="text-sm text-fg mb-2">Who can send you direct messages?</p>
               <div className="space-y-2">
                 {(
                   [
@@ -694,7 +694,7 @@ export default function SettingsPage() {
                     className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer border transition-colors ${
                       dmPolicy === opt.value
                         ? "border-pangea-500/50 bg-pangea-900/20"
-                        : "border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50"
+                        : "border-theme bg-theme-card/30 hover:border-theme/50"
                     }`}
                   >
                     <input
@@ -706,8 +706,8 @@ export default function SettingsPage() {
                       className="accent-pangea-500"
                     />
                     <div>
-                      <span className="text-sm text-slate-200">{opt.label}</span>
-                      <p className="text-xs text-slate-500">{opt.desc}</p>
+                      <span className="text-sm text-fg">{opt.label}</span>
+                      <p className="text-xs text-fg-muted">{opt.desc}</p>
                     </div>
                   </label>
                 ))}
@@ -733,11 +733,11 @@ export default function SettingsPage() {
 
           {/* Notification preferences */}
           <div className="card p-6">
-            <h3 className="text-base font-semibold text-slate-200 mb-3 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-pangea-400" />
+            <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
+              <Bell className="w-4 h-4 text-fg-primary" />
               Notification Preferences
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-fg-muted mb-4">
               Choose which notifications you want to receive. These will apply when the notification system is activated.
             </p>
 
@@ -762,7 +762,7 @@ export default function SettingsPage() {
 
           {/* Save privacy button */}
           {privacySuccess && (
-            <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
+            <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-sm flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" /> Privacy settings saved!
             </div>
           )}
@@ -778,11 +778,11 @@ export default function SettingsPage() {
           {/* ──── Party vote weights ──── */}
           {partyMemberships.length > 0 && (
             <div className="card p-6">
-              <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-                <Flag className="w-5 h-5 text-pangea-400" />
+              <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+                <Flag className="w-5 h-5 text-fg-primary" />
                 Party Vote Weights
               </h2>
-              <p className="text-xs text-slate-500 mb-4">
+              <p className="text-xs text-fg-muted mb-4">
                 If you are a member of multiple parties, your vote is split based on these weights. For example, if Party A has
                 weight 2 and Party B has weight 1, Party A gets ~67% of your vote.
               </p>
@@ -791,21 +791,21 @@ export default function SettingsPage() {
                   const totalWeight = partyMemberships.reduce((s, p) => s + p.vote_weight, 0);
                   const percentage = totalWeight > 0 ? Math.round((pm.vote_weight / totalWeight) * 100) : 0;
                   return (
-                    <div key={pm.party_id} className="flex items-center gap-3 bg-slate-800/50 rounded-lg p-3">
+                    <div key={pm.party_id} className="flex items-center gap-3 bg-theme-card rounded-lg p-3">
                       <span className="text-xl">{pm.logo_emoji}</span>
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/parties/${pm.party_id}`}
-                          className="text-sm text-slate-200 hover:text-pangea-300 transition-colors"
+                          className="text-sm text-fg hover:text-fg-primary transition-colors"
                         >
                           {pm.party_name}
                         </Link>
-                        <p className="text-[10px] text-slate-500">{percentage}% of your vote</p>
+                        <p className="text-[10px] text-fg-muted">{percentage}% of your vote</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => updatePartyWeight(pm.party_id, pm.vote_weight - 1)}
-                          className="w-7 h-7 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center justify-center text-sm font-bold"
+                          className="w-7 h-7 rounded bg-theme-muted text-fg hover:bg-theme-muted flex items-center justify-center text-sm font-bold"
                           disabled={pm.vote_weight <= 1}
                         >
                           −
@@ -820,7 +820,7 @@ export default function SettingsPage() {
                         />
                         <button
                           onClick={() => updatePartyWeight(pm.party_id, pm.vote_weight + 1)}
-                          className="w-7 h-7 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 flex items-center justify-center text-sm font-bold"
+                          className="w-7 h-7 rounded bg-theme-muted text-fg hover:bg-theme-muted flex items-center justify-center text-sm font-bold"
                           disabled={pm.vote_weight >= 100}
                         >
                           +
@@ -831,7 +831,7 @@ export default function SettingsPage() {
                 })}
               </div>
               {weightsSuccess && (
-                <div className="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-xs flex items-center gap-2">
+                <div className="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-xs flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Weights updated!
                 </div>
               )}
@@ -848,7 +848,7 @@ export default function SettingsPage() {
 
           {/* ──── Change Password ──── */}
           <div className="card p-6">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
               <Shield className="w-5 h-5 text-amber-400" />
               Change Password
             </h2>
@@ -874,12 +874,12 @@ export default function SettingsPage() {
                 />
               </div>
               {passwordError && (
-                <div className="p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex items-center gap-2">
+                <div className="p-3 bg-danger-tint border border-theme rounded-lg text-fg-danger text-sm flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0" /> {passwordError}
                 </div>
               )}
               {passwordSuccess && (
-                <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-300 text-sm flex items-center gap-2">
+                <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-sm flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated!
                 </div>
               )}

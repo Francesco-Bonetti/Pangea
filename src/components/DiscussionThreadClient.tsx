@@ -146,8 +146,8 @@ export default function DiscussionThreadClient({
             disabled={isVoting || isLocked}
             className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${
               userVote === "up"
-                ? "text-pangea-400 bg-pangea-900/30"
-                : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                ? "text-fg-primary bg-pangea-900/30"
+                : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
             title={!userId ? "Sign in to vote" : ""}
           >
@@ -158,10 +158,10 @@ export default function DiscussionThreadClient({
           <span
             className={`text-xs font-semibold px-2 py-1 rounded ${
               netScore > 0
-                ? "text-green-400 bg-green-900/20"
+                ? "text-fg-success bg-success-tint"
                 : netScore < 0
-                  ? "text-red-400 bg-red-900/20"
-                  : "text-slate-400"
+                  ? "text-fg-danger bg-danger-tint"
+                  : "text-fg-muted"
             }`}
           >
             {netScore > 0 ? "+" : ""}
@@ -173,8 +173,8 @@ export default function DiscussionThreadClient({
             disabled={isVoting || isLocked}
             className={`flex items-center gap-1 px-3 py-1.5 rounded transition-colors ${
               userVote === "down"
-                ? "text-red-400 bg-red-900/30"
-                : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                ? "text-fg-danger bg-danger-tint"
+                : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
             title={!userId ? "Sign in to vote" : ""}
           >
@@ -184,7 +184,7 @@ export default function DiscussionThreadClient({
 
           <button
             onClick={() => setReportOpen(true)}
-            className="p-1.5 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-700/30 transition-colors ml-2"
+            className="p-1.5 rounded text-fg-muted hover:text-fg hover:bg-theme-muted/30 transition-colors ml-2"
             title="Report"
           >
             <Flag className="w-4 h-4" />
@@ -209,20 +209,20 @@ export default function DiscussionThreadClient({
         onChange={(e) => setReplyBody(e.target.value)}
         placeholder="Share your thoughts..."
         rows={5}
-        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
+        className="w-full bg-theme-base border border-theme rounded-lg px-4 py-3 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
       />
       <div className="flex justify-end gap-3">
         <button
           type="button"
           onClick={() => setReplyBody("")}
-          className="px-4 py-2 text-slate-300 hover:text-slate-200 transition-colors text-sm font-medium"
+          className="px-4 py-2 text-fg hover:text-fg transition-colors text-sm font-medium"
         >
           Clear
         </button>
         <button
           type="submit"
           disabled={isSubmittingReply || !replyBody.trim()}
-          className="px-4 py-2 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed text-sm"
+          className="px-4 py-2 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-fg font-medium rounded-lg transition-colors disabled:cursor-not-allowed text-sm"
         >
           {isSubmittingReply ? "Posting..." : "Post Reply"}
         </button>

@@ -50,7 +50,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
   return (
     <Link
       href={`/proposals/${proposal.id}`}
-      className="card p-6 hover:border-slate-600 hover:bg-slate-800/70 transition-all duration-200 group block overflow-hidden"
+      className="card p-6 transition-all duration-200 group block overflow-hidden hover:shadow-md"
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-4 overflow-hidden">
@@ -61,84 +61,122 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
               {statusLabel}
             </span>
             {proposal.proposal_type === "amendment" && (
-              <span className="text-xs text-purple-400 bg-purple-900/20 px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
+              <span
+                className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0"
+                style={{
+                  color: "#7c3aed",
+                  backgroundColor: "color-mix(in srgb, #7c3aed 12%, transparent)",
+                }}
+              >
                 <Edit3 className="w-3 h-3" /> Amendment
               </span>
             )}
             {proposal.proposal_type === "repeal" && (
-              <span className="text-xs text-red-400 bg-red-900/20 px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0">
+              <span
+                className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0"
+                style={{
+                  color: "var(--destructive)",
+                  backgroundColor: "color-mix(in srgb, var(--destructive) 12%, transparent)",
+                }}
+              >
                 <Trash2 className="w-3 h-3" /> Repeal
               </span>
             )}
             {proposal.has_voted && (
-              <span className="text-xs text-pangea-400 font-medium shrink-0">
+              <span
+                className="text-xs font-medium shrink-0"
+                style={{ color: "var(--success)" }}
+              >
                 ✓ Voted
               </span>
             )}
           </div>
-          <h3 className="font-semibold text-slate-100 text-lg leading-snug group-hover:text-white truncate">
+          <h3
+            className="font-bold text-lg leading-snug truncate"
+            style={{ color: "var(--foreground)" }}
+          >
             {proposal.title}
           </h3>
         </div>
-        <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-slate-400 shrink-0 mt-1 transition-colors" />
+        <ChevronRight
+          className="w-5 h-5 shrink-0 mt-1 transition-colors"
+          style={{ color: "var(--muted-foreground)" }}
+        />
       </div>
 
       {/* Preview */}
-      <p className="text-sm text-slate-300 line-clamp-2 mb-5">
+      <p
+        className="text-base line-clamp-2 mb-5"
+        style={{ color: "var(--muted-foreground)" }}
+      >
         {proposal.content}
       </p>
 
       {/* Curation: signal progress bar */}
       {proposal.status === "curation" && typeof proposal.signal_count === "number" && (
         <div className="mb-4">
-          <div className="flex justify-between text-xs text-slate-400 mb-1 overflow-hidden gap-2">
-            <span className="flex items-center gap-1 min-w-0">
-              <Flame className="w-3 h-3 text-amber-400 shrink-0" />
+          <div className="flex justify-between text-xs mb-1 overflow-hidden gap-2">
+            <span className="flex items-center gap-1 min-w-0" style={{ color: "var(--muted-foreground)" }}>
+              <Flame className="w-3 h-3 shrink-0" style={{ color: "#d97706" }} />
               <span className="truncate">Signals</span>
             </span>
-            <span className="shrink-0">{proposal.signal_count} / 100</span>
+            <span className="shrink-0" style={{ color: "var(--muted-foreground)" }}>
+              {proposal.signal_count} / 100
+            </span>
           </div>
-          <div className="bg-slate-700 rounded-full h-2">
+          <div className="rounded-full h-2.5" style={{ backgroundColor: "var(--muted)" }}>
             <div
-              className="bg-amber-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min((proposal.signal_count / 100) * 100, 100)}%` }}
+              className="h-2.5 rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.min((proposal.signal_count / 100) * 100, 100)}%`,
+                backgroundColor: "#d97706",
+              }}
             />
           </div>
         </div>
       )}
 
-      {/* Vote bars (for active/closed proposals with legacy system) */}
+      {/* Stacked vote progress bar (for active/closed proposals with legacy system) */}
       {(proposal.status === "active" || proposal.status === "closed") && total > 0 && (
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-green-400 w-20 shrink-0">In Favor</span>
-            <div className="flex-1 bg-slate-700 rounded-full h-2">
+        <div className="mb-4">
+          {/* Stacked horizontal bar */}
+          <div
+            className="w-full h-3 rounded-full overflow-hidden flex"
+            style={{ backgroundColor: "var(--muted)" }}
+          >
+            {yeaPercent > 0 && (
               <div
-                className="bg-green-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${yeaPercent}%` }}
+                className="h-full transition-all duration-700"
+                style={{ width: `${yeaPercent}%`, backgroundColor: "var(--success)" }}
               />
-            </div>
-            <span className="text-xs text-slate-400 w-8 text-right">{yeaPercent}%</span>
+            )}
+            {nayPercent > 0 && (
+              <div
+                className="h-full transition-all duration-700"
+                style={{ width: `${nayPercent}%`, backgroundColor: "var(--destructive)" }}
+              />
+            )}
+            {abstainPercent > 0 && (
+              <div
+                className="h-full transition-all duration-700"
+                style={{ width: `${abstainPercent}%`, backgroundColor: "var(--muted-foreground)" }}
+              />
+            )}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-red-400 w-20 shrink-0">Against</span>
-            <div className="flex-1 bg-slate-700 rounded-full h-2">
-              <div
-                className="bg-red-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${nayPercent}%` }}
-              />
-            </div>
-            <span className="text-xs text-slate-400 w-8 text-right">{nayPercent}%</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 w-20 shrink-0">Abstain</span>
-            <div className="flex-1 bg-slate-700 rounded-full h-2">
-              <div
-                className="bg-slate-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${abstainPercent}%` }}
-              />
-            </div>
-            <span className="text-xs text-slate-400 w-8 text-right">{abstainPercent}%</span>
+          {/* Legend row */}
+          <div className="flex items-center gap-4 mt-2 text-xs flex-wrap">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: "var(--success)" }} />
+              <span style={{ color: "var(--muted-foreground)" }}>In Favor {yeaPercent}%</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: "var(--destructive)" }} />
+              <span style={{ color: "var(--muted-foreground)" }}>Against {nayPercent}%</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: "var(--muted-foreground)" }} />
+              <span style={{ color: "var(--muted-foreground)" }}>Abstain {abstainPercent}%</span>
+            </span>
           </div>
         </div>
       )}
@@ -156,16 +194,22 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
               const barWidth = (r.weighted_score / maxScore) * 100;
               return (
                 <div key={r.option_id} className="flex items-center gap-2">
-                  <span className="text-xs text-pangea-300 w-28 shrink-0 truncate">
+                  <span
+                    className="text-xs w-28 shrink-0 truncate"
+                    style={{ color: "var(--primary)" }}
+                  >
                     {r.option_title}
                   </span>
-                  <div className="flex-1 bg-slate-700 rounded-full h-2">
+                  <div className="flex-1 rounded-full h-2" style={{ backgroundColor: "var(--muted)" }}>
                     <div
-                      className="bg-pangea-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${barWidth}%` }}
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${barWidth}%`, backgroundColor: "var(--primary)" }}
                     />
                   </div>
-                  <span className="text-xs text-slate-400 w-12 text-right">
+                  <span
+                    className="text-xs w-12 text-right"
+                    style={{ color: "var(--muted-foreground)" }}
+                  >
                     {r.weighted_score.toFixed(1)}
                   </span>
                 </div>
@@ -175,8 +219,11 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
         )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-700/50 overflow-hidden gap-2">
-        <div className="flex items-center gap-1 text-xs text-slate-400 min-w-0">
+      <div
+        className="flex items-center justify-between pt-4 overflow-hidden gap-2"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        <div className="flex items-center gap-1 text-xs min-w-0" style={{ color: "var(--muted-foreground)" }}>
           {proposal.status === "curation" ? (
             <>
               <Flame className="w-3 h-3 shrink-0" />
@@ -189,7 +236,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
             </>
           )}
         </div>
-        <span className="text-xs text-slate-400 shrink-0">
+        <span className="text-xs shrink-0" style={{ color: "var(--muted-foreground)" }}>
           {formatDate(proposal.created_at)}
         </span>
       </div>

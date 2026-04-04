@@ -19,6 +19,8 @@ import {
   LogIn,
 } from "lucide-react";
 import Link from "next/link";
+import AlertDialog from "@/components/AlertDialog";
+import { useToast } from "@/components/Toast";
 
 interface VotingBoothProps {
   proposal: Proposal;
@@ -46,7 +48,6 @@ export default function VotingBooth({
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
   const [allocations, setAllocations] = useState<Record<string, number>>(
     () => {
-      // Initialize evenly distributed allocations
       const initial: Record<string, number> = {};
       if (options.length > 0) {
         const equalShare = Math.floor(100 / options.length);
@@ -61,6 +62,13 @@ export default function VotingBooth({
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [revoking, setRevoking] = useState(false);
+
+  // Positive friction: AlertDialog state
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingVoteType, setPendingVoteType] = useState<"distributed" | "yea" | "nay" | "abstain" | null>(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  const { toast } = useToast();
   const supabase = createClient();
 
   const isActive = proposal.status === "active";
@@ -105,14 +113,12 @@ export default function VotingBooth({
         const otherTotal = otherKeys.reduce((sum, k) => sum + prev[k], 0);
         const newValue = Math.min(value, 100);
 
-        // If the sum would exceed 100, reduce others proportionally
         if (newValue + otherTotal > 100 && otherTotal > 0) {
           const scale = (100 - newValue) / otherTotal;
           const updated: Record<string, number> = { [optionId]: newValue };
           otherKeys.forEach((k) => {
             updated[k] = Math.round(prev[k] * scale);
           });
-          // Fix rounding
           const sum = Object.values(updated).reduce((a, b) => a + b, 0);
           if (sum !== 100 && otherKeys.length > 0) {
             updated[otherKeys[0]] += 100 - sum;
@@ -126,25 +132,57 @@ export default function VotingBooth({
     []
   );
 
-  async function castDistributedVote() {
-    if (!canVote || !isValidAllocation || voting) return;
+  // ── Positive Friction: open dialog instead of voting directly ──
+  function requestVote(type: "distributed" | "yea" | "nay" | "abstain") {
+    setPendingVoteType(type);
+    setConfirmDialogOpen(true);
+  }
+
+  function cancelVote() {
+    setConfirmDialogOpen(false);
+    setPendingVoteType(null);
+    setConfirmLoading(false);
+  }
+
+  async function confirmVote() {
+    if (!pendingVoteType) return;
+    setConfirmLoading(true);
+
+    try {
+      if (pendingVoteType === "distributed") {
+        await executeCastDistributedVote();
+      } else {
+        await executeCastSimpleVote(pendingVoteType);
+      }
+      setConfirmDialogOpen(false);
+      setPendingVoteType(null);
+      toast("Your vote has been securely recorded.", "success");
+    } catch {
+      // Error already handled in the cast functions
+      setConfirmDialogOpen(false);
+      setPendingVoteType(null);
+    } finally {
+      setConfirmLoading(false);
+    }
+  }
+
+  async function executeCastDistributedVote() {
+    if (!canVote || !isValidAllocation) return;
     setError(null);
     setVoting(true);
 
     try {
-      // Step 1: Calculate voting weight
       const { data: weight } = await supabase.rpc("calculate_voting_weight", {
         p_proposal_id: proposal.id,
         p_voter_id: userId,
       });
 
-      // Step 2: Insert the vote (header)
       const { data: voteData, error: voteError } = await supabase
         .from("votes")
         .insert({
           proposal_id: proposal.id,
           voter_id: userId,
-          vote_type: "yea", // In distributed system, vote_type is a placeholder
+          vote_type: "yea",
           voting_weight: weight ?? 1,
         })
         .select("id")
@@ -154,12 +192,11 @@ export default function VotingBooth({
         if (voteError.code === "23505") {
           setHasVoted(true);
           setError("You have already participated in this deliberation.");
-          return;
+          throw voteError;
         }
         throw voteError;
       }
 
-      // Step 3: Insert percentage allocations
       const allocationRows = Object.entries(allocations)
         .filter(([, pct]) => pct > 0)
         .map(([optionId, pct]) => ({
@@ -174,7 +211,6 @@ export default function VotingBooth({
 
       if (allocError) throw allocError;
 
-      // Step 4: Update results
       const { data: newResults } = await supabase.rpc(
         "get_distributed_proposal_results",
         { p_proposal_id: proposal.id }
@@ -189,6 +225,8 @@ export default function VotingBooth({
       const msg =
         err instanceof Error ? err.message : "Error during voting";
       setError(msg);
+      toast(msg, "error");
+      throw err;
     } finally {
       setVoting(false);
     }
@@ -200,7 +238,6 @@ export default function VotingBooth({
     setRevoking(true);
 
     try {
-      // Delete the user's vote (cascade will remove vote_allocations)
       const { error: deleteError } = await supabase
         .from("votes")
         .delete()
@@ -209,7 +246,6 @@ export default function VotingBooth({
 
       if (deleteError) throw deleteError;
 
-      // Update results
       const { data: newResults } = await supabase.rpc(
         "get_distributed_proposal_results",
         { p_proposal_id: proposal.id }
@@ -220,28 +256,28 @@ export default function VotingBooth({
       }
 
       setHasVoted(false);
+      toast("Your vote has been revoked.", "info");
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Error revoking vote";
       setError(msg);
+      toast(msg, "error");
     } finally {
       setRevoking(false);
     }
   }
 
-  async function castSimpleVote(voteType: "yea" | "nay" | "abstain") {
-    if (!isActive || hasVoted || revoking) return;
+  async function executeCastSimpleVote(voteType: "yea" | "nay" | "abstain") {
+    if (!isActive || hasVoted) return;
     setError(null);
     setRevoking(true);
 
     try {
-      // Calculate voting weight
       const { data: weight } = await supabase.rpc("calculate_voting_weight", {
         p_proposal_id: proposal.id,
         p_voter_id: userId,
       });
 
-      // Insert simple vote (no allocations)
       const { error: voteError } = await supabase
         .from("votes")
         .insert({
@@ -255,12 +291,11 @@ export default function VotingBooth({
         if (voteError.code === "23505") {
           setHasVoted(true);
           setError("You have already participated in this deliberation.");
-          return;
+          throw voteError;
         }
         throw voteError;
       }
 
-      // Update legacy results
       const { data: votesData } = await supabase
         .from("votes")
         .select("vote_type")
@@ -280,20 +315,45 @@ export default function VotingBooth({
       const msg =
         err instanceof Error ? err.message : "Error during voting";
       setError(msg);
+      toast(msg, "error");
+      throw err;
     } finally {
       setRevoking(false);
     }
   }
 
+  // Vote type label for the dialog
+  const voteTypeLabels: Record<string, string> = {
+    distributed: "your allocation",
+    yea: "In Favor",
+    nay: "Against",
+    abstain: "Abstain",
+  };
+
   return (
     <div className="sticky top-24">
+      {/* Positive Friction: Vote Confirmation Dialog */}
+      <AlertDialog
+        open={confirmDialogOpen}
+        onClose={cancelVote}
+        onConfirm={confirmVote}
+        title="Irreversible Action"
+        description={`You are about to permanently record your vote${
+          pendingVoteType ? ` (${voteTypeLabels[pendingVoteType]})` : ""
+        } on Pangea's democratic platform. This action is recorded on the blockchain and cannot be undone. Do you wish to proceed?`}
+        confirmLabel="Confirm my vote"
+        cancelLabel="Go back"
+        confirmVariant="primary"
+        loading={confirmLoading}
+      />
+
       {/* Header */}
       <div className="card p-5 mb-4">
-        <h2 className="text-base font-semibold text-slate-200 mb-1 flex items-center gap-2">
-          <Shield className="w-4 h-4 text-pangea-400" />
+        <h2 className="text-base font-semibold text-fg mb-1 flex items-center gap-2">
+          <Shield className="w-4 h-4 text-fg-primary" />
           {isCuration ? "Community Review" : "Voting Booth"}
         </h2>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-fg-muted">
           {isCuration
             ? "This proposal is under community review"
             : "Votes are anonymous. You can change your vote while the proposal is active."}
@@ -302,12 +362,12 @@ export default function VotingBooth({
 
       {/* Active delegation warning */}
       {hasActiveDelegation && isActive && !hasVoted && (
-        <div className="card p-4 mb-4 bg-amber-900/10 border-amber-700/30">
+        <div className="card p-4 mb-4 bg-warning-tint border-theme">
           <div className="flex gap-3">
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-            <div className="text-xs text-amber-300">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
+            <div className="text-xs" style={{ color: "#d97706" }}>
               <p className="font-medium mb-1">Active delegation{categoryName ? ` in "${categoryName}"` : ""}</p>
-              <p className="text-amber-400/80">
+              <p className="opacity-80">
                 By voting directly, your personal vote will take precedence
                 over the delegation assigned for this category.
               </p>
@@ -320,10 +380,10 @@ export default function VotingBooth({
       {results.length > 0 && (
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-slate-300">
+            <h3 className="text-sm font-medium text-fg">
               Live Results
             </h3>
-            <div className="flex items-center gap-1 text-xs text-slate-500">
+            <div className="flex items-center gap-1 text-xs text-fg-muted">
               <Users className="w-3.5 h-3.5" />
               <span>
                 {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
@@ -337,16 +397,16 @@ export default function VotingBooth({
                 maxScore > 0 ? (r.weighted_score / maxScore) * 100 : 0;
               return (
                 <div key={r.option_id}>
-                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                  <div className="flex justify-between text-xs text-fg-muted mb-1">
                     <span className="truncate mr-2">{r.option_title}</span>
                     <span className="shrink-0 font-medium">
                       {r.weighted_score.toFixed(1)}
                     </span>
                   </div>
-                  <div className="bg-slate-700 rounded-full h-2.5">
+                  <div className="bg-theme-muted rounded-full h-2.5">
                     <div
-                      className="bg-pangea-500 h-2.5 rounded-full transition-all duration-700"
-                      style={{ width: `${barWidth}%` }}
+                      className="h-2.5 rounded-full transition-all duration-700"
+                      style={{ width: `${barWidth}%`, backgroundColor: "var(--primary)" }}
                     />
                   </div>
                 </div>
@@ -360,10 +420,10 @@ export default function VotingBooth({
       {legacyResults && options.length === 0 && (legacyResults.yea > 0 || legacyResults.nay > 0 || legacyResults.abstain > 0) && (
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-slate-300">
+            <h3 className="text-sm font-medium text-fg">
               Results
             </h3>
-            <div className="flex items-center gap-1 text-xs text-slate-500">
+            <div className="flex items-center gap-1 text-xs text-fg-muted">
               <Users className="w-3.5 h-3.5" />
               <span>
                 {legacyResults.yea + legacyResults.nay + legacyResults.abstain} votes
@@ -372,22 +432,22 @@ export default function VotingBooth({
           </div>
           <div className="space-y-3">
             {[
-              { label: "In Favor", count: legacyResults.yea, color: "bg-green-500" },
-              { label: "Against", count: legacyResults.nay, color: "bg-red-500" },
-              { label: "Abstain", count: legacyResults.abstain, color: "bg-slate-500" },
+              { label: "In Favor", count: legacyResults.yea, colorVar: "var(--success)" },
+              { label: "Against", count: legacyResults.nay, colorVar: "var(--destructive)" },
+              { label: "Abstain", count: legacyResults.abstain, colorVar: "var(--muted-foreground)" },
             ].map((item) => {
               const total = legacyResults.yea + legacyResults.nay + legacyResults.abstain;
               const pct = total > 0 ? (item.count / total) * 100 : 0;
               return (
                 <div key={item.label}>
-                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                  <div className="flex justify-between text-xs text-fg-muted mb-1">
                     <span>{item.label}</span>
                     <span className="font-medium">{item.count} ({pct.toFixed(0)}%)</span>
                   </div>
-                  <div className="bg-slate-700 rounded-full h-2.5">
+                  <div className="bg-theme-muted rounded-full h-2.5">
                     <div
-                      className={`${item.color} h-2.5 rounded-full transition-all duration-700`}
-                      style={{ width: `${pct}%` }}
+                      className="h-2.5 rounded-full transition-all duration-700"
+                      style={{ width: `${pct}%`, backgroundColor: item.colorVar }}
                     />
                   </div>
                 </div>
@@ -397,16 +457,16 @@ export default function VotingBooth({
         </div>
       )}
 
-      {/* Voting interface — Multiple Sliders */}
+      {/* Voting interface */}
       <div className="card p-5">
         {/* Already voted */}
         {hasVoted && (
           <div className="text-center py-4">
-            <CheckCircle2 className="w-10 h-10 text-green-400 mx-auto mb-3" />
-            <p className="text-slate-200 font-semibold mb-1">
+            <CheckCircle2 className="w-10 h-10 text-fg-success mx-auto mb-3" />
+            <p className="text-fg font-semibold mb-1">
               Vote recorded
             </p>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <p className="text-xs text-fg-muted leading-relaxed">
               Your allocation has been securely and anonymously recorded.
               GDPR compliant.
             </p>
@@ -414,7 +474,7 @@ export default function VotingBooth({
               <button
                 onClick={revokeVote}
                 disabled={revoking}
-                className="w-full mt-4 btn-primary flex items-center justify-center gap-2 py-2 bg-slate-700 hover:bg-slate-600"
+                className="w-full mt-4 btn-secondary flex items-center justify-center gap-2 py-2"
               >
                 {revoking ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -430,9 +490,9 @@ export default function VotingBooth({
         {/* Proposal closed */}
         {proposal.status === "closed" && !hasVoted && (
           <div className="text-center py-4">
-            <Lock className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400 font-medium mb-1">Vote concluded</p>
-            <p className="text-xs text-slate-600">
+            <Lock className="w-10 h-10 text-fg-muted mx-auto mb-3" />
+            <p className="text-fg-muted font-medium mb-1">Vote concluded</p>
+            <p className="text-xs text-fg-muted">
               Voting on this proposal has ended.
             </p>
           </div>
@@ -441,9 +501,9 @@ export default function VotingBooth({
         {/* Community Review — no voting yet */}
         {isCuration && (
           <div className="text-center py-4">
-            <Flame className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-            <p className="text-slate-300 font-medium mb-1">Community Review</p>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <Flame className="w-10 h-10 mx-auto mb-3" style={{ color: "#d97706" }} />
+            <p className="text-fg font-medium mb-1">Community Review</p>
+            <p className="text-xs text-fg-muted leading-relaxed">
               This proposal needs to reach the signal threshold before
               moving to the voting phase. Support it with a signal.
             </p>
@@ -453,11 +513,11 @@ export default function VotingBooth({
         {/* Guest — invite to sign up */}
         {isGuest && isActive && (
           <div className="text-center py-4">
-            <LogIn className="w-10 h-10 text-pangea-400 mx-auto mb-3" />
-            <p className="text-slate-200 font-semibold mb-1">
+            <LogIn className="w-10 h-10 text-fg-primary mx-auto mb-3" />
+            <p className="text-fg font-semibold mb-1">
               Want to vote?
             </p>
-            <p className="text-xs text-slate-500 leading-relaxed mb-4">
+            <p className="text-xs text-fg-muted leading-relaxed mb-4">
               Sign up to participate in the vote and make your voice heard.
             </p>
             <Link href="/auth" className="btn-primary inline-flex items-center gap-2 text-sm">
@@ -467,16 +527,16 @@ export default function VotingBooth({
           </div>
         )}
 
-        {/* Can vote — Sliders */}
+        {/* Can vote — Distributed sliders */}
         {canVote && !isGuest && (
           <>
             <div className="flex items-center gap-2 mb-4">
-              <Sliders className="w-4 h-4 text-pangea-400" />
-              <p className="text-sm text-slate-300 font-medium">
+              <Sliders className="w-4 h-4 text-fg-primary" />
+              <p className="text-sm text-fg font-medium">
                 Distribute your vote
               </p>
             </div>
-            <p className="text-xs text-slate-500 mb-5">
+            <p className="text-xs text-fg-muted mb-5">
               Allocate 100% of your decision-making power among the options. You can
               concentrate it all on one or distribute proportionally.
             </p>
@@ -487,19 +547,19 @@ export default function VotingBooth({
                 return (
                   <div key={opt.id}>
                     <div className="flex justify-between text-sm mb-1.5">
-                      <span className="text-slate-300 truncate mr-2">
+                      <span className="text-fg truncate mr-2">
                         {opt.title}
                       </span>
                       <span
                         className={`font-bold shrink-0 ${
-                          pct > 0 ? "text-pangea-300" : "text-slate-600"
+                          pct > 0 ? "text-fg-primary" : "text-fg-muted"
                         }`}
                       >
                         {pct}%
                       </span>
                     </div>
                     {opt.description && (
-                      <p className="text-xs text-slate-600 mb-2 line-clamp-1">
+                      <p className="text-xs text-fg-muted mb-2 line-clamp-1">
                         {opt.description}
                       </p>
                     )}
@@ -511,22 +571,22 @@ export default function VotingBooth({
                       onChange={(e) =>
                         handleSliderChange(opt.id, parseInt(e.target.value))
                       }
-                      className="w-full h-2 bg-slate-700 rounded-full appearance-none cursor-pointer
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pangea-400
+                      className="w-full h-2 bg-theme-muted rounded-full appearance-none cursor-pointer
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[color:var(--primary)]
                         [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg
-                        [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full
-                        [&::-moz-range-thumb]:bg-pangea-400 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
+                        [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full
+                        [&::-moz-range-thumb]:bg-[color:var(--primary)] [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0"
                     />
                   </div>
                 );
               })}
             </div>
 
-            {/* Totale */}
+            {/* Total */}
             <div
-              className={`mt-5 pt-4 border-t border-slate-700/50 flex items-center justify-between ${
-                isValidAllocation ? "text-green-400" : "text-red-400"
+              className={`mt-5 pt-4 border-t border-theme flex items-center justify-between ${
+                isValidAllocation ? "text-fg-success" : "text-fg-danger"
               }`}
             >
               <span className="text-sm font-medium">Total allocated</span>
@@ -534,78 +594,70 @@ export default function VotingBooth({
             </div>
 
             {!isValidAllocation && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-fg-danger mt-1">
                 The total must be exactly 100% to confirm your vote.
               </p>
             )}
 
+            {/* Positive friction: opens AlertDialog instead of voting directly */}
             <button
-              onClick={castDistributedVote}
+              onClick={() => requestVote("distributed")}
               disabled={!isValidAllocation || voting}
-              className="w-full mt-4 btn-primary flex items-center justify-center gap-2 py-3"
+              className="w-full mt-4 btn-primary flex items-center justify-center gap-2 py-3 min-h-[44px]"
             >
-              {voting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="w-4 h-4" />
-              )}
-              {voting ? "Recording vote..." : "Confirm allocation"}
+              <CheckCircle2 className="w-4 h-4" />
+              Confirm allocation
             </button>
           </>
         )}
 
         {/* No options defined — Fallback to In Favor/Against/Abstain */}
-        {isActive && !hasVoted && options.length === 0 && (
+        {isActive && !hasVoted && options.length === 0 && !isGuest && (
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <ThumbsUp className="w-4 h-4 text-pangea-400" />
-              <p className="text-sm text-slate-300 font-medium">
+              <ThumbsUp className="w-4 h-4 text-fg-primary" />
+              <p className="text-sm text-fg font-medium">
                 Cast your vote
               </p>
             </div>
-            <p className="text-xs text-slate-500 mb-5">
+            <p className="text-xs text-fg-muted mb-5">
               No voting options have been defined. You can still
               participate by voting In Favor, Against, or Abstain.
             </p>
 
+            {/* Positive friction: opens AlertDialog instead of voting directly */}
             <div className="grid grid-cols-3 gap-3">
               <button
-                onClick={() => castSimpleVote("yea")}
+                onClick={() => requestVote("yea")}
                 disabled={revoking}
-                className="btn-primary py-3 flex items-center justify-center gap-2 bg-green-900/20 hover:bg-green-900/40 border border-green-700/30 text-green-300"
+                className="py-3 flex items-center justify-center gap-2 rounded-lg min-h-[44px]
+                  bg-success-tint border border-theme text-fg-success font-medium
+                  transition-all duration-200 hover:opacity-80 active:scale-95"
               >
-                {revoking ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ThumbsUp className="w-4 h-4" />
-                )}
-                <span className="text-xs font-medium">In Favor</span>
+                <ThumbsUp className="w-4 h-4" />
+                <span className="text-xs">In Favor</span>
               </button>
 
               <button
-                onClick={() => castSimpleVote("nay")}
+                onClick={() => requestVote("nay")}
                 disabled={revoking}
-                className="btn-primary py-3 flex items-center justify-center gap-2 bg-red-900/20 hover:bg-red-900/40 border border-red-700/30 text-red-300"
+                className="py-3 flex items-center justify-center gap-2 rounded-lg min-h-[44px]
+                  bg-danger-tint border border-theme text-fg-danger font-medium
+                  transition-all duration-200 hover:opacity-80 active:scale-95"
               >
-                {revoking ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ThumbsDown className="w-4 h-4" />
-                )}
-                <span className="text-xs font-medium">Against</span>
+                <ThumbsDown className="w-4 h-4" />
+                <span className="text-xs">Against</span>
               </button>
 
               <button
-                onClick={() => castSimpleVote("abstain")}
+                onClick={() => requestVote("abstain")}
                 disabled={revoking}
-                className="btn-primary py-3 flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 border border-slate-600/30 text-slate-300"
+                className="py-3 flex items-center justify-center gap-2 rounded-lg min-h-[44px]
+                  bg-theme-muted border border-theme text-fg font-medium
+                  transition-all duration-200 hover:opacity-80 active:scale-95"
               >
-                {revoking ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <MinusCircle className="w-4 h-4" />
-                )}
-                <span className="text-xs font-medium">Abstain</span>
+                <MinusCircle className="w-4 h-4" />
+                <span className="text-xs">Abstain</span>
               </button>
             </div>
           </div>
@@ -613,16 +665,16 @@ export default function VotingBooth({
 
         {/* Error */}
         {error && (
-          <div className="mt-4 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-xs">
+          <div className="mt-4 p-3 bg-danger-tint border border-theme rounded-lg text-fg-danger text-xs">
             {error}
           </div>
         )}
 
         {/* Footer GDPR */}
-        <div className="mt-4 pt-4 border-t border-slate-700/50">
+        <div className="mt-4 pt-4 border-t border-theme">
           <div className="flex items-start gap-2">
-            <Shield className="w-3.5 h-3.5 text-slate-600 mt-0.5 shrink-0" />
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <Shield className="w-3.5 h-3.5 text-fg-muted mt-0.5 shrink-0" />
+            <p className="text-xs text-fg-muted leading-relaxed">
               Voting preferences are never accessible to third parties.
               Privacy by Design — GDPR Art. 9.
             </p>

@@ -42,8 +42,8 @@ export function PageLoader() {
   return (
     <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
       <div className="text-center">
-        <Globe className="w-10 h-10 text-pangea-400 mx-auto mb-3 animate-spin" style={{ animationDuration: "2s" }} />
-        <p className="text-slate-400 text-sm">Loading...</p>
+        <Globe className="w-10 h-10 text-fg-primary mx-auto mb-3 animate-spin" style={{ animationDuration: "2s" }} />
+        <p className="text-fg-muted text-sm">Loading...</p>
       </div>
     </div>
   );

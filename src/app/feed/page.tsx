@@ -28,8 +28,8 @@ export default async function FeedPage() {
     <AppShell userEmail={user.email} userName={profile?.full_name} userRole={profile?.role} pendingDelegations={pendingDelegations ?? 0}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-3 mb-6">
-          <Rss className="w-6 h-6 text-pangea-400" />
-          <h1 className="text-2xl font-bold text-white">Your Feed</h1>
+          <Rss className="w-6 h-6 text-fg-primary" />
+          <h1 className="text-2xl font-bold text-fg">Your Feed</h1>
         </div>
 
         <FeedClient userId={user.id} />

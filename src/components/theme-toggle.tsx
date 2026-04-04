@@ -31,7 +31,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={cycleTheme}
-      className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-150"
+      className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-theme-card text-fg-muted dark:text-fg-muted hover:text-fg dark:hover:text-fg transition-all duration-150"
       aria-label={`Current theme: ${theme}. Click to change.`}
       title={`Theme: ${theme}`}
     >

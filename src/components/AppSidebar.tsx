@@ -130,7 +130,7 @@ export default function AppSidebar({
             onClick={handleNavClick}
           >
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 group-hover:from-blue-500 group-hover:to-blue-600 transition-all duration-200 shrink-0">
-              <Globe className="w-5 h-5 text-white" strokeWidth={2} />
+              <Globe className="w-5 h-5 text-fg" strokeWidth={2} />
             </div>
             <span className="text-lg font-bold tracking-tight" style={{ color: "var(--foreground)" }}>
               AGORA
@@ -152,7 +152,7 @@ export default function AppSidebar({
           <div className="px-3 pt-4 pb-2">
             <Link
               href="/proposals/new"
-              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-medium rounded-lg transition-all duration-150 hover:shadow-lg hover:shadow-blue-600/20 active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:shadow-lg hover:shadow-blue-600/20 active:scale-[0.98]"
               onClick={handleNavClick}
             >
               <Plus className="w-4 h-4" />
@@ -226,7 +226,7 @@ export default function AppSidebar({
                 <Users className="w-[18px] h-[18px] shrink-0" />
                 <span className="flex-1">Delegations</span>
                 {pendingDelegations > 0 && (
-                  <span className="px-2 py-0.5 bg-red-600 text-white text-[10px] font-bold rounded-full">
+                  <span className="px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full">
                     {pendingDelegations}
                   </span>
                 )}
@@ -260,7 +260,7 @@ export default function AppSidebar({
             <Link
               href="/auth"
               onClick={handleNavClick}
-              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-150"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-fg text-sm font-medium rounded-lg transition-all duration-150"
             >
               <LogIn className="w-4 h-4" />
               Sign In
@@ -270,7 +270,7 @@ export default function AppSidebar({
               {/* User info */}
               <div className="flex items-center gap-3 px-2 py-2">
                 <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500/50 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-white">{initials}</span>
+                  <span className="text-xs font-bold text-fg">{initials}</span>
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold truncate" style={{ color: "var(--foreground)" }}>
@@ -288,7 +288,7 @@ export default function AppSidebar({
                 disabled={loggingOut}
                 className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed sidebar-nav-inactive"
               >
-                <LogOut className="w-[18px] h-[18px] shrink-0 text-red-500" />
+                <LogOut className="w-[18px] h-[18px] shrink-0 text-fg-danger" />
                 {loggingOut ? "Logging out..." : "Logout"}
               </button>
             </div>

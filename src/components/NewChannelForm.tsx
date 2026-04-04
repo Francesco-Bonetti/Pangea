@@ -106,7 +106,7 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-500 hover:text-pangea-400 hover:bg-slate-700/30 rounded-lg transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs text-fg-muted hover:text-fg-primary hover:bg-theme-muted/30 rounded-lg transition-colors"
       >
         <Plus className="w-3.5 h-3.5" />
         Create Channel
@@ -117,14 +117,14 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
   return (
     <form onSubmit={handleSubmit} className="card p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-slate-200">New Channel</h4>
+        <h4 className="text-sm font-semibold text-fg">New Channel</h4>
         <button
           type="button"
           onClick={() => {
             setIsOpen(false);
             setError("");
           }}
-          className="text-slate-500 hover:text-slate-300 transition-colors"
+          className="text-fg-muted hover:text-fg transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
@@ -132,7 +132,7 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
 
       {/* Emoji picker */}
       <div>
-        <label className="block text-xs text-slate-400 mb-1.5">Icon</label>
+        <label className="block text-xs text-fg-muted mb-1.5">Icon</label>
         <div className="flex flex-wrap gap-1.5">
           {EMOJI_OPTIONS.map((e) => (
             <button
@@ -142,7 +142,7 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
               className={`w-8 h-8 rounded-md text-base flex items-center justify-center transition-all ${
                 emoji === e
                   ? "bg-pangea-900/60 border border-pangea-600 scale-110"
-                  : "bg-slate-800 border border-slate-700 hover:border-slate-600"
+                  : "bg-theme-card border border-theme hover:border-theme"
               }`}
             >
               {e}
@@ -153,21 +153,21 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
 
       {/* Name */}
       <div>
-        <label className="block text-xs text-slate-400 mb-1.5">Name</label>
+        <label className="block text-xs text-fg-muted mb-1.5">Name</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Climate Action"
           maxLength={40}
-          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
+          className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-sm text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         />
       </div>
 
       {/* Description */}
       <div>
-        <label className="block text-xs text-slate-400 mb-1.5">
-          Description <span className="text-slate-600">(optional)</span>
+        <label className="block text-xs text-fg-muted mb-1.5">
+          Description <span className="text-fg-muted">(optional)</span>
         </label>
         <input
           type="text"
@@ -175,16 +175,16 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="What is this channel about?"
           maxLength={120}
-          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
+          className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-sm text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         />
       </div>
 
-      {error && <p className="text-red-400 text-xs">{error}</p>}
+      {error && <p className="text-fg-danger text-xs">{error}</p>}
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full px-3 py-2 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-white text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+        className="w-full px-3 py-2 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-fg text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
       >
         {isLoading ? "Creating..." : "Create Channel"}
       </button>

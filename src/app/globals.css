@@ -292,6 +292,33 @@
   }
 
   /* ============================================
+     THEME-ADAPTIVE UTILITY CLASSES
+     Replace hardcoded Tailwind color classes.
+     ============================================ */
+  /* Text colors */
+  .text-fg           { color: var(--foreground); }
+  .text-fg-muted     { color: var(--muted-foreground); }
+  .text-fg-primary   { color: var(--primary); }
+  .text-fg-success   { color: var(--success); }
+  .text-fg-danger    { color: var(--destructive); }
+
+  /* Background colors */
+  .bg-theme-base     { background-color: var(--background); }
+  .bg-theme-card     { background-color: var(--card); }
+  .bg-theme-muted    { background-color: var(--muted); }
+  .bg-theme-primary  { background-color: var(--primary); }
+
+  /* Tinted backgrounds (for status/accent areas) */
+  .bg-success-tint   { background-color: color-mix(in srgb, var(--success) 12%, transparent); }
+  .bg-danger-tint    { background-color: color-mix(in srgb, var(--destructive) 12%, transparent); }
+  .bg-warning-tint   { background-color: color-mix(in srgb, #f59e0b 12%, transparent); }
+  .bg-primary-tint   { background-color: color-mix(in srgb, var(--primary) 12%, transparent); }
+  .bg-purple-tint    { background-color: color-mix(in srgb, #7c3aed 12%, transparent); }
+
+  /* Border colors */
+  .border-theme      { border-color: var(--border); }
+
+  /* ============================================
      INFO BOXES
      ============================================ */
   .info-box {
@@ -391,6 +418,39 @@
   background: linear-gradient(90deg, var(--muted) 25%, var(--border) 50%, var(--muted) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+/* ============================================
+   TOAST & DIALOG ANIMATIONS (Phase 4)
+   ============================================ */
+@keyframes toast-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.toast-slide-in {
+  animation: toast-slide-in 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+@keyframes dialog-fade-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-in {
+  animation: dialog-fade-in 0.2s ease-out forwards;
 }
 
 /* Premium civic accent */

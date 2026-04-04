@@ -144,16 +144,16 @@ export default async function SocialPage({
         <div className="flex items-center gap-4 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0"
+            className="p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-theme-card transition-colors shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex-1 min-w-0">
-            <h1 className="text-3xl font-bold text-white flex items-center gap-2 overflow-hidden">
-              <MessageCircle className="w-8 h-8 text-pangea-400 shrink-0" />
+            <h1 className="text-3xl font-bold text-fg flex items-center gap-2 overflow-hidden">
+              <MessageCircle className="w-8 h-8 text-fg-primary shrink-0" />
               <span className="truncate">Community Forum</span>
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-fg-muted mt-1">
               Join discussions with the community
             </p>
           </div>
@@ -167,14 +167,14 @@ export default async function SocialPage({
               {user ? (
                 <a
                   href="#new-discussion"
-                  className="w-full block px-4 py-3 bg-pangea-600 hover:bg-pangea-700 text-white font-medium rounded-lg text-center transition-colors"
+                  className="w-full block px-4 py-3 bg-pangea-600 hover:bg-pangea-700 text-fg font-medium rounded-lg text-center transition-colors"
                 >
                   + New Discussion
                 </a>
               ) : (
                 <a
                   href="/auth"
-                  className="w-full block px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg text-center transition-colors"
+                  className="w-full block px-4 py-3 bg-theme-muted hover:bg-theme-muted text-fg font-medium rounded-lg text-center transition-colors"
                 >
                   Sign In
                 </a>
@@ -184,7 +184,7 @@ export default async function SocialPage({
             {/* Channels */}
             {channels && channels.length > 0 && (
               <div className="card p-4">
-                <h3 className="text-sm font-semibold text-slate-200 mb-3">
+                <h3 className="text-sm font-semibold text-fg mb-3">
                   Channels
                 </h3>
                 <div className="space-y-2">
@@ -192,8 +192,8 @@ export default async function SocialPage({
                     href="/social"
                     className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
                       !searchParams.channel
-                        ? "bg-pangea-900/40 text-pangea-300 border border-pangea-700/50"
-                        : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                        ? "bg-pangea-900/40 text-fg-primary border border-pangea-700/50"
+                        : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
                     }`}
                   >
                     All Channels
@@ -204,8 +204,8 @@ export default async function SocialPage({
                       href={`/social?channel=${ch.id}`}
                       className={`block px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
                         searchParams.channel === ch.id
-                          ? "bg-pangea-900/40 text-pangea-300 border border-pangea-700/50"
-                          : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/30"
+                          ? "bg-pangea-900/40 text-fg-primary border border-pangea-700/50"
+                          : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
                       }`}
                     >
                       <span className="text-base">{ch.emoji}</span>
@@ -214,7 +214,7 @@ export default async function SocialPage({
                   ))}
                   {/* Create Channel */}
                   {user && (
-                    <div className="mt-2 pt-2 border-t border-slate-700/50">
+                    <div className="mt-2 pt-2 border-t border-theme">
                       <NewChannelForm userId={user.id} />
                     </div>
                   )}
@@ -225,8 +225,8 @@ export default async function SocialPage({
             {/* Tags */}
             {trendingTags && trendingTags.length > 0 && (
               <div className="card p-4">
-                <h3 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-pangea-400" />
+                <h3 className="text-sm font-semibold text-fg mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-fg-primary" />
                   Popular Tags
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -236,8 +236,8 @@ export default async function SocialPage({
                       href={`/social?tag=${tag.id}`}
                       className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                         searchParams.tag === tag.id
-                          ? "text-pangea-300 bg-pangea-900/40 border-pangea-700/50"
-                          : "text-pangea-400 bg-pangea-900/20 border-pangea-800/30 hover:border-pangea-700/50"
+                          ? "text-fg-primary bg-pangea-900/40 border-pangea-700/50"
+                          : "text-fg-primary bg-pangea-900/20 border-pangea-800/30 hover:border-pangea-700/50"
                       }`}
                     >
                       #{tag.name}
@@ -253,7 +253,7 @@ export default async function SocialPage({
             {/* New Discussion Form */}
             {user && (
               <div id="new-discussion">
-                <h2 className="text-lg font-semibold text-slate-200 mb-4">
+                <h2 className="text-lg font-semibold text-fg mb-4">
                   Start a Discussion
                 </h2>
                 <NewDiscussionForm userId={user.id} />
@@ -263,7 +263,7 @@ export default async function SocialPage({
             {/* Forum Controls */}
             <div>
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-slate-200">
+                <h2 className="text-lg font-semibold text-fg">
                   {searchParams.channel
                     ? channels?.find((c: DiscussionChannel) => c.id === searchParams.channel)?.name ||
                       "Discussions"

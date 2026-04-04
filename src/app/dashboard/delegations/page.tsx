@@ -199,7 +199,7 @@ export default function DelegationsPage() {
     return (
       <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
         <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 text-pangea-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-fg-primary animate-spin" />
         </div>
       </AppShell>
     );
@@ -212,16 +212,16 @@ export default function DelegationsPage() {
         <div className="flex items-center gap-3 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="shrink-0 p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-theme-card transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-pangea-400 shrink-0" />
+            <h1 className="text-xl sm:text-2xl font-bold text-fg flex items-center gap-2">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-fg-primary shrink-0" />
               <span className="truncate">Liquid Democracy</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-0.5 truncate">
+            <p className="text-xs sm:text-sm text-fg-muted mt-0.5 truncate">
               Manage your vote delegations — global or by topic
             </p>
           </div>
@@ -240,14 +240,14 @@ export default function DelegationsPage() {
 
         {/* Info card */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
-          <Globe className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
-          <div className="text-sm text-slate-400">
+          <Globe className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
+          <div className="text-sm text-fg-muted">
             <p>
-              <strong className="text-slate-300">Liquid Democracy</strong>{" "}
+              <strong className="text-fg">Liquid Democracy</strong>{" "}
               lets you delegate your vote to another citizen for all topics
               or for a specific category. Delegations are always{" "}
-              <strong className="text-slate-300">revocable</strong> and your{" "}
-              <strong className="text-slate-300">direct vote</strong> always
+              <strong className="text-fg">revocable</strong> and your{" "}
+              <strong className="text-fg">direct vote</strong> always
               takes precedence.
             </p>
           </div>
@@ -256,7 +256,7 @@ export default function DelegationsPage() {
         {/* New delegation form */}
         {showForm && (
           <div className="card p-6 mb-6">
-            <h2 className="text-lg font-semibold text-slate-200 mb-4">
+            <h2 className="text-lg font-semibold text-fg mb-4">
               Create a new delegation
             </h2>
 
@@ -264,7 +264,7 @@ export default function DelegationsPage() {
             <div className="mb-4">
               <label className="label">Search for a citizen</label>
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   className="input-field pl-10"
@@ -273,13 +273,13 @@ export default function DelegationsPage() {
                   onChange={(e) => searchUsers(e.target.value)}
                 />
                 {searching && (
-                  <Loader2 className="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 animate-spin" />
+                  <Loader2 className="w-4 h-4 text-fg-muted absolute right-3 top-1/2 -translate-y-1/2 animate-spin" />
                 )}
               </div>
 
               {/* Search results */}
               {searchResults.length > 0 && !selectedDelegate && (
-                <div className="mt-2 border border-slate-700 rounded-lg overflow-hidden">
+                <div className="mt-2 border border-theme rounded-lg overflow-hidden">
                   {searchResults.map((p) => (
                     <button
                       key={p.id}
@@ -288,15 +288,15 @@ export default function DelegationsPage() {
                         setSearchQuery(p.full_name ?? "");
                         setSearchResults([]);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-800 transition-colors border-b border-slate-700/50 last:border-b-0"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-theme-card transition-colors border-b border-theme last:border-b-0"
                     >
-                      <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-pangea-300 font-bold">
+                      <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-fg-primary font-bold">
                         {(p.full_name ?? "?")[0].toUpperCase()}
                       </div>
-                      <span className="text-sm text-slate-200">
+                      <span className="text-sm text-fg">
                         {p.full_name ?? "Citizen"}
                       </span>
-                      <ChevronRight className="w-4 h-4 text-slate-600 ml-auto" />
+                      <ChevronRight className="w-4 h-4 text-fg-muted ml-auto" />
                     </button>
                   ))}
                 </div>
@@ -305,10 +305,10 @@ export default function DelegationsPage() {
               {/* Selected delegate */}
               {selectedDelegate && (
                 <div className="mt-2 flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3">
-                  <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-pangea-300 font-bold">
+                  <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-fg-primary font-bold">
                     {(selectedDelegate.full_name ?? "?")[0].toUpperCase()}
                   </div>
-                  <span className="text-sm text-slate-200 font-medium">
+                  <span className="text-sm text-fg font-medium">
                     {selectedDelegate.full_name}
                   </span>
                   <button
@@ -316,7 +316,7 @@ export default function DelegationsPage() {
                       setSelectedDelegate(null);
                       setSearchQuery("");
                     }}
-                    className="ml-auto text-slate-500 hover:text-red-400"
+                    className="ml-auto text-fg-muted hover:text-fg-danger"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -344,14 +344,14 @@ export default function DelegationsPage() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-slate-600 mt-1.5">
+              <p className="text-xs text-fg-muted mt-1.5">
                 A category-specific delegation takes priority over a global one
               </p>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="mb-4 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-xs flex gap-2">
+              <div className="mb-4 p-3 bg-danger-tint border border-theme rounded-lg text-fg-danger text-xs flex gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -375,10 +375,10 @@ export default function DelegationsPage() {
 
         {/* Global error banner */}
         {error && !showForm && (
-          <div className="mb-6 p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm flex gap-2 items-start">
+          <div className="mb-6 p-3 bg-danger-tint border border-theme rounded-lg text-fg-danger text-sm flex gap-2 items-start">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <span className="flex-1">{error}</span>
-            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+            <button onClick={() => setError(null)} className="text-fg-danger hover:text-fg-danger">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -386,18 +386,18 @@ export default function DelegationsPage() {
 
         {/* Your delegations */}
         <section className="mb-8">
-          <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-            <ChevronRight className="w-5 h-5 text-pangea-400" />
+          <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+            <ChevronRight className="w-5 h-5 text-fg-primary" />
             Your delegations
-            <span className="text-xs text-slate-500 font-normal">
+            <span className="text-xs text-fg-muted font-normal">
               ({delegations.length})
             </span>
           </h2>
 
           {delegations.length === 0 ? (
             <div className="card p-8 text-center">
-              <Users className="w-12 h-12 text-slate-700 mx-auto mb-3" />
-              <p className="text-slate-500 text-sm">
+              <Users className="w-12 h-12 text-fg-muted mx-auto mb-3" />
+              <p className="text-fg-muted text-sm">
                 You haven&apos;t delegated your vote to anyone yet.
               </p>
             </div>
@@ -411,14 +411,14 @@ export default function DelegationsPage() {
                     key={d.id}
                     className="card p-4 flex items-center gap-3 overflow-hidden"
                   >
-                    <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-pangea-300 font-bold overflow-hidden">
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-fg-primary font-bold overflow-hidden">
                       {delegateProfile?.full_name ? delegateProfile.full_name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "?"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-200 font-medium truncate">
+                      <p className="text-sm text-fg font-medium truncate">
                         {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
                       </p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
+                      <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (
                           <>
                             <Tag className="w-3 h-3 shrink-0" />
@@ -433,15 +433,15 @@ export default function DelegationsPage() {
                       </p>
                     </div>
                     <span className={`shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-                      d.status === "accepted" ? "text-green-300 bg-green-900/20 border border-green-700/30" :
-                      d.status === "rejected" ? "text-red-300 bg-red-900/20 border border-red-700/30" :
-                      "text-amber-300 bg-amber-900/20 border border-amber-700/30"
+                      d.status === "accepted" ? "text-fg-success bg-success-tint border border-theme" :
+                      d.status === "rejected" ? "text-fg-danger bg-danger-tint border border-theme" :
+                      "text-amber-300 bg-warning-tint border border-theme"
                     }`}>
                       {d.status === "accepted" ? "Accepted" : d.status === "rejected" ? "Rejected" : "Pending"}
                     </span>
                     <button
                       onClick={() => revokeDelegation(d.id)}
-                      className="shrink-0 text-slate-600 hover:text-red-400 transition-colors p-2"
+                      className="shrink-0 text-fg-muted hover:text-fg-danger transition-colors p-2"
                       title="Revoke delegation"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -455,18 +455,18 @@ export default function DelegationsPage() {
 
         {/* Received delegations */}
         <section>
-          <h2 className="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
             Received delegations
-            <span className="text-xs text-slate-500 font-normal">
+            <span className="text-xs text-fg-muted font-normal">
               ({receivedDelegations.length})
             </span>
           </h2>
 
           {receivedDelegations.length === 0 ? (
             <div className="card p-8 text-center">
-              <Users className="w-12 h-12 text-slate-700 mx-auto mb-3" />
-              <p className="text-slate-500 text-sm">
+              <Users className="w-12 h-12 text-fg-muted mx-auto mb-3" />
+              <p className="text-fg-muted text-sm">
                 No citizen has delegated their vote to you yet.
               </p>
             </div>
@@ -484,10 +484,10 @@ export default function DelegationsPage() {
                       {delegatorProfile?.full_name ? delegatorProfile.full_name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "?"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-slate-200 font-medium truncate">
+                      <p className="text-sm text-fg font-medium truncate">
                         {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
                       </p>
-                      <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
+                      <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (
                           <>
                             <Tag className="w-3 h-3 shrink-0" />
@@ -505,28 +505,28 @@ export default function DelegationsPage() {
                       <div className="shrink-0 flex items-center gap-1.5">
                         <button
                           onClick={() => acceptDelegation(d.id)}
-                          className="p-1.5 rounded-lg text-green-400 hover:bg-green-900/30 transition-colors"
+                          className="p-1.5 rounded-lg text-fg-success hover:bg-green-900/30 transition-colors"
                           title="Accept delegation"
                         >
                           <CheckCircle2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => rejectDelegation(d.id)}
-                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors"
+                          className="p-1.5 rounded-lg text-fg-danger hover:bg-danger-tint transition-colors"
                           title="Reject delegation"
                         >
                           <XCircle className="w-4 h-4" />
                         </button>
-                        <span className="text-xs text-amber-500/80 bg-amber-900/20 px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
+                        <span className="text-xs text-amber-500/80 bg-warning-tint px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
                           <Clock className="w-3 h-3" /> Pending
                         </span>
                       </div>
                     ) : d.status === "accepted" ? (
-                      <span className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded-full">
+                      <span className="text-xs text-fg-success bg-success-tint px-2 py-1 rounded-full">
                         Accepted
                       </span>
                     ) : (
-                      <span className="text-xs text-red-400 bg-red-900/20 px-2 py-1 rounded-full">
+                      <span className="text-xs text-fg-danger bg-danger-tint px-2 py-1 rounded-full">
                         Rejected
                       </span>
                     )}

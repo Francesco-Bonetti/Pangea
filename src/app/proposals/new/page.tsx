@@ -199,16 +199,16 @@ export default function NewProposalPage() {
         <div className="flex items-center gap-4 mb-8 overflow-hidden">
           <Link
             href="/dashboard"
-            className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0"
+            className="p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-theme-card transition-colors shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2 overflow-hidden">
-              <FileText className="w-6 h-6 text-pangea-400 shrink-0" />
+            <h1 className="text-2xl font-bold text-fg flex items-center gap-2 overflow-hidden">
+              <FileText className="w-6 h-6 text-fg-primary shrink-0" />
               <span className="truncate">New Proposal</span>
             </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <p className="text-sm text-fg-muted mt-0.5">
               Write your proposal and let citizens evaluate it
             </p>
           </div>
@@ -216,13 +216,13 @@ export default function NewProposalPage() {
 
         {/* Guida */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">
-          <Info className="w-5 h-5 text-pangea-400 shrink-0 mt-0.5" />
-          <div className="text-sm text-slate-400">
-            <p className="text-slate-300 font-medium mb-1">How it works</p>
+          <Info className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
+          <div className="text-sm text-fg-muted">
+            <p className="text-fg font-medium mb-1">How it works</p>
             <p>
               Your proposal is first published for <strong className="text-amber-300">community review</strong> where
               citizens can support it with a click. When it receives enough support,
-              it moves to the <strong className="text-pangea-300">voting phase</strong> where everyone can express
+              it moves to the <strong className="text-fg-primary">voting phase</strong> where everyone can express
               their preference among the options you defined.
             </p>
           </div>
@@ -249,16 +249,16 @@ export default function NewProposalPage() {
                   className={`card p-4 text-left transition-all ${
                     proposalType === type
                       ? "border-pangea-500 bg-pangea-900/20"
-                      : "hover:border-slate-600"
+                      : "hover:border-theme"
                   }`}
                 >
                   <Icon className={`w-5 h-5 mb-2 ${
-                    proposalType === type ? "text-pangea-400" : "text-slate-500"
+                    proposalType === type ? "text-fg-primary" : "text-fg-muted"
                   }`} />
                   <p className={`text-sm font-medium ${
-                    proposalType === type ? "text-pangea-300" : "text-slate-300"
+                    proposalType === type ? "text-fg-primary" : "text-fg"
                   }`}>{label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                  <p className="text-xs text-fg-muted mt-0.5">{desc}</p>
                 </button>
               ))}
             </div>
@@ -272,9 +272,9 @@ export default function NewProposalPage() {
                 </label>
                 {parentLawTitle ? (
                   <div className="flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3 overflow-hidden">
-                    <BookOpen className="w-4 h-4 text-pangea-400 shrink-0" />
-                    <span className="text-sm text-slate-200 font-medium flex-1 truncate">{parentLawTitle}</span>
-                    <button onClick={() => { setParentProposalId(null); setParentLawTitle(null); }} className="text-slate-500 hover:text-red-400 shrink-0">
+                    <BookOpen className="w-4 h-4 text-fg-primary shrink-0" />
+                    <span className="text-sm text-fg font-medium flex-1 truncate">{parentLawTitle}</span>
+                    <button onClick={() => { setParentProposalId(null); setParentLawTitle(null); }} className="text-fg-muted hover:text-fg-danger shrink-0">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -288,7 +288,7 @@ export default function NewProposalPage() {
                       onChange={(e) => searchLaws(e.target.value)}
                     />
                     {lawSearchResults.length > 0 && (
-                      <div className="mt-2 border border-slate-700 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                      <div className="mt-2 border border-theme rounded-lg overflow-hidden max-h-48 overflow-y-auto">
                         {lawSearchResults.map((law) => (
                           <button
                             key={law.id}
@@ -300,12 +300,12 @@ export default function NewProposalPage() {
                               setLawSearchResults([]);
                               setShowLawPicker(false);
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-800 transition-colors border-b border-slate-700/50 last:border-b-0"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-theme-card transition-colors border-b border-theme last:border-b-0"
                           >
                             <BookOpen className="w-4 h-4 text-blue-400 shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-slate-200 truncate">{law.title}</p>
-                              {law.code && <p className="text-xs text-slate-500">{law.code}</p>}
+                              <p className="text-sm text-fg truncate">{law.title}</p>
+                              {law.code && <p className="text-xs text-fg-muted">{law.code}</p>}
                             </div>
                           </button>
                         ))}
@@ -320,7 +320,7 @@ export default function NewProposalPage() {
           {/* Title */}
           <div>
             <label className="label">
-              Proposal Title <span className="text-red-400">*</span>
+              Proposal Title <span className="text-fg-danger">*</span>
             </label>
             <input
               type="text"
@@ -331,7 +331,7 @@ export default function NewProposalPage() {
               maxLength={200}
               required
             />
-            <p className="text-xs text-slate-600 mt-1.5">{title.length}/200 characters</p>
+            <p className="text-xs text-fg-muted mt-1.5">{title.length}/200 characters</p>
           </div>
 
           {/* Hashtag */}
@@ -344,14 +344,14 @@ export default function NewProposalPage() {
             <button
               type="button"
               onClick={() => setShowTreeSelector(!showTreeSelector)}
-              className="label flex items-center gap-1.5 cursor-pointer hover:text-slate-200 transition-colors overflow-hidden"
+              className="label flex items-center gap-1.5 cursor-pointer hover:text-fg transition-colors overflow-hidden"
             >
               <GitBranch className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">Position in the law tree</span>
-              <span className="text-xs font-normal text-slate-500 ml-1 shrink-0">(optional)</span>
+              <span className="text-xs font-normal text-fg-muted ml-1 shrink-0">(optional)</span>
             </button>
             {!showTreeSelector && (
-              <p className="text-xs text-slate-600 mt-1">
+              <p className="text-xs text-fg-muted mt-1">
                 Click to choose where to place the law in the legal framework or which rule to replace
               </p>
             )}
@@ -370,7 +370,7 @@ export default function NewProposalPage() {
           {/* Contesto */}
           <div>
             <label className="label">
-              Why is this law needed? <span className="text-red-400">*</span>
+              Why is this law needed? <span className="text-fg-danger">*</span>
             </label>
             <textarea
               className="input-field min-h-[180px] resize-y"
@@ -379,7 +379,7 @@ export default function NewProposalPage() {
               onChange={(e) => setContent(e.target.value)}
               required
             />
-            <p className="text-xs text-slate-600 mt-1.5">{content.length} characters</p>
+            <p className="text-xs text-fg-muted mt-1.5">{content.length} characters</p>
           </div>
 
           {/* Dispositivo normativo */}
@@ -391,7 +391,7 @@ export default function NewProposalPage() {
               value={dispositivo}
               onChange={(e) => setDispositivo(e.target.value)}
             />
-            <p className="text-xs text-slate-600 mt-1.5">
+            <p className="text-xs text-fg-muted mt-1.5">
               Optional — write the actual articles of the proposed law
             </p>
           </div>
@@ -410,7 +410,7 @@ export default function NewProposalPage() {
               <option value="30">30 days</option>
               <option value="0">No expiration</option>
             </select>
-            <p className="text-xs text-slate-600 mt-1.5">
+            <p className="text-xs text-fg-muted mt-1.5">
               After expiration, the proposal is automatically closed and the result becomes final
             </p>
           </div>
@@ -418,15 +418,15 @@ export default function NewProposalPage() {
           {/* Opzioni deliberative */}
           <div>
             <label className="label">
-              Voting options <span className="text-red-400">*</span>
+              Voting options <span className="text-fg-danger">*</span>
             </label>
-            <div className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-3 mb-3">
-              <p className="text-sm text-slate-300 mb-2">
+            <div className="bg-theme-card/40 border border-theme/40 rounded-lg p-3 mb-3">
+              <p className="text-sm text-fg mb-2">
                 In Pangea, voting is not just &quot;yes or no&quot;: each citizen distributes their vote
                 as a percentage among the options you propose. This allows for nuanced positions,
                 not just binary choices.
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-fg-muted">
                 Write at least 2 alternatives. For example: &quot;Approve the text as is&quot;,
                 &quot;Approve with modifications&quot;, &quot;Reject and rewrite&quot;.
                 The more options you offer, the richer the discussion.
@@ -437,13 +437,13 @@ export default function NewProposalPage() {
               {options.map((opt, i) => (
                 <div key={i} className="card p-4 relative">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-500 font-medium">
+                    <span className="text-xs text-fg-muted font-medium">
                       Option {i + 1}
                     </span>
                     {options.length > 2 && (
                       <button
                         onClick={() => removeOption(i)}
-                        className="text-slate-600 hover:text-red-400 transition-colors"
+                        className="text-fg-muted hover:text-fg-danger transition-colors"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -470,7 +470,7 @@ export default function NewProposalPage() {
             {options.length < 10 && (
               <button
                 onClick={addOption}
-                className="mt-3 btn-ghost text-sm flex items-center gap-1.5 text-pangea-400 hover:text-pangea-300 overflow-hidden"
+                className="mt-3 btn-ghost text-sm flex items-center gap-1.5 text-fg-primary hover:text-fg-primary overflow-hidden"
               >
                 <Plus className="w-4 h-4 shrink-0" />
                 <span className="truncate">Add option</span>
@@ -480,13 +480,13 @@ export default function NewProposalPage() {
 
           {/* Errore */}
           {error && (
-            <div className="p-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-300 text-sm">
+            <div className="p-4 bg-danger-tint border border-theme rounded-lg text-fg-danger text-sm">
               {error}
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-700/50">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-theme">
             <button
               onClick={() => saveProposal("draft")}
               disabled={!isValid || saving || publishing}
@@ -507,7 +507,7 @@ export default function NewProposalPage() {
           </div>
 
           {!isPublishValid && (
-            <p className="text-xs text-slate-600 text-center">
+            <p className="text-xs text-fg-muted text-center">
               {!isValid
                 ? "Enter a title (min. 5 characters) and a reason (min. 20 characters)"
                 : "Add at least 2 voting options"}

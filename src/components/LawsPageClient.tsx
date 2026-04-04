@@ -46,19 +46,19 @@ export default function LawsPageClient({
     <>
       {/* Tab Navigation */}
       <div className="mb-8">
-        <div className="flex gap-1 bg-slate-800/50 rounded-lg p-1">
+        <div className="flex gap-1 bg-theme-card rounded-lg p-1">
           <button
             onClick={() => setActiveTab("living")}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium text-sm transition-all ${
               activeTab === "living"
                 ? "bg-blue-600/20 border border-blue-500/30 text-blue-300"
-                : "hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 border border-transparent"
+                : "hover:bg-theme-muted text-fg-muted hover:text-fg border border-transparent"
             }`}
           >
             <BookOpen className="w-4 h-4" />
             Living Codes
             <span className={`text-xs px-2 py-0.5 rounded-full ${
-              activeTab === "living" ? "bg-blue-500/20" : "bg-slate-700/50"
+              activeTab === "living" ? "bg-blue-500/20" : "bg-theme-muted"
             }`}>
               {totalCodes} codes &middot; {totalArticles} articles
             </span>
@@ -67,14 +67,14 @@ export default function LawsPageClient({
             onClick={() => setActiveTab("operative")}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium text-sm transition-all ${
               activeTab === "operative"
-                ? "bg-green-600/20 border border-green-500/30 text-green-300"
-                : "hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 border border-transparent"
+                ? "bg-green-600/20 border border-green-500/30 text-fg-success"
+                : "hover:bg-theme-muted text-fg-muted hover:text-fg border border-transparent"
             }`}
           >
             <Shield className="w-4 h-4" />
             Operative Laws
             <span className={`text-xs px-2 py-0.5 rounded-full ${
-              activeTab === "operative" ? "bg-green-500/20" : "bg-slate-700/50"
+              activeTab === "operative" ? "bg-green-500/20" : "bg-theme-muted"
             }`}>
               {activeCodes} codes &middot; {activeArticles} articles
             </span>
@@ -87,13 +87,13 @@ export default function LawsPageClient({
         <section>
           <div className="flex items-center gap-3 mb-4">
             <BookOpen className="w-6 h-6 text-blue-400" />
-            <h2 className="text-xl font-bold text-white">Living Codes</h2>
-            <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
+            <h2 className="text-xl font-bold text-fg">Living Codes</h2>
+            <span className="text-xs text-fg-muted bg-theme-card px-2 py-1 rounded">
               Complete Collection
             </span>
           </div>
           <div className="card border border-blue-800/20 bg-blue-900/5 p-4 mb-6">
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <p className="text-sm text-fg-muted leading-relaxed">
               <Eye className="w-4 h-4 inline mr-1 text-blue-400" />
               The complete collection of all Pangean laws — both those currently
               in force and those that will be progressively activated. Inactive laws
@@ -105,20 +105,20 @@ export default function LawsPageClient({
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="card p-4 bg-blue-900/10">
               <Scale className="w-5 h-5 text-blue-400 mb-2" />
-              <p className="text-2xl font-bold text-white">{totalCodes}</p>
-              <p className="text-xs text-slate-500">Codes</p>
+              <p className="text-2xl font-bold text-fg">{totalCodes}</p>
+              <p className="text-xs text-fg-muted">Codes</p>
             </div>
             <div className="card p-4 bg-pangea-900/10">
-              <BookOpen className="w-5 h-5 text-pangea-400 mb-2" />
-              <p className="text-2xl font-bold text-white">{totalArticles}</p>
-              <p className="text-xs text-slate-500">Articles</p>
+              <BookOpen className="w-5 h-5 text-fg-primary mb-2" />
+              <p className="text-2xl font-bold text-fg">{totalArticles}</p>
+              <p className="text-xs text-fg-muted">Articles</p>
             </div>
             <div className="card p-4 bg-green-900/10">
-              <Globe className="w-5 h-5 text-green-400 mb-2" />
-              <p className="text-2xl font-bold text-white">
+              <Globe className="w-5 h-5 text-fg-success mb-2" />
+              <p className="text-2xl font-bold text-fg">
                 {activeCodes}/{totalCodes}
               </p>
-              <p className="text-xs text-slate-500">Active Codes</p>
+              <p className="text-xs text-fg-muted">Active Codes</p>
             </div>
           </div>
 
@@ -134,15 +134,15 @@ export default function LawsPageClient({
       {activeTab === "operative" && (
         <section>
           <div className="flex items-center gap-3 mb-4">
-            <Shield className="w-6 h-6 text-green-400" />
-            <h2 className="text-xl font-bold text-white">Operative Laws</h2>
-            <span className="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded">
+            <Shield className="w-6 h-6 text-fg-success" />
+            <h2 className="text-xl font-bold text-fg">Operative Laws</h2>
+            <span className="text-xs text-fg-success bg-green-900/30 px-2 py-1 rounded">
               Currently In Force
             </span>
           </div>
           <div className="card border border-green-800/20 bg-green-900/5 p-4 mb-6">
-            <p className="text-sm text-slate-400 leading-relaxed">
-              <Shield className="w-4 h-4 inline mr-1 text-green-400" />
+            <p className="text-sm text-fg-muted leading-relaxed">
+              <Shield className="w-4 h-4 inline mr-1 text-fg-success" />
               Only the laws currently in force. When an inactive law in the Living Codes
               becomes active, it automatically appears here. These are the laws that govern
               the Commonwealth today.
@@ -151,14 +151,14 @@ export default function LawsPageClient({
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="card p-4 bg-green-900/10">
-              <Scale className="w-5 h-5 text-green-400 mb-2" />
-              <p className="text-2xl font-bold text-white">{activeCodes}</p>
-              <p className="text-xs text-slate-500">Active Codes</p>
+              <Scale className="w-5 h-5 text-fg-success mb-2" />
+              <p className="text-2xl font-bold text-fg">{activeCodes}</p>
+              <p className="text-xs text-fg-muted">Active Codes</p>
             </div>
             <div className="card p-4 bg-green-900/10">
-              <BookOpen className="w-5 h-5 text-green-400 mb-2" />
-              <p className="text-2xl font-bold text-white">{activeArticles}</p>
-              <p className="text-xs text-slate-500">Active Articles</p>
+              <BookOpen className="w-5 h-5 text-fg-success mb-2" />
+              <p className="text-2xl font-bold text-fg">{activeArticles}</p>
+              <p className="text-xs text-fg-muted">Active Articles</p>
             </div>
           </div>
 
@@ -170,11 +170,11 @@ export default function LawsPageClient({
 
           {activeTree.length === 0 && (
             <div className="text-center py-20 card">
-              <Shield className="w-16 h-16 text-slate-600 mx-auto mb-4" strokeWidth={1} />
-              <h3 className="text-xl font-semibold text-slate-300 mb-2">
+              <Shield className="w-16 h-16 text-fg-muted mx-auto mb-4" strokeWidth={1} />
+              <h3 className="text-xl font-semibold text-fg mb-2">
                 No operative laws yet
               </h3>
-              <p className="text-slate-500">
+              <p className="text-fg-muted">
                 Operative laws will appear here as the Pangea project advances.
               </p>
             </div>

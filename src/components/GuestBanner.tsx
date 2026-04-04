@@ -21,7 +21,7 @@ export default function GuestBanner() {
         <div className="flex items-center gap-2 shrink-0">
           <Link
             href="/auth"
-            className="text-xs font-medium bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg transition-colors"
+            className="text-xs font-medium bg-amber-600 hover:bg-amber-500 text-fg px-3 py-1.5 rounded-lg transition-colors"
           >
             Register
           </Link>

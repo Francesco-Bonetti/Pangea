@@ -98,15 +98,15 @@ export default function AuthPage() {
 
         <div className="relative z-10 text-center">
           <div className="flex items-center justify-center mb-8">
-            <Globe className="w-16 h-16 text-pangea-400" strokeWidth={1} />
+            <Globe className="w-16 h-16 text-fg-primary" strokeWidth={1} />
           </div>
-          <h1 className="text-5xl font-display font-bold text-white mb-3">
+          <h1 className="text-5xl font-display font-bold text-fg mb-3">
             Agora
           </h1>
-          <p className="text-pangea-300 text-lg mb-2">
+          <p className="text-fg-primary text-lg mb-2">
             Pangea Global Democratic Commonwealth
           </p>
-          <p className="text-slate-400 text-sm max-w-md leading-relaxed mb-12">
+          <p className="text-fg-muted text-sm max-w-md leading-relaxed mb-12">
             The platform where ideas become legislative proposals, proposals
             become debates, and debates become the will of the people.
           </p>
@@ -117,11 +117,11 @@ export default function AuthPage() {
               { icon: Shield, label: "Privacy by Design", desc: "Architectural GDPR compliance" },
               { icon: Users, label: "Public transparency", desc: "Debates belong to the people" },
             ].map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-3 p-3 rounded-lg bg-slate-800/30">
-                <Icon className="w-5 h-5 text-pangea-400 mt-0.5 shrink-0" />
+              <div key={label} className="flex items-start gap-3 p-3 rounded-lg bg-theme-card/30">
+                <Icon className="w-5 h-5 text-fg-primary mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-slate-200 text-sm font-medium">{label}</p>
-                  <p className="text-slate-500 text-xs">{desc}</p>
+                  <p className="text-fg text-sm font-medium">{label}</p>
+                  <p className="text-fg-muted text-xs">{desc}</p>
                 </div>
               </div>
             ))}
@@ -134,13 +134,13 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">
-            <Globe className="w-12 h-12 text-pangea-400 mx-auto mb-2" strokeWidth={1} />
-            <h1 className="text-3xl font-bold text-white">Agora</h1>
-            <p className="text-slate-400 text-sm">Pangea Global Democratic Commonwealth</p>
+            <Globe className="w-12 h-12 text-fg-primary mx-auto mb-2" strokeWidth={1} />
+            <h1 className="text-3xl font-bold text-fg">Agora</h1>
+            <p className="text-fg-muted text-sm">Pangea Global Democratic Commonwealth</p>
           </div>
 
           {/* Tab switcher */}
-          <div className="flex bg-slate-800 rounded-xl p-1 mb-8">
+          <div className="flex bg-theme-card rounded-xl p-1 mb-8">
             {(["login", "register"] as const).map((m) => (
               <button
                 key={m}
@@ -150,8 +150,8 @@ export default function AuthPage() {
                 }}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   mode === m
-                    ? "bg-pangea-600 text-white shadow-lg"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-pangea-600 text-fg shadow-lg"
+                    : "text-fg-muted hover:text-fg"
                 }`}
               >
                 {m === "login" ? "Sign In" : "Register"}
@@ -201,7 +201,7 @@ export default function AuthPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -210,16 +210,16 @@ export default function AuthPage() {
 
             {/* GDPR consent - required for registration */}
             {mode === "register" && (
-              <div className="flex items-start gap-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+              <div className="flex items-start gap-3 p-4 bg-theme-card rounded-lg border border-theme">
                 <input
                   type="checkbox"
                   id="consent"
                   checked={consent}
                   onChange={(e) => setConsent(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded border-slate-600 text-pangea-500 focus:ring-pangea-500"
+                  className="mt-0.5 w-4 h-4 rounded border-theme text-fg-primary focus:ring-pangea-500"
                 />
-                <label htmlFor="consent" className="text-xs text-slate-400 leading-relaxed cursor-pointer">
-                  <span className="text-slate-300 font-medium">Required consent (Art. 6 GDPR)</span>
+                <label htmlFor="consent" className="text-xs text-fg-muted leading-relaxed cursor-pointer">
+                  <span className="text-fg font-medium">Required consent (Art. 6 GDPR)</span>
                   <br />
                   I consent to the processing of my personal data for
                   participation in the Agora democratic platform of Pangea.
@@ -233,8 +233,8 @@ export default function AuthPage() {
               <div
                 className={`p-4 rounded-lg text-sm ${
                   message.type === "error"
-                    ? "bg-red-900/30 border border-red-700/50 text-red-300"
-                    : "bg-green-900/30 border border-green-700/50 text-green-300"
+                    ? "bg-danger-tint border border-theme text-fg-danger"
+                    : "bg-green-900/30 border border-green-700/50 text-fg-success"
                 }`}
               >
                 {message.text}
@@ -255,9 +255,9 @@ export default function AuthPage() {
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-slate-700" />
-            <span className="text-xs text-slate-500">or</span>
-            <div className="flex-1 h-px bg-slate-700" />
+            <div className="flex-1 h-px bg-theme-muted" />
+            <span className="text-xs text-fg-muted">or</span>
+            <div className="flex-1 h-px bg-theme-muted" />
           </div>
 
           {/* Guest button */}
@@ -272,7 +272,7 @@ export default function AuthPage() {
             Explore as guest
           </button>
 
-          <p className="text-center text-xs text-slate-600 mt-8">
+          <p className="text-center text-xs text-fg-muted mt-8">
             Agora · Pangea World · Privacy by Design
           </p>
         </div>

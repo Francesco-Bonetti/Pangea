@@ -135,7 +135,7 @@ export default async function DiscussionPage({
         {/* Back button */}
         <Link
           href="/social"
-          className="inline-flex items-center gap-2 text-pangea-400 hover:text-pangea-300 font-medium mb-6 transition-colors overflow-hidden"
+          className="inline-flex items-center gap-2 text-fg-primary hover:text-fg-primary font-medium mb-6 transition-colors overflow-hidden"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" />
           <span className="truncate">Back to Forum</span>
@@ -147,33 +147,33 @@ export default async function DiscussionPage({
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             {discussion.discussion_channels && (
               <>
-                <span className="inline-flex items-center gap-1.5 text-sm text-slate-300 bg-slate-700/40 px-3 py-1 rounded-full shrink-0">
+                <span className="inline-flex items-center gap-1.5 text-sm text-fg bg-theme-muted/40 px-3 py-1 rounded-full shrink-0">
                   <span className="text-base">
                     {discussion.discussion_channels.emoji}
                   </span>
                   <span className="truncate">{discussion.discussion_channels.name}</span>
                 </span>
-                <span className="text-slate-500 shrink-0">•</span>
+                <span className="text-fg-muted shrink-0">•</span>
               </>
             )}
-            <span className="text-sm text-slate-500 shrink-0">
+            <span className="text-sm text-fg-muted shrink-0">
               {formatTimeAgo(discussion.created_at)}
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl font-bold text-white mb-4 truncate">
+          <h1 className="text-3xl font-bold text-fg mb-4 truncate">
             {discussion.title}
           </h1>
 
           {/* Author info */}
-          <div className="flex items-center gap-3 py-4 border-b border-slate-700 overflow-hidden">
+          <div className="flex items-center gap-3 py-4 border-b border-theme overflow-hidden">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-200 truncate">
+              <p className="text-sm font-medium text-fg truncate">
                 {resolvePrivacyName(discussion.profiles?.full_name, privacyMap.get(discussion.author_id) || null)}
               </p>
               {discussion.profiles?.bio && (
-                <p className="text-xs text-slate-400 mt-0.5 truncate">
+                <p className="text-xs text-fg-muted mt-0.5 truncate">
                   {discussion.profiles.bio}
                 </p>
               )}
@@ -185,7 +185,7 @@ export default async function DiscussionPage({
                 </span>
               )}
               {discussion.is_locked && (
-                <span className="text-xs px-2 py-1 bg-red-900/30 text-red-400 border border-red-700/50 rounded-full shrink-0">
+                <span className="text-xs px-2 py-1 bg-danger-tint text-fg-danger border border-theme rounded-full shrink-0">
                   🔒 Locked
                 </span>
               )}
@@ -194,19 +194,19 @@ export default async function DiscussionPage({
 
           {/* Discussion body */}
           <div className="py-6 prose prose-invert max-w-none">
-            <p className="text-slate-200 leading-relaxed whitespace-pre-wrap text-[15px]">
+            <p className="text-fg leading-relaxed whitespace-pre-wrap text-[15px]">
               {discussion.body}
             </p>
           </div>
 
           {/* Tags */}
           {tags && tags.length > 0 && (
-            <div className="flex gap-2 flex-wrap mb-6 pt-4 border-t border-slate-700">
+            <div className="flex gap-2 flex-wrap mb-6 pt-4 border-t border-theme">
               {tags.map((tag: Record<string, unknown>) => (
                 <Link
                   key={tag.id as string}
                   href={`/social?tag=${tag.id}`}
-                  className="text-xs text-pangea-400 bg-pangea-900/20 px-3 py-1.5 rounded-full border border-pangea-800/30 hover:border-pangea-700/50 hover:text-pangea-300 transition-colors"
+                  className="text-xs text-fg-primary bg-pangea-900/20 px-3 py-1.5 rounded-full border border-pangea-800/30 hover:border-pangea-700/50 hover:text-fg-primary transition-colors"
                 >
                   #{tag.name as string}
                 </Link>
@@ -215,8 +215,8 @@ export default async function DiscussionPage({
           )}
 
           {/* Stats and voting */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-700">
-            <div className="flex items-center gap-4 text-sm text-slate-400">
+          <div className="flex items-center justify-between pt-4 border-t border-theme">
+            <div className="flex items-center gap-4 text-sm text-fg-muted">
               <span className="flex items-center gap-1">
                 <MessageCircle className="w-4 h-4" />
                 {discussion.replies_count || 0} replies
@@ -238,7 +238,7 @@ export default async function DiscussionPage({
 
         {/* Replies section */}
         {discussion.is_locked ? (
-          <div className="card p-8 text-center text-slate-400">
+          <div className="card p-8 text-center text-fg-muted">
             <p className="mb-2">🔒 This discussion is locked</p>
             <p className="text-sm">No new replies can be added</p>
           </div>
@@ -247,7 +247,7 @@ export default async function DiscussionPage({
             {/* Reply form */}
             {user ? (
               <div className="card p-6 mb-8">
-                <h3 className="text-lg font-semibold text-slate-200 mb-4">
+                <h3 className="text-lg font-semibold text-fg mb-4">
                   Join the Discussion
                 </h3>
                 <DiscussionThreadClient
@@ -258,12 +258,12 @@ export default async function DiscussionPage({
               </div>
             ) : (
               <div className="card p-8 text-center mb-8">
-                <p className="text-slate-400 mb-4">
+                <p className="text-fg-muted mb-4">
                   Sign in to reply to this discussion
                 </p>
                 <a
                   href="/auth"
-                  className="inline-block px-4 py-2 bg-pangea-600 hover:bg-pangea-700 text-white rounded-lg transition-colors"
+                  className="inline-block px-4 py-2 bg-pangea-600 hover:bg-pangea-700 text-fg rounded-lg transition-colors"
                 >
                   Sign In
                 </a>
@@ -273,7 +273,7 @@ export default async function DiscussionPage({
             {/* Replies list */}
             {replies && replies.length > 0 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-slate-200">
+                <h3 className="text-lg font-semibold text-fg">
                   Replies ({replies.length})
                 </h3>
                 {replies.map((reply: Record<string, unknown>) => (
@@ -281,20 +281,20 @@ export default async function DiscussionPage({
                     {/* Reply header */}
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <p className="font-medium text-slate-200">
+                        <p className="font-medium text-fg">
                           {resolvePrivacyName(
                             (reply.profiles as { full_name: string } | null)?.full_name ?? null,
                             privacyMap.get(reply.author_id as string) || null
                           )}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-fg-muted">
                           {formatTimeAgo(reply.created_at as string)}
                         </p>
                       </div>
                     </div>
 
                     {/* Reply body */}
-                    <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap mb-3">
+                    <p className="text-fg text-sm leading-relaxed whitespace-pre-wrap mb-3">
                       {reply.body as string}
                     </p>
 
@@ -302,16 +302,16 @@ export default async function DiscussionPage({
                     <div className="flex items-center gap-3 text-xs">
                       {user && (
                         <>
-                          <button className="text-slate-400 hover:text-slate-300 transition-colors">
+                          <button className="text-fg-muted hover:text-fg transition-colors">
                             👍
                           </button>
-                          <span className="text-slate-500">
+                          <span className="text-fg-muted">
                             {(reply.upvotes_count as number) || 0}
                           </span>
-                          <button className="text-slate-400 hover:text-slate-300 transition-colors">
+                          <button className="text-fg-muted hover:text-fg transition-colors">
                             👎
                           </button>
-                          <span className="text-slate-500">
+                          <span className="text-fg-muted">
                             {(reply.downvotes_count as number) || 0}
                           </span>
                         </>

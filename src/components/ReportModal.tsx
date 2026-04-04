@@ -99,13 +99,13 @@ export default function ReportModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 rounded-lg max-w-md w-full shadow-xl border border-slate-700">
+      <div className="bg-theme-card rounded-lg max-w-md w-full shadow-xl border border-theme">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700">
-          <h2 className="text-lg font-semibold text-white">Report Content</h2>
+        <div className="flex items-center justify-between p-6 border-b border-theme">
+          <h2 className="text-lg font-semibold text-fg">Report Content</h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-slate-200"
+            className="p-1 hover:bg-theme-muted rounded-lg transition-colors text-fg-muted hover:text-fg"
           >
             <X className="w-5 h-5" />
           </button>
@@ -115,14 +115,14 @@ export default function ReportModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Reason selection */}
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-3">
+            <label className="block text-sm font-medium text-fg mb-3">
               Reason for report
             </label>
             <div className="space-y-2">
               {REPORT_REASONS.map((reason) => (
                 <label
                   key={reason.value}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-slate-600 cursor-pointer hover:bg-slate-700/50 transition-colors"
+                  className="flex items-start gap-3 p-3 rounded-lg border border-theme cursor-pointer hover:bg-theme-muted transition-colors"
                 >
                   <input
                     type="radio"
@@ -133,10 +133,10 @@ export default function ReportModal({
                     className="mt-0.5 w-4 h-4 accent-pangea-600"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-100">
+                    <p className="text-sm font-medium text-fg">
                       {reason.label}
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-fg-muted mt-0.5">
                       {reason.description}
                     </p>
                   </div>
@@ -147,7 +147,7 @@ export default function ReportModal({
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-2">
+            <label className="block text-sm font-medium text-fg mb-2">
               Additional details (optional)
             </label>
             <textarea
@@ -155,13 +155,13 @@ export default function ReportModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Provide more context if needed..."
               rows={4}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none text-sm"
+              className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none text-sm"
             />
           </div>
 
           {/* Error message */}
           {error && (
-            <div className="p-3 bg-red-900/20 border border-red-800 rounded-lg text-red-300 text-sm">
+            <div className="p-3 bg-danger-tint border border-red-800 rounded-lg text-fg-danger text-sm">
               {error}
             </div>
           )}
@@ -171,14 +171,14 @@ export default function ReportModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-100 font-medium rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 bg-theme-muted hover:bg-theme-muted text-fg font-medium rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !selectedReason}
-              className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-600/50 text-fg font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Reporting..." : "Submit Report"}
             </button>
