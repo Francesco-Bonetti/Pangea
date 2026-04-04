@@ -13,8 +13,10 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
+  // Default to open (desktop assumption) — useEffect corrects for mobile
+  const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Detect mobile vs desktop
   useEffect(() => {
@@ -28,6 +30,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     }
 
     handleChange(mql);
+    setMounted(true);
     mql.addEventListener("change", handleChange);
     return () => mql.removeEventListener("change", handleChange);
   }, []);
