@@ -17,6 +17,8 @@ interface TranslatedContentProps {
   className?: string;
   /** Optional: render as a specific HTML element (default: span) */
   as?: "span" | "p" | "div" | "h1" | "h2" | "h3";
+  /** Compact mode: just show translated text, no toggle button (for cards/lists) */
+  compact?: boolean;
 }
 
 /**
@@ -31,6 +33,7 @@ export default function TranslatedContent({
   contentId,
   className = "",
   as: Tag = "span",
+  compact = false,
 }: TranslatedContentProps) {
   const { locale, t } = useLanguage();
   const [translatedText, setTranslatedText] = useState<string | null>(null);
@@ -85,13 +88,17 @@ export default function TranslatedContent({
   const hasTranslation = translatedText !== null && translatedText !== text;
   const displayText = hasTranslation && !showOriginal ? translatedText : text;
 
+  if (compact) {
+    return <Tag className={className}>{displayText}</Tag>;
+  }
+
   return (
     <>
       <Tag className={className}>{displayText}</Tag>
       {loaded && hasTranslation && (
         <span className="inline-flex items-center gap-1 ml-1">
           <button
-            onClick={() => setShowOriginal(!showOriginal)}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowOriginal(!showOriginal); }}
             className="inline-flex items-center gap-1 text-[10px] text-blue-400 hover:text-blue-300 transition-colors"
             title={showOriginal ? t("translate.showTranslation") : t("translate.showOriginal")}
           >

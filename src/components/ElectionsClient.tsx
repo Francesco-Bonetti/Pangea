@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { Vote, Plus, Users, Calendar, Trophy, Clock, ChevronRight, MapPin, Flag } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import TranslatedContent from "@/components/TranslatedContent";
 import type { Election, ElectionStatus } from "@/lib/types";
 
 function getStatusConfig(t: (key: string) => string): Record<ElectionStatus, { label: string; color: string; bg: string }> {
@@ -188,7 +189,12 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
                     {/* Title + Status */}
                     <div className="flex items-center gap-3 flex-wrap mb-2">
                       <h3 className="text-lg font-semibold text-fg group-hover:text-purple-300 transition-colors">
-                        {election.title}
+                        <TranslatedContent
+                          text={election.title}
+                          contentType="election_description"
+                          contentId={election.id}
+                          compact
+                        />
                       </h3>
                       <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${config.bg} ${config.color}`}>
                         {config.label}
@@ -206,7 +212,14 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
 
                     {/* Description */}
                     {election.description && (
-                      <p className="text-sm text-fg-muted mb-3 line-clamp-2">{election.description}</p>
+                      <p className="text-sm text-fg-muted mb-3 line-clamp-2">
+                        <TranslatedContent
+                          text={election.description}
+                          contentType="election_description"
+                          contentId={election.id}
+                          compact
+                        />
+                      </p>
                     )}
 
                     {/* Meta */}

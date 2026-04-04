@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ProposalWithResults } from "@/lib/types";
 import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
 import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle } from "lucide-react";
+import TranslatedContent from "@/components/TranslatedContent";
 
 interface ProposalCardProps {
   proposal: ProposalWithResults;
@@ -96,7 +97,12 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
             className="font-bold text-lg leading-snug truncate"
             style={{ color: "var(--foreground)" }}
           >
-            {proposal.title}
+            <TranslatedContent
+              text={proposal.title}
+              contentType="proposal_title"
+              contentId={proposal.id}
+              compact
+            />
           </h3>
         </div>
         <ChevronRight
@@ -110,7 +116,12 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
         className="text-base line-clamp-2 mb-5"
         style={{ color: "var(--muted-foreground)" }}
       >
-        {proposal.content}
+        <TranslatedContent
+          text={proposal.content}
+          contentType="proposal_content"
+          contentId={proposal.id}
+          compact
+        />
       </p>
 
       {/* Curation: signal progress bar */}

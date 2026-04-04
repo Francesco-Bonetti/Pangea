@@ -527,7 +527,7 @@ export default function PartyDetailPage() {
                       return (
                         <div key={prop.id} className="flex items-center gap-3 bg-theme-card rounded-lg p-3 overflow-hidden">
                           <Link href={`/proposals/${prop.id}`} className="flex-1 min-w-0 text-sm text-fg hover:text-fg truncate">
-                            {prop.title}
+                            <TranslatedContent text={prop.title} contentType="proposal_title" contentId={prop.id} compact />
                           </Link>
                           <div className="flex items-center gap-1 shrink-0">
                             <button

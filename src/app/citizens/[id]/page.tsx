@@ -252,7 +252,9 @@ export default async function CitizenProfilePage({ params }: Props) {
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-theme-card transition-colors overflow-hidden"
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-fg truncate">{p.title}</p>
+                        <p className="text-sm text-fg truncate">
+                          <TranslatedContent text={p.title} contentType="proposal_title" contentId={p.id} compact />
+                        </p>
                         <p className="text-xs text-fg-muted truncate">{formatDate(p.created_at)}</p>
                       </div>
                       <span className={statusConfig[p.status] || "status-draft"}>

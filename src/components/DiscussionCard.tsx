@@ -6,6 +6,7 @@ import { ArrowBigUp, ArrowBigDown, MessageCircle, Flag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Discussion } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
+import TranslatedContent from "@/components/TranslatedContent";
 
 interface DiscussionCardProps {
   discussion: Discussion;
@@ -116,7 +117,12 @@ export default function DiscussionCard({
         <div className="flex items-start justify-between gap-4 mb-3 overflow-hidden">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-fg text-base leading-snug group-hover:text-fg truncate">
-              {discussion.title}
+              <TranslatedContent
+                text={discussion.title}
+                contentType="forum_post_title"
+                contentId={discussion.id}
+                compact
+              />
             </h3>
             {discussion.discussion_channels && (
               <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -134,7 +140,12 @@ export default function DiscussionCard({
 
         {/* Preview text */}
         <p className="text-sm text-fg line-clamp-2 mb-4">
-          {preview}
+          <TranslatedContent
+            text={discussion.body}
+            contentType="forum_post_body"
+            contentId={discussion.id}
+            compact
+          />
         </p>
 
         {/* Tags if any */}

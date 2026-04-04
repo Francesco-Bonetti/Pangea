@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import ProposalCard from "@/components/ProposalCard";
 import StatCard from "@/components/StatCard";
+import TranslatedContent from "@/components/TranslatedContent";
 import type { Proposal, ProposalWithResults } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 
@@ -185,7 +186,12 @@ export default function DashboardClient({
                           className="text-sm font-medium truncate flex-1"
                           style={{ color: "var(--foreground)" }}
                         >
-                          {proposal.title}
+                          <TranslatedContent
+                            text={proposal.title}
+                            contentType="proposal_title"
+                            contentId={proposal.id}
+                            compact
+                          />
                         </span>
                         <span
                           className="text-xs shrink-0"
