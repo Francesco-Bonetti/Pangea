@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface NavbarProps {
   userEmail?: string | null;
@@ -54,7 +55,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
     : "U";
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-700 bg-slate-950/95 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b backdrop-blur-md" style={{ borderColor: 'var(--border)', backgroundColor: 'color-mix(in srgb, var(--background) 95%, transparent)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -116,6 +117,9 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
+            {/* Theme Toggle — always visible */}
+            <ThemeToggle />
+
             {isGuest ? (
               /* Guest: Sign In Button */
               <Link
@@ -179,9 +183,9 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
 
                   {/* Dropdown Menu */}
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="absolute right-0 mt-2 w-56 rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
                       {/* User Info Header */}
-                      <div className="px-4 py-3 border-b border-slate-700 bg-slate-800/50">
+                      <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'color-mix(in srgb, var(--muted) 50%, var(--card))' }}>
                         <p className="text-xs font-semibold text-white">{userName || "User"}</p>
                         <p className="text-xs text-slate-400 truncate mt-1">{userEmail}</p>
                       </div>
@@ -272,7 +276,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-700 bg-slate-900 py-4 px-4 space-y-2 animate-in slide-in-from-top duration-200 overflow-hidden">
+          <div className="md:hidden py-4 px-4 space-y-2 animate-in slide-in-from-top duration-200 overflow-hidden" style={{ borderTop: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
             {/* Navigation Links */}
             <Link
               href="/laws"

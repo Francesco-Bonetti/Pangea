@@ -3,142 +3,303 @@
 @tailwind utilities;
 
 @layer base {
+  /* ============================================
+     LIGHT THEME — Default (WCAG 2.1 AA compliant)
+     No pure white (#fff) — uses Slate-50 to avoid glare.
+     ============================================ */
   :root {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
+    --background: #f8fafc;       /* Slate 50 */
+    --foreground: #0f172a;       /* Slate 900 */
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --primary: #1e3a8a;          /* Blue 900 — institutional authority */
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;        /* Slate 100 */
+    --secondary-foreground: #1e293b;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b; /* Slate 500 */
+    --accent: #f1f5f9;
+    --accent-foreground: #1e293b;
+    --destructive: #b91c1c;      /* Red 700 — rust, accessible */
+    --destructive-foreground: #ffffff;
+    --success: #15803d;          /* Green 700 — protanopia safe */
+    --success-foreground: #ffffff;
+    --border: #e2e8f0;           /* Slate 200 */
+    --input: #e2e8f0;
+    --ring: #1e3a8a;
+    --radius: 0.5rem;
   }
 
+  /* ============================================
+     DARK THEME — No pure black (#000).
+     Uses Slate-900/950 for depth without halation.
+     ============================================ */
+  .dark {
+    --background: #0f172a;       /* Slate 900 */
+    --foreground: #f1f5f9;       /* Slate 100 */
+    --card: #1e293b;             /* Slate 800 */
+    --card-foreground: #f1f5f9;
+    --primary: #3b82f6;          /* Blue 500 — brighter for dark bg contrast */
+    --primary-foreground: #ffffff;
+    --secondary: #1e293b;
+    --secondary-foreground: #f1f5f9;
+    --muted: #334155;            /* Slate 700 */
+    --muted-foreground: #94a3b8; /* Slate 400 */
+    --accent: #1e293b;
+    --accent-foreground: #f1f5f9;
+    --destructive: #ef4444;      /* Red 500 */
+    --destructive-foreground: #ffffff;
+    --success: #22c55e;          /* Green 500 */
+    --success-foreground: #ffffff;
+    --border: #334155;           /* Slate 700 */
+    --input: #334155;
+    --ring: #3b82f6;
+  }
+
+  /* Global base styles */
   body {
-    @apply bg-[#0c1220] text-slate-100 antialiased;
-    font-size: 16px;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: 16px;             /* WCAG minimum — never below 1rem */
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Prevent any element from overflowing the viewport horizontally */
   main {
     overflow-x: hidden;
     word-break: break-word;
   }
 
   * {
-    @apply border-slate-700;
+    border-color: var(--border);
   }
 
-  /* Improved text contrast defaults */
   p {
-    @apply text-slate-100;
+    color: var(--foreground);
   }
 
-  /* Links should be clearly visible */
   a {
-    @apply text-pangea-400 hover:text-pangea-300 transition-colors duration-200;
+    @apply transition-colors duration-200;
+    color: var(--primary);
+  }
+  a:hover {
+    opacity: 0.8;
   }
 
-  /* Headings: always high contrast */
   h1, h2, h3, h4, h5, h6 {
-    @apply text-white;
+    color: var(--foreground);
+    font-weight: 700;
+  }
+
+  /* Typography scale (Inter sans-serif for UI) */
+  h1 { font-size: 1.5rem; }    /* 24px desktop */
+  h2 { font-size: 1.125rem; }  /* 18px */
+
+  /* Legal text: Merriweather serif for immersive reading */
+  .font-legal {
+    font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
   }
 }
 
 @layer components {
+  /* ============================================
+     BUTTONS — use CSS vars for theme adaptivity
+     ============================================ */
   .btn-primary {
-    @apply bg-pangea-600 hover:bg-pangea-500 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 shadow-lg hover:shadow-pangea-500/40 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.05] active:scale-95;
+    @apply font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.05] active:scale-95;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
   }
-
   .btn-primary:hover {
-    filter: drop-shadow(0 0 12px rgba(124, 58, 202, 0.4));
+    filter: brightness(1.1);
   }
 
   .btn-secondary {
-    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95;
+    @apply font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95;
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
+  }
+  .btn-secondary:hover {
+    filter: brightness(0.95);
+  }
+  .dark .btn-secondary:hover {
+    filter: brightness(1.2);
   }
 
   .btn-ghost {
-    @apply text-slate-300 hover:text-slate-100 hover:bg-slate-800/80 px-4 py-2 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95;
+    @apply px-4 py-2 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95;
+    color: var(--muted-foreground);
+  }
+  .btn-ghost:hover {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
   }
 
   .btn-danger {
-    @apply bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg hover:shadow-red-500/30;
+    @apply font-semibold px-6 py-2.5 rounded-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg;
+    background-color: var(--destructive);
+    color: var(--destructive-foreground);
+  }
+  .btn-danger:hover {
+    filter: brightness(1.1);
   }
 
+  /* ============================================
+     CARDS
+     ============================================ */
   .card {
-    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5 transition-all duration-300 hover:border-slate-500/80 hover:bg-slate-800/80 hover:shadow-lg hover:shadow-slate-900/50 overflow-hidden;
+    @apply rounded-xl p-5 transition-all duration-300 hover:shadow-lg overflow-hidden;
+    background-color: var(--card);
+    color: var(--card-foreground);
+    border: 1px solid var(--border);
+  }
+  .card:hover {
+    border-color: var(--muted-foreground);
   }
 
-  /* Static card variant — no hover transform (for containers, info boxes) */
   .card-static {
-    @apply bg-slate-800/70 border border-slate-600/60 rounded-xl backdrop-blur-sm p-5 overflow-hidden;
+    @apply rounded-xl p-5 overflow-hidden;
+    background-color: var(--card);
+    color: var(--card-foreground);
+    border: 1px solid var(--border);
   }
 
+  /* ============================================
+     FORM INPUTS
+     ============================================ */
   .input-field {
-    @apply w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 text-base placeholder-slate-400 focus:outline-none focus:border-pangea-500 focus:ring-2 focus:ring-pangea-500/40 transition-all duration-300 hover:border-slate-500;
+    @apply w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 transition-all duration-300;
+    background-color: var(--card);
+    border: 1px solid var(--input);
+    color: var(--foreground);
+    --tw-ring-color: var(--ring);
+  }
+  .input-field::placeholder {
+    color: var(--muted-foreground);
+  }
+  .input-field:focus {
+    border-color: var(--primary);
+  }
+  .input-field:hover {
+    border-color: var(--muted-foreground);
   }
 
   .label {
-    @apply block text-sm font-medium text-slate-200 mb-1.5;
+    @apply block text-sm font-medium mb-1.5;
+    color: var(--foreground);
   }
 
-  /* Textarea with better defaults */
   .textarea-field {
-    @apply w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-slate-100 text-base placeholder-slate-400 focus:outline-none focus:border-pangea-500 focus:ring-2 focus:ring-pangea-500/40 transition-all duration-300 hover:border-slate-500 resize-y min-h-[120px];
+    @apply w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 transition-all duration-300 resize-y min-h-[120px];
+    background-color: var(--card);
+    border: 1px solid var(--input);
+    color: var(--foreground);
+    --tw-ring-color: var(--ring);
+  }
+  .textarea-field::placeholder {
+    color: var(--muted-foreground);
+  }
+  .textarea-field:focus {
+    border-color: var(--primary);
+  }
+  .textarea-field:hover {
+    border-color: var(--muted-foreground);
   }
 
-  /* Status badges with improved contrast */
+  /* ============================================
+     STATUS BADGES
+     ============================================ */
   .status-draft {
-    @apply bg-slate-700 text-slate-100 text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    background-color: var(--muted);
+    color: var(--muted-foreground);
   }
 
   .status-active {
-    @apply bg-pangea-900/50 text-pangea-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-pangea-700/50 transition-colors duration-200;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    background-color: color-mix(in srgb, var(--primary) 15%, transparent);
+    color: var(--primary);
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
   }
 
   .status-review {
-    @apply bg-amber-900/30 text-amber-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-700/50 transition-colors duration-200;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    background-color: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #d97706;
+    border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
   }
 
   .status-curation {
-    @apply bg-amber-900/30 text-amber-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-700/50 transition-colors duration-200;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    background-color: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #d97706;
+    border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
   }
 
   .status-closed {
-    @apply bg-slate-700/50 text-slate-200 text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    background-color: var(--muted);
+    color: var(--muted-foreground);
   }
 
   .status-repealed {
-    @apply bg-red-900/30 text-red-100 text-xs font-semibold px-2.5 py-1 rounded-full border border-red-700/50 transition-colors duration-200;
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    background-color: color-mix(in srgb, var(--destructive) 15%, transparent);
+    color: var(--destructive);
+    border: 1px solid color-mix(in srgb, var(--destructive) 30%, transparent);
   }
 
-  /* Text contrast utilities — WCAG AA minimum on dark bg */
+  /* ============================================
+     TEXT UTILITIES — WCAG AA on both themes
+     ============================================ */
   .text-readable {
-    @apply text-slate-100 font-medium;
+    @apply font-medium;
+    color: var(--foreground);
   }
 
   .text-secondary {
-    @apply text-slate-300;
+    color: var(--muted-foreground);
   }
 
   .text-tertiary {
-    @apply text-slate-400;
+    color: var(--muted-foreground);
+    opacity: 0.8;
   }
 
   .text-muted {
-    @apply text-slate-500;
+    color: var(--muted-foreground);
+    opacity: 0.6;
   }
 
-  /* Info box — for explanations, tips. Always clearly visible on dark bg. */
+  /* ============================================
+     INFO BOXES
+     ============================================ */
   .info-box {
-    @apply rounded-xl p-4 border border-pangea-600/50 border-l-4 border-l-pangea-400 bg-pangea-950/50 backdrop-blur-sm overflow-hidden;
+    @apply rounded-xl p-4 border-l-4 overflow-hidden;
+    background-color: color-mix(in srgb, var(--primary) 8%, var(--card));
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+    border-left-color: var(--primary);
   }
 
   .info-box-amber {
-    @apply rounded-xl p-4 border border-amber-600/50 border-l-4 border-l-amber-400 bg-amber-950/50 backdrop-blur-sm overflow-hidden;
+    @apply rounded-xl p-4 border-l-4 overflow-hidden;
+    background-color: color-mix(in srgb, #f59e0b 8%, var(--card));
+    border-color: color-mix(in srgb, #f59e0b 30%, transparent);
+    border-left-color: #f59e0b;
   }
 
-  /* Page loading bar animation */
+  /* ============================================
+     LOADING STATES
+     ============================================ */
   .page-loading {
     @apply fixed top-0 left-0 h-1 z-50;
-    background: linear-gradient(90deg, #7c3acc, #6d28d9, #7c3acc);
+    background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 70%, white), var(--primary));
     background-size: 200% 100%;
     animation: page-loading-progress 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
@@ -147,26 +308,32 @@
     @apply opacity-0 transition-opacity duration-500;
   }
 
-  /* Glass morphism effect */
   .glass-effect {
-    @apply bg-slate-800/40 backdrop-blur-md border border-slate-700/40;
+    @apply backdrop-blur-md;
+    background-color: color-mix(in srgb, var(--card) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
   }
 
-  /* Skeleton loading placeholder */
   .skeleton {
-    @apply bg-slate-700/50 rounded-lg animate-pulse;
+    @apply rounded-lg animate-pulse;
+    background-color: var(--muted);
   }
 
   .skeleton-text {
-    @apply h-4 bg-slate-700/50 rounded animate-pulse;
+    @apply h-4 rounded animate-pulse;
+    background-color: var(--muted);
   }
 
   .skeleton-card {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 space-y-4;
+    @apply rounded-xl p-6 space-y-4;
+    background-color: color-mix(in srgb, var(--card) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
   }
 }
 
-/* Global loading indicator - YouTube-style top progress bar */
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 @keyframes page-loading-progress {
   0% {
     left: 0;
@@ -192,7 +359,7 @@
 
 .global-loading {
   @apply fixed top-0 left-0 h-1 z-50;
-  background: linear-gradient(90deg, #7c3acc, #6d28d9, #7c3acc);
+  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 70%, white), var(--primary));
   background-size: 200% 100%;
   animation: page-loading-progress 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
@@ -201,14 +368,13 @@
   @apply opacity-0 transition-opacity duration-500 ease-out;
 }
 
-/* Shimmer skeleton loading effect */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
 .shimmer {
-  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background: linear-gradient(90deg, var(--muted) 25%, var(--border) 50%, var(--muted) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -221,7 +387,8 @@
 
 /* Smooth focus ring utility */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-pangea-500/50 transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 transition-all duration-200;
+  --tw-ring-color: color-mix(in srgb, var(--ring) 50%, transparent);
 }
 
 /* Button group styling */
@@ -235,17 +402,24 @@
   @apply flex-1 text-center;
 }
 
-/* Improved link hover effects */
+/* Link hover effects */
 .link-hover {
-  @apply cursor-pointer transition-all duration-200 hover:text-pangea-300;
+  @apply cursor-pointer transition-all duration-200;
+  color: var(--primary);
+}
+.link-hover:hover {
+  opacity: 0.8;
 }
 
 /* Premium box shadow for depth */
 .shadow-premium {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+}
+.dark .shadow-premium {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
-/* Smooth transitions on interactive elements only — avoids perf issues on * */
+/* Smooth transitions on interactive elements only */
 a, button, input, select, textarea,
 [role="button"], [tabindex] {
   @apply transition-colors duration-200;
@@ -256,28 +430,30 @@ a, button, input, select, textarea,
   @apply opacity-50 cursor-not-allowed;
 }
 
-/* Law content — better readability for long text */
+/* Law content — Merriweather serif for immersive legislative reading */
 .law-content {
-  @apply text-slate-200 text-[15px] leading-[1.75] whitespace-pre-wrap;
-  font-family: Georgia, 'Times New Roman', serif;
+  @apply text-base leading-[1.75] whitespace-pre-wrap;
+  font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+  color: var(--foreground);
 }
 
-/* Scrollbar styling for dark theme */
+/* Scrollbar styling — adapts to theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-900;
+  background-color: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-700 rounded-full;
+  background-color: var(--muted);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-600;
+  background-color: var(--muted-foreground);
 }
 
 /* Empty state styling */
@@ -286,13 +462,16 @@ a, button, input, select, textarea,
 }
 
 .empty-state-icon {
-  @apply w-16 h-16 text-slate-600 mx-auto mb-4;
+  @apply w-16 h-16 mx-auto mb-4;
+  color: var(--muted-foreground);
 }
 
 .empty-state-title {
-  @apply text-lg font-semibold text-slate-300 mb-2;
+  @apply text-lg font-semibold mb-2;
+  color: var(--foreground);
 }
 
 .empty-state-text {
-  @apply text-slate-400 max-w-md mx-auto text-sm;
+  @apply max-w-md mx-auto text-sm;
+  color: var(--muted-foreground);
 }

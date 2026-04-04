@@ -1,5 +1,20 @@
 import type { Metadata } from "next";
+import { Inter, Merriweather } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "700"],
+  variable: "--font-merriweather",
+});
 
 export const metadata: Metadata = {
   title: "Agora — Pangea Democratic Platform",
@@ -19,8 +34,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-[#0c1220]">{children}</body>
+    <html
+      lang="en"
+      className={`${inter.variable} ${merriweather.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen font-sans">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
