@@ -16,6 +16,8 @@ import {
   Loader2,
   Info,
   AlertCircle,
+  Pencil,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import type { Jurisdiction, Profile } from "@/lib/types";
@@ -34,6 +36,12 @@ export default function JurisdictionsPage() {
   >([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Editing jurisdiction
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
 
   // Create jurisdiction modal
   const [showCreate, setShowCreate] = useState(false);
@@ -187,6 +195,31 @@ export default function JurisdictionsPage() {
     loadData();
   }
 
+  function startEditing(j: Jurisdiction & { member_count: number; is_member: boolean; founder_name: string | null }) {
+    setEditingId(j.id);
+    setEditName(j.name);
+    setEditDesc(j.description || "");
+  }
+
+  async function handleSaveEdit() {
+    if (!editingId || !editName.trim()) return;
+    setEditSaving(true);
+    const { error: updateError } = await supabase
+      .from("jurisdictions")
+      .update({
+        name: editName.trim(),
+        description: editDesc.trim() || null,
+      })
+      .eq("id", editingId);
+    if (updateError) {
+      setError(updateError.message);
+    } else {
+      setEditingId(null);
+      loadData();
+    }
+    setEditSaving(false);
+  }
+
   const filtered = jurisdictions.filter(
     (j) =>
       j.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -312,53 +345,105 @@ export default function JurisdictionsPage() {
                   </div>
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h3 className="text-lg font-semibold text-fg truncate">
-                        {j.name}
-                      </h3>
-                      {j.is_member && (
-                        <span className="text-xs bg-pangea-900/40 text-fg-primary px-2 py-0.5 rounded-full shrink-0">
-                          Joined
-                        </span>
-                      )}
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
-                          j.type === "virtual"
-                            ? "bg-blue-900/30 text-blue-300"
-                            : "bg-green-900/30 text-fg-success"
-                        }`}
-                      >
-                        {j.type === "virtual" ? (
-                          <span className="flex items-center gap-1">
-                            <Globe className="w-3 h-3" /> Virtual
+                    {editingId === j.id ? (
+                      /* ── Inline edit mode ── */
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          className="input-field text-sm"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          placeholder="Jurisdiction name"
+                          maxLength={100}
+                          autoFocus
+                        />
+                        <textarea
+                          className="input-field text-sm min-h-[60px] resize-y"
+                          value={editDesc}
+                          onChange={(e) => setEditDesc(e.target.value)}
+                          placeholder="Description (optional)"
+                          maxLength={500}
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={handleSaveEdit}
+                            disabled={editSaving || !editName.trim()}
+                            className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1"
+                          >
+                            {editSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="btn-secondary text-xs px-3 py-1.5"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* ── Normal view ── */
+                      <>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h3 className="text-lg font-semibold text-fg truncate">
+                            {j.name}
+                          </h3>
+                          {j.is_member && (
+                            <span className="text-xs bg-pangea-900/40 text-fg-primary px-2 py-0.5 rounded-full shrink-0">
+                              Joined
+                            </span>
+                          )}
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
+                              j.type === "virtual"
+                                ? "bg-blue-900/30 text-blue-300"
+                                : "bg-green-900/30 text-fg-success"
+                            }`}
+                          >
+                            {j.type === "virtual" ? (
+                              <span className="flex items-center gap-1">
+                                <Globe className="w-3 h-3" /> Virtual
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" /> Geographic
+                              </span>
+                            )}
                           </span>
-                        ) : (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> Geographic
-                          </span>
+                          {/* Edit button for founder */}
+                          {user && j.founder_id === user.id && (
+                            <button
+                              onClick={() => startEditing(j)}
+                              className="p-1 rounded-md hover:bg-[var(--muted)] transition-colors"
+                              style={{ color: "var(--muted-foreground)" }}
+                              title="Edit jurisdiction"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        {j.description && (
+                          <p className="text-sm text-fg-muted line-clamp-2 mb-2">
+                            {j.description}
+                          </p>
                         )}
-                      </span>
-                    </div>
-                    {j.description && (
-                      <p className="text-sm text-fg-muted line-clamp-2 mb-2">
-                        {j.description}
-                      </p>
+                        {j.location_name && (
+                          <p className="text-xs text-fg-muted flex items-center gap-1 mb-2">
+                            <MapPin className="w-3 h-3" /> {j.location_name}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4 text-xs text-fg-muted">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" /> {j.member_count}{" "}
+                            {j.member_count === 1 ? "member" : "members"}
+                          </span>
+                          <span>
+                            Founded by{" "}
+                            <PrivacyName userId={j.founder_id} fullName={j.founder_name} />
+                          </span>
+                        </div>
+                      </>
                     )}
-                    {j.location_name && (
-                      <p className="text-xs text-fg-muted flex items-center gap-1 mb-2">
-                        <MapPin className="w-3 h-3" /> {j.location_name}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-4 text-xs text-fg-muted">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" /> {j.member_count}{" "}
-                        {j.member_count === 1 ? "member" : "members"}
-                      </span>
-                      <span>
-                        Founded by{" "}
-                        <PrivacyName userId={j.founder_id} fullName={j.founder_name} />
-                      </span>
-                    </div>
                   </div>
                   {/* Action */}
                   <div className="shrink-0">
@@ -369,9 +454,9 @@ export default function JurisdictionsPage() {
                       >
                         <Plus className="w-3.5 h-3.5" /> Join
                       </button>
-                    ) : (
+                    ) : editingId !== j.id ? (
                       <ChevronRight className="w-5 h-5 text-fg-muted" />
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>
