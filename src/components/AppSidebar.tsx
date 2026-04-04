@@ -22,6 +22,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { useSidebar } from "@/components/sidebar-provider";
+import { useLanguage } from "@/components/language-provider";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -34,21 +35,21 @@ interface AppSidebarProps {
   pendingDelegations?: number;
 }
 
-/* ── Navigation structure ── */
+/* ── Navigation structure (keys reference i18n) ── */
 const mainNavItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/laws", label: "Laws", icon: BookOpen },
-  { href: "/parties", label: "Parties", icon: Flag },
-  { href: "/elections", label: "Elections", icon: Vote },
-  { href: "/social", label: "Forum", icon: MessageCircle },
-  { href: "/jurisdictions", label: "Jurisdictions", icon: Map },
-  { href: "/about", label: "About", icon: Info },
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/laws", labelKey: "nav.laws", icon: BookOpen },
+  { href: "/parties", labelKey: "nav.parties", icon: Flag },
+  { href: "/elections", labelKey: "nav.elections", icon: Vote },
+  { href: "/social", labelKey: "nav.forum", icon: MessageCircle },
+  { href: "/jurisdictions", labelKey: "nav.jurisdictions", icon: Map },
+  { href: "/about", labelKey: "nav.about", icon: Info },
 ];
 
 const userNavItems = [
-  { href: "/feed", label: "Feed", icon: Rss },
-  { href: "/messages", label: "Messages", icon: Mail },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/feed", labelKey: "nav.feed", icon: Rss },
+  { href: "/messages", labelKey: "nav.messages", icon: Mail },
+  { href: "/settings", labelKey: "nav.settings", icon: Settings },
 ];
 
 export default function AppSidebar({
@@ -60,6 +61,7 @@ export default function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
   const { isOpen, isMobile, close, toggle } = useSidebar();
+  const { t } = useLanguage();
   const router = useRouter();
   const supabase = createClient();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -156,7 +158,7 @@ export default function AppSidebar({
               onClick={handleNavClick}
             >
               <Plus className="w-4 h-4" />
-              New Proposal
+              {t("nav.newProposal")}
             </Link>
           </div>
         )}
@@ -164,7 +166,7 @@ export default function AppSidebar({
         {/* ── Main navigation ── */}
         <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1 sidebar-scrollbar">
           <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
-            Navigation
+            {t("nav.navigation")}
           </p>
           {mainNavItems.map((item) => {
             const active = isActive(item.href);
@@ -181,7 +183,7 @@ export default function AppSidebar({
                 `}
               >
                 <Icon className="w-[18px] h-[18px] shrink-0" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
@@ -191,7 +193,7 @@ export default function AppSidebar({
             <>
               <div className="my-3 mx-3" style={{ borderTop: "1px solid var(--border)" }} />
               <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
-                Your Space
+                {t("nav.yourSpace")}
               </p>
               {userNavItems.map((item) => {
                 const active = isActive(item.href);
@@ -208,7 +210,7 @@ export default function AppSidebar({
                     `}
                   >
                     <Icon className="w-[18px] h-[18px] shrink-0" />
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 );
               })}
@@ -224,7 +226,7 @@ export default function AppSidebar({
                 `}
               >
                 <Users className="w-[18px] h-[18px] shrink-0" />
-                <span className="flex-1">Delegations</span>
+                <span className="flex-1">{t("nav.delegations")}</span>
                 {pendingDelegations > 0 && (
                   <span className="px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full">
                     {pendingDelegations}
@@ -244,7 +246,7 @@ export default function AppSidebar({
                   `}
                 >
                   <Shield className="w-[18px] h-[18px] shrink-0 text-amber-500" />
-                  Admin Panel
+                  {t("nav.adminPanel")}
                 </Link>
               )}
             </>
@@ -263,7 +265,7 @@ export default function AppSidebar({
               className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-fg text-sm font-medium rounded-lg transition-all duration-150"
             >
               <LogIn className="w-4 h-4" />
-              Sign In
+              {t("nav.signIn")}
             </Link>
           ) : (
             <div className="space-y-2">
@@ -289,7 +291,7 @@ export default function AppSidebar({
                 className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed sidebar-nav-inactive"
               >
                 <LogOut className="w-[18px] h-[18px] shrink-0 text-fg-danger" />
-                {loggingOut ? "Logging out..." : "Logout"}
+                {loggingOut ? t("nav.loggingOut") : t("nav.logout")}
               </button>
             </div>
           )}

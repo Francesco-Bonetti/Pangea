@@ -3,19 +3,23 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { Globe, Shield, Users, Vote, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Globe, Shield, Users, Vote, Eye, EyeOff, Loader2, Languages } from "lucide-react";
+import { SUPPORTED_LOCALES, type Locale } from "@/lib/i18n";
+import { useLanguage } from "@/components/language-provider";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState<Locale>("en");
   const [showPassword, setShowPassword] = useState(false);
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
   const router = useRouter();
   const supabase = createClient();
+  const { setLocale, t } = useLanguage();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -42,27 +46,49 @@ export default function AuthPage() {
 
     try {
       if (mode === "register") {
-        const { error } = await supabase.auth.signUp({
+        const { error, data } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: fullName },
+            data: { full_name: fullName, preferred_language: selectedLanguage },
             emailRedirectTo: `${window.location.origin}/auth/callback`,
           },
         });
 
         if (error) throw error;
+
+        // Save language preference to profile if user was created
+        if (data.user) {
+          await supabase.from("profiles").update({ preferred_language: selectedLanguage }).eq("id", data.user.id);
+        }
+
+        // Apply language immediately
+        setLocale(selectedLanguage);
+
         setMessage({
           type: "success",
-          text: "Registration complete! Check your email to confirm your account.",
+          text: t("auth.signUp") + " — " + "Registration complete! Check your email to confirm your account.",
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
+
+        // Load user's saved language preference
+        if (data.user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("preferred_language")
+            .eq("id", data.user.id)
+            .single();
+          if (profile?.preferred_language) {
+            setLocale(profile.preferred_language as Locale);
+          }
+        }
+
         router.push("/dashboard");
         router.refresh();
       }
@@ -161,17 +187,44 @@ export default function AuthPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {mode === "register" && (
-              <div>
-                <label className="label">Full name</label>
-                <input
-                  type="text"
-                  className="input-field"
-                  placeholder="John Smith"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={mode === "register"}
-                />
-              </div>
+              <>
+                <div>
+                  <label className="label">Full name</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="John Smith"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={mode === "register"}
+                  />
+                </div>
+
+                {/* Language selection at registration */}
+                <div>
+                  <label className="label flex items-center gap-2">
+                    <Languages className="w-4 h-4" />
+                    Preferred Language
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SUPPORTED_LOCALES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => setSelectedLanguage(lang.code as Locale)}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all duration-150 ${
+                          selectedLanguage === lang.code
+                            ? "border-blue-500 bg-blue-500/10 text-fg"
+                            : "border-theme bg-theme-card text-fg-muted hover:border-blue-500/50"
+                        }`}
+                      >
+                        <span className="text-lg">{lang.flag}</span>
+                        <span>{lang.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
 
             <div>

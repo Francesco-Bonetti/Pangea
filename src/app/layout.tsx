@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Merriweather } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/Toast";
+import { LanguageProvider } from "@/components/language-provider";
 import BugReportButton from "@/components/BugReportButton";
+import AiAssistant from "@/components/AiAssistant";
 import "./globals.css";
 
 const inter = Inter({
@@ -48,10 +50,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ToastProvider>
-            {children}
-            <BugReportButton />
-          </ToastProvider>
+          <LanguageProvider>
+            <ToastProvider>
+              {children}
+              <AiAssistant />
+              <BugReportButton />
+            </ToastProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

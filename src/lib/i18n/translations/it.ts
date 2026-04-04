@@ -1,0 +1,267 @@
+import type { TranslationKeys } from "./en";
+
+const it: TranslationKeys = {
+  // ── Navigazione ──
+  nav: {
+    dashboard: "Pannello",
+    laws: "Leggi",
+    parties: "Partiti",
+    elections: "Elezioni",
+    forum: "Forum",
+    jurisdictions: "Giurisdizioni",
+    about: "Informazioni",
+    feed: "Notizie",
+    messages: "Messaggi",
+    settings: "Impostazioni",
+    delegations: "Deleghe",
+    adminPanel: "Pannello Admin",
+    newProposal: "Nuova Proposta",
+    signIn: "Accedi",
+    logout: "Esci",
+    loggingOut: "Disconnessione...",
+    navigation: "Navigazione",
+    yourSpace: "Il Tuo Spazio",
+    search: "Cerca leggi, proposte, cittadini...",
+  },
+
+  // ── Pannello ──
+  dashboard: {
+    title: "Pannello",
+    welcome: "Bentornato",
+    recentProposals: "Proposte Recenti",
+    activeLaws: "Leggi Attive",
+    yourDelegations: "Le Tue Deleghe",
+    platformStats: "Statistiche Piattaforma",
+    citizens: "Cittadini",
+    proposals: "Proposte",
+    laws: "Leggi",
+    viewAll: "Vedi Tutto",
+    inDeliberation: "In Deliberazione",
+    inReview: "In Revisione Comunitaria",
+    drafts: "Bozze",
+    approved: "Approvate",
+    rejected: "Respinte",
+  },
+
+  // ── Leggi ──
+  laws: {
+    title: "I Codici Viventi di Pangea",
+    description: "Il corpo completo della legge di Pangea — codici viventi modificabili e abrogabili attraverso il processo democratico. Ogni legge ha una versione tecnica e una spiegazione semplificata.",
+    allLaws: "Tutte le Leggi",
+    operativeLaws: "Leggi Operative",
+    codes: "Codici",
+    articles: "Articoli",
+    active: "Attivo",
+    inactive: "Inattivo",
+    technical: "Tecnico",
+    simplified: "Semplificato",
+    positions: "Posizioni",
+    noPositions: "Nessuna posizione richiesta per questa legge.",
+    applyForPosition: "Candidati per la Posizione",
+    electedOfficial: "Funzionario Eletto",
+    vacant: "Vacante",
+    viewHistory: "Vedi Storico",
+  },
+
+  // ── Proposte ──
+  proposals: {
+    title: "Proposte",
+    newProposal: "Nuova Proposta",
+    editProposal: "Modifica Proposta",
+    submit: "Invia Proposta",
+    save: "Salva Bozza",
+    proposalTitle: "Titolo",
+    summary: "Riepilogo",
+    content: "Contenuto",
+    simplifiedContent: "Spiegazione Semplificata",
+    tags: "Tag",
+    votingDuration: "Durata Votazione",
+    days: "giorni",
+    customDuration: "Durata Personalizzata",
+    noExpiry: "Nessuna Scadenza",
+    lawPosition: "Posizione nell'Albero delle Leggi",
+    status: "Stato",
+    draft: "Bozza",
+    deliberation: "Deliberazione",
+    communityReview: "Revisione Comunitaria",
+    voting: "Votazione",
+    approved: "Approvata",
+    rejected: "Respinta",
+    voteYes: "Vota Sì",
+    voteNo: "Vota No",
+    abstain: "Astieniti",
+  },
+
+  // ── Elezioni ──
+  elections: {
+    title: "Elezioni",
+    newElection: "Nuova Elezione",
+    candidates: "Candidati",
+    applyAsCandidate: "Candidati",
+    withdrawCandidacy: "Ritira Candidatura",
+    votingOpen: "Votazione Aperta",
+    votingClosed: "Votazione Chiusa",
+    upcoming: "In Arrivo",
+    results: "Risultati",
+    winner: "Vincitore",
+    votes: "voti",
+  },
+
+  // ── Partiti ──
+  parties: {
+    title: "Partiti Politici",
+    createParty: "Crea Partito",
+    joinParty: "Unisciti al Partito",
+    leaveParty: "Lascia il Partito",
+    members: "Membri",
+    leader: "Leader",
+    description: "Descrizione",
+    manifesto: "Manifesto",
+  },
+
+  // ── Giurisdizioni ──
+  jurisdictions: {
+    title: "Giurisdizioni",
+    createJurisdiction: "Crea Giurisdizione",
+    type: "Tipo",
+    virtual: "Virtuale",
+    geographic: "Geografica",
+    parentJurisdiction: "Giurisdizione Madre",
+    activeLaws: "Leggi Attive",
+    citizens: "Cittadini",
+  },
+
+  // ── Forum / Social ──
+  forum: {
+    title: "Forum della Comunità",
+    newDiscussion: "Nuova Discussione",
+    newChannel: "Nuovo Canale",
+    channels: "Canali",
+    discussions: "Discussioni",
+    replies: "Risposte",
+    upvote: "Mi piace",
+    downvote: "Non mi piace",
+    report: "Segnala",
+    pinned: "In Evidenza",
+  },
+
+  // ── Messaggi ──
+  messages: {
+    title: "Messaggi",
+    newConversation: "Nuova Conversazione",
+    typeMessage: "Scrivi un messaggio...",
+    send: "Invia",
+    noMessages: "Nessun messaggio ancora",
+    encrypted: "I messaggi sono crittografati end-to-end",
+    setupKeys: "Configura Chiavi di Crittografia",
+    entityBadge: {
+      jurisdiction: "Giurisdizione",
+      party: "Partito",
+      citizen: "Cittadino",
+    },
+  },
+
+  // ── Impostazioni ──
+  settings: {
+    title: "Impostazioni",
+    profile: "Profilo",
+    privacy: "Privacy",
+    security: "Sicurezza",
+    notifications: "Notifiche",
+    email: "Email",
+    emails: "Indirizzi Email",
+    primaryEmail: "Email Principale",
+    addEmail: "Aggiungi Email",
+    removeEmail: "Rimuovi",
+    makePrimary: "Rendi Principale",
+    changeEmail: "Cambia Email",
+    fullName: "Nome Completo",
+    bio: "Biografia",
+    save: "Salva Modifiche",
+    saved: "Modifiche Salvate",
+    language: "Lingua",
+  },
+
+  // ── Autenticazione ──
+  auth: {
+    signIn: "Accedi",
+    signUp: "Registrati",
+    email: "Indirizzo Email",
+    password: "Password",
+    confirmPassword: "Conferma Password",
+    forgotPassword: "Password Dimenticata?",
+    noAccount: "Non hai un account?",
+    hasAccount: "Hai già un account?",
+    register: "Registrati",
+    login: "Accedi",
+  },
+
+  // ── Comune ──
+  common: {
+    loading: "Caricamento...",
+    error: "Si è verificato un errore",
+    save: "Salva",
+    cancel: "Annulla",
+    delete: "Elimina",
+    edit: "Modifica",
+    back: "Indietro",
+    backToDashboard: "Torna al Pannello",
+    next: "Avanti",
+    previous: "Precedente",
+    submit: "Invia",
+    confirm: "Conferma",
+    close: "Chiudi",
+    search: "Cerca",
+    noResults: "Nessun risultato trovato",
+    viewMore: "Vedi Altro",
+    required: "Obbligatorio",
+    optional: "Facoltativo",
+    yes: "Sì",
+    no: "No",
+    or: "o",
+    and: "e",
+    of: "di",
+    all: "Tutto",
+    none: "Nessuno",
+    createdAt: "Creato",
+    updatedAt: "Aggiornato",
+  },
+
+  // ── Assistente AI ──
+  ai: {
+    title: "Assistente AI Pangea",
+    placeholder: "Chiedi qualcosa su Pangea...",
+    send: "Invia",
+    thinking: "Sto pensando...",
+    welcome: "Ciao! Sono l'Assistente AI di Pangea. Posso aiutarti a capire come funziona la piattaforma, spiegare le leggi, guidarti nelle proposte e rispondere a domande sui processi democratici.",
+    suggestions: [
+      "Come creo una proposta?",
+      "Spiega il sistema di voto",
+      "Cosa sono le deleghe?",
+      "Come funzionano le giurisdizioni?",
+    ],
+    error: "Mi dispiace, non sono riuscito a elaborare la tua richiesta. Riprova.",
+    disclaimer: "Le risposte dell'AI sono solo informative e non costituiscono consulenza legale.",
+  },
+
+  // ── Segnalazione Bug ──
+  bugReport: {
+    title: "Segnala un Problema",
+    category: "Categoria",
+    bug: "Bug",
+    suggestion: "Suggerimento",
+    question: "Domanda",
+    other: "Altro",
+    description: "Descrizione",
+    submit: "Invia Segnalazione",
+    thanks: "Grazie per la tua segnalazione!",
+  },
+
+  // ── Ospite ──
+  guest: {
+    banner: "Stai navigando come ospite. Accedi per partecipare alla democrazia.",
+    signIn: "Accedi",
+  },
+};
+
+export default it;

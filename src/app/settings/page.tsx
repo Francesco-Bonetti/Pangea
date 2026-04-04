@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AppShell from "@/components/AppShell";
+import MultiEmailManager from "@/components/MultiEmailManager";
 import type { Profile, PrivacySettings, ProfileVisibility, DmPolicy, ActivityVisibility } from "@/lib/types";
 import {
   Settings,
@@ -494,6 +495,12 @@ export default function SettingsPage() {
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {saving ? "Saving..." : "Save profile"}
           </button>
+
+          {/* ═══════════════════════════════════════════ */}
+          {/* ──── EMAIL MANAGEMENT ──── */}
+          <div className="card border border-theme p-6 space-y-4">
+            <MultiEmailManager />
+          </div>
 
           {/* ═══════════════════════════════════════════ */}
           {/* ──── PRIVACY & VISIBILITY ──── */}

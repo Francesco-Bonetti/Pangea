@@ -2,7 +2,9 @@
 
 import { Menu, Search } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useSidebar } from "@/components/sidebar-provider";
+import { useLanguage } from "@/components/language-provider";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,6 +17,7 @@ interface TopHeaderProps {
 
 export default function TopHeader({ userName, isGuest = false }: TopHeaderProps) {
   const { toggle, isMobile } = useSidebar();
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const router = useRouter();
@@ -70,7 +73,7 @@ export default function TopHeader({ userName, isGuest = false }: TopHeaderProps)
         <Search className="w-4 h-4 shrink-0" style={{ color: "var(--muted-foreground)" }} />
         <input
           type="text"
-          placeholder="Search laws, proposals, citizens..."
+          placeholder={t("nav.search")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => setSearchFocused(true)}
@@ -81,7 +84,8 @@ export default function TopHeader({ userName, isGuest = false }: TopHeaderProps)
       </form>
 
       {/* Right actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
+        <LanguageSwitcher />
         <ThemeToggle />
 
         {/* Profile avatar (compact, links to settings or profile) */}

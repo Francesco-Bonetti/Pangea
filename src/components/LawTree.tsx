@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { LawNode } from "@/app/laws/page";
+import LawPositions from "@/components/LawPositions";
 
 interface LawTreeProps {
   node: LawNode;
@@ -70,7 +71,7 @@ const typeConfig: Record<
   },
 };
 
-export default function LawTree({ node, depth, showActiveStatus }: LawTreeProps) {
+export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawTreeProps) {
   const [expanded, setExpanded] = useState(depth === 0);
   const [showSimplified, setShowSimplified] = useState(false);
   const hasChildren = node.children && node.children.length > 0;
@@ -223,6 +224,11 @@ export default function LawTree({ node, depth, showActiveStatus }: LawTreeProps)
                 Version History
               </Link>
             </div>
+
+            {/* Law Positions */}
+            <div className="mt-3 pt-3 border-t border-theme/30" onClick={(e) => e.stopPropagation()}>
+              <LawPositions lawId={node.id} isAdmin={isAdmin} />
+            </div>
           </div>
         </div>
       )}
@@ -234,6 +240,10 @@ export default function LawTree({ node, depth, showActiveStatus }: LawTreeProps)
             <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isInactive ? "text-fg-muted" : "text-fg"}`}>
               {node.content}
             </p>
+            {/* Law Positions */}
+            <div className="mt-3 pt-3 border-t border-theme/30" onClick={(e) => e.stopPropagation()}>
+              <LawPositions lawId={node.id} isAdmin={isAdmin} />
+            </div>
           </div>
         </div>
       )}
@@ -243,7 +253,7 @@ export default function LawTree({ node, depth, showActiveStatus }: LawTreeProps)
         <div className={`card border ${bgClass} rounded-t-none border-t border-theme/20 pb-2 pt-1`}>
           <div className="space-y-2 px-2">
             {node.children!.map((child) => (
-              <LawTree key={child.id} node={child} depth={depth + 1} showActiveStatus={showActiveStatus} />
+              <LawTree key={child.id} node={child} depth={depth + 1} showActiveStatus={showActiveStatus} isAdmin={isAdmin} />
             ))}
           </div>
         </div>
