@@ -3,7 +3,7 @@ import type { TranslationKeys } from "./en";
 const es: TranslationKeys = {
   nav: {
     dashboard: "Panel", laws: "Leyes", groups: "Grupos", elections: "Elecciones",
-    agora: "Agora",
+    agora: "Agora", about: "Acerca de", feed: "Noticias",
     messages: "Mensajes", settings: "Configuración", delegations: "Delegaciones",
     adminPanel: "Panel Admin", newProposal: "Nueva Propuesta", signIn: "Iniciar Sesión",
     logout: "Cerrar Sesión", loggingOut: "Cerrando sesión...", navigation: "Navegación",
