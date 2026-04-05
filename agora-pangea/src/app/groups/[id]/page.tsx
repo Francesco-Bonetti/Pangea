@@ -119,7 +119,7 @@ export default function GroupDetailPage() {
 
       if (u) {
         const mine = enriched.find((m) => m.user_id === u.id);
-        setCurrentMember(mine || null);
+        setCurrentMember((mine as unknown as GroupMember) || null);
       }
     }
 
