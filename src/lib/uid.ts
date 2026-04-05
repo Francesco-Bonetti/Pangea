@@ -108,13 +108,13 @@ export function getEntityRoute(uid: string): string | null {
     case "CIT": return `/profile/${uid}`;
     case "PRP": return `/proposals?uid=${uid}`;
     case "LAW": return `/laws?uid=${uid}`;
-    case "DSC": return `/forum?uid=${uid}`;
-    case "RPL": return `/forum?reply=${uid}`;
+    case "DSC": return `/social?uid=${uid}`;
+    case "RPL": return `/social?reply=${uid}`;
     case "GRP": return `/groups?uid=${uid}`;
     case "ELC": return `/elections?uid=${uid}`;
     case "DLG": return `/delegations?uid=${uid}`;
     case "CAT": return `/proposals?category=${uid}`;
-    case "TAG": return `/forum?tag=${uid}`;
+    case "TAG": return `/social?tag=${uid}`;
     case "BUG": return `/admin/bugs?uid=${uid}`;
     default: return null;
   }

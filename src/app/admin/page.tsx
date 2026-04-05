@@ -421,7 +421,7 @@ export default function AdminPage() {
             { key: "proposals", label: t("admin.proposals"), icon: FileText },
             { key: "laws", label: t("admin.laws"), icon: BookOpen },
             { key: "reports", label: t("admin.reports"), icon: Bug },
-            { key: "agora", label: t("nav.agora"), icon: MessageSquare },
+            { key: "agora", label: t("social.forum"), icon: MessageSquare },
             { key: "stats", label: t("admin.statistics"), icon: BarChart3 },
             { key: "integrity", label: t("integrity.navTitle"), icon: ShieldCheck },
           ] as const).map(({ key, label, icon: Icon }) => (

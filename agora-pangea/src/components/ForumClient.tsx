@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Loader } from "lucide-react";
 import DiscussionCard from "./DiscussionCard";
 import ReportModal from "./ReportModal";
+import { useLanguage } from "@/components/language-provider";
 import type { Discussion, DiscussionChannel } from "@/lib/types";
 
 interface ForumClientProps {
@@ -21,6 +22,7 @@ export default function ForumClient({
   totalCount = 0,
 }: ForumClientProps) {
   const supabase = createClient();
+  const { t } = useLanguage();
   const [discussions, setDiscussions] = useState<Discussion[]>(initialDiscussions);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState<{
@@ -100,7 +102,7 @@ export default function ForumClient({
     return (
       <div className="card p-12 text-center">
         <p className="text-fg-muted text-lg">
-          No discussions yet. Be the first to start one!
+          {t("forum.noDiscussions")}
         </p>
       </div>
     );
@@ -128,14 +130,14 @@ export default function ForumClient({
             className="px-6 py-3 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-fg font-medium rounded-lg transition-colors disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isLoadingMore && <Loader className="w-4 h-4 animate-spin" />}
-            {isLoadingMore ? "Loading..." : "Load More Discussions"}
+            {isLoadingMore ? t("forumExtra.loadMore") + "..." : t("forumExtra.loadMore")}
           </button>
         </div>
       )}
 
       {showSuccess && (
         <div className="fixed bottom-4 right-4 bg-green-600 text-fg px-4 py-3 rounded-lg shadow-lg">
-          Thank you for your report. Our moderators will review it soon.
+          {t("forum.reportSuccess")}
         </div>
       )}
 

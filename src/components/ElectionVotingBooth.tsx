@@ -97,8 +97,8 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
 
     try {
       // Calculate voting weight
-      const { data: weight } = await supabase.rpc("calculate_voting_weight", {
-        p_proposal_id: election.id,
+      const { data: weight } = await supabase.rpc("calculate_election_voting_weight", {
+        p_election_id: election.id,
         p_voter_id: userId,
       });
 

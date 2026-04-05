@@ -93,7 +93,10 @@ export default function GroupsPage() {
     // Load full tree via RPC
     const { data: tree, error: treeErr } = await supabase.rpc("get_group_tree", { p_root_id: null });
 
-    if (tree) {
+    if (treeErr) {
+      console.error("Error loading group tree:", treeErr);
+      setError(treeErr.message);
+    } else if (tree) {
       setTreeNodes(tree as GroupTreeNode[]);
     }
 

@@ -4,8 +4,14 @@ import NewDiscussionForm from "@/components/NewDiscussionForm";
 import NewChannelForm from "@/components/NewChannelForm";
 import ForumClient from "@/components/ForumClient";
 import ForumControls from "@/components/ForumControls";
-import { MessageCircle, TrendingUp, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import {
+  SocialHeader,
+  NewDiscussionCTA,
+  ChannelsSidebar,
+  TagsSidebar,
+  DiscussionSectionHeader,
+  StartDiscussionHeader,
+} from "@/components/SocialPageContent";
 import type { DiscussionChannel, Discussion, Tag } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -68,7 +74,6 @@ export default async function SocialPage({
 
   // Apply tag filter
   if (searchParams.tag) {
-    // For tag filtering, we need to join through discussion_tags
     const { data: taggedDiscussionIds } = await supabase
       .from("discussion_tags")
       .select("discussion_id")
@@ -78,7 +83,7 @@ export default async function SocialPage({
       const ids = taggedDiscussionIds.map((t: { discussion_id: string }) => t.discussion_id);
       query = query.in("id", ids);
     } else {
-      query = query.eq("id", null); // Return empty results
+      query = query.eq("id", null);
     }
   }
 
@@ -97,7 +102,6 @@ export default async function SocialPage({
   } else if (sort === "most_discussed") {
     query = query.order("replies_count", { ascending: false });
   } else if (sort === "trending") {
-    // Trending = recent + high engagement
     query = query.order("created_at", { ascending: false });
   }
 
@@ -110,7 +114,6 @@ export default async function SocialPage({
     .from("discussions")
     .select("*", { count: "exact", head: true });
 
-  // Apply same filters to count query
   if (searchParams.channel) {
     countQuery = countQuery.eq("channel_id", searchParams.channel);
   }
@@ -136,7 +139,7 @@ export default async function SocialPage({
 
   const { count: totalCount } = await countQuery;
 
-  // Fetch author profiles separately (discussions.author_id → auth.users, not profiles)
+  // Fetch author profiles separately
   const authorIds = Array.from(new Set((discussions || []).map((d: Record<string, unknown>) => d.author_id as string)));
   let profilesMap: Record<string, { full_name: string | null }> = {};
   if (authorIds.length > 0) {
@@ -163,6 +166,11 @@ export default async function SocialPage({
     })
   ) as unknown as Discussion[];
 
+  // Get active channel name for header
+  const activeChannelName = searchParams.channel
+    ? channels?.find((c: DiscussionChannel) => c.id === searchParams.channel)?.name
+    : undefined;
+
   return (
     <AppShell
       userEmail={user?.email}
@@ -172,110 +180,38 @@ export default async function SocialPage({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8 overflow-hidden">
-          <Link
-            href="/dashboard"
-            className="p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-theme-card transition-colors shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-3xl font-bold text-fg flex items-center gap-2 overflow-hidden">
-              <MessageCircle className="w-8 h-8 text-fg-primary shrink-0" />
-              <span className="truncate">Community Forum</span>
-            </h1>
-            <p className="text-sm text-fg-muted mt-1">
-              Join discussions with the community
-            </p>
-          </div>
-        </div>
+        <SocialHeader />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left Sidebar: Channels & Tags */}
           <div className="lg:col-span-1 space-y-4">
             {/* New Discussion CTA */}
             <div>
-              {user ? (
-                <a
-                  href="#new-discussion"
-                  className="w-full block px-4 py-3 bg-pangea-600 hover:bg-pangea-700 text-fg font-medium rounded-lg text-center transition-colors"
-                >
-                  + New Discussion
-                </a>
-              ) : (
-                <a
-                  href="/auth"
-                  className="w-full block px-4 py-3 bg-theme-muted hover:bg-theme-muted text-fg font-medium rounded-lg text-center transition-colors"
-                >
-                  Sign In
-                </a>
-              )}
+              <NewDiscussionCTA isLoggedIn={!!user} />
             </div>
 
             {/* Channels */}
             {channels && channels.length > 0 && (
-              <div className="card p-4">
-                <h3 className="text-sm font-semibold text-fg mb-3">
-                  Channels
-                </h3>
-                <div className="space-y-2">
-                  <a
-                    href="/social"
-                    className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
-                      !searchParams.channel
-                        ? "bg-pangea-900/40 text-fg-primary border border-pangea-700/50"
-                        : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
-                    }`}
-                  >
-                    All Channels
-                  </a>
-                  {(channels as DiscussionChannel[]).map((ch) => (
-                    <a
-                      key={ch.id}
-                      href={`/social?channel=${ch.id}`}
-                      className={`block px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
-                        searchParams.channel === ch.id
-                          ? "bg-pangea-900/40 text-fg-primary border border-pangea-700/50"
-                          : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
-                      }`}
-                    >
-                      <span className="text-base">{ch.emoji}</span>
-                      <span className="truncate">{ch.name}</span>
-                    </a>
-                  ))}
-                  {/* Create Channel */}
-                  {user && (
-                    <div className="mt-2 pt-2 border-t border-theme">
-                      <NewChannelForm userId={user.id} />
-                    </div>
-                  )}
-                </div>
-              </div>
+              <>
+                <ChannelsSidebar
+                  channels={channels as DiscussionChannel[]}
+                  activeChannel={searchParams.channel}
+                />
+                {/* Create Channel (inside channels card) */}
+                {user && (
+                  <div className="card p-4 pt-2">
+                    <NewChannelForm userId={user.id} />
+                  </div>
+                )}
+              </>
             )}
 
             {/* Tags */}
             {trendingTags && trendingTags.length > 0 && (
-              <div className="card p-4">
-                <h3 className="text-sm font-semibold text-fg mb-3 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-fg-primary" />
-                  Popular Tags
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {(trendingTags as Tag[]).map((tag) => (
-                    <a
-                      key={tag.id}
-                      href={`/social?tag=${tag.id}`}
-                      className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                        searchParams.tag === tag.id
-                          ? "text-fg-primary bg-pangea-900/40 border-pangea-700/50"
-                          : "text-fg-primary bg-pangea-900/20 border-pangea-800/30 hover:border-pangea-700/50"
-                      }`}
-                    >
-                      #{tag.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
+              <TagsSidebar
+                tags={trendingTags as Tag[]}
+                activeTag={searchParams.tag}
+              />
             )}
           </div>
 
@@ -284,9 +220,7 @@ export default async function SocialPage({
             {/* New Discussion Form */}
             {user && (
               <div id="new-discussion">
-                <h2 className="text-lg font-semibold text-fg mb-4">
-                  Start a Discussion
-                </h2>
+                <StartDiscussionHeader />
                 <NewDiscussionForm userId={user.id} />
               </div>
             )}
@@ -294,12 +228,7 @@ export default async function SocialPage({
             {/* Forum Controls */}
             <div>
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-fg">
-                  {searchParams.channel
-                    ? channels?.find((c: DiscussionChannel) => c.id === searchParams.channel)?.name ||
-                      "Discussions"
-                    : "All Discussions"}
-                </h2>
+                <DiscussionSectionHeader channelName={activeChannelName} />
                 <ForumControls
                   currentSort={searchParams.sort || "newest"}
                   currentSearch={searchParams.search || ""}
