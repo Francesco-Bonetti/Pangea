@@ -186,4 +186,3 @@ export default function GroupTree({
     </div>
   );
 }
-// A2 tree component

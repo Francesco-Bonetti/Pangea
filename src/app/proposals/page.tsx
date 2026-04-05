@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import AppShell from "@/components/AppShell";
@@ -84,12 +85,14 @@ export default async function ProposalsPage({ searchParams }: Props) {
 
   return (
     <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role} isGuest={isGuest}>
-      <ProposalsListClient
-        proposals={enrichedProposals}
-        currentFilter={statusFilter}
-        curationThreshold={curationThreshold ?? 2}
-        isGuest={isGuest}
-      />
+      <Suspense fallback={<div className="flex items-center justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white/80" /></div>}>
+        <ProposalsListClient
+          proposals={enrichedProposals}
+          currentFilter={statusFilter}
+          curationThreshold={curationThreshold ?? 2}
+          isGuest={isGuest}
+        />
+      </Suspense>
     </AppShell>
   );
 }

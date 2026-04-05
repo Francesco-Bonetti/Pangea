@@ -42,7 +42,7 @@ const mainNavItems = [
   { href: "/laws", labelKey: "nav.laws", icon: BookOpen },
   { href: "/groups", labelKey: "nav.groups", icon: FolderTree },
   { href: "/elections", labelKey: "nav.elections", icon: Vote },
-  { href: "/social", labelKey: "nav.agora", icon: MessageCircle },
+  { href: "/social", labelKey: "nav.forum", icon: MessageCircle },
   { href: "/about", labelKey: "nav.about", icon: Info },
   { href: "/verify", labelKey: "integrity.navTitle", icon: ShieldCheck },
 ];

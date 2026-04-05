@@ -5,7 +5,7 @@ const en = {
     laws: "Laws",
     groups: "Groups",
     elections: "Elections",
-    agora: "Agora",
+    forum: "Agora",
     about: "About",
     feed: "Feed",
     messages: "Messages",
@@ -298,7 +298,7 @@ const en = {
       members: "Members",
       subgroups: "Subgroups",
       votes: "Votes",
-      forum: "Forum",
+      forum: "Agora",
     },
     view: {
       tree: "Tree View",
@@ -336,8 +336,8 @@ const en = {
   },
 
   // ── Forum / Social ──
-  agora: {
-    title: "Community Forum",
+  forum: {
+    title: "Agora",
     newDiscussion: "New Discussion",
     newChannel: "New Channel",
     channels: "Channels",
@@ -364,7 +364,7 @@ const en = {
     pleaseSignIn: "Please sign in to create a discussion",
     failedToCreate: "Failed to create discussion",
     // Thread page
-    backToForum: "Back to Forum",
+    backToForum: "Back to Agora",
     joinDiscussion: "Join the Discussion",
     signInToReply: "Sign in to reply to this discussion",
     lockedDiscussion: "This discussion is locked",
@@ -771,7 +771,7 @@ const en = {
   },
 
   // ── Forum (extended) ──
-  agoraExtra: {
+  forumExtra: {
     loadMore: "Load More",
     loadingMore: "Loading...",
     noMoreDiscussions: "No more discussions",
@@ -795,10 +795,10 @@ const en = {
   },
 
   // ── Admin Forum Moderation ──
-  adminAgora: {
-    tabLabel: "Forum",
-    reports: "Forum Reports",
-    noReports: "No forum reports",
+  adminForum: {
+    tabLabel: "Agora",
+    reports: "Agora Reports",
+    noReports: "No agora reports",
     management: "Discussion Management",
     noDiscussions: "No discussions yet",
     reason: "Reason",

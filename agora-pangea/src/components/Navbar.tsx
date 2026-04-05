@@ -99,7 +99,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              {t("nav.agora")}
+              {t("nav.forum")}
             </Link>
             <Link
               href="/about"
@@ -303,7 +303,7 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               onClick={() => setMobileMenuOpen(false)}
             >
               <MessageCircle className="w-4 h-4 shrink-0" />
-              {t("nav.agora")}
+              {t("nav.forum")}
             </Link>
             <Link
               href="/about"

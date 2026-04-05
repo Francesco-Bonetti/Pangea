@@ -175,7 +175,7 @@ export default async function DiscussionPage({
           className="inline-flex items-center gap-2 text-fg-primary hover:text-fg-primary font-medium mb-6 transition-colors overflow-hidden"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" />
-          <span className="truncate">Back to Forum</span>
+          <span className="truncate">Back to Agora</span>
         </Link>
 
         {/* Discussion Header Card */}

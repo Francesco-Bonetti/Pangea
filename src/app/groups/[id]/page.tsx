@@ -69,7 +69,7 @@ export default function GroupDetailPage() {
   const [forumPosts, setForumPosts] = useState<(GroupForumPost & { profiles: { full_name: string | null } })[]>([]);
   const [activeProposals, setActiveProposals] = useState<Proposal[]>([]);
 
-  const [currentMember, setCurrentMember] = useState<GroupMember | null>(null);
+  const [currentMember, setCurrentMember] = useState<(GroupMember & { profiles?: { full_name: string | null } }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("info");
   const [joining, setJoining] = useState(false);
@@ -111,15 +111,16 @@ export default function GroupDetailPage() {
       const profileMap: Record<string, { id: string; full_name: string | null }> = {};
       (profiles || []).forEach((p: { id: string; full_name: string | null }) => { profileMap[p.id] = p; });
 
-      const enriched = mems.map((m: GroupMember) => ({
+      type EnrichedMember = GroupMember & { profiles: { full_name: string | null } };
+      const enriched: EnrichedMember[] = mems.map((m: GroupMember) => ({
         ...m,
-        profiles: profileMap[m.user_id] || { full_name: null },
+        profiles: { full_name: profileMap[m.user_id]?.full_name ?? null },
       }));
-      setMembers(enriched as typeof members);
+      setMembers(enriched);
 
       if (u) {
-        const mine = enriched.find((m) => m.user_id === u.id);
-        setCurrentMember((mine as unknown as GroupMember) || null);
+        const mine = enriched.find((em) => em.user_id === u.id);
+        setCurrentMember(mine || null);
       }
     }
 
@@ -234,7 +235,7 @@ export default function GroupDetailPage() {
     { id: "members", labelKey: "groups.tabs.members", icon: Users, count: members.length },
     { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
     { id: "votes", labelKey: "groups.tabs.votes", icon: Vote },
-    { id: "forum", labelKey: "groups.tabs.agora", icon: MessageSquare, count: forumPosts.length },
+    { id: "forum", labelKey: "groups.tabs.forum", icon: MessageSquare, count: forumPosts.length },
   ];
 
   if (loading) {
@@ -547,14 +548,14 @@ export default function GroupDetailPage() {
                     type="text"
                     value={newPostTitle}
                     onChange={(e) => setNewPostTitle(e.target.value)}
-                    placeholder={t("groups.agora.titlePlaceholder")}
+                    placeholder={t("groups.forum.titlePlaceholder")}
                     className="w-full px-4 py-2.5 rounded-lg border text-sm"
                     style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }}
                   />
                   <textarea
                     value={newPostBody}
                     onChange={(e) => setNewPostBody(e.target.value)}
-                    placeholder={t("groups.agora.bodyPlaceholder")}
+                    placeholder={t("groups.forum.bodyPlaceholder")}
                     rows={3}
                     className="w-full px-4 py-2.5 rounded-lg border text-sm resize-none"
                     style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }}
@@ -564,7 +565,7 @@ export default function GroupDetailPage() {
                     disabled={postingForum || !newPostBody.trim()}
                     className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
                   >
-                    {postingForum ? "..." : t("groups.agora.post")}
+                    {postingForum ? "..." : t("groups.forum.post")}
                   </button>
                 </div>
               )}
@@ -586,7 +587,7 @@ export default function GroupDetailPage() {
                 ))}
                 {forumPosts.length === 0 && (
                   <div className="text-center py-12 text-sm" style={{ color: "var(--muted-foreground)" }}>
-                    {t("groups.agora.empty")}
+                    {t("groups.forum.empty")}
                   </div>
                 )}
               </div>

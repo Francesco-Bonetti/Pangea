@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import AppShell from "@/components/AppShell";
 import NewChannelForm from "@/components/NewChannelForm";
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Agora — Pangea",
-  description: "Join the community discussion forum",
+  description: "Join the community discussions in Pangea's Agora",
 };
 
 export default async function SocialPage({
@@ -219,10 +220,12 @@ export default async function SocialPage({
             <div>
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
                 <DiscussionSectionHeader channelName={activeChannelName} />
-                <ForumControls
-                  currentSort={searchParams.sort || "newest"}
-                  currentSearch={searchParams.search || ""}
-                />
+                <Suspense fallback={<div className="h-10 w-64 animate-pulse rounded-lg bg-white/5" />}>
+                  <ForumControls
+                    currentSort={searchParams.sort || "newest"}
+                    currentSearch={searchParams.search || ""}
+                  />
+                </Suspense>
               </div>
 
               {/* Discussions List */}

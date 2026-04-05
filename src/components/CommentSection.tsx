@@ -227,12 +227,33 @@ function RepliesSection({
     try {
       const { data, error } = await supabase
         .from("comments")
-        .select("*, profiles(full_name)")
+        .select("*")
         .eq("parent_id", parentCommentId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setReplies(data || []);
+
+      // Fetch profiles separately (FK may point to auth.users, not profiles)
+      const authorIds = Array.from(new Set((data || []).map((c: { author_id: string }) => c.author_id)));
+      let profilesMap: Record<string, { full_name: string | null }> = {};
+      if (authorIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", authorIds);
+        if (profilesData) {
+          profilesMap = Object.fromEntries(
+            profilesData.map((p: { id: string; full_name: string | null }) => [p.id, { full_name: p.full_name }])
+          );
+        }
+      }
+
+      const repliesWithProfiles = (data || []).map((c: Record<string, unknown>) => ({
+        ...c,
+        profiles: profilesMap[c.author_id as string] || null,
+      }));
+
+      setReplies(repliesWithProfiles as Comment[]);
     } catch (error) {
       console.error("Error fetching replies:", error);
     } finally {
@@ -386,7 +407,7 @@ export default function CommentSection({
     try {
       let query = supabase
         .from("comments")
-        .select("*, profiles(full_name)")
+        .select("*")
         .is("parent_id", null)
         .order("created_at", { ascending: false });
 
@@ -403,7 +424,28 @@ export default function CommentSection({
       const { data, error } = await query;
 
       if (error) throw error;
-      setComments(data || []);
+
+      // Fetch profiles separately (FK may point to auth.users, not profiles)
+      const authorIds = Array.from(new Set((data || []).map((c: { author_id: string }) => c.author_id)));
+      let profilesMap: Record<string, { full_name: string | null }> = {};
+      if (authorIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", authorIds);
+        if (profilesData) {
+          profilesMap = Object.fromEntries(
+            profilesData.map((p: { id: string; full_name: string | null }) => [p.id, { full_name: p.full_name }])
+          );
+        }
+      }
+
+      const commentsWithProfiles = (data || []).map((c: Record<string, unknown>) => ({
+        ...c,
+        profiles: profilesMap[c.author_id as string] || null,
+      }));
+
+      setComments(commentsWithProfiles as Comment[]);
     } catch (error) {
       console.error("Error fetching comments:", error);
     } finally {

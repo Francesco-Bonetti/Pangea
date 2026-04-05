@@ -3,7 +3,7 @@ import type { TranslationKeys } from "./en";
 const fr: TranslationKeys = {
   nav: {
     dashboard: "Tableau de bord", laws: "Lois", groups: "Groupes", elections: "Élections",
-    agora: "Agora", about: "À propos", feed: "Actualités",
+    forum: "Agora", about: "À propos", feed: "Actualités",
     messages: "Messages", settings: "Paramètres", delegations: "Délégations",
     adminPanel: "Panneau Admin", newProposal: "Nouvelle Proposition", signIn: "Se connecter",
     logout: "Déconnexion", loggingOut: "Déconnexion...", navigation: "Navigation",
@@ -176,7 +176,7 @@ const fr: TranslationKeys = {
       members: "Membres",
       subgroups: "Sous-groupes",
       votes: "Votes",
-      forum: "Forum",
+      forum: "Agora",
     },
     view: {
       tree: "Vue Arbre",
@@ -212,8 +212,8 @@ const fr: TranslationKeys = {
       founderCantLeave: "Le fondateur ne peut pas quitter. Transférez d'abord le rôle.",
     },
   },
-  agora: {
-    title: "Forum Communautaire", newDiscussion: "Nouvelle Discussion", newChannel: "Nouveau Canal",
+  forum: {
+    title: "Agora", newDiscussion: "Nouvelle Discussion", newChannel: "Nouveau Canal",
     channels: "Canaux", discussions: "Discussions", replies: "Réponses",
     upvote: "Positif", downvote: "Négatif", report: "Signaler", pinned: "Épinglé",
     discussionTitle: "Titre de la Discussion",
@@ -230,7 +230,7 @@ const fr: TranslationKeys = {
     signInToCreate: "Connectez-vous pour créer une discussion",
     pleaseSignIn: "Veuillez vous connecter pour créer une discussion",
     failedToCreate: "Impossible de créer la discussion",
-    backToForum: "Retour au Forum",
+    backToForum: "Retour à l'Agora",
     joinDiscussion: "Rejoindre la Discussion",
     signInToReply: "Connectez-vous pour répondre à cette discussion",
     lockedDiscussion: "Cette discussion est verrouillée",
@@ -497,7 +497,7 @@ const fr: TranslationKeys = {
     lockedDiscussion: "a verrouillé votre discussion",
     moderationAction: "Action de modération",
   },
-  agoraExtra: {
+  forumExtra: {
     loadMore: "Charger plus",
     loadingMore: "Chargement...",
     noMoreDiscussions: "Plus de discussions",
@@ -519,9 +519,9 @@ const fr: TranslationKeys = {
     nestedReplies: "réponses imbriquées",
     maxDepthReached: "Profondeur maximale atteinte",
   },
-  adminAgora: {
-    tabLabel: "Forum",
-    reports: "Signalements du forum",
+  adminForum: {
+    tabLabel: "Agora",
+    reports: "Signalements de l'Agora",
     noReports: "Aucun signalement",
     management: "Gestion des discussions",
     noDiscussions: "Aucune discussion",

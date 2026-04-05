@@ -7,7 +7,7 @@ const it: TranslationKeys = {
     laws: "Leggi",
     groups: "Gruppi",
     elections: "Elezioni",
-    agora: "Agora",
+    forum: "Agorà",
     about: "Informazioni",
     feed: "Notizie",
     messages: "Messaggi",
@@ -294,7 +294,7 @@ const it: TranslationKeys = {
       members: "Membri",
       subgroups: "Sottogruppi",
       votes: "Voti",
-      agora: "Forum",
+      forum: "Agorà",
     },
     view: {
       tree: "Vista Albero",
@@ -319,7 +319,7 @@ const it: TranslationKeys = {
       location: "Località",
       locationPlaceholder: "es. Lisbona, Portogallo",
     },
-    agora: {
+    forum: {
       titlePlaceholder: "Titolo del post (opzionale)",
       bodyPlaceholder: "Scrivi il tuo messaggio...",
       post: "Pubblica",
@@ -332,8 +332,8 @@ const it: TranslationKeys = {
   },
 
   // ── Forum / Social ──
-  agora: {
-    title: "Forum della Comunità",
+  forum: {
+    title: "Agorà",
     newDiscussion: "Nuova Discussione",
     newChannel: "Nuovo Canale",
     channels: "Canali",
@@ -359,7 +359,7 @@ const it: TranslationKeys = {
     signInToCreate: "Accedi per creare una discussione",
     pleaseSignIn: "Accedi per creare una discussione",
     failedToCreate: "Impossibile creare la discussione",
-    backToForum: "Torna al Forum",
+    backToForum: "Torna all'Agorà",
     joinDiscussion: "Partecipa alla Discussione",
     signInToReply: "Accedi per rispondere alla discussione",
     lockedDiscussion: "Questa discussione è bloccata",
@@ -758,7 +758,7 @@ const it: TranslationKeys = {
     lockedDiscussion: "ha chiuso la tua discussione",
     moderationAction: "Azione di moderazione",
   },
-  agoraExtra: {
+  forumExtra: {
     loadMore: "Carica altri",
     loadingMore: "Caricamento...",
     noMoreDiscussions: "Nessuna altra discussione",
@@ -780,9 +780,9 @@ const it: TranslationKeys = {
     nestedReplies: "risposte annidate",
     maxDepthReached: "Profondità massima raggiunta",
   },
-  adminAgora: {
-    tabLabel: "Forum",
-    reports: "Segnalazioni forum",
+  adminForum: {
+    tabLabel: "Agorà",
+    reports: "Segnalazioni Agorà",
     noReports: "Nessuna segnalazione",
     management: "Gestione discussioni",
     noDiscussions: "Nessuna discussione",

@@ -40,7 +40,7 @@ import type {
 } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 
-type TabId = "info" | "members" | "votes" | "agora" | "subgroups";
+type TabId = "info" | "members" | "votes" | "forum" | "subgroups";
 
 const ROLE_ICONS = { founder: Crown, admin: Shield, member: Users };
 const ROLE_COLORS = {
@@ -69,7 +69,7 @@ export default function GroupDetailPage() {
   const [forumPosts, setForumPosts] = useState<(GroupForumPost & { profiles: { full_name: string | null } })[]>([]);
   const [activeProposals, setActiveProposals] = useState<Proposal[]>([]);
 
-  const [currentMember, setCurrentMember] = useState<GroupMember | null>(null);
+  const [currentMember, setCurrentMember] = useState<(GroupMember & { profiles?: { full_name: string | null } }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("info");
   const [joining, setJoining] = useState(false);
@@ -111,15 +111,16 @@ export default function GroupDetailPage() {
       const profileMap: Record<string, { id: string; full_name: string | null }> = {};
       (profiles || []).forEach((p: { id: string; full_name: string | null }) => { profileMap[p.id] = p; });
 
-      const enriched = mems.map((m: GroupMember) => ({
+      type EnrichedMember = GroupMember & { profiles: { full_name: string | null } };
+      const enriched: EnrichedMember[] = mems.map((m: GroupMember) => ({
         ...m,
-        profiles: profileMap[m.user_id] || { full_name: null },
+        profiles: { full_name: profileMap[m.user_id]?.full_name ?? null },
       }));
-      setMembers(enriched as typeof members);
+      setMembers(enriched);
 
       if (u) {
-        const mine = enriched.find((m) => m.user_id === u.id);
-        setCurrentMember((mine as unknown as GroupMember) || null);
+        const mine = enriched.find((em) => em.user_id === u.id);
+        setCurrentMember(mine || null);
       }
     }
 
@@ -234,7 +235,7 @@ export default function GroupDetailPage() {
     { id: "members", labelKey: "groups.tabs.members", icon: Users, count: members.length },
     { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
     { id: "votes", labelKey: "groups.tabs.votes", icon: Vote },
-    { id: "agora", labelKey: "groups.tabs.agora", icon: MessageSquare, count: forumPosts.length },
+    { id: "forum", labelKey: "groups.tabs.forum", icon: MessageSquare, count: forumPosts.length },
   ];
 
   if (loading) {
@@ -538,7 +539,7 @@ export default function GroupDetailPage() {
           )}
 
           {/* FORUM TAB */}
-          {activeTab === "agora" && (
+          {activeTab === "forum" && (
             <div className="p-6 space-y-6">
               {/* New post form (members only) */}
               {currentMember && (

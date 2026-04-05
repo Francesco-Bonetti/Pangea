@@ -1,4 +1,4 @@
-export default function ForumLoading() {
+export default function AgoraLoading() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="h-16 bg-[var(--card)] border-b border-[var(--border)]" />

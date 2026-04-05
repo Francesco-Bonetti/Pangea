@@ -3,7 +3,7 @@ import type { TranslationKeys } from "./en";
 const es: TranslationKeys = {
   nav: {
     dashboard: "Panel", laws: "Leyes", groups: "Grupos", elections: "Elecciones",
-    agora: "Agora", about: "Acerca de", feed: "Noticias",
+    forum: "Ágora", about: "Acerca de", feed: "Noticias",
     messages: "Mensajes", settings: "Configuración", delegations: "Delegaciones",
     adminPanel: "Panel Admin", newProposal: "Nueva Propuesta", signIn: "Iniciar Sesión",
     logout: "Cerrar Sesión", loggingOut: "Cerrando sesión...", navigation: "Navegación",
@@ -175,7 +175,7 @@ const es: TranslationKeys = {
       members: "Miembros",
       subgroups: "Subgrupos",
       votes: "Votos",
-      forum: "Foro",
+      forum: "Ágora",
     },
     view: {
       tree: "Vista Árbol",
@@ -211,8 +211,8 @@ const es: TranslationKeys = {
       founderCantLeave: "El fundador no puede salir. Transfiere el rol primero.",
     },
   },
-  agora: {
-    title: "Foro de la Comunidad", newDiscussion: "Nueva Discusión", newChannel: "Nuevo Canal",
+  forum: {
+    title: "Ágora", newDiscussion: "Nueva Discusión", newChannel: "Nuevo Canal",
     channels: "Canales", discussions: "Discusiones", replies: "Respuestas",
     upvote: "Me gusta", downvote: "No me gusta", report: "Reportar", pinned: "Fijado",
     discussionTitle: "Título de la Discusión",
@@ -229,7 +229,7 @@ const es: TranslationKeys = {
     signInToCreate: "Inicia sesión para crear una discusión",
     pleaseSignIn: "Inicia sesión para crear una discusión",
     failedToCreate: "No se pudo crear la discusión",
-    backToForum: "Volver al Foro",
+    backToForum: "Volver al Ágora",
     joinDiscussion: "Únete a la Discusión",
     signInToReply: "Inicia sesión para responder a esta discusión",
     lockedDiscussion: "Esta discusión está bloqueada",
@@ -496,7 +496,7 @@ const es: TranslationKeys = {
     lockedDiscussion: "bloqueó tu discusión",
     moderationAction: "Acción de moderación",
   },
-  agoraExtra: {
+  forumExtra: {
     loadMore: "Cargar más",
     loadingMore: "Cargando...",
     noMoreDiscussions: "No hay más discusiones",
@@ -518,8 +518,8 @@ const es: TranslationKeys = {
     nestedReplies: "respuestas anidadas",
     maxDepthReached: "Profundidad máxima alcanzada",
   },
-  adminAgora: {
-    tabLabel: "Foro",
+  adminForum: {
+    tabLabel: "Ágora",
     reports: "Reportes del foro",
     noReports: "Sin reportes",
     management: "Gestión de discusiones",
