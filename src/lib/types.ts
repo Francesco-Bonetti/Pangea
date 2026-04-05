@@ -22,6 +22,7 @@ export type HashOperation = "hash_created" | "hash_verified" | "hash_mismatch" |
 // --- Entità Base ---
 export interface Profile {
   id: string;
+  uid?: string | null;
   full_name: string | null;
   bio: string | null;
   role?: UserRole;
@@ -33,6 +34,7 @@ export interface Profile {
 
 export interface Category {
   id: string;
+  uid?: string | null;
   name: string;
   description: string | null;
   parent_id?: string | null;
@@ -42,6 +44,7 @@ export interface Category {
 
 export interface Proposal {
   id: string;
+  uid?: string | null;
   author_id: string;
   title: string;
   content: string;
@@ -59,6 +62,7 @@ export interface Proposal {
 
 export interface Vote {
   id: string;
+  uid?: string | null;
   proposal_id: string;
   voter_id: string;
   vote_type: VoteType;
@@ -69,6 +73,7 @@ export interface Vote {
 // --- Democrazia Liquida ---
 export interface Delegation {
   id: string;
+  uid?: string | null;
   delegator_id: string;
   delegate_id: string;
   category_id: string | null;
@@ -125,6 +130,7 @@ export interface DistributedResult {
 // --- Tags (Hashtag System) ---
 export interface Tag {
   id: string;
+  uid?: string | null;
   name: string;
   slug: string;
   usage_count: number;
@@ -135,6 +141,7 @@ export interface Tag {
 // --- Social/Commenti ---
 export interface Comment {
   id: string;
+  uid?: string | null;
   author_id: string;
   proposal_id: string | null;
   law_id: string | null;
@@ -163,6 +170,7 @@ export type PartyMemberRole = "member" | "admin" | "founder";
 
 export interface Party {
   id: string;
+  uid?: string | null;
   name: string;
   description: string | null;
   manifesto: string | null;
@@ -201,6 +209,7 @@ export interface PartyVote {
 
 export interface PartyForumPost {
   id: string;
+  uid?: string | null;
   party_id: string;
   author_id: string;
   title: string | null;
@@ -218,6 +227,7 @@ export type JurisdictionMemberRole = "member" | "admin" | "founder";
 
 export interface Jurisdiction {
   id: string;
+  uid?: string | null;
   name: string;
   description: string | null;
   type: JurisdictionType;
@@ -345,6 +355,7 @@ export type DiscussionChannel = {
 
 export type Discussion = {
   id: string;
+  uid?: string | null;
   author_id: string;
   channel_id: string;
   title: string;
@@ -365,6 +376,7 @@ export type Discussion = {
 
 export type DiscussionReply = {
   id: string;
+  uid?: string | null;
   discussion_id: string;
   author_id: string;
   body: string;
@@ -480,6 +492,7 @@ export type ElectionType = "general" | "jurisdiction" | "party" | "position";
 
 export interface Election {
   id: string;
+  uid?: string | null;
   title: string;
   description: string | null;
   election_type: ElectionType;

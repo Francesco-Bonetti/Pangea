@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Vote, Plus, Users, Calendar, Trophy, Clock, ChevronRight, MapPin, Flag } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import TranslatedContent from "@/components/TranslatedContent";
+import UidBadge from "@/components/UidBadge";
 import type { Election, ElectionStatus } from "@/lib/types";
 
 function getStatusConfig(t: (key: string) => string): Record<ElectionStatus, { label: string; color: string; bg: string }> {
@@ -199,6 +200,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
                       <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${config.bg} ${config.color}`}>
                         {config.label}
                       </span>
+                      {election.uid && <UidBadge uid={election.uid} size="xs" clickable={false} />}
                     </div>
 
                     {/* Position */}

@@ -11,6 +11,7 @@ export const revalidate = 300;
 // Type for tree nodes
 export interface LawNode {
   id: string;
+  uid?: string | null;
   parent_id: string | null;
   title: string;
   summary: string | null;

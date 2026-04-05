@@ -6,6 +6,7 @@ import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
 import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle } from "lucide-react";
 import TranslatedContent from "@/components/TranslatedContent";
 import IntegrityBadge from "@/components/IntegrityBadge";
+import UidBadge from "@/components/UidBadge";
 import { useLanguage } from "@/components/language-provider";
 
 interface ProposalCardProps {
@@ -96,6 +97,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
               </span>
             )}
             <IntegrityBadge entityType="proposal" entityId={proposal.id} compact />
+            {proposal.uid && <UidBadge uid={proposal.uid} size="xs" clickable={false} />}
           </div>
           <h3
             className="font-bold text-lg leading-snug truncate"

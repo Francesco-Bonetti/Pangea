@@ -16,6 +16,7 @@ import Link from "next/link";
 import type { LawNode } from "@/app/laws/page";
 import LawPositions from "@/components/LawPositions";
 import IntegrityBadge from "@/components/IntegrityBadge";
+import UidBadge from "@/components/UidBadge";
 import { useLanguage } from "@/components/language-provider";
 
 interface LawTreeProps {
@@ -152,6 +153,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
               {node.law_type === "article" && (
                 <IntegrityBadge entityType="law" entityId={node.id} compact />
               )}
+              {node.uid && <UidBadge uid={node.uid} size="xs" clickable={false} />}
             </div>
 
             {/* Summary */}

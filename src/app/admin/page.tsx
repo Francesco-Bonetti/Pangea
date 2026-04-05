@@ -123,10 +123,10 @@ export default function AdminPage() {
     const [usersRes, proposalsRes, lawsRes, reportsRes, forumReportsRes, discussionsRes, userCountRes, proposalCountRes, lawCountRes, reportCountRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
       supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
-      supabase.from("laws").select("id, title, code, law_type, status, created_at").order("created_at", { ascending: false }).limit(PAGE_SIZE),
+      supabase.from("laws").select("id, uid, title, code, law_type, status, created_at").order("created_at", { ascending: false }).limit(PAGE_SIZE),
       supabase.from("bug_reports").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
       supabase.from("discussion_reports").select("*").order("created_at", { ascending: false }).limit(100),
-      supabase.from("discussions").select("id, author_id, channel_id, title, body, is_pinned, is_locked, upvotes_count, replies_count, created_at, updated_at").order("created_at", { ascending: false }).limit(50),
+      supabase.from("discussions").select("id, uid, author_id, channel_id, title, body, is_pinned, is_locked, upvotes_count, replies_count, created_at, updated_at").order("created_at", { ascending: false }).limit(50),
       // Get total counts efficiently (head: true = no data transferred)
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("proposals").select("*", { count: "exact", head: true }),

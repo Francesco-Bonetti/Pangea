@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Discussion } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import TranslatedContent from "@/components/TranslatedContent";
+import UidBadge from "@/components/UidBadge";
 import "@/styles/discussion-card.css";
 
 interface DiscussionCardProps {
@@ -124,6 +125,7 @@ export default function DiscussionCard({
                   Pinned
                 </span>
               )}
+              {discussion.uid && <UidBadge uid={discussion.uid} size="xs" clickable={false} />}
             </div>
             <h3 className="font-semibold text-fg text-base leading-snug group-hover:text-fg truncate">
               <TranslatedContent

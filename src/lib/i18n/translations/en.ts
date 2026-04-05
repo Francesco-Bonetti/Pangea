@@ -849,6 +849,39 @@ const en = {
   time: {
     justNow: "Just now",
   },
+
+  // ── Universal ID ──
+  uid: {
+    label: "Entity ID",
+    copy: "Copy ID",
+    copied: "Copied!",
+    clickToView: "Click to view",
+    search: "Search by ID...",
+    notFound: "Entity not found",
+    types: {
+      cit: "Citizen",
+      prp: "Proposal",
+      law: "Law",
+      dsc: "Discussion",
+      rpl: "Reply",
+      chn: "Channel",
+      pty: "Party",
+      jur: "Jurisdiction",
+      elc: "Election",
+      cnd: "Candidate",
+      dlg: "Delegation",
+      cat: "Category",
+      tag: "Tag",
+      cmt: "Comment",
+      dmc: "Conversation",
+      msg: "Message",
+      bug: "Bug Report",
+      pst: "Post",
+      fev: "Event",
+      vot: "Vote",
+      elv: "Election Vote",
+    },
+  },
 };
 
 export default en;
