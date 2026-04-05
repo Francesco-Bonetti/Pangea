@@ -62,17 +62,19 @@ export default function DelegationsPage() {
     const [profileRes, catRes, delegGivenRes, delegReceivedRes] =
       await Promise.all([
         supabase.from("profiles").select("*").eq("id", authUser.id).single(),
-        supabase.from("categories").select("*").order("name"),
+        supabase.from("categories").select("*").order("name").limit(100),
         supabase
           .from("delegations")
           .select("*, delegate:profiles!delegations_delegate_id_fkey(id, full_name), categories(id, name)")
           .eq("delegator_id", authUser.id)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(200),
         supabase
           .from("delegations")
           .select("*, delegator:profiles!delegations_delegator_id_fkey(id, full_name), categories(id, name)")
           .eq("delegate_id", authUser.id)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(200),
       ]);
 
     setProfile(profileRes.data);

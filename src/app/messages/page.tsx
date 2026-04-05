@@ -32,7 +32,8 @@ export default async function MessagesPage() {
   const { data: participantRows } = await supabase
     .from("dm_participants")
     .select("conversation_id, last_read_at, is_muted")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .limit(200);
 
   const conversationIds = (participantRows || []).map(
     (p: { conversation_id: string }) => p.conversation_id

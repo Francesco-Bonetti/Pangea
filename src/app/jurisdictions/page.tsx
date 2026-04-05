@@ -90,43 +90,59 @@ export default function JurisdictionsPage() {
       setPendingDelegations(count ?? 0);
     }
 
-    // Fetch jurisdictions
+    // Fetch jurisdictions (with limit)
     const { data: jurisdictionData } = await supabase
       .from("jurisdictions")
       .select("*")
       .eq("is_active", true)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(200);
 
-    if (jurisdictionData) {
-      // Get member counts, membership status, and founder names
-      const enriched = await Promise.all(
-        jurisdictionData.map(async (j: Jurisdiction) => {
-          const { count } = await supabase
-            .from("jurisdiction_members")
-            .select("*", { count: "exact", head: true })
-            .eq("jurisdiction_id", j.id);
+    if (jurisdictionData && jurisdictionData.length > 0) {
+      const jIds = jurisdictionData.map((j: Jurisdiction) => j.id);
+      const founderIds = Array.from(new Set(jurisdictionData.map((j: Jurisdiction) => j.founder_id).filter(Boolean)));
 
-          let is_member = false;
-          if (u) {
-            const { data: membership } = await supabase
-              .from("jurisdiction_members")
-              .select("id")
-              .eq("jurisdiction_id", j.id)
-              .eq("user_id", u.id)
-              .maybeSingle();
-            is_member = !!membership;
-          }
+      // Batch: get ALL member counts in one query
+      const { data: memberCounts } = await supabase
+        .from("jurisdiction_members")
+        .select("jurisdiction_id")
+        .in("jurisdiction_id", jIds);
 
-          // Fetch founder name
-          const { data: founderProfile } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", j.founder_id)
-            .maybeSingle();
+      // Build count map
+      const countMap: Record<string, number> = {};
+      (memberCounts ?? []).forEach((m: { jurisdiction_id: string }) => {
+        countMap[m.jurisdiction_id] = (countMap[m.jurisdiction_id] || 0) + 1;
+      });
 
-          return { ...j, member_count: count ?? 0, is_member, founder_name: founderProfile?.full_name ?? null };
-        })
-      );
+      // Batch: check current user memberships in one query
+      const membershipSet = new Set<string>();
+      if (u) {
+        const { data: myMemberships } = await supabase
+          .from("jurisdiction_members")
+          .select("jurisdiction_id")
+          .eq("user_id", u.id)
+          .in("jurisdiction_id", jIds);
+        (myMemberships ?? []).forEach((m: { jurisdiction_id: string }) => membershipSet.add(m.jurisdiction_id));
+      }
+
+      // Batch: fetch ALL founder names in one query
+      const founderMap: Record<string, string | null> = {};
+      if (founderIds.length > 0) {
+        const { data: founderProfiles } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", founderIds);
+        (founderProfiles ?? []).forEach((p: { id: string; full_name: string | null }) => {
+          founderMap[p.id] = p.full_name;
+        });
+      }
+
+      const enriched = jurisdictionData.map((j: Jurisdiction) => ({
+        ...j,
+        member_count: countMap[j.id] ?? 0,
+        is_member: membershipSet.has(j.id),
+        founder_name: founderMap[j.founder_id] ?? null,
+      }));
       setJurisdictions(enriched);
     }
 

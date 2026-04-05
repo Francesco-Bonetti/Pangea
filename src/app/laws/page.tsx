@@ -57,14 +57,17 @@ export default async function LawsPage() {
 
   const laws = (allLaws ?? []) as LawNode[];
 
-  // Build hierarchical tree
-  function buildTree(items: LawNode[], parentId: string | null): LawNode[] {
+  // Build hierarchical tree with circular reference protection
+  function buildTree(items: LawNode[], parentId: string | null, visited = new Set<string>()): LawNode[] {
     return items
-      .filter((l) => l.parent_id === parentId)
-      .map((l) => ({
-        ...l,
-        children: buildTree(items, l.id),
-      }));
+      .filter((l) => l.parent_id === parentId && !visited.has(l.id))
+      .map((l) => {
+        visited.add(l.id);
+        return {
+          ...l,
+          children: buildTree(items, l.id, visited),
+        };
+      });
   }
 
   const fullTree = buildTree(laws, null);

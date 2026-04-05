@@ -3,9 +3,12 @@ import { Inter, Merriweather } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/Toast";
 import { LanguageProvider } from "@/components/language-provider";
-import BugReportButton from "@/components/BugReportButton";
-import AiAssistant from "@/components/AiAssistant";
+import dynamic from "next/dynamic";
 import "./globals.css";
+
+// Lazy load heavy floating components — not needed for initial render
+const AiAssistant = dynamic(() => import("@/components/AiAssistant"), { ssr: false });
+const BugReportButton = dynamic(() => import("@/components/BugReportButton"), { ssr: false });
 
 const inter = Inter({
   subsets: ["latin"],

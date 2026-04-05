@@ -44,7 +44,8 @@ export default async function LawHistoryPage({ params }: PageProps) {
     .from("law_history")
     .select("*")
     .eq("law_id", id)
-    .order("version_number", { ascending: false });
+    .order("version_number", { ascending: false })
+    .limit(100);
 
   // Check if user is admin
   let isAdmin = false;

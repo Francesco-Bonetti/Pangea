@@ -80,7 +80,8 @@ export default function FeedClient({ userId }: FeedClientProps) {
       .from("follows")
       .select("target_type, target_id")
       .eq("follower_id", userId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(500);
 
     if (!follows) return;
 

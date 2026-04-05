@@ -23,12 +23,13 @@ export default async function DashboardPage() {
     profile = data;
   }
 
-  // Fetch public proposals (active, closed, curation)
+  // Fetch public proposals (active, closed, curation) — paginated
   const { data: proposals, error } = await supabase
     .from("proposals")
     .select("*")
     .in("status", ["active", "closed", "curation"])
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (error) {
     console.error("Error loading proposals:", error);
@@ -42,7 +43,8 @@ export default async function DashboardPage() {
       .select("*")
       .eq("author_id", user.id)
       .eq("status", "draft")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(50);
     drafts = data ?? [];
   }
 
