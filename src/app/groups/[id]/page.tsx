@@ -118,7 +118,7 @@ export default function GroupDetailPage() {
       setMembers(enriched as typeof members);
 
       if (u) {
-        const mine = enriched.find((m: GroupMember) => m.user_id === u.id);
+        const mine = enriched.find((m) => m.user_id === u.id);
         setCurrentMember(mine || null);
       }
     }
