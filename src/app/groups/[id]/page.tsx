@@ -115,7 +115,7 @@ export default function GroupDetailPage() {
         ...m,
         profiles: profileMap[m.user_id] || { full_name: null },
       }));
-      setMembers(enriched);
+      setMembers(enriched as typeof members);
 
       if (u) {
         const mine = enriched.find((m: GroupMember) => m.user_id === u.id);
