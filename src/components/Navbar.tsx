@@ -81,11 +81,11 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               {t("nav.laws")}
             </Link>
             <Link
-              href="/parties"
+              href="/groups"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
             >
               <Flag className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              {t("nav.parties")}
+              {t("nav.groups")}
             </Link>
             <Link
               href="/elections"
@@ -100,13 +100,6 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             >
               <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
               {t("nav.forum")}
-            </Link>
-            <Link
-              href="/jurisdictions"
-              className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
-            >
-              <Map className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              {t("nav.jurisdictions")}
             </Link>
             <Link
               href="/about"
@@ -289,12 +282,12 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               {t("nav.laws")}
             </Link>
             <Link
-              href="/parties"
+              href="/groups"
               className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Flag className="w-4 h-4 shrink-0" />
-              {t("nav.parties")}
+              {t("nav.groups")}
             </Link>
             <Link
               href="/elections"
@@ -311,14 +304,6 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             >
               <MessageCircle className="w-4 h-4 shrink-0" />
               {t("nav.forum")}
-            </Link>
-            <Link
-              href="/jurisdictions"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Map className="w-4 h-4 shrink-0" />
-              {t("nav.jurisdictions")}
             </Link>
             <Link
               href="/about"

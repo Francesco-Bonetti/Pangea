@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-type ResultCategory = "all" | "proposals" | "laws" | "citizens" | "parties" | "jurisdictions" | "elections";
+type ResultCategory = "all" | "proposals" | "laws" | "citizens" | "groups" | "elections";
 
 interface SearchResult {
   id: string;
-  type: "proposal" | "law" | "citizen" | "party" | "jurisdiction" | "election";
+  type: "proposal" | "law" | "citizen" | "group" | "election";
   title: string;
   subtitle?: string;
   status?: string;
@@ -136,42 +136,22 @@ export default function SearchPageClient() {
         );
       }
 
-      // Search parties
-      const { data: parties } = await supabase
-        .from("parties")
-        .select("id, name, description, logo_emoji")
+      // Search groups
+      const { data: groups } = await supabase
+        .from("groups")
+        .select("id, name, description, logo_emoji, group_type")
         .or(`name.ilike.${term},description.ilike.${term}`)
         .eq("is_active", true)
         .limit(20);
 
-      if (parties) {
+      if (groups) {
         allResults.push(
-          ...parties.map((p: { id: string; name: string; description: string | null; logo_emoji: string | null }) => ({
-            id: p.id,
-            type: "party" as const,
-            title: `${p.logo_emoji ?? "\u{1F3DB}"} ${p.name}`,
-            subtitle: p.description?.slice(0, 80) ?? undefined,
-            href: `/parties/${p.id}`,
-          }))
-        );
-      }
-
-      // Search jurisdictions
-      const { data: jurisdictions } = await supabase
-        .from("jurisdictions")
-        .select("id, name, description, logo_emoji, type")
-        .or(`name.ilike.${term},description.ilike.${term}`)
-        .eq("is_active", true)
-        .limit(20);
-
-      if (jurisdictions) {
-        allResults.push(
-          ...jurisdictions.map((j: { id: string; name: string; description: string | null; logo_emoji: string | null; type: string }) => ({
-            id: j.id,
-            type: "jurisdiction" as const,
-            title: `${j.logo_emoji ?? "\u{1F30D}"} ${j.name}`,
-            subtitle: j.type === "virtual" ? "Virtual" : "Geographic",
-            href: `/jurisdictions/${j.id}`,
+          ...groups.map((g: { id: string; name: string; description: string | null; logo_emoji: string | null; group_type: string }) => ({
+            id: g.id,
+            type: "group" as const,
+            title: `${g.logo_emoji ?? "\u{1F3DB}"} ${g.name}`,
+            subtitle: g.group_type === "jurisdiction" ? "Jurisdiction" : g.group_type === "party" ? "Party" : g.group_type,
+            href: `/groups/${g.id}`,
           }))
         );
       }
@@ -226,8 +206,7 @@ export default function SearchPageClient() {
       proposals: "proposal",
       laws: "law",
       citizens: "citizen",
-      parties: "party",
-      jurisdictions: "jurisdiction",
+      groups: "group",
       elections: "election",
     };
     return results.filter((r) => r.type === typeMap[activeFilter]);
@@ -240,8 +219,7 @@ export default function SearchPageClient() {
     proposals: results.filter((r) => r.type === "proposal").length,
     laws: results.filter((r) => r.type === "law").length,
     citizens: results.filter((r) => r.type === "citizen").length,
-    parties: results.filter((r) => r.type === "party").length,
-    jurisdictions: results.filter((r) => r.type === "jurisdiction").length,
+    groups: results.filter((r) => r.type === "group").length,
     elections: results.filter((r) => r.type === "election").length,
   };
 
@@ -250,8 +228,7 @@ export default function SearchPageClient() {
       case "proposal": return <FileText className="w-4 h-4 text-blue-400" />;
       case "law": return <BookOpen className="w-4 h-4 text-emerald-400" />;
       case "citizen": return <Users className="w-4 h-4 text-purple-400" />;
-      case "party": return <Flag className="w-4 h-4 text-amber-400" />;
-      case "jurisdiction": return <Globe className="w-4 h-4 text-cyan-400" />;
+      case "group": return <Flag className="w-4 h-4 text-amber-400" />;
       case "election": return <Vote className="w-4 h-4 text-rose-400" />;
       default: return <Search className="w-4 h-4 text-fg-muted" />;
     }
@@ -262,8 +239,7 @@ export default function SearchPageClient() {
     { key: "proposals", label: "Proposals" },
     { key: "laws", label: "Laws" },
     { key: "citizens", label: "Citizens" },
-    { key: "parties", label: "Parties" },
-    { key: "jurisdictions", label: "Jurisdictions" },
+    { key: "groups", label: "Groups" },
     { key: "elections", label: "Elections" },
   ];
 
@@ -290,7 +266,7 @@ export default function SearchPageClient() {
             <Search className="w-5 h-5 text-fg-muted absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search laws, proposals, citizens, parties, jurisdictions..."
+              placeholder="Search laws, proposals, citizens, groups..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="input-field pl-12 pr-4 py-3 text-base"

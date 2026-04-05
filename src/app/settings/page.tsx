@@ -190,8 +190,7 @@ export default function SettingsPage() {
       setShowUserCode(privData.show_user_code ?? true);
       setShowActivity(privData.show_activity ?? true);
       setShowDelegations(privData.show_delegations ?? true);
-      setShowPartyMembership(privData.show_party_membership ?? true);
-      setShowJurisdictionMembership(privData.show_jurisdiction_membership ?? true);
+      setShowPartyMembership(privData.show_group_membership ?? true);
       setShowOnlineStatus(privData.show_online_status ?? false);
       setDisplayName(privData.display_name || "");
       setDmPolicy(privData.dm_policy || "everyone");
@@ -205,18 +204,18 @@ export default function SettingsPage() {
       setNotifyDm(privData.notify_dm ?? true);
     }
 
-    // Load party memberships
+    // Load group memberships
     const { data: memberships } = await supabase
-      .from("party_members")
-      .select("id, party_id, vote_weight, parties(name, logo_emoji)")
+      .from("group_members")
+      .select("id, group_id, vote_weight, groups(name, logo_emoji, group_type)")
       .eq("user_id", authUser.id);
     if (memberships) {
       setPartyMemberships(
         memberships.map((m: Record<string, unknown>) => ({
           id: m.id as string,
-          party_id: m.party_id as string,
-          party_name: (m.parties as Record<string, string>)?.name || "Party",
-          logo_emoji: (m.parties as Record<string, string>)?.logo_emoji || "🏛️",
+          party_id: m.group_id as string,
+          party_name: (m.groups as Record<string, string>)?.name || "Group",
+          logo_emoji: (m.groups as Record<string, string>)?.logo_emoji || "🏛️",
           vote_weight: m.vote_weight as number,
         }))
       );
@@ -273,8 +272,7 @@ export default function SettingsPage() {
         show_user_code: showUserCode,
         show_activity: showActivity,
         show_delegations: showDelegations,
-        show_party_membership: showPartyMembership,
-        show_jurisdiction_membership: showJurisdictionMembership,
+        show_group_membership: showPartyMembership,
         show_online_status: showOnlineStatus,
         display_name: displayName.trim() || null,
         dm_policy: dmPolicy,
@@ -298,11 +296,11 @@ export default function SettingsPage() {
     setTimeout(() => setPrivacySuccess(false), 3000);
   }
 
-  async function savePartyWeights() {
+  async function saveGroupWeights() {
     setSavingWeights(true);
     setWeightsSuccess(false);
-    for (const pm of partyMemberships) {
-      await supabase.from("party_members").update({ vote_weight: pm.vote_weight }).eq("id", pm.id);
+    for (const gm of partyMemberships) {
+      await supabase.from("group_members").update({ vote_weight: gm.vote_weight }).eq("id", gm.id);
     }
     setWeightsSuccess(true);
     setSavingWeights(false);
@@ -669,11 +667,8 @@ export default function SettingsPage() {
               <SettingRow icon={Users} label="Show delegations" description="Display your delegation relationships">
                 <Toggle enabled={showDelegations} onChange={setShowDelegations} />
               </SettingRow>
-              <SettingRow icon={Flag} label="Show party memberships" description="Display which parties you belong to">
+              <SettingRow icon={Flag} label="Show group memberships" description="Display which groups you belong to">
                 <Toggle enabled={showPartyMembership} onChange={setShowPartyMembership} />
-              </SettingRow>
-              <SettingRow icon={Building2} label="Show jurisdiction memberships" description="Display which jurisdictions you belong to">
-                <Toggle enabled={showJurisdictionMembership} onChange={setShowJurisdictionMembership} />
               </SettingRow>
             </div>
           </div>
@@ -789,16 +784,16 @@ export default function SettingsPage() {
             {savingPrivacy ? "Saving..." : "Save privacy settings"}
           </button>
 
-          {/* ──── Party vote weights ──── */}
+          {/* ──── Group vote weights ──── */}
           {partyMemberships.length > 0 && (
             <div className="card p-6">
               <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
                 <Flag className="w-5 h-5 text-fg-primary" />
-                Party Vote Weights
+                Group Vote Weights
               </h2>
               <p className="text-xs text-fg-muted mb-4">
-                If you are a member of multiple parties, your vote is split based on these weights. For example, if Party A has
-                weight 2 and Party B has weight 1, Party A gets ~67% of your vote.
+                If you are a member of multiple groups, your vote is split based on these weights. For example, if Group A has
+                weight 2 and Group B has weight 1, Group A gets ~67% of your vote.
               </p>
               <div className="space-y-3">
                 {partyMemberships.map((pm) => {
@@ -809,7 +804,7 @@ export default function SettingsPage() {
                       <span className="text-xl">{pm.logo_emoji}</span>
                       <div className="flex-1 min-w-0">
                         <Link
-                          href={`/parties/${pm.party_id}`}
+                          href={`/groups/${pm.party_id}`}
                           className="text-sm text-fg hover:text-fg-primary transition-colors"
                         >
                           {pm.party_name}
@@ -850,12 +845,12 @@ export default function SettingsPage() {
                 </div>
               )}
               <button
-                onClick={savePartyWeights}
+                onClick={saveGroupWeights}
                 disabled={savingWeights}
                 className="mt-3 btn-secondary w-full flex items-center justify-center gap-2 text-sm"
               >
                 {savingWeights ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {savingWeights ? "Saving..." : "Save party weights"}
+                {savingWeights ? "Saving..." : "Save group weights"}
               </button>
             </div>
           )}

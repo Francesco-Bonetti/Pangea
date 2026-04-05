@@ -34,7 +34,7 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
   // Fetch election (no profiles join — created_by FK points to auth.users, not profiles)
   const { data: election } = await supabase
     .from("elections")
-    .select("*, jurisdictions(name, logo_emoji), parties!elections_party_id_fkey(name, logo_emoji)")
+    .select("*, groups(name, logo_emoji, group_type)")
     .eq("id", id)
     .single();
 
@@ -133,16 +133,12 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
 
           {/* Meta */}
           <div className="flex items-center gap-4 flex-wrap text-sm text-fg-muted overflow-hidden">
-            {election.jurisdictions && (
+            {election.groups && (
               <span className="flex items-center gap-1.5 shrink-0">
-                <MapPin className="w-4 h-4 shrink-0" />
-                <span className="truncate">{election.jurisdictions.logo_emoji} {election.jurisdictions.name}</span>
-              </span>
-            )}
-            {election.parties && (
-              <span className="flex items-center gap-1.5 shrink-0">
-                <Flag className="w-4 h-4 shrink-0" />
-                <span className="truncate">{election.parties.logo_emoji} {election.parties.name}</span>
+                <span className="w-4 h-4 flex items-center justify-center shrink-0">
+                  {election.groups.group_type === "jurisdiction" ? <MapPin className="w-4 h-4" /> : <Flag className="w-4 h-4" />}
+                </span>
+                <span className="truncate">{election.groups.logo_emoji} {election.groups.name}</span>
               </span>
             )}
             <span className="flex items-center gap-1.5 shrink-0">

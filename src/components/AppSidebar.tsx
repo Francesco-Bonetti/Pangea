@@ -5,10 +5,9 @@ import { usePathname } from "next/navigation";
 import {
   Globe,
   BookOpen,
-  Flag,
+  FolderTree,
   Vote,
   MessageCircle,
-  Map,
   Info,
   LayoutDashboard,
   Plus,
@@ -41,10 +40,9 @@ interface AppSidebarProps {
 const mainNavItems = [
   { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
   { href: "/laws", labelKey: "nav.laws", icon: BookOpen },
-  { href: "/parties", labelKey: "nav.parties", icon: Flag },
+  { href: "/groups", labelKey: "nav.groups", icon: FolderTree },
   { href: "/elections", labelKey: "nav.elections", icon: Vote },
   { href: "/social", labelKey: "nav.forum", icon: MessageCircle },
-  { href: "/jurisdictions", labelKey: "nav.jurisdictions", icon: Map },
   { href: "/about", labelKey: "nav.about", icon: Info },
   { href: "/verify", labelKey: "integrity.navTitle", icon: ShieldCheck },
 ];

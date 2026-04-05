@@ -68,7 +68,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
     setLoading(true);
     let query = supabase
       .from("elections")
-      .select("*, profiles:created_by(full_name), jurisdictions(name, logo_emoji), parties!elections_party_id_fkey(name, logo_emoji)")
+      .select("*, profiles:created_by(full_name), groups(name, logo_emoji, group_type)")
       .order("created_at", { ascending: false });
 
     if (filter !== "all") {
@@ -234,16 +234,10 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
                         <Calendar className="w-3.5 h-3.5" />
                         {formatDate(election.voting_start)} — {formatDate(election.voting_end)}
                       </span>
-                      {election.jurisdictions && (
+                      {election.groups && (
                         <span className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5" />
-                          {election.jurisdictions.logo_emoji} {election.jurisdictions.name}
-                        </span>
-                      )}
-                      {election.parties && (
-                        <span className="flex items-center gap-1.5">
-                          <Flag className="w-3.5 h-3.5" />
-                          {election.parties.logo_emoji} {election.parties.name}
+                          {election.groups.group_type === "jurisdiction" ? <MapPin className="w-3.5 h-3.5" /> : <Flag className="w-3.5 h-3.5" />}
+                          {election.groups.logo_emoji} {election.groups.name}
                         </span>
                       )}
                     </div>

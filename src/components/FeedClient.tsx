@@ -90,8 +90,7 @@ export default function FeedClient({ userId }: FeedClientProps) {
     // Resolve names
     type FollowRow = { target_type: string; target_id: string };
     const citizenIds = follows.filter((f: FollowRow) => f.target_type === "citizen").map((f: FollowRow) => f.target_id);
-    const partyIds = follows.filter((f: FollowRow) => f.target_type === "party").map((f: FollowRow) => f.target_id);
-    const jurisdictionIds = follows.filter((f: FollowRow) => f.target_type === "jurisdiction").map((f: FollowRow) => f.target_id);
+    const groupIds = follows.filter((f: FollowRow) => f.target_type === "group").map((f: FollowRow) => f.target_id);
 
     if (citizenIds.length > 0) {
       const { data: profiles } = await supabase
@@ -105,27 +104,15 @@ export default function FeedClient({ userId }: FeedClientProps) {
       }));
     }
 
-    if (partyIds.length > 0) {
-      const { data: parties } = await supabase
-        .from("parties")
+    if (groupIds.length > 0) {
+      const { data: groups } = await supabase
+        .from("groups")
         .select("id, name")
-        .in("id", partyIds);
-      parties?.forEach((p: { id: string; name: string }) => entities.push({
-        target_type: "party",
-        target_id: p.id,
-        name: p.name
-      }));
-    }
-
-    if (jurisdictionIds.length > 0) {
-      const { data: jurisdictions } = await supabase
-        .from("jurisdictions")
-        .select("id, name")
-        .in("id", jurisdictionIds);
-      jurisdictions?.forEach((j: { id: string; name: string }) => entities.push({
-        target_type: "jurisdiction",
-        target_id: j.id,
-        name: j.name
+        .in("id", groupIds);
+      groups?.forEach((g: { id: string; name: string }) => entities.push({
+        target_type: "group",
+        target_id: g.id,
+        name: g.name
       }));
     }
 
@@ -137,19 +124,21 @@ export default function FeedClient({ userId }: FeedClientProps) {
     loadFollowing();
   }, [loadFeed, loadFollowing]);
 
-  const entityLink = (type: FollowTargetType, id: string) => {
+  const entityLink = (type: FollowTargetType, id: string): string => {
     switch (type) {
       case "citizen": return `/citizens/${id}`;
-      case "party": return `/parties/${id}`;
-      case "jurisdiction": return `/dashboard?jurisdiction=${id}`;
+      case "group":
+      case "party":
+      case "jurisdiction":
+        return `/groups/${id}`;
+      default: return `/groups/${id}`;
     }
   };
 
   const entityIcon = (type: FollowTargetType) => {
     switch (type) {
       case "citizen": return <Users className="w-4 h-4 text-fg-muted" />;
-      case "party": return <Flag className="w-4 h-4 text-amber-400" />;
-      case "jurisdiction": return <Globe className="w-4 h-4 text-fg-primary" />;
+      case "group": return <Flag className="w-4 h-4 text-amber-400" />;
     }
   };
 
@@ -205,13 +194,13 @@ export default function FeedClient({ userId }: FeedClientProps) {
               <Rss className="w-12 h-12 text-fg-muted mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-fg mb-2">Your feed is empty</h3>
               <p className="text-fg-muted text-sm max-w-md mx-auto mb-6">
-                Follow citizens, parties, or jurisdictions to see their activity here.
+                Follow citizens and groups to see their activity here.
                 Your personalized feed will show proposals, discussions, and votes from
                 people and organizations you care about.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
-                <Link href="/parties" className="btn-primary px-4 py-2 text-sm inline-flex items-center gap-2">
-                  <Flag className="w-4 h-4" /> Browse Parties
+                <Link href="/groups" className="btn-primary px-4 py-2 text-sm inline-flex items-center gap-2">
+                  <Flag className="w-4 h-4" /> Browse Groups
                 </Link>
                 <Link href="/dashboard" className="btn-secondary px-4 py-2 text-sm inline-flex items-center gap-2">
                   <Globe className="w-4 h-4" /> Explore Pangea
@@ -260,7 +249,7 @@ export default function FeedClient({ userId }: FeedClientProps) {
               <Heart className="w-12 h-12 text-fg-muted mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-fg mb-2">Not following anyone yet</h3>
               <p className="text-fg-muted text-sm max-w-md mx-auto">
-                Visit citizen profiles, parties, or jurisdictions and click the Follow button to start building your network.
+                Visit citizen profiles and groups and click the Follow button to start building your network.
               </p>
             </div>
           ) : (

@@ -12,8 +12,7 @@ export const UID_PREFIXES = {
   discussions: "DSC",
   discussion_replies: "RPL",
   discussion_channels: "CHN",
-  parties: "PTY",
-  jurisdictions: "JUR",
+  groups: "GRP",
   elections: "ELC",
   candidates: "CND",
   delegations: "DLG",
@@ -23,7 +22,7 @@ export const UID_PREFIXES = {
   dm_conversations: "DMC",
   dm_messages: "MSG",
   bug_reports: "BUG",
-  party_forum_posts: "PST",
+  group_forum_posts: "PST",
   feed_events: "FEV",
   votes: "VOT",
   election_votes: "ELV",
@@ -45,8 +44,7 @@ export const ENTITY_TYPE_LABELS: Record<UidPrefix, string> = {
   DSC: "Discussion",
   RPL: "Reply",
   CHN: "Channel",
-  PTY: "Party",
-  JUR: "Jurisdiction",
+  GRP: "Group",
   ELC: "Election",
   CND: "Candidate",
   DLG: "Delegation",
@@ -70,8 +68,7 @@ export const UID_COLORS: Record<UidPrefix, { bg: string; text: string; border: s
   DSC: { bg: "bg-cyan-500/15", text: "text-cyan-400", border: "border-cyan-500/30" },
   RPL: { bg: "bg-cyan-500/10", text: "text-cyan-300", border: "border-cyan-500/20" },
   CHN: { bg: "bg-teal-500/15", text: "text-teal-400", border: "border-teal-500/30" },
-  PTY: { bg: "bg-purple-500/15", text: "text-purple-400", border: "border-purple-500/30" },
-  JUR: { bg: "bg-emerald-500/15", text: "text-emerald-400", border: "border-emerald-500/30" },
+  GRP: { bg: "bg-purple-500/15", text: "text-purple-400", border: "border-purple-500/30" },
   ELC: { bg: "bg-rose-500/15", text: "text-rose-400", border: "border-rose-500/30" },
   CND: { bg: "bg-rose-500/10", text: "text-rose-300", border: "border-rose-500/20" },
   DLG: { bg: "bg-indigo-500/15", text: "text-indigo-400", border: "border-indigo-500/30" },
@@ -113,8 +110,7 @@ export function getEntityRoute(uid: string): string | null {
     case "LAW": return `/laws?uid=${uid}`;
     case "DSC": return `/forum?uid=${uid}`;
     case "RPL": return `/forum?reply=${uid}`;
-    case "PTY": return `/parties?uid=${uid}`;
-    case "JUR": return `/jurisdictions?uid=${uid}`;
+    case "GRP": return `/groups?uid=${uid}`;
     case "ELC": return `/elections?uid=${uid}`;
     case "DLG": return `/delegations?uid=${uid}`;
     case "CAT": return `/proposals?category=${uid}`;

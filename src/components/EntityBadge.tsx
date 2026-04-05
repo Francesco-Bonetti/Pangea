@@ -4,20 +4,15 @@ import { Building2, Flag, User } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
 interface EntityBadgeProps {
-  entityType: "jurisdiction" | "party" | "citizen";
+  entityType: "group" | "citizen";
   size?: "sm" | "md";
 }
 
 const ENTITY_CONFIG = {
-  jurisdiction: {
-    icon: Building2,
-    colorClass: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    labelKey: "messages.entityBadge.jurisdiction",
-  },
-  party: {
+  group: {
     icon: Flag,
-    colorClass: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    labelKey: "messages.entityBadge.party",
+    colorClass: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+    labelKey: "messages.entityBadge.group",
   },
   citizen: {
     icon: User,

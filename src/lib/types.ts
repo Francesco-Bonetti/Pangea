@@ -165,52 +165,70 @@ export interface CommentReaction {
   created_at: string;
 }
 
-// --- Partiti Politici (Fase 4) ---
-export type PartyMemberRole = "member" | "admin" | "founder";
+// --- Recursive Tree Group System (Phase 5 — A2) ---
+export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "custom";
+export type GroupMemberRole = "member" | "admin" | "founder";
+export type JurisdictionType = "virtual" | "geographic";
 
-export interface Party {
+export interface GroupSettings {
+  visibility: "public" | "private" | "members_only";
+  can_create_subgroups: "anyone" | "members" | "admins";
+  can_post: "anyone" | "members" | "admins";
+  join_policy: "open" | "approval" | "invite_only";
+}
+
+export interface Group {
   id: string;
   uid?: string | null;
   name: string;
   description: string | null;
-  manifesto: string | null;
+  group_type: GroupType;
   logo_emoji: string;
   founder_id: string;
+  parent_group_id: string | null;
+  settings: GroupSettings;
   is_active: boolean;
   created_at: string;
-  // Join
+  // Jurisdiction-specific
+  jurisdiction_type?: JurisdictionType | null;
+  location_name?: string | null;
+  location_coords?: Record<string, number> | null;
+  // Party-specific
+  manifesto?: string | null;
+  // Joins / computed
   profiles?: Profile;
   member_count?: number;
+  child_count?: number;
 }
 
-export interface PartyMember {
+export interface GroupMember {
   id: string;
-  party_id: string;
+  group_id: string;
   user_id: string;
-  role: PartyMemberRole;
+  role: GroupMemberRole;
   vote_weight: number;
   joined_at: string;
   // Join
   profiles?: Profile;
-  parties?: Party;
+  groups?: Group;
 }
 
-export interface PartyVote {
+export interface GroupVote {
   id: string;
-  party_id: string;
+  group_id: string;
   proposal_id: string;
   vote_type: VoteType;
   decided_by: string;
   created_at: string;
   // Join
-  parties?: Party;
+  groups?: Group;
   proposals?: Proposal;
 }
 
-export interface PartyForumPost {
+export interface GroupForumPost {
   id: string;
   uid?: string | null;
-  party_id: string;
+  group_id: string;
   author_id: string;
   title: string | null;
   body: string;
@@ -221,38 +239,39 @@ export interface PartyForumPost {
   profiles?: { full_name: string | null };
 }
 
-// --- Sotto-giurisdizioni (Fase 4) ---
-export type JurisdictionType = "virtual" | "geographic";
-export type JurisdictionMemberRole = "member" | "admin" | "founder";
-
-export interface Jurisdiction {
+export interface GroupTreeNode {
   id: string;
-  uid?: string | null;
+  uid: string;
   name: string;
   description: string | null;
-  type: JurisdictionType;
+  group_type: GroupType;
   logo_emoji: string;
-  founder_id: string;
-  parent_jurisdiction_id: string | null;
-  location_name: string | null;
-  location_coords: Record<string, number> | null;
+  parent_group_id: string | null;
   is_active: boolean;
-  created_at: string;
-  // Join
-  profiles?: Profile;
-  member_count?: number;
+  depth: number;
+  member_count: number;
+  child_count: number;
+  children?: GroupTreeNode[];
 }
 
-export interface JurisdictionMember {
+export interface GroupAncestor {
   id: string;
-  jurisdiction_id: string;
-  user_id: string;
-  role: JurisdictionMemberRole;
-  joined_at: string;
-  // Join
-  profiles?: Profile;
-  jurisdictions?: Jurisdiction;
+  uid: string;
+  name: string;
+  logo_emoji: string;
+  group_type: GroupType;
+  depth: number;
 }
+
+// Legacy aliases for backward compatibility during migration
+export type Party = Group;
+export type PartyMemberRole = GroupMemberRole;
+export type PartyMember = GroupMember;
+export type PartyVote = GroupVote;
+export type PartyForumPost = GroupForumPost;
+export type Jurisdiction = Group;
+export type JurisdictionMemberRole = GroupMemberRole;
+export type JurisdictionMember = GroupMember;
 
 export interface LawConflict {
   new_law_id: string;
@@ -285,8 +304,9 @@ export interface PrivacySettings {
   // Activity & social visibility
   show_activity: boolean;
   show_delegations: boolean;
-  show_party_membership: boolean;
-  show_jurisdiction_membership: boolean;
+  show_group_membership: boolean;
+  show_party_membership?: boolean;
+  show_jurisdiction_membership?: boolean;
   show_online_status: boolean;
 
   // Display name (alternative to real name)
@@ -323,6 +343,7 @@ export interface DisplayProfile {
   created_at: string | null;
   show_activity?: boolean;
   show_delegations?: boolean;
+  show_group_membership?: boolean;
   show_party_membership?: boolean;
   show_jurisdiction_membership?: boolean;
   dm_policy?: DmPolicy;
@@ -465,7 +486,7 @@ export interface ConversationWithDetails extends DmConversation {
 }
 
 // --- Follow System ---
-export type FollowTargetType = "citizen" | "party" | "jurisdiction";
+export type FollowTargetType = "citizen" | "group" | "party" | "jurisdiction";
 
 export interface Follow {
   id: string;
@@ -488,7 +509,7 @@ export type FeedEventType =
 // --- Elections & Candidatures (Phase 4) ---
 export type ElectionStatus = "upcoming" | "candidature" | "voting" | "closed" | "cancelled";
 export type CandidateStatus = "registered" | "approved" | "withdrawn" | "disqualified";
-export type ElectionType = "general" | "jurisdiction" | "party" | "position";
+export type ElectionType = "general" | "jurisdiction" | "party" | "position" | "group";
 
 export interface Election {
   id: string;
@@ -496,8 +517,10 @@ export interface Election {
   title: string;
   description: string | null;
   election_type: ElectionType;
-  jurisdiction_id: string | null;
-  party_id: string | null;
+  group_id: string | null;
+  // Legacy (kept for backward compat during migration)
+  jurisdiction_id?: string | null;
+  party_id?: string | null;
   position_name: string;
   max_winners: number;
   status: ElectionStatus;
@@ -510,6 +533,8 @@ export interface Election {
   results_summary: ElectionResultEntry[] | null;
   // Joins
   profiles?: Profile;
+  groups?: { name: string; logo_emoji: string; group_type: string };
+  // Legacy joins
   jurisdictions?: { name: string; logo_emoji: string };
   parties?: { name: string; logo_emoji: string };
   candidate_count?: number;
@@ -519,13 +544,15 @@ export interface Candidate {
   id: string;
   election_id: string;
   user_id: string;
-  party_id: string | null;
+  group_id: string | null;
+  party_id?: string | null;
   platform: string | null;
   status: CandidateStatus;
   created_at: string;
   withdrawn_at: string | null;
   // Joins
   profiles?: Profile;
+  groups?: { name: string; logo_emoji: string };
   parties?: { name: string; logo_emoji: string };
 }
 
@@ -553,8 +580,10 @@ export interface ElectionResultEntry {
 export interface FeedEvent {
   id: string;
   actor_id: string | null;
-  actor_party_id: string | null;
-  actor_jurisdiction_id: string | null;
+  actor_group_id: string | null;
+  // Legacy
+  actor_party_id?: string | null;
+  actor_jurisdiction_id?: string | null;
   event_type: FeedEventType;
   title: string;
   description: string | null;

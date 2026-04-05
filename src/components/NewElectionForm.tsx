@@ -7,16 +7,11 @@ import { Vote, Calendar, Trophy, Info, MapPin, Flag } from "lucide-react";
 import { triggerTranslation } from "@/lib/translate";
 import type { ElectionType } from "@/lib/types";
 
-interface Jurisdiction {
+interface GroupOption {
   id: string;
   name: string;
   logo_emoji: string;
-}
-
-interface Party {
-  id: string;
-  name: string;
-  logo_emoji: string;
+  group_type: string;
 }
 
 export default function NewElectionForm() {
@@ -28,15 +23,13 @@ export default function NewElectionForm() {
   const [electionType, setElectionType] = useState<ElectionType>("general");
   const [positionName, setPositionName] = useState("");
   const [maxWinners, setMaxWinners] = useState(1);
-  const [jurisdictionId, setJurisdictionId] = useState<string>("");
-  const [partyId, setPartyId] = useState<string>("");
+  const [groupId, setGroupId] = useState<string>("");
   const [candidatureStart, setCandidatureStart] = useState("");
   const [candidatureEnd, setCandidatureEnd] = useState("");
   const [votingStart, setVotingStart] = useState("");
   const [votingEnd, setVotingEnd] = useState("");
 
-  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
-  const [parties, setParties] = useState<Party[]>([]);
+  const [groups, setGroups] = useState<GroupOption[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,12 +38,13 @@ export default function NewElectionForm() {
   }, []);
 
   async function loadOptions() {
-    const [{ data: jData }, { data: pData }] = await Promise.all([
-      supabase.from("jurisdictions").select("id, name, logo_emoji").eq("is_active", true).order("name"),
-      supabase.from("parties").select("id, name, logo_emoji").eq("is_active", true).order("name"),
-    ]);
-    setJurisdictions((jData as Jurisdiction[]) || []);
-    setParties((pData as Party[]) || []);
+    const { data: gData } = await supabase
+      .from("groups")
+      .select("id, name, logo_emoji, group_type")
+      .eq("is_active", true)
+      .neq("id", "00000000-0000-0000-0000-000000000001")
+      .order("name");
+    setGroups((gData as GroupOption[]) || []);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -99,8 +93,7 @@ export default function NewElectionForm() {
         title: title.trim(),
         description: description.trim() || null,
         election_type: electionType,
-        jurisdiction_id: jurisdictionId || null,
-        party_id: partyId || null,
+        group_id: groupId || null,
         position_name: positionName.trim(),
         max_winners: maxWinners,
         candidature_start: cStart.toISOString(),
@@ -128,8 +121,9 @@ export default function NewElectionForm() {
 
   const electionTypes: { value: ElectionType; label: string; desc: string }[] = [
     { value: "general", label: "General", desc: "Pangea-wide election open to all citizens" },
-    { value: "jurisdiction", label: "Jurisdiction", desc: "Election scoped to a specific jurisdiction" },
+    { value: "jurisdiction", label: "Jurisdiction", desc: "Election scoped to a specific jurisdiction group" },
     { value: "party", label: "Party", desc: "Internal party election for leadership roles" },
+    { value: "group", label: "Group", desc: "Election scoped to any group" },
     { value: "position", label: "Position", desc: "Election for a specific role defined in a law" },
   ];
 
@@ -190,40 +184,24 @@ export default function NewElectionForm() {
           </div>
         </div>
 
-        {/* Jurisdiction (if jurisdiction type) */}
-        {electionType === "jurisdiction" && (
+        {/* Group selector (for jurisdiction, party, or group type) */}
+        {(electionType === "jurisdiction" || electionType === "party" || electionType === "group") && (
           <div>
             <label className="block text-sm font-medium text-fg mb-2 flex items-center gap-2">
-              <MapPin className="w-4 h-4" /> Jurisdiction
+              {electionType === "jurisdiction" ? <MapPin className="w-4 h-4" /> : <Flag className="w-4 h-4" />}
+              {electionType === "jurisdiction" ? "Jurisdiction" : electionType === "party" ? "Party" : "Group"}
             </label>
             <select
-              value={jurisdictionId}
-              onChange={(e) => setJurisdictionId(e.target.value)}
+              value={groupId}
+              onChange={(e) => setGroupId(e.target.value)}
               className="w-full px-4 py-3 bg-theme-card border border-theme rounded-lg text-fg focus:outline-none focus:border-purple-500"
             >
-              <option value="">Select jurisdiction...</option>
-              {jurisdictions.map((j) => (
-                <option key={j.id} value={j.id}>{j.logo_emoji} {j.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Party (if party type) */}
-        {electionType === "party" && (
-          <div>
-            <label className="block text-sm font-medium text-fg mb-2 flex items-center gap-2">
-              <Flag className="w-4 h-4" /> Party
-            </label>
-            <select
-              value={partyId}
-              onChange={(e) => setPartyId(e.target.value)}
-              className="w-full px-4 py-3 bg-theme-card border border-theme rounded-lg text-fg focus:outline-none focus:border-purple-500"
-            >
-              <option value="">Select party...</option>
-              {parties.map((p) => (
-                <option key={p.id} value={p.id}>{p.logo_emoji} {p.name}</option>
-              ))}
+              <option value="">Select group...</option>
+              {groups
+                .filter((g) => electionType === "group" || g.group_type === electionType)
+                .map((g) => (
+                  <option key={g.id} value={g.id}>{g.logo_emoji} {g.name}</option>
+                ))}
             </select>
           </div>
         )}

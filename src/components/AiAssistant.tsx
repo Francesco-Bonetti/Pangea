@@ -34,12 +34,12 @@ const KNOWLEDGE_BASE: Record<string, { keywords: string[]; answer_en: string; an
     answer_es: "Las delegaciones te permiten confiar tu voto a otro ciudadano:\n• Ve a Delegaciones en la barra lateral\n• Elige a quién delegar\n• Puedes delegar por tema o globalmente\n• Puedes revocar en cualquier momento\n• Tu voto directo siempre tiene precedencia",
     answer_fr: "Les délégations permettent de confier votre vote à un autre citoyen:\n• Allez dans Délégations\n• Choisissez à qui déléguer\n• Vous pouvez déléguer par sujet ou globalement\n• Votre vote direct a toujours la priorité",
   },
-  jurisdictions: {
-    keywords: ["jurisdiction", "giurisdizione", "jurisdicción", "juridiction", "territory", "virtual", "geographic"],
-    answer_en: "Jurisdictions are governance areas within Pangea:\n• Virtual jurisdictions: topic-based (e.g., Environment, Technology)\n• Geographic jurisdictions: location-based (e.g., Europe, Asia)\n• Each jurisdiction can have its own laws and proposals\n• Jurisdictions can be nested (sub-jurisdictions)\n• The system detects conflicts between laws from different jurisdictions\n• You can follow jurisdictions to get updates in your feed",
-    answer_it: "Le giurisdizioni sono aree di governo in Pangea:\n• Virtuali: basate su temi (es. Ambiente, Tecnologia)\n• Geografiche: basate su luoghi (es. Europa, Asia)\n• Ogni giurisdizione può avere leggi e proposte proprie\n• Possono essere annidate (sotto-giurisdizioni)\n• Il sistema rileva conflitti tra leggi di giurisdizioni diverse\n• Puoi seguire le giurisdizioni per ricevere aggiornamenti",
-    answer_es: "Las jurisdicciones son áreas de gobierno en Pangea:\n• Virtuales: basadas en temas\n• Geográficas: basadas en ubicación\n• Cada una puede tener sus propias leyes\n• Pueden estar anidadas\n• El sistema detecta conflictos entre leyes",
-    answer_fr: "Les juridictions sont des zones de gouvernance dans Pangea:\n• Virtuelles: thématiques\n• Géographiques: par localisation\n• Chacune peut avoir ses propres lois\n• Elles peuvent être imbriquées\n• Le système détecte les conflits entre lois",
+  groups: {
+    keywords: ["group", "groups", "gruppo", "groups", "groupo", "groupe", "jurisdiction", "party", "community"],
+    answer_en: "Groups are unified organizations within Pangea:\n• Jurisdictions: topic-based (e.g., Environment, Technology) or location-based (e.g., Europe, Asia)\n• Parties: political organizations with manifestos and members\n• Communities: topic-based groups for discussions and collaboration\n• Working groups: specialized task forces\n• Each group can have its own laws, proposals, and members\n• Groups can be nested (sub-groups)\n• The system detects conflicts between laws from different groups\n• You can follow groups to get updates in your feed",
+    answer_it: "I gruppi sono organizzazioni unificate in Pangea:\n• Giurisdizioni: basate su temi (es. Ambiente, Tecnologia) o luoghi (es. Europa, Asia)\n• Partiti: organizzazioni politiche con manifesti e membri\n• Comunità: gruppi tematici per discussioni\n• Gruppi di lavoro: task force specializzate\n• Ogni gruppo può avere leggi, proposte e membri propri\n• Possono essere annidati\n• Il sistema rileva conflitti tra leggi di gruppi diversi\n• Puoi seguire i gruppi per ricevere aggiornamenti",
+    answer_es: "Los grupos son organizaciones unificadas en Pangea:\n• Jurisdicciones: basadas en temas o ubicación\n• Partidos: organizaciones políticas con manifiestos\n• Comunidades: grupos temáticos\n• Grupos de trabajo: fuerzas de tareas especializadas\n• Cada grupo puede tener sus propias leyes y miembros",
+    answer_fr: "Les groupes sont des organisations unifiées dans Pangea:\n• Juridictions: thématiques ou géographiques\n• Partis: organisations politiques avec manifestes\n• Communautés: groupes thématiques\n• Groupes de travail: forces de tâches spécialisées\n• Chaque groupe peut avoir ses propres lois et membres",
   },
   platform: {
     keywords: ["pangea", "platform", "piattaforma", "plataforma", "plateforme", "what is", "cos'è", "about", "how does"],
@@ -50,10 +50,10 @@ const KNOWLEDGE_BASE: Record<string, { keywords: string[]; answer_en: string; an
   },
   parties: {
     keywords: ["party", "partito", "partido", "parti", "political", "join", "create"],
-    answer_en: "Political parties in Pangea:\n• Any citizen can create a party with a name, description, and manifesto\n• Citizens join parties using an 8-character alphanumeric code\n• Each party has a leader and members\n• Parties can have their own messaging channel\n• Party activities appear in the feed of followers\n• Parties can endorse proposals and candidates",
-    answer_it: "I partiti politici in Pangea:\n• Ogni cittadino può creare un partito\n• I cittadini si uniscono con un codice alfanumerico di 8 caratteri\n• Ogni partito ha un leader e dei membri\n• I partiti possono avere un canale messaggi proprio\n• Le attività dei partiti appaiono nel feed dei follower",
-    answer_es: "Los partidos políticos en Pangea: cualquier ciudadano puede crear uno, los miembros se unen con un código de 8 caracteres, cada partido tiene líder y miembros.",
-    answer_fr: "Les partis politiques dans Pangea: tout citoyen peut en créer un, les membres rejoignent avec un code de 8 caractères, chaque parti a un dirigeant et des membres.",
+    answer_en: "Political parties in Pangea:\n• Any citizen can create a party with a name, description, and manifesto\n• Parties are now unified under the Groups system\n• Citizens join parties using an 8-character alphanumeric code\n• Each party has a leader and members with vote weights\n• Parties can have their own messaging channels\n• Party activities appear in the feed of followers\n• Parties can endorse proposals and candidates",
+    answer_it: "I partiti politici in Pangea:\n• Ogni cittadino può creare un partito\n• I partiti sono ora unificati nel sistema Gruppi\n• I cittadini si uniscono con un codice alfanumerico di 8 caratteri\n• Ogni partito ha un leader e dei membri con pesi di voto\n• I partiti possono avere canali messaggi propri\n• Le attività dei partiti appaiono nel feed dei follower",
+    answer_es: "Los partidos políticos en Pangea: cualquier ciudadano puede crear uno, ahora unificados en el sistema Grupos, los miembros se unen con un código de 8 caracteres.",
+    answer_fr: "Les partis politiques dans Pangea: tout citoyen peut en créer un, maintenant unifiés dans le système Groupes, les membres rejoignent avec un code de 8 caractères.",
   },
 };
 
@@ -82,10 +82,10 @@ function findAnswer(query: string, locale: string): string {
 
   // Default fallback
   const fallback: Record<string, string> = {
-    en: "I'm not sure about that specific topic. Try asking about: proposals, voting, delegations, jurisdictions, parties, or how the platform works. You can also browse the About page for more details.",
-    it: "Non sono sicuro di questo argomento specifico. Prova a chiedere di: proposte, voto, deleghe, giurisdizioni, partiti, o come funziona la piattaforma.",
-    es: "No estoy seguro de ese tema. Prueba a preguntar sobre: propuestas, votación, delegaciones, jurisdicciones, partidos o cómo funciona la plataforma.",
-    fr: "Je ne suis pas sûr de ce sujet. Essayez de demander sur: propositions, vote, délégations, juridictions, partis ou le fonctionnement de la plateforme.",
+    en: "I'm not sure about that specific topic. Try asking about: proposals, voting, delegations, groups, parties, how the platform works, or how to use the platform. You can also browse the About page for more details.",
+    it: "Non sono sicuro di questo argomento specifico. Prova a chiedere di: proposte, voto, deleghe, gruppi, partiti, o come funziona la piattaforma.",
+    es: "No estoy seguro de ese tema. Prueba a preguntar sobre: propuestas, votación, delegaciones, grupos, partidos o cómo funciona la plataforma.",
+    fr: "Je ne suis pas sûr de ce sujet. Essayez de demander sur: propositions, vote, délégations, groupes, partis ou le fonctionnement de la plateforme.",
   };
   return fallback[locale] || fallback.en;
 }
