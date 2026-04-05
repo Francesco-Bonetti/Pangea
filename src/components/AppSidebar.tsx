@@ -20,6 +20,7 @@ import {
   Users,
   LogIn,
   ChevronLeft,
+  ShieldCheck,
 } from "lucide-react";
 import { useSidebar } from "@/components/sidebar-provider";
 import { useLanguage } from "@/components/language-provider";
@@ -44,6 +45,7 @@ const mainNavItems = [
   { href: "/social", labelKey: "nav.forum", icon: MessageCircle },
   { href: "/jurisdictions", labelKey: "nav.jurisdictions", icon: Map },
   { href: "/about", labelKey: "nav.about", icon: Info },
+  { href: "/verify", labelKey: "integrity.navTitle", icon: ShieldCheck },
 ];
 
 const userNavItems = [

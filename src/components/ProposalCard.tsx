@@ -5,6 +5,7 @@ import type { ProposalWithResults } from "@/lib/types";
 import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
 import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle } from "lucide-react";
 import TranslatedContent from "@/components/TranslatedContent";
+import IntegrityBadge from "@/components/IntegrityBadge";
 import { useLanguage } from "@/components/language-provider";
 
 interface ProposalCardProps {
@@ -94,6 +95,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
                 ✓ {t("laws.voted")}
               </span>
             )}
+            <IntegrityBadge entityType="proposal" entityId={proposal.id} compact />
           </div>
           <h3
             className="font-bold text-lg leading-snug truncate"

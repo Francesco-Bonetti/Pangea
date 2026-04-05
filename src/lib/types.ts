@@ -15,6 +15,10 @@ export type ProfileVisibility = "public" | "registered_only" | "private";
 export type DmPolicy = "everyone" | "followed_only" | "nobody";
 export type ActivityVisibility = "public" | "registered_only" | "private";
 
+// --- Hash Integrity Enums ---
+export type HashEntityType = "law" | "proposal" | "vote" | "delegation" | "amendment" | "election" | "election_vote";
+export type HashOperation = "hash_created" | "hash_verified" | "hash_mismatch" | "merkle_root_created" | "integrity_check";
+
 // --- Entità Base ---
 export interface Profile {
   id: string;
@@ -544,4 +548,81 @@ export interface FeedEvent {
   link: string | null;
   metadata: Record<string, unknown>;
   created_at: string;
+}
+
+// --- Hash-Based Data Integrity ---
+export interface ContentHash {
+  id: string;
+  entity_type: HashEntityType;
+  entity_id: string;
+  content_hash: string;
+  previous_hash: string | null;
+  version: number;
+  hashed_fields: Record<string, unknown>;
+  created_at: string;
+  created_by: string | null;
+}
+
+export interface MerkleTree {
+  id: string;
+  entity_type: HashEntityType;
+  root_hash: string;
+  leaf_count: number;
+  period_start: string;
+  period_end: string;
+  leaf_hashes: string[];
+  created_at: string;
+}
+
+export interface HashAuditLogEntry {
+  id: string;
+  operation: HashOperation;
+  entity_type: string | null;
+  entity_id: string | null;
+  content_hash: string | null;
+  expected_hash: string | null;
+  actual_hash: string | null;
+  verification_result: boolean | null;
+  details: Record<string, unknown> | null;
+  triggered_by: string | null;
+  created_at: string;
+}
+
+export interface IntegrityStats {
+  total_hashes: number;
+  hashes_by_type: Record<string, number> | null;
+  merkle_trees: number;
+  latest_merkle_roots: Array<{
+    entity_type: string;
+    root_hash: string;
+    leaf_count: number;
+    created_at: string;
+  }> | null;
+  recent_verifications: number;
+  recent_mismatches: number;
+  audit_log_total: number;
+}
+
+export interface VerificationResult {
+  verified: boolean;
+  entity_type?: string;
+  entity_id?: string;
+  content_hash?: string;
+  version?: number;
+  hashed_at?: string;
+  previous_hash?: string | null;
+  chain_length?: number;
+  error?: string;
+}
+
+export interface HashSearchResult {
+  found: boolean;
+  hash?: string;
+  entity_type?: string;
+  entity_id?: string;
+  content_hash?: string;
+  version?: number;
+  created_at?: string;
+  hashed_fields?: Record<string, unknown>;
+  previous_hash?: string | null;
 }

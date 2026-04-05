@@ -7,7 +7,9 @@ import { useLanguage } from "@/components/language-provider";
 import type { Profile, Proposal, UserRole } from "@/lib/types";
 import {
   Shield,
+  ShieldCheck,
   Users,
+  Hash,
   FileText,
   Trash2,
   Loader2,
@@ -64,7 +66,9 @@ export default function AdminPage() {
   const [totalCounts, setTotalCounts] = useState({ users: 0, proposals: 0, laws: 0, openReports: 0 });
 
   // UI State
-  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity">("users");
+  const [integrityStats, setIntegrityStats] = useState<Record<string, unknown> | null>(null);
+  const [hashingAll, setHashingAll] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -318,6 +322,7 @@ export default function AdminPage() {
             { key: "laws", label: t("admin.laws"), icon: BookOpen },
             { key: "reports", label: t("admin.reports"), icon: Bug },
             { key: "stats", label: t("admin.statistics"), icon: BarChart3 },
+            { key: "integrity", label: t("integrity.navTitle"), icon: ShieldCheck },
           ] as const).map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -592,7 +597,206 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+        {/* Integrity tab */}
+        {activeTab === "integrity" && (
+          <IntegrityTab
+            supabase={supabase}
+            integrityStats={integrityStats}
+            setIntegrityStats={setIntegrityStats}
+            hashingAll={hashingAll}
+            setHashingAll={setHashingAll}
+            setSuccess={setSuccess}
+            setError={setError}
+          />
+        )}
       </div>
     </AppShell>
+  );
+}
+
+/* ── Integrity Tab Component ── */
+function IntegrityTab({
+  supabase,
+  integrityStats,
+  setIntegrityStats,
+  hashingAll,
+  setHashingAll,
+  setSuccess,
+  setError,
+}: {
+  supabase: ReturnType<typeof createClient>;
+  integrityStats: Record<string, unknown> | null;
+  setIntegrityStats: (s: Record<string, unknown> | null) => void;
+  hashingAll: boolean;
+  setHashingAll: (b: boolean) => void;
+  setSuccess: (s: string | null) => void;
+  setError: (s: string | null) => void;
+}) {
+  const { t } = useLanguage();
+  const [loading, setLoading] = useState(true);
+  const [recentAudit, setRecentAudit] = useState<Array<Record<string, unknown>>>([]);
+
+  useEffect(() => {
+    loadIntegrityData();
+  }, []);
+
+  async function loadIntegrityData() {
+    setLoading(true);
+    try {
+      const { data: stats } = await supabase.rpc("get_integrity_stats");
+      if (stats) setIntegrityStats(stats as Record<string, unknown>);
+
+      const { data: audit } = await supabase
+        .from("hash_audit_log")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (audit) setRecentAudit(audit);
+    } catch {
+      // Non-critical
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleBatchHash() {
+    setHashingAll(true);
+    setError(null);
+    try {
+      const { data, error: rpcError } = await supabase.rpc("batch_hash_existing_records");
+      if (rpcError) throw rpcError;
+      const result = data as Record<string, unknown>;
+      setSuccess(
+        `Hashed ${result.total || 0} records: ${result.laws_hashed || 0} laws, ${result.proposals_hashed || 0} proposals, ${result.votes_hashed || 0} votes`
+      );
+      await loadIntegrityData();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Batch hashing failed");
+    } finally {
+      setHashingAll(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-fg-muted" />
+      </div>
+    );
+  }
+
+  const stats = integrityStats || {};
+  const hashesByType = (stats.hashes_by_type as Record<string, number>) || {};
+
+  return (
+    <div className="space-y-6">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="card p-4 text-center">
+          <Hash className="w-5 h-5 text-primary mx-auto mb-1" />
+          <p className="text-2xl font-bold text-fg">{(stats.total_hashes as number) || 0}</p>
+          <p className="text-xs text-fg-muted">{t("integrity.totalHashes")}</p>
+        </div>
+        <div className="card p-4 text-center">
+          <ShieldCheck className="w-5 h-5 text-green-500 mx-auto mb-1" />
+          <p className="text-2xl font-bold text-fg">{(stats.recent_verifications as number) || 0}</p>
+          <p className="text-xs text-fg-muted">{t("integrity.verificationsToday")}</p>
+        </div>
+        <div className="card p-4 text-center">
+          <Scale className="w-5 h-5 text-amber-500 mx-auto mb-1" />
+          <p className="text-2xl font-bold text-fg">{(stats.merkle_trees as number) || 0}</p>
+          <p className="text-xs text-fg-muted">{t("integrity.merkleTrees")}</p>
+        </div>
+        <div className="card p-4 text-center">
+          <AlertTriangle className={`w-5 h-5 mx-auto mb-1 ${((stats.recent_mismatches as number) || 0) > 0 ? "text-red-500" : "text-green-500"}`} />
+          <p className="text-2xl font-bold text-fg">{(stats.recent_mismatches as number) || 0}</p>
+          <p className="text-xs text-fg-muted">{t("integrity.mismatches")}</p>
+        </div>
+      </div>
+
+      {/* Hashes by Type */}
+      {Object.keys(hashesByType).length > 0 && (
+        <div className="card p-6">
+          <h3 className="text-sm font-semibold text-fg mb-4 flex items-center gap-2">
+            <Hash className="w-4 h-4 text-primary" />
+            Hashes by Record Type
+          </h3>
+          <div className="space-y-3">
+            {Object.entries(hashesByType).map(([type, count]) => {
+              const total = (stats.total_hashes as number) || 1;
+              const pct = (count / total) * 100;
+              return (
+                <div key={type}>
+                  <div className="flex justify-between text-xs text-fg-muted mb-1">
+                    <span className="capitalize">{type}</span>
+                    <span className="font-medium">{count} ({pct.toFixed(0)}%)</span>
+                  </div>
+                  <div className="bg-theme-muted rounded-full h-2">
+                    <div
+                      className="bg-theme-primary h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="card p-6">
+        <h3 className="text-sm font-semibold text-fg mb-4">Admin Actions</h3>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={handleBatchHash}
+            disabled={hashingAll}
+            className="px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2"
+          >
+            {hashingAll ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Hash className="w-4 h-4" />
+            )}
+            {hashingAll ? "Hashing..." : "Hash All Unhashed Records"}
+          </button>
+          <Link
+            href="/verify"
+            className="px-4 py-2.5 rounded-lg border text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            Open Public Verification Page
+          </Link>
+        </div>
+      </div>
+
+      {/* Recent Audit Log */}
+      {recentAudit.length > 0 && (
+        <div className="card p-6">
+          <h3 className="text-sm font-semibold text-fg mb-4">Recent Audit Log</h3>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {recentAudit.map((entry) => (
+              <div key={entry.id as string} className="flex items-center gap-3 text-xs p-2 rounded hover:bg-muted/50">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  entry.operation === "hash_mismatch" ? "bg-red-500" :
+                  entry.operation === "hash_verified" ? "bg-green-500" :
+                  "bg-blue-500"
+                }`} />
+                <span className="font-mono text-fg-muted">{(entry.operation as string) || ""}</span>
+                <span className="text-fg-muted capitalize">{(entry.entity_type as string) || ""}</span>
+                {typeof entry.content_hash === "string" && entry.content_hash && (
+                  <code className="font-mono text-fg-muted truncate max-w-32">
+                    {entry.content_hash.slice(0, 16)}...
+                  </code>
+                )}
+                <span className="text-fg-muted ml-auto whitespace-nowrap">
+                  {new Date(entry.created_at as string).toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

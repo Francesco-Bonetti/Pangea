@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import type { LawNode } from "@/app/laws/page";
 import LawPositions from "@/components/LawPositions";
+import IntegrityBadge from "@/components/IntegrityBadge";
 import { useLanguage } from "@/components/language-provider";
 
 interface LawTreeProps {
@@ -145,6 +146,11 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
                 >
                   {isInactive ? t("laws.notYetActive") : t("laws.active")}
                 </span>
+              )}
+
+              {/* Integrity badge */}
+              {node.law_type === "article" && (
+                <IntegrityBadge entityType="law" entityId={node.id} compact />
               )}
             </div>
 
