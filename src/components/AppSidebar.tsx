@@ -27,6 +27,7 @@ import { useLanguage } from "@/components/language-provider";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import NotificationBell from "@/components/NotificationBell";
 
 interface AppSidebarProps {
   userName?: string | null;
@@ -151,9 +152,16 @@ export default function AppSidebar({
           </button>
         </div>
 
+        {/* ── Notification Bell (authenticated only) ── */}
+        {!isGuest && (
+          <div className="px-3 pt-3 pb-1 flex justify-center">
+            <NotificationBell />
+          </div>
+        )}
+
         {/* ── New Proposal CTA ── */}
         {!isGuest && (
-          <div className="px-3 pt-4 pb-2">
+          <div className="px-3 pt-2 pb-2">
             <Link
               href="/proposals/new"
               className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:shadow-lg hover:shadow-blue-600/20 active:scale-[0.98]"

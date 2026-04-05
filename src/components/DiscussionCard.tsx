@@ -2,11 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Flag } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Flag, Eye, Pin } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Discussion } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import TranslatedContent from "@/components/TranslatedContent";
+import "@/styles/discussion-card.css";
 
 interface DiscussionCardProps {
   discussion: Discussion;
@@ -112,10 +113,18 @@ export default function DiscussionCard({
 
   return (
     <Link href={`/social/${discussion.id}`}>
-      <div className="card p-6 hover:border-theme hover:bg-theme-card transition-all duration-200 group block overflow-hidden">
-        {/* Header row: title + channel badge */}
+      <div className="discussion-card card p-6 hover:border-theme hover:bg-theme-card transition-all duration-200 group block overflow-hidden hover:scale-[1.01] hover:shadow-lg">
+        {/* Header row: title + badges */}
         <div className="flex items-start justify-between gap-4 mb-3 overflow-hidden">
           <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              {discussion.is_pinned && (
+                <span className="inline-flex items-center gap-1 bg-pangea-900/40 text-fg-primary border border-pangea-700/50 px-2.5 py-1 rounded-full text-xs font-medium">
+                  <Pin className="w-3 h-3" />
+                  Pinned
+                </span>
+              )}
+            </div>
             <h3 className="font-semibold text-fg text-base leading-snug group-hover:text-fg truncate">
               <TranslatedContent
                 text={discussion.title}
@@ -222,6 +231,15 @@ export default function DiscussionCard({
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
+            {/* View count */}
+            <div
+              onClick={(e) => e.preventDefault()}
+              className="flex items-center gap-1 text-xs text-fg-muted hover:text-fg shrink-0"
+            >
+              <Eye className="w-4 h-4 shrink-0" />
+              <span>{discussion.views_count || 0}</span>
+            </div>
+
             {/* Reply count */}
             <div
               onClick={(e) => e.preventDefault()}

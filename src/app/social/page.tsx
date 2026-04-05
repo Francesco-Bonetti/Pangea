@@ -105,6 +105,37 @@ export default async function SocialPage({
 
   const { data: discussions } = await query;
 
+  // Get total count for load more button
+  let countQuery = supabase
+    .from("discussions")
+    .select("*", { count: "exact", head: true });
+
+  // Apply same filters to count query
+  if (searchParams.channel) {
+    countQuery = countQuery.eq("channel_id", searchParams.channel);
+  }
+
+  if (searchParams.tag) {
+    const { data: taggedDiscussionIds } = await supabase
+      .from("discussion_tags")
+      .select("discussion_id")
+      .eq("tag_id", searchParams.tag);
+
+    if (taggedDiscussionIds && taggedDiscussionIds.length > 0) {
+      const ids = taggedDiscussionIds.map((t: { discussion_id: string }) => t.discussion_id);
+      countQuery = countQuery.in("id", ids);
+    } else {
+      countQuery = countQuery.eq("id", null);
+    }
+  }
+
+  if (searchParams.search) {
+    const searchTerm = `%${searchParams.search}%`;
+    countQuery = countQuery.or(`title.ilike.${searchTerm},body.ilike.${searchTerm}`);
+  }
+
+  const { count: totalCount } = await countQuery;
+
   // Fetch author profiles separately (discussions.author_id → auth.users, not profiles)
   const authorIds = Array.from(new Set((discussions || []).map((d: Record<string, unknown>) => d.author_id as string)));
   let profilesMap: Record<string, { full_name: string | null }> = {};
@@ -280,6 +311,7 @@ export default async function SocialPage({
                 discussions={discussionsWithTags}
                 userId={user?.id}
                 channels={channels ? (channels as DiscussionChannel[]) : undefined}
+                totalCount={totalCount || 0}
               />
             </div>
           </div>

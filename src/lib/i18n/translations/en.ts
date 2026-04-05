@@ -779,6 +779,76 @@ const en = {
     clickToVerify: "Click to verify integrity",
     navTitle: "Verify",
   },
+
+  // ── Notifications ──
+  notifications: {
+    title: "Notifications",
+    markAllRead: "Mark all read",
+    empty: "No notifications yet",
+    repliedToDiscussion: "replied to your discussion",
+    repliedToComment: "replied to your comment",
+    mentionedYou: "mentioned you",
+    upvotedYour: "upvoted your post",
+    pinnedDiscussion: "pinned your discussion",
+    lockedDiscussion: "locked your discussion",
+    moderationAction: "Moderation action taken",
+  },
+
+  // ── Forum (extended) ──
+  forumExtra: {
+    loadMore: "Load More",
+    loadingMore: "Loading...",
+    noMoreDiscussions: "No more discussions",
+    trending: "Trending",
+    newest: "Newest",
+    mostUpvoted: "Most Upvoted",
+    mostDiscussed: "Most Discussed",
+    views: "views",
+    reply: "Reply",
+    replying: "Replying...",
+    postReply: "Post Reply",
+    cancel: "Cancel",
+    writeReply: "Write your reply...",
+    collapse: "Collapse",
+    expand: "Expand",
+    write: "Write",
+    preview: "Preview",
+    previewEmpty: "Nothing to preview",
+    nestedReplies: "nested replies",
+    maxDepthReached: "Maximum nesting depth reached",
+  },
+
+  // ── Admin Forum Moderation ──
+  adminForum: {
+    tabLabel: "Forum",
+    reports: "Forum Reports",
+    noReports: "No forum reports",
+    management: "Discussion Management",
+    noDiscussions: "No discussions yet",
+    reason: "Reason",
+    description: "Description",
+    reportedDiscussion: "Reported Discussion",
+    markReviewed: "Review",
+    markActionTaken: "Action Taken",
+    markDismissed: "Dismiss",
+    pinDiscussion: "Pin",
+    unpinDiscussion: "Unpin",
+    lockDiscussion: "Lock",
+    unlockDiscussion: "Unlock",
+    deleteDiscussion: "Delete",
+    confirmDelete: "Are you sure you want to delete this discussion and all its replies?",
+    reportStatus: {
+      pending: "Pending",
+      reviewed: "Reviewed",
+      action_taken: "Action Taken",
+      dismissed: "Dismissed",
+    },
+  },
+
+  // ── Time ──
+  time: {
+    justNow: "Just now",
+  },
 };
 
 export default en;

@@ -6,39 +6,48 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/components/language-provider";
 
-interface Notification {
+interface NotificationRow {
   id: string;
   user_id: string;
   type: "reply" | "mention" | "upvote" | "pin" | "lock" | "moderation";
   title: string;
-  body: string;
-  link: string;
-  read: boolean;
+  body: string | null;
+  link: string | null;
+  is_read: boolean;
   created_at: string;
 }
 
-interface NotificationBellProps {
-  userId: string;
-}
-
-export default function NotificationBell({ userId }: NotificationBellProps) {
+export default function NotificationBell() {
   const supabase = createClient();
   const router = useRouter();
   const { t } = useLanguage();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch unread count on mount
+  // Get user ID on mount
   useEffect(() => {
-    fetchUnreadCount();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUserId(user.id);
+      }
+    });
   }, []);
 
-  // Set up real-time subscription on mount
+  // Fetch unread count when userId is available
   useEffect(() => {
+    if (userId) {
+      fetchUnreadCount();
+    }
+  }, [userId]);
+
+  // Set up real-time subscription
+  useEffect(() => {
+    if (!userId) return;
     const channel = supabase
       .channel(`notifications:${userId}`)
       .on(
@@ -49,9 +58,9 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        (payload: unknown) => {
+        () => {
           setUnreadCount((prev) => prev + 1);
-          fetchNotifications();
+          if (isOpen) fetchNotifications();
         }
       )
       .subscribe();
@@ -59,7 +68,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, isOpen]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -77,10 +86,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
 
   async function fetchUnreadCount() {
     try {
-      const { data, error } = await supabase.rpc("get_unread_notification_count", {
-        user_id: userId,
-      });
-
+      const { data, error } = await supabase.rpc("get_unread_notification_count");
       if (error) throw error;
       setUnreadCount(data || 0);
     } catch (err) {
@@ -94,12 +100,11 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
-        .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(20);
 
       if (error) throw error;
-      setNotifications(data || []);
+      setNotifications((data as NotificationRow[]) || []);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
     } finally {
@@ -116,36 +121,28 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
 
   async function handleMarkAllAsRead() {
     try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read: true })
-        .eq("user_id", userId)
-        .eq("read", false);
-
-      if (error) throw error;
+      await supabase.rpc("mark_all_notifications_read");
       setUnreadCount(0);
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     } catch (err) {
       console.error("Failed to mark all as read:", err);
     }
   }
 
-  async function handleNotificationClick(notification: Notification) {
+  async function handleNotificationClick(notification: NotificationRow) {
     try {
-      // Mark as read
-      if (!notification.read) {
+      if (!notification.is_read) {
         await supabase
           .from("notifications")
-          .update({ read: true })
+          .update({ is_read: true })
           .eq("id", notification.id);
 
         setUnreadCount((prev) => Math.max(0, prev - 1));
         setNotifications((prev) =>
-          prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
+          prev.map((n) => (n.id === notification.id ? { ...n, is_read: true } : n))
         );
       }
 
-      // Navigate to link
       if (notification.link) {
         setIsOpen(false);
         router.push(notification.link);
@@ -155,7 +152,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     }
   }
 
-  function getNotificationIcon(type: Notification["type"]) {
+  function getNotificationIcon(type: NotificationRow["type"]) {
     const iconClass = "w-4 h-4 shrink-0 text-fg-muted";
     switch (type) {
       case "reply":
@@ -248,7 +245,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                     onClick={() => handleNotificationClick(notification)}
                     className="px-4 py-3 hover:bg-theme-card cursor-pointer transition-colors duration-150"
                     style={{
-                      backgroundColor: notification.read ? "transparent" : "color-mix(in srgb, var(--primary) 5%, transparent)",
+                      backgroundColor: notification.is_read ? "transparent" : "color-mix(in srgb, var(--primary) 5%, transparent)",
                     }}
                   >
                     <div className="flex gap-3">
@@ -263,7 +260,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                           <p className="text-sm font-medium text-fg line-clamp-1">
                             {notification.title}
                           </p>
-                          {!notification.read && (
+                          {!notification.is_read && (
                             <span className="w-2 h-2 bg-blue-600 rounded-full shrink-0 mt-1" />
                           )}
                         </div>

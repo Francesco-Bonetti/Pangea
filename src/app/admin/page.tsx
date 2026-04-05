@@ -49,6 +49,31 @@ interface BugReport {
   created_at: string;
 }
 
+interface DiscussionReport {
+  id: string;
+  discussion_id: string;
+  reporter_id: string;
+  reason: string;
+  description: string | null;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+}
+
+interface Discussion {
+  id: string;
+  author_id: string;
+  channel_id: string;
+  title: string;
+  body: string;
+  is_pinned: boolean;
+  is_locked: boolean;
+  upvotes_count: number;
+  replies_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function AdminPage() {
   const { t } = useLanguage();
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -61,12 +86,14 @@ export default function AdminPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [laws, setLaws] = useState<LawRow[]>([]);
   const [bugReports, setBugReports] = useState<BugReport[]>([]);
+  const [forumReports, setForumReports] = useState<DiscussionReport[]>([]);
+  const [discussions, setDiscussions] = useState<Discussion[]>([]);
 
   // Total counts (efficient head queries)
   const [totalCounts, setTotalCounts] = useState({ users: 0, proposals: 0, laws: 0, openReports: 0 });
 
   // UI State
-  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity" | "forum">("users");
   const [integrityStats, setIntegrityStats] = useState<Record<string, unknown> | null>(null);
   const [hashingAll, setHashingAll] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -93,11 +120,13 @@ export default function AdminPage() {
 
     // Load data with pagination limits for scalability
     const PAGE_SIZE = 100;
-    const [usersRes, proposalsRes, lawsRes, reportsRes, userCountRes, proposalCountRes, lawCountRes, reportCountRes] = await Promise.all([
+    const [usersRes, proposalsRes, lawsRes, reportsRes, forumReportsRes, discussionsRes, userCountRes, proposalCountRes, lawCountRes, reportCountRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
       supabase.from("proposals").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
       supabase.from("laws").select("id, title, code, law_type, status, created_at").order("created_at", { ascending: false }).limit(PAGE_SIZE),
       supabase.from("bug_reports").select("*").order("created_at", { ascending: false }).limit(PAGE_SIZE),
+      supabase.from("discussion_reports").select("*").order("created_at", { ascending: false }).limit(100),
+      supabase.from("discussions").select("id, author_id, channel_id, title, body, is_pinned, is_locked, upvotes_count, replies_count, created_at, updated_at").order("created_at", { ascending: false }).limit(50),
       // Get total counts efficiently (head: true = no data transferred)
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("proposals").select("*", { count: "exact", head: true }),
@@ -109,6 +138,8 @@ export default function AdminPage() {
     setProposals(proposalsRes.data ?? []);
     setLaws(lawsRes.data ?? []);
     setBugReports(reportsRes.data ?? []);
+    setForumReports(forumReportsRes.data ?? []);
+    setDiscussions(discussionsRes.data ?? []);
     setTotalCounts({
       users: userCountRes.count ?? 0,
       proposals: proposalCountRes.count ?? 0,
@@ -225,6 +256,75 @@ export default function AdminPage() {
     setActionLoading(null);
   }
 
+  async function updateForumReportStatus(reportId: string, newStatus: string, adminNotes?: string) {
+    clearMessages();
+    setActionLoading(reportId);
+    const updates: Record<string, string> = { status: newStatus };
+    if (adminNotes) updates.admin_notes = adminNotes;
+
+    const { error: err } = await supabase
+      .from("discussion_reports")
+      .update(updates)
+      .eq("id", reportId);
+    if (err) setError(err.message);
+    else {
+      setSuccess(`Report status updated to ${newStatus}`);
+      setForumReports(prev => prev.map(r => r.id === reportId ? { ...r, status: newStatus, admin_notes: adminNotes || r.admin_notes } : r));
+    }
+    setActionLoading(null);
+  }
+
+  async function toggleDiscussionPin(discussionId: string, currentState: boolean) {
+    clearMessages();
+    setActionLoading(discussionId);
+    const { error: err } = await supabase
+      .from("discussions")
+      .update({ is_pinned: !currentState })
+      .eq("id", discussionId);
+    if (err) setError(err.message);
+    else {
+      setSuccess(`Discussion ${!currentState ? "pinned" : "unpinned"}`);
+      setDiscussions(prev => prev.map(d => d.id === discussionId ? { ...d, is_pinned: !currentState } : d));
+    }
+    setActionLoading(null);
+  }
+
+  async function toggleDiscussionLock(discussionId: string, currentState: boolean) {
+    clearMessages();
+    setActionLoading(discussionId);
+    const { error: err } = await supabase
+      .from("discussions")
+      .update({ is_locked: !currentState })
+      .eq("id", discussionId);
+    if (err) setError(err.message);
+    else {
+      setSuccess(`Discussion ${!currentState ? "locked" : "unlocked"}`);
+      setDiscussions(prev => prev.map(d => d.id === discussionId ? { ...d, is_locked: !currentState } : d));
+    }
+    setActionLoading(null);
+  }
+
+  async function deleteDiscussion(discussionId: string) {
+    clearMessages();
+    if (!confirm(t("admin.confirmDeleteLaw"))) return;
+    setActionLoading(discussionId);
+
+    // Delete replies/comments first
+    await supabase.from("discussion_replies").delete().eq("discussion_id", discussionId);
+    // Delete tags
+    await supabase.from("discussion_tags").delete().eq("discussion_id", discussionId);
+    // Delete reports
+    await supabase.from("discussion_reports").delete().eq("discussion_id", discussionId);
+    // Delete discussion
+    const { error: err } = await supabase.from("discussions").delete().eq("id", discussionId);
+    if (err) setError(err.message);
+    else {
+      setSuccess("Discussion deleted");
+      setDiscussions(prev => prev.filter(d => d.id !== discussionId));
+    }
+    setActionLoading(null);
+  }
+
   if (loading) {
     return (
       <AppShell>
@@ -321,6 +421,7 @@ export default function AdminPage() {
             { key: "proposals", label: t("admin.proposals"), icon: FileText },
             { key: "laws", label: t("admin.laws"), icon: BookOpen },
             { key: "reports", label: t("admin.reports"), icon: Bug },
+            { key: "forum", label: t("social.forum"), icon: MessageSquare },
             { key: "stats", label: t("admin.statistics"), icon: BarChart3 },
             { key: "integrity", label: t("integrity.navTitle"), icon: ShieldCheck },
           ] as const).map(({ key, label, icon: Icon }) => (
@@ -535,6 +636,144 @@ export default function AdminPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Forum tab */}
+        {activeTab === "forum" && (
+          <div className="space-y-6">
+            {/* Section A: Forum Reports */}
+            <div>
+              <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-fg-danger" />
+                Discussion Reports
+              </h2>
+              {forumReports.length === 0 && (
+                <div className="card p-8 text-center text-fg-muted text-sm">No forum reports</div>
+              )}
+              <div className="space-y-2">
+                {forumReports.map((report) => {
+                  const reportStatusBadge: Record<string, string> = {
+                    pending: "text-amber-400 bg-amber-900/20",
+                    reviewed: "text-blue-400 bg-blue-900/20",
+                    action_taken: "text-fg-success bg-success-tint",
+                    dismissed: "text-fg-muted bg-theme-muted",
+                  };
+                  return (
+                    <div key={report.id} className="card p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-fg-danger shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex-1">
+                              <p className="text-sm text-fg font-medium">{report.reason}</p>
+                              <p className="text-xs text-fg-muted mt-0.5">Discussion: {report.discussion_id.slice(0, 8)}...</p>
+                            </div>
+                            <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${reportStatusBadge[report.status] || ""}`}>
+                              {report.status.replace("_", " ")}
+                            </span>
+                          </div>
+                          {report.description && (
+                            <p className="text-xs text-fg-muted mb-2 line-clamp-2">{report.description}</p>
+                          )}
+                          <p className="text-xs text-fg-muted">{formatDateTime(report.created_at)}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-theme">
+                        <button
+                          onClick={() => updateForumReportStatus(report.id, "reviewed")}
+                          disabled={actionLoading === report.id}
+                          className="px-3 py-1.5 rounded-lg bg-blue-900/30 text-blue-400 text-xs font-medium hover:bg-blue-900/50 disabled:opacity-50 transition-colors"
+                        >
+                          Review
+                        </button>
+                        <button
+                          onClick={() => updateForumReportStatus(report.id, "action_taken")}
+                          disabled={actionLoading === report.id}
+                          className="px-3 py-1.5 rounded-lg bg-green-900/30 text-fg-success text-xs font-medium hover:bg-green-900/50 disabled:opacity-50 transition-colors"
+                        >
+                          Action Taken
+                        </button>
+                        <button
+                          onClick={() => updateForumReportStatus(report.id, "dismissed")}
+                          disabled={actionLoading === report.id}
+                          className="px-3 py-1.5 rounded-lg bg-theme-muted text-fg-muted text-xs font-medium hover:bg-theme-card disabled:opacity-50 transition-colors"
+                        >
+                          Dismiss
+                        </button>
+                        {actionLoading === report.id && <Loader2 className="w-4 h-4 text-fg-primary animate-spin ml-auto" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section B: Discussion Management */}
+            <div>
+              <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-fg-primary" />
+                Discussion Management
+              </h2>
+              {discussions.length === 0 && (
+                <div className="card p-8 text-center text-fg-muted text-sm">No discussions</div>
+              )}
+              <div className="space-y-2">
+                {discussions.map((d) => (
+                  <div key={d.id} className="card p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          {d.is_pinned && <span className="text-sm" title="Pinned">📌</span>}
+                          {d.is_locked && <span className="text-sm" title="Locked">🔒</span>}
+                          <p className="text-sm text-fg font-medium flex-1 line-clamp-1">{d.title}</p>
+                        </div>
+                        <p className="text-xs text-fg-muted mb-1">Author: {d.author_id.slice(0, 8)}... | Channel: {d.channel_id.slice(0, 8)}...</p>
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-fg-muted">
+                          <span>{formatDateTime(d.created_at)}</span>
+                          <span>|</span>
+                          <span>{d.replies_count} replies</span>
+                          <span>|</span>
+                          <span>{d.upvotes_count} upvotes</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-theme">
+                      <button
+                        onClick={() => toggleDiscussionPin(d.id, d.is_pinned)}
+                        disabled={actionLoading === d.id}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          d.is_pinned
+                            ? "bg-pangea-900/30 text-pangea-400 hover:bg-pangea-900/50"
+                            : "bg-theme-muted text-fg-muted hover:bg-theme-card"
+                        } disabled:opacity-50`}
+                      >
+                        {d.is_pinned ? "Unpin" : "Pin"}
+                      </button>
+                      <button
+                        onClick={() => toggleDiscussionLock(d.id, d.is_locked)}
+                        disabled={actionLoading === d.id}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                          d.is_locked
+                            ? "bg-red-900/30 text-red-400 hover:bg-red-900/50"
+                            : "bg-theme-muted text-fg-muted hover:bg-theme-card"
+                        } disabled:opacity-50`}
+                      >
+                        {d.is_locked ? "Unlock" : "Lock"}
+                      </button>
+                      <button
+                        onClick={() => deleteDiscussion(d.id)}
+                        disabled={actionLoading === d.id}
+                        className="px-3 py-1.5 rounded-lg bg-danger-tint text-fg-danger text-xs font-medium hover:bg-red-900/50 disabled:opacity-50 transition-colors"
+                      >
+                        Delete
+                      </button>
+                      {actionLoading === d.id && <Loader2 className="w-4 h-4 text-fg-primary animate-spin ml-auto" />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 

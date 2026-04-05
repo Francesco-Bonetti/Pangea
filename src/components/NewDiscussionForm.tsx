@@ -14,6 +14,32 @@ interface NewDiscussionFormProps {
   onSuccess?: () => void;
 }
 
+// Simple markdown to HTML converter
+function renderMarkdown(text: string): React.ReactNode[] {
+  const lines = text.split("\n");
+  const result: React.ReactNode[] = [];
+
+  lines.forEach((line, idx) => {
+    // Replace bold: **text** → <strong>
+    let processed = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    // Replace italic: *text* → <em>
+    processed = processed.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    // Replace code: `text` → <code>
+    processed = processed.replace(/`(.*?)`/g, "<code>$1</code>");
+
+    result.push(
+      <div
+        key={idx}
+        dangerouslySetInnerHTML={{ __html: processed }}
+        className="text-fg"
+      />
+    );
+    result.push("\n");
+  });
+
+  return result;
+}
+
 export default function NewDiscussionForm({
   userId,
   channelId,
@@ -32,6 +58,7 @@ export default function NewDiscussionForm({
   const [filteredTags, setFilteredTags] = useState<Tag[]>([]);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const tagInputRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -208,16 +235,55 @@ export default function NewDiscussionForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-fg mb-2">
-          {t("forum.contentLabel")}
-        </label>
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder={t("forum.shareThoughts")}
-          rows={6}
-          className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
-        />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-fg">
+            {t("forum.contentLabel")}
+          </label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowPreview(false)}
+              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                !showPreview
+                  ? "bg-pangea-600 text-fg"
+                  : "bg-theme-muted/30 text-fg-muted hover:text-fg"
+              }`}
+            >
+              Write
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPreview(true)}
+              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                showPreview
+                  ? "bg-pangea-600 text-fg"
+                  : "bg-theme-muted/30 text-fg-muted hover:text-fg"
+              }`}
+            >
+              Preview
+            </button>
+          </div>
+        </div>
+
+        {!showPreview ? (
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder={t("forum.shareThoughts")}
+            rows={6}
+            className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
+          />
+        ) : (
+          <div className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg min-h-[180px] overflow-y-auto">
+            {body.trim() ? (
+              <div className="prose prose-invert max-w-none text-sm leading-relaxed">
+                {renderMarkdown(body)}
+              </div>
+            ) : (
+              <p className="text-fg-muted italic">{t("forum.shareThoughts")}</p>
+            )}
+          </div>
+        )}
         {errors.body && (
           <p className="text-fg-danger text-xs mt-1">{errors.body}</p>
         )}
