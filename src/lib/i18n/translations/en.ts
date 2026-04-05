@@ -400,6 +400,13 @@ const en = {
     createChannel: "Create Channel",
     creatingChannel: "Creating...",
     addChannel: "+ Add Channel",
+    parentTopic: "Parent topic",
+    parentTopicNone: "None (top-level)",
+    topicDiscussions: "discussions",
+    subtopics: "subtopics",
+    mentionPeople: "mention people",
+    mentionEntities: "mention entities",
+    searching: "Searching...",
   },
 
   // ── Messages ──

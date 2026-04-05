@@ -364,6 +364,7 @@ export interface ProposalWithResults extends Proposal {
 // --- Discussion Forum ---
 export type DiscussionChannel = {
   id: string;
+  uid?: string | null;
   name: string;
   slug: string;
   description: string | null;
@@ -371,7 +372,13 @@ export type DiscussionChannel = {
   color: string;
   sort_order: number;
   is_active: boolean;
+  parent_id: string | null;
+  depth: number;
+  child_count: number;
+  discussion_count: number;
   created_at: string;
+  // Client-side tree
+  children?: DiscussionChannel[];
 };
 
 export type Discussion = {

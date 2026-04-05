@@ -262,6 +262,13 @@ const es: TranslationKeys = {
     createChannel: "Crear Canal",
     creatingChannel: "Creando...",
     addChannel: "+ Agregar Canal",
+    parentTopic: "Tema padre",
+    parentTopicNone: "Ninguno (nivel principal)",
+    topicDiscussions: "discusiones",
+    subtopics: "subtemas",
+    mentionPeople: "mencionar personas",
+    mentionEntities: "mencionar entidades",
+    searching: "Buscando...",
   },
   messages: {
     title: "Mensajes", newConversation: "Nueva Conversación",

@@ -8,6 +8,7 @@ import type { Discussion } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import TranslatedContent from "@/components/TranslatedContent";
 import UidBadge from "@/components/UidBadge";
+import { stripMentions } from "@/components/MentionInput";
 import "@/styles/discussion-card.css";
 
 interface DiscussionCardProps {
@@ -110,7 +111,8 @@ export default function DiscussionCard({
   };
 
   const netScore = upvotes - downvotes;
-  const preview = discussion.body.length > 150 ? discussion.body.substring(0, 150) + "..." : discussion.body;
+  const cleanBody = stripMentions(discussion.body);
+  const preview = cleanBody.length > 150 ? cleanBody.substring(0, 150) + "..." : cleanBody;
 
   return (
     <Link href={`/social/${discussion.id}`}>
