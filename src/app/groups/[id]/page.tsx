@@ -62,14 +62,14 @@ export default function GroupDetailPage() {
   const [pendingDelegations, setPendingDelegations] = useState(0);
 
   const [group, setGroup] = useState<Group | null>(null);
-  const [members, setMembers] = useState<(GroupMember & { profiles: { full_name: string | null } })[]>([]);
+  const [members, setMembers] = useState<(Omit<GroupMember, 'profiles'> & { profiles: { full_name: string | null } })[]>([]);
   const [ancestors, setAncestors] = useState<GroupAncestor[]>([]);
   const [children, setChildren] = useState<GroupTreeNode[]>([]);
   const [groupVotes, setGroupVotes] = useState<(GroupVote & { proposals: Proposal })[]>([]);
   const [forumPosts, setForumPosts] = useState<(GroupForumPost & { profiles: { full_name: string | null } })[]>([]);
   const [activeProposals, setActiveProposals] = useState<Proposal[]>([]);
 
-  const [currentMember, setCurrentMember] = useState<(GroupMember & { profiles?: { full_name: string | null } }) | null>(null);
+  const [currentMember, setCurrentMember] = useState<(Omit<GroupMember, 'profiles'> & { profiles: { full_name: string | null } }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("info");
   const [joining, setJoining] = useState(false);
@@ -111,7 +111,7 @@ export default function GroupDetailPage() {
       const profileMap: Record<string, { id: string; full_name: string | null }> = {};
       (profiles || []).forEach((p: { id: string; full_name: string | null }) => { profileMap[p.id] = p; });
 
-      type EnrichedMember = GroupMember & { profiles: { full_name: string | null } };
+      type EnrichedMember = Omit<GroupMember, 'profiles'> & { profiles: { full_name: string | null } };
       const enriched: EnrichedMember[] = mems.map((m: GroupMember) => ({
         ...m,
         profiles: { full_name: profileMap[m.user_id]?.full_name ?? null },
