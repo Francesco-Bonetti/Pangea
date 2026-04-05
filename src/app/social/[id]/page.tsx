@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import AppShell from "@/components/AppShell";
 import DiscussionThreadClient from "@/components/DiscussionThreadClient";
-import { ArrowLeft, MessageCircle, Hash } from "lucide-react";
+import DiscussionModTools from "@/components/DiscussionModTools";
+import { ArrowLeft, MessageCircle, Eye } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import TranslatedContent from "@/components/TranslatedContent";
@@ -45,12 +46,11 @@ export default async function DiscussionPage({
     profile = data;
   }
 
-  // Fetch discussion with all related data
+  // Fetch discussion (no profiles join — FK goes to auth.users, not profiles)
   const { data: discussion, error: discussionError } = await supabase
     .from("discussions")
     .select(
       `*,
-       profiles(id, full_name, bio),
        discussion_channels(id, name, slug, description, emoji, color),
        discussion_tags(tags(id, name, slug, usage_count))`
     )
@@ -72,17 +72,14 @@ export default async function DiscussionPage({
     (dt: { tags: Record<string, unknown> }) => dt.tags
   );
 
-  // Fetch replies
+  // Fetch ALL replies (including nested ones) with flat array and parent_reply_id
   const { data: replies } = await supabase
     .from("discussion_replies")
-    .select(
-      `*,
-       profiles(id, full_name, bio)`
-    )
+    .select("*")
     .eq("discussion_id", params.id)
     .order("created_at", { ascending: true });
 
-  // Fetch privacy settings for discussion author and reply authors
+  // Fetch all author profiles separately (safe approach)
   const allAuthorIds = new Set<string>();
   if (discussion.author_id) allAuthorIds.add(discussion.author_id);
   if (replies) {
@@ -90,14 +87,32 @@ export default async function DiscussionPage({
       if (r.author_id) allAuthorIds.add(r.author_id as string);
     }
   }
+
+  let profilesMap: Record<string, { full_name: string | null; bio: string | null }> = {};
+  if (allAuthorIds.size > 0) {
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("id, full_name, bio")
+      .in("id", Array.from(allAuthorIds));
+    if (profilesData) {
+      profilesMap = Object.fromEntries(
+        profilesData.map((p: { id: string; full_name: string | null; bio: string | null }) => [
+          p.id,
+          { full_name: p.full_name, bio: p.bio },
+        ])
+      );
+    }
+  }
+
+  // Fetch privacy settings for all authors
   const { data: privacyData } = await supabase
     .from("privacy_settings")
     .select("user_id, show_full_name, display_name, profile_visibility")
     .in("user_id", Array.from(allAuthorIds));
-  const privacyMap = new Map<string, { show_full_name?: boolean; display_name?: string | null; profile_visibility?: string }>();
+  const privacyMapServer = new Map<string, { show_full_name?: boolean; display_name?: string | null; profile_visibility?: string }>();
   if (privacyData) {
     for (const p of privacyData) {
-      privacyMap.set(p.user_id, p);
+      privacyMapServer.set(p.user_id, p);
     }
   }
 
@@ -109,9 +124,28 @@ export default async function DiscussionPage({
       .select("vote_type")
       .eq("user_id", user.id)
       .eq("discussion_id", params.id)
+      .is("reply_id", null)
       .maybeSingle();
     userVote = vote;
   }
+
+  // Fetch user votes on ALL replies (including nested) in this thread
+  let replyVotesMap: Record<string, "up" | "down"> = {};
+  if (user && replies && replies.length > 0) {
+    const replyIds = replies.map((r: Record<string, unknown>) => r.id as string);
+    const { data: replyVotes } = await supabase
+      .from("discussion_votes")
+      .select("reply_id, vote_type")
+      .eq("user_id", user.id)
+      .in("reply_id", replyIds);
+    if (replyVotes) {
+      replyVotesMap = Object.fromEntries(
+        replyVotes.map((v: { reply_id: string; vote_type: string }) => [v.reply_id, v.vote_type as "up" | "down"])
+      );
+    }
+  }
+
+  const isModOrAdmin = profile?.role === "admin" || profile?.role === "moderator";
 
   function formatTimeAgo(dateString: string): string {
     const now = new Date();
@@ -124,6 +158,8 @@ export default async function DiscussionPage({
     if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
     return date.toLocaleDateString();
   }
+
+  const authorProfile = profilesMap[discussion.author_id] || { full_name: null, bio: null };
 
   return (
     <AppShell
@@ -144,26 +180,40 @@ export default async function DiscussionPage({
 
         {/* Discussion Header Card */}
         <div className="card p-8 mb-8 overflow-hidden">
-          {/* Channel badge + metadata */}
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {discussion.discussion_channels && (
-              <>
-                <span className="inline-flex items-center gap-1.5 text-sm text-fg bg-theme-muted/40 px-3 py-1 rounded-full shrink-0">
-                  <span className="text-base">
-                    {discussion.discussion_channels.emoji}
-                  </span>
-                  <span className="truncate">{discussion.discussion_channels.name}</span>
-                </span>
-                <span className="text-fg-muted shrink-0">•</span>
-              </>
+          {/* Channel badge + metadata + mod tools */}
+          <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              {discussion.discussion_channels && (
+                <>
+                  <Link
+                    href={`/social?channel=${discussion.discussion_channels.id}`}
+                    className="inline-flex items-center gap-1.5 text-sm text-fg bg-theme-muted/40 px-3 py-1 rounded-full hover:bg-theme-muted/60 transition-colors shrink-0"
+                  >
+                    <span className="text-base">
+                      {discussion.discussion_channels.emoji}
+                    </span>
+                    <span className="truncate">{discussion.discussion_channels.name}</span>
+                  </Link>
+                  <span className="text-fg-muted shrink-0">·</span>
+                </>
+              )}
+              <span className="text-sm text-fg-muted shrink-0">
+                {formatTimeAgo(discussion.created_at)}
+              </span>
+            </div>
+
+            {/* Moderator tools */}
+            {isModOrAdmin && (
+              <DiscussionModTools
+                discussionId={params.id}
+                isPinned={discussion.is_pinned}
+                isLocked={discussion.is_locked}
+              />
             )}
-            <span className="text-sm text-fg-muted shrink-0">
-              {formatTimeAgo(discussion.created_at)}
-            </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl font-bold text-fg mb-4 truncate">
+          <h1 className="text-3xl font-bold text-fg mb-4">
             <TranslatedContent
               text={discussion.title}
               contentType="forum_post_title"
@@ -175,11 +225,11 @@ export default async function DiscussionPage({
           <div className="flex items-center gap-3 py-4 border-b border-theme overflow-hidden">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-fg truncate">
-                {resolvePrivacyName(discussion.profiles?.full_name, privacyMap.get(discussion.author_id) || null)}
+                {resolvePrivacyName(authorProfile.full_name, privacyMapServer.get(discussion.author_id) || null)}
               </p>
-              {discussion.profiles?.bio && (
+              {authorProfile.bio && (
                 <p className="text-xs text-fg-muted mt-0.5 truncate">
-                  {discussion.profiles.bio}
+                  {authorProfile.bio}
                 </p>
               )}
             </div>
@@ -230,7 +280,10 @@ export default async function DiscussionPage({
                 <MessageCircle className="w-4 h-4" />
                 {discussion.replies_count || 0} replies
               </span>
-              <span>{discussion.views_count || 0} views</span>
+              <span className="flex items-center gap-1">
+                <Eye className="w-4 h-4" />
+                {discussion.views_count || 0} views
+              </span>
             </div>
 
             {/* Voting section */}
@@ -263,6 +316,9 @@ export default async function DiscussionPage({
                   discussionId={params.id}
                   userId={user.id}
                   isReplyForm={true}
+                  replies={replies || []}
+                  profilesMap={profilesMap}
+                  userVotes={replyVotesMap}
                 />
               </div>
             ) : (
@@ -270,69 +326,20 @@ export default async function DiscussionPage({
                 <p className="text-fg-muted mb-4">
                   Sign in to reply to this discussion
                 </p>
-                <a
+                <Link
                   href="/auth"
                   className="inline-block px-4 py-2 bg-pangea-600 hover:bg-pangea-700 text-fg rounded-lg transition-colors"
                 >
                   Sign In
-                </a>
+                </Link>
               </div>
             )}
 
-            {/* Replies list */}
+            {/* Threaded replies heading */}
             {replies && replies.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-fg">
-                  Replies ({replies.length})
-                </h3>
-                {replies.map((reply: Record<string, unknown>) => (
-                  <div key={reply.id as string} className="card p-5 border-l-4 border-pangea-600">
-                    {/* Reply header */}
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="font-medium text-fg">
-                          {resolvePrivacyName(
-                            (reply.profiles as { full_name: string } | null)?.full_name ?? null,
-                            privacyMap.get(reply.author_id as string) || null
-                          )}
-                        </p>
-                        <p className="text-xs text-fg-muted">
-                          {formatTimeAgo(reply.created_at as string)}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Reply body */}
-                    <TranslatedContent
-                      text={reply.body as string}
-                      contentType="forum_reply"
-                      contentId={reply.id as string}
-                      as="p"
-                      className="text-fg text-sm leading-relaxed whitespace-pre-wrap mb-3"
-                    />
-
-                    {/* Reply voting */}
-                    <div className="flex items-center gap-3 text-xs">
-                      {user && (
-                        <>
-                          <button className="text-fg-muted hover:text-fg transition-colors">
-                            👍
-                          </button>
-                          <span className="text-fg-muted">
-                            {(reply.upvotes_count as number) || 0}
-                          </span>
-                          <button className="text-fg-muted hover:text-fg transition-colors">
-                            👎
-                          </button>
-                          <span className="text-fg-muted">
-                            {(reply.downvotes_count as number) || 0}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <h3 className="text-lg font-semibold text-fg mb-4">
+                Replies ({replies.length})
+              </h3>
             )}
           </>
         )}

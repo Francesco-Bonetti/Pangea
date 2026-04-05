@@ -105,7 +105,7 @@ export default async function MessagesPage() {
       );
 
       const otherProfile = otherParticipant
-        ? profileMap.get(otherParticipant.user_id)
+        ? profileMap.get(otherParticipant.user_id) as { id: string; full_name: string | null; user_code: string | null } | undefined
         : undefined;
 
       return {
