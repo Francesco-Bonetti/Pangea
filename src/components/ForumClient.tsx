@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Loader } from "lucide-react";
+import { Loader, PenSquare, ChevronUp } from "lucide-react";
 import DiscussionCard from "./DiscussionCard";
 import ReportModal from "./ReportModal";
+import NewDiscussionForm from "./NewDiscussionForm";
 import { useLanguage } from "@/components/language-provider";
 import type { Discussion, DiscussionChannel } from "@/lib/types";
 
@@ -13,6 +14,8 @@ interface ForumClientProps {
   userId?: string;
   channels?: DiscussionChannel[];
   totalCount?: number;
+  showNewDiscussionForm?: boolean;
+  newDiscussionUserId?: string;
 }
 
 export default function ForumClient({
@@ -20,6 +23,8 @@ export default function ForumClient({
   userId,
   channels,
   totalCount = 0,
+  showNewDiscussionForm = false,
+  newDiscussionUserId,
 }: ForumClientProps) {
   const supabase = createClient();
   const { t } = useLanguage();
@@ -31,6 +36,7 @@ export default function ForumClient({
   }>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isFormExpanded, setIsFormExpanded] = useState(false);
 
   const handleReport = (discussionId: string) => {
     setReportTarget({ discussionId });
@@ -98,28 +104,60 @@ export default function ForumClient({
     }
   };
 
-  if (discussions.length === 0) {
-    return (
-      <div className="card p-12 text-center">
-        <p className="text-fg-muted text-lg">
-          {t("forum.noDiscussions")}
-        </p>
-      </div>
-    );
-  }
-
   return (
     <>
-      <div className="space-y-3">
-        {discussions.map((discussion) => (
-          <DiscussionCard
-            key={discussion.id}
-            discussion={discussion}
-            userId={userId}
-            onReport={handleReport}
-          />
-        ))}
-      </div>
+      {/* Collapsible New Discussion Form */}
+      {showNewDiscussionForm && newDiscussionUserId && (
+        <div className="mb-4">
+          {!isFormExpanded ? (
+            <button
+              onClick={() => setIsFormExpanded(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-pangea-600 hover:bg-pangea-700 text-fg font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              <PenSquare className="w-4 h-4" />
+              {t("forum.startDiscussion")}
+            </button>
+          ) : (
+            <div className="card overflow-hidden transition-all duration-300">
+              <button
+                onClick={() => setIsFormExpanded(false)}
+                className="w-full flex items-center justify-between px-4 py-2.5 bg-theme-muted/30 hover:bg-theme-muted/50 text-fg text-sm font-medium transition-colors border-b border-theme"
+              >
+                <span className="flex items-center gap-2">
+                  <PenSquare className="w-4 h-4 text-fg-primary" />
+                  {t("forum.startDiscussion")}
+                </span>
+                <ChevronUp className="w-4 h-4 text-fg-muted" />
+              </button>
+              <div className="p-0">
+                <NewDiscussionForm
+                  userId={newDiscussionUserId}
+                  onSuccess={() => setIsFormExpanded(false)}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {discussions.length === 0 ? (
+        <div className="card p-12 text-center">
+          <p className="text-fg-muted text-lg">
+            {t("forum.noDiscussions")}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {discussions.map((discussion) => (
+            <DiscussionCard
+              key={discussion.id}
+              discussion={discussion}
+              userId={userId}
+              onReport={handleReport}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Load More Button */}
       {discussions.length < totalCount && (

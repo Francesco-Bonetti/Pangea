@@ -32,24 +32,18 @@ export function SocialHeader() {
 /* ── New Discussion CTA ── */
 export function NewDiscussionCTA({ isLoggedIn }: { isLoggedIn: boolean }) {
   const { t } = useLanguage();
-  if (isLoggedIn) {
+  if (!isLoggedIn) {
     return (
       <a
-        href="#new-discussion"
-        className="w-full block px-4 py-3 bg-pangea-600 hover:bg-pangea-700 text-fg font-medium rounded-lg text-center transition-colors"
+        href="/auth"
+        className="w-full block px-4 py-3 bg-theme-muted hover:bg-theme-muted text-fg font-medium rounded-lg text-center transition-colors"
       >
-        + {t("forum.newDiscussion")}
+        {t("forum.signIn")}
       </a>
     );
   }
-  return (
-    <a
-      href="/auth"
-      className="w-full block px-4 py-3 bg-theme-muted hover:bg-theme-muted text-fg font-medium rounded-lg text-center transition-colors"
-    >
-      {t("forum.signIn")}
-    </a>
-  );
+  // Logged-in users see the "Start Discussion" button at the top of the feed
+  return null;
 }
 
 /* ── Channels Sidebar ── */

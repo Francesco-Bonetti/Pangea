@@ -3,22 +3,24 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useCallback } from "react";
 import { Search } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 interface ForumControlsProps {
   currentSort: string;
   currentSearch: string;
 }
 
-const SORT_OPTIONS = [
-  { value: "newest", label: "Newest" },
-  { value: "most_upvoted", label: "Most Upvoted" },
-  { value: "most_discussed", label: "Most Discussed" },
-  { value: "trending", label: "Trending" },
-];
+const SORT_KEYS = [
+  { value: "newest", key: "forumExtra.newest" },
+  { value: "most_upvoted", key: "forumExtra.mostUpvoted" },
+  { value: "most_discussed", key: "forumExtra.mostDiscussed" },
+  { value: "trending", key: "forumExtra.trending" },
+] as const;
 
 export default function ForumControls({ currentSort, currentSearch }: ForumControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const [searchValue, setSearchValue] = useState(currentSearch);
 
   const updateParams = useCallback(
@@ -47,7 +49,7 @@ export default function ForumControls({ currentSort, currentSearch }: ForumContr
     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
       {/* Sort pills */}
       <div className="flex gap-2 flex-wrap">
-        {SORT_OPTIONS.map((option) => (
+        {SORT_KEYS.map((option) => (
           <button
             key={option.value}
             onClick={() => handleSortChange(option.value)}
@@ -57,7 +59,7 @@ export default function ForumControls({ currentSort, currentSearch }: ForumContr
                 : "bg-theme-muted/30 text-fg-muted border border-theme hover:text-fg hover:border-pangea-600/50"
             }`}
           >
-            {option.label}
+            {t(option.key)}
           </button>
         ))}
       </div>
@@ -66,7 +68,7 @@ export default function ForumControls({ currentSort, currentSearch }: ForumContr
       <form onSubmit={handleSearchSubmit} className="flex-1 relative">
         <input
           type="text"
-          placeholder="Search discussions..."
+          placeholder={t("forum.searchPlaceholder")}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           className="w-full px-3 py-2 pl-9 bg-theme-base border border-theme rounded-lg text-fg placeholder-slate-400 text-sm focus:outline-none focus:border-pangea-600"

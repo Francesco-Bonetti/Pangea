@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import AppShell from "@/components/AppShell";
-import NewDiscussionForm from "@/components/NewDiscussionForm";
 import NewChannelForm from "@/components/NewChannelForm";
 import ForumClient from "@/components/ForumClient";
 import ForumControls from "@/components/ForumControls";
@@ -10,7 +9,6 @@ import {
   ChannelsSidebar,
   TagsSidebar,
   DiscussionSectionHeader,
-  StartDiscussionHeader,
 } from "@/components/SocialPageContent";
 import type { DiscussionChannel, Discussion, Tag } from "@/lib/types";
 
@@ -217,15 +215,7 @@ export default async function SocialPage({
 
           {/* Main Content: Discussions */}
           <div className="lg:col-span-3 space-y-6">
-            {/* New Discussion Form */}
-            {user && (
-              <div id="new-discussion">
-                <StartDiscussionHeader />
-                <NewDiscussionForm userId={user.id} />
-              </div>
-            )}
-
-            {/* Forum Controls */}
+            {/* Forum Controls + Header */}
             <div>
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
                 <DiscussionSectionHeader channelName={activeChannelName} />
@@ -241,6 +231,8 @@ export default async function SocialPage({
                 userId={user?.id}
                 channels={channels ? (channels as DiscussionChannel[]) : undefined}
                 totalCount={totalCount || 0}
+                showNewDiscussionForm={!!user}
+                newDiscussionUserId={user?.id}
               />
             </div>
           </div>
