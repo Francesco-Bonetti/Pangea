@@ -295,6 +295,7 @@ const it: TranslationKeys = {
       subgroups: "Sottogruppi",
       votes: "Voti",
       forum: "Agorà",
+      discussions: "Discussioni",
     },
     view: {
       tree: "Vista Albero",
@@ -328,6 +329,43 @@ const it: TranslationKeys = {
     errors: {
       nameRequired: "Il nome del gruppo è obbligatorio",
       founderCantLeave: "Il fondatore non può uscire. Trasferisci prima il ruolo.",
+    },
+  },
+
+  // ── Discussioni di Gruppo (B4) ──
+  groupDiscussions: {
+    title: "Discussioni",
+    new: "Nuova Discussione",
+    cancel: "Annulla",
+    post: "Pubblica",
+    empty: "Nessuna discussione ancora.",
+    startFirst: "Sii il primo ad avviare una discussione!",
+    titlePlaceholder: "Titolo della discussione (opzionale)...",
+    bodyPlaceholder: "Condividi le tue idee con il gruppo...",
+    pinned: "In evidenza",
+    locked: "Bloccata",
+    by: "di",
+    reply: "Rispondi",
+    replies: "Risposte",
+    report: "Segnala",
+    views: "visualizzazioni",
+    discussion: "Discussione",
+    notFound: "Discussione non trovata",
+    backToGroup: "Torna al gruppo",
+    writeReply: "Scrivi una risposta",
+    replyPlaceholder: "Condividi le tue idee...",
+    postReply: "Pubblica Risposta",
+    noReplies: "Nessuna risposta ancora. Sii il primo a rispondere!",
+    lockedMessage: "Questa discussione è bloccata. Non è possibile aggiungere nuove risposte.",
+    pin: "Fissa",
+    unpin: "Rimuovi evidenza",
+    lock: "Blocca",
+    unlock: "Sblocca",
+    delete: "Elimina",
+    sort: {
+      newest: "Più recenti",
+      most_upvoted: "Più votati",
+      most_discussed: "Più discussi",
     },
   },
 
@@ -838,6 +876,36 @@ const it: TranslationKeys = {
       vot: "Voto",
       elv: "Voto Elettorale",
     },
+  },
+
+  // ── Discussioni di Gruppo (B4) ──
+  groupDiscussions: {
+    title: "Discussioni",
+    new: "Nuova Discussione",
+    cancel: "Annulla",
+    titlePlaceholder: "Titolo della discussione...",
+    bodyPlaceholder: "Condividi i tuoi pensieri con il gruppo... Usa @ per menzionare persone o # per entità.",
+    post: "Pubblica",
+    empty: "Nessuna discussione in questo gruppo.",
+    startFirst: "Sii il primo ad avviare una discussione!",
+    pinned: "Fissata",
+    locked: "Bloccata",
+    by: "di",
+    report: "Segnala",
+    sort: {
+      newest: "Più Recenti",
+      most_upvoted: "Più Votate",
+      most_discussed: "Più Discusse",
+    },
+  },
+
+  // ── Post Personali (B5) ──
+  posts: {
+    composerPlaceholder: "Cosa pensi? Condividi con la comunità di Pangea...",
+    publish: "Pubblica",
+    visibleToAll: "Visibile a tutti",
+    empty: "Nessun post ancora.",
+    writeFirst: "Scrivi il tuo primo post!",
   },
 };
 

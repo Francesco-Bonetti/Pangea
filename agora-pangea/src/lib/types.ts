@@ -234,9 +234,25 @@ export interface GroupForumPost {
   body: string;
   is_admin_only: boolean;
   parent_id: string | null;
+  upvotes_count: number;
+  downvotes_count: number;
+  replies_count: number;
+  views_count: number;
+  is_pinned: boolean;
+  is_locked: boolean;
   created_at: string;
+  updated_at: string;
   // Join
   profiles?: { full_name: string | null };
+  groups?: { name: string; logo_emoji: string };
+}
+
+export interface GroupForumVote {
+  id: string;
+  user_id: string;
+  post_id: string;
+  vote_type: "up" | "down";
+  created_at: string;
 }
 
 export interface GroupTreeNode {
@@ -364,6 +380,7 @@ export interface ProposalWithResults extends Proposal {
 // --- Discussion Forum ---
 export type DiscussionChannel = {
   id: string;
+  uid?: string | null;
   name: string;
   slug: string;
   description: string | null;
@@ -371,7 +388,13 @@ export type DiscussionChannel = {
   color: string;
   sort_order: number;
   is_active: boolean;
+  parent_id: string | null;
+  depth: number;
+  child_count: number;
+  discussion_count: number;
   created_at: string;
+  // Client-side tree
+  children?: DiscussionChannel[];
 };
 
 export type Discussion = {
@@ -379,6 +402,7 @@ export type Discussion = {
   uid?: string | null;
   author_id: string;
   channel_id: string;
+  group_id?: string | null;
   title: string;
   body: string;
   is_pinned: boolean;
@@ -430,6 +454,44 @@ export type DiscussionReport = {
   description: string | null;
   status: 'pending' | 'reviewed' | 'dismissed' | 'action_taken';
   created_at: string;
+};
+
+// --- Personal Posts (Phase 5 — B5) ---
+export type PersonalPost = {
+  id: string;
+  uid?: string | null;
+  author_id: string;
+  body: string;
+  upvotes_count: number;
+  downvotes_count: number;
+  replies_count: number;
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joins
+  profiles?: { full_name: string | null };
+};
+
+export type PostVote = {
+  id: string;
+  user_id: string;
+  post_id: string;
+  vote_type: 'up' | 'down';
+  created_at: string;
+};
+
+export type PostReply = {
+  id: string;
+  uid?: string | null;
+  post_id: string;
+  author_id: string;
+  body: string;
+  parent_reply_id: string | null;
+  upvotes_count: number;
+  downvotes_count: number;
+  created_at: string;
+  updated_at: string;
+  profiles?: { full_name: string | null };
 };
 
 // --- Direct Messaging (E2E Encrypted) ---

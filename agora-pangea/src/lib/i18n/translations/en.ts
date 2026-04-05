@@ -299,6 +299,7 @@ const en = {
       subgroups: "Subgroups",
       votes: "Votes",
       forum: "Agora",
+      discussions: "Discussions",
     },
     view: {
       tree: "Tree View",
@@ -332,6 +333,43 @@ const en = {
     errors: {
       nameRequired: "Group name is required",
       founderCantLeave: "The founder cannot leave. Transfer the role first.",
+    },
+  },
+
+  // ── Group Discussions (B4) ──
+  groupDiscussions: {
+    title: "Discussions",
+    new: "New Discussion",
+    cancel: "Cancel",
+    post: "Post",
+    empty: "No discussions yet.",
+    startFirst: "Be the first to start a discussion!",
+    titlePlaceholder: "Discussion title (optional)...",
+    bodyPlaceholder: "Share your thoughts with the group...",
+    pinned: "Pinned",
+    locked: "Locked",
+    by: "by",
+    reply: "Reply",
+    replies: "Replies",
+    report: "Report",
+    views: "views",
+    discussion: "Discussion",
+    notFound: "Discussion not found",
+    backToGroup: "Back to group",
+    writeReply: "Write a reply",
+    replyPlaceholder: "Share your thoughts...",
+    postReply: "Post Reply",
+    noReplies: "No replies yet. Be the first to respond!",
+    lockedMessage: "This discussion is locked. No new replies can be added.",
+    pin: "Pin",
+    unpin: "Unpin",
+    lock: "Lock",
+    unlock: "Unlock",
+    delete: "Delete",
+    sort: {
+      newest: "Newest",
+      most_upvoted: "Most Upvoted",
+      most_discussed: "Most Discussed",
     },
   },
 
@@ -400,6 +438,13 @@ const en = {
     createChannel: "Create Channel",
     creatingChannel: "Creating...",
     addChannel: "+ Add Channel",
+    parentTopic: "Parent topic",
+    parentTopicNone: "None (top-level)",
+    topicDiscussions: "discussions",
+    subtopics: "subtopics",
+    mentionPeople: "mention people",
+    mentionEntities: "mention entities",
+    searching: "Searching...",
   },
 
   // ── Messages ──
@@ -858,6 +903,37 @@ const en = {
       elv: "Election Vote",
     },
   },
+
+  // ── Group Discussions (B4) ──
+  groupDiscussions: {
+    title: "Discussions",
+    new: "New Discussion",
+    cancel: "Cancel",
+    titlePlaceholder: "Discussion title...",
+    bodyPlaceholder: "Share your thoughts with the group... Use @ to mention people or # for entities.",
+    post: "Post",
+    empty: "No discussions yet in this group.",
+    startFirst: "Be the first to start a discussion!",
+    pinned: "Pinned",
+    locked: "Locked",
+    by: "by",
+    report: "Report",
+    sort: {
+      newest: "Newest",
+      most_upvoted: "Most Upvoted",
+      most_discussed: "Most Discussed",
+    },
+  },
+
+  // ── Personal Posts (B5) ──
+  posts: {
+    composerPlaceholder: "What's on your mind? Share with the Pangea community...",
+    publish: "Publish",
+    visibleToAll: "Visible to everyone",
+    empty: "No posts yet.",
+    writeFirst: "Write your first post!",
+  },
+
 };
 
 export default en;

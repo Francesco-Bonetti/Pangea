@@ -12,15 +12,17 @@ const EMOJI_OPTIONS = [
 
 interface NewChannelFormProps {
   userId?: string;
+  channels?: { id: string; name: string; emoji: string; depth: number }[];
 }
 
-export default function NewChannelForm({ userId }: NewChannelFormProps) {
+export default function NewChannelForm({ userId, channels = [] }: NewChannelFormProps) {
   const supabase = createClient();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [emoji, setEmoji] = useState("💬");
+  const [parentId, setParentId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -72,6 +74,13 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
 
       const nextSort = (maxSort?.sort_order ?? 0) + 1;
 
+      // Calculate depth based on parent
+      let parentDepth = 0;
+      if (parentId) {
+        const parent = channels.find((c) => c.id === parentId);
+        if (parent) parentDepth = parent.depth + 1;
+      }
+
       const { error: insertError } = await supabase
         .from("discussion_channels")
         .insert([
@@ -83,6 +92,8 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
             color: "blue",
             sort_order: nextSort,
             is_active: true,
+            parent_id: parentId,
+            depth: parentDepth,
           },
         ]);
 
@@ -92,6 +103,7 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
       setName("");
       setDescription("");
       setEmoji("💬");
+      setParentId(null);
       setIsOpen(false);
       router.refresh();
     } catch (err) {
@@ -163,6 +175,27 @@ export default function NewChannelForm({ userId }: NewChannelFormProps) {
           className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-sm text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         />
       </div>
+
+      {/* Parent channel (optional) */}
+      {channels.length > 0 && (
+        <div>
+          <label className="block text-xs text-fg-muted mb-1.5">
+            Parent topic <span className="text-fg-muted">(optional)</span>
+          </label>
+          <select
+            value={parentId || ""}
+            onChange={(e) => setParentId(e.target.value || null)}
+            className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-sm text-fg focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
+          >
+            <option value="">None (top-level)</option>
+            {channels.map((ch) => (
+              <option key={ch.id} value={ch.id}>
+                {"  ".repeat(ch.depth)}{ch.emoji} {ch.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Description */}
       <div>

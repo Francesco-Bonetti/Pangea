@@ -43,12 +43,8 @@ export default async function SocialPage({
     profile = data;
   }
 
-  // Fetch channels
-  const { data: channels } = await supabase
-    .from("discussion_channels")
-    .select("*")
-    .eq("is_active", true)
-    .order("sort_order");
+  // Fetch channels (full tree via RPC for sidebar, flat for form)
+  const { data: channels } = await supabase.rpc("get_channel_tree", { p_root_id: null });
 
   // Fetch trending tags
   const { data: trendingTags } = await supabase
@@ -165,10 +161,18 @@ export default async function SocialPage({
     })
   ) as unknown as Discussion[];
 
-  // Get active channel name for header
-  const activeChannelName = searchParams.channel
-    ? channels?.find((c: DiscussionChannel) => c.id === searchParams.channel)?.name
+  // Get active channel info for header + breadcrumb
+  const activeChannelObj = searchParams.channel
+    ? (channels || []).find((c: DiscussionChannel) => c.id === searchParams.channel)
     : undefined;
+  const activeChannelName = activeChannelObj?.name;
+
+  // Fetch ancestors for breadcrumb if a channel is selected
+  let channelAncestors: { id: string; name: string; slug: string; emoji: string; depth: number }[] = [];
+  if (searchParams.channel) {
+    const { data: anc } = await supabase.rpc("get_channel_ancestors", { p_channel_id: searchParams.channel });
+    if (anc) channelAncestors = anc;
+  }
 
   return (
     <AppShell
@@ -199,7 +203,15 @@ export default async function SocialPage({
                 {/* Create Channel (inside channels card) */}
                 {user && (
                   <div className="card p-4 pt-2">
-                    <NewChannelForm userId={user.id} />
+                    <NewChannelForm
+                      userId={user.id}
+                      channels={(channels || []).map((c: DiscussionChannel) => ({
+                        id: c.id,
+                        name: c.name,
+                        emoji: c.emoji || "💬",
+                        depth: c.depth || 0,
+                      }))}
+                    />
                   </div>
                 )}
               </>
@@ -219,7 +231,11 @@ export default async function SocialPage({
             {/* Forum Controls + Header */}
             <div>
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4">
-                <DiscussionSectionHeader channelName={activeChannelName} />
+                <DiscussionSectionHeader
+                  channelName={activeChannelName}
+                  ancestors={channelAncestors}
+                  currentChannelId={searchParams.channel}
+                />
                 <Suspense fallback={<div className="h-10 w-64 animate-pulse rounded-lg bg-white/5" />}>
                   <ForumControls
                     currentSort={searchParams.sort || "newest"}

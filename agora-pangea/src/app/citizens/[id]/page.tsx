@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff, MessageSquare } from "lucide-react";
+import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff, MessageSquare, Rss } from "lucide-react";
 import SendMessageButton from "@/components/SendMessageButton";
 import FollowButton from "@/components/FollowButton";
 import Link from "next/link";
@@ -74,6 +74,7 @@ export default async function CitizenProfilePage({ params }: Props) {
   let proposals: { id: string; title: string; status: string; created_at: string }[] | null = null;
   let voteCount: number | null = null;
   let delegationCount: number | null = null;
+  let personalPosts: { id: string; uid: string | null; body: string; upvotes_count: number; downvotes_count: number; replies_count: number; created_at: string }[] | null = null;
 
   if (showActivity) {
     const { data: proposalsData } = await supabase
@@ -84,6 +85,15 @@ export default async function CitizenProfilePage({ params }: Props) {
       .order("created_at", { ascending: false })
       .limit(10);
     proposals = proposalsData;
+
+    // Fetch personal posts
+    const { data: postsData } = await supabase
+      .from("personal_posts")
+      .select("id, uid, body, upvotes_count, downvotes_count, replies_count, created_at")
+      .eq("author_id", id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    personalPosts = postsData;
 
     const { count } = await supabase
       .from("votes")
@@ -261,6 +271,41 @@ export default async function CitizenProfilePage({ params }: Props) {
                         {p.status === "active" ? "Active Vote" : p.status === "closed" ? "Concluded" : "Community Review"}
                       </span>
                     </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Personal Posts */}
+            {showActivity && personalPosts && personalPosts.length > 0 && (
+              <div className="card p-6 mt-6">
+                <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2 overflow-hidden">
+                  <Rss className="w-5 h-5 text-pink-400 shrink-0" />
+                  <span className="truncate">Posts</span>
+                </h2>
+                <div className="space-y-3">
+                  {personalPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="p-4 rounded-lg hover:bg-theme-card transition-colors"
+                      style={{ backgroundColor: "var(--muted, rgba(0,0,0,0.1))" }}
+                    >
+                      <p className="text-sm text-fg leading-relaxed">
+                        <TranslatedContent text={post.body.length > 200 ? post.body.slice(0, 200) + "..." : post.body} contentType="post_body" contentId={post.id} compact />
+                      </p>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-fg-muted">
+                        <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                        <span className="flex items-center gap-1">
+                          <Vote className="w-3 h-3" /> {post.upvotes_count - post.downvotes_count}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="w-3 h-3" /> {post.replies_count}
+                        </span>
+                        {post.uid && (
+                          <span className="text-fg-primary font-mono text-[10px]">{post.uid}</span>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>

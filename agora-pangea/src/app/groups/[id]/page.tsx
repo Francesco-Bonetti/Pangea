@@ -39,8 +39,9 @@ import type {
   Proposal,
 } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
+import GroupDiscussions from "@/components/GroupDiscussions";
 
-type TabId = "info" | "members" | "votes" | "forum" | "subgroups";
+type TabId = "info" | "members" | "votes" | "discussions" | "subgroups";
 
 const ROLE_ICONS = { founder: Crown, admin: Shield, member: Users };
 const ROLE_COLORS = {
@@ -66,7 +67,6 @@ export default function GroupDetailPage() {
   const [ancestors, setAncestors] = useState<GroupAncestor[]>([]);
   const [children, setChildren] = useState<GroupTreeNode[]>([]);
   const [groupVotes, setGroupVotes] = useState<(GroupVote & { proposals: Proposal })[]>([]);
-  const [forumPosts, setForumPosts] = useState<(GroupForumPost & { profiles: { full_name: string | null } })[]>([]);
   const [activeProposals, setActiveProposals] = useState<Proposal[]>([]);
 
   const [currentMember, setCurrentMember] = useState<(Omit<GroupMember, 'profiles'> & { profiles: { full_name: string | null } }) | null>(null);
@@ -74,11 +74,6 @@ export default function GroupDetailPage() {
   const [activeTab, setActiveTab] = useState<TabId>("info");
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Forum new post
-  const [newPostTitle, setNewPostTitle] = useState("");
-  const [newPostBody, setNewPostBody] = useState("");
-  const [postingForum, setPostingForum] = useState(false);
 
   const loadData = useCallback(async () => {
     const { data: { user: u } } = await supabase.auth.getUser();
@@ -140,21 +135,6 @@ export default function GroupDetailPage() {
       .order("created_at", { ascending: false });
     if (votes) setGroupVotes(votes as (GroupVote & { proposals: Proposal })[]);
 
-    // Forum posts
-    const { data: posts } = await supabase
-      .from("group_forum_posts")
-      .select("*")
-      .eq("group_id", groupId)
-      .is("parent_id", null)
-      .order("created_at", { ascending: false });
-    if (posts) {
-      const authorIds = posts.map((p: GroupForumPost) => p.author_id);
-      const { data: authorProfs } = await supabase.from("profiles").select("id, full_name").in("id", authorIds);
-      const authorMap: Record<string, { id: string; full_name: string | null }> = {};
-      (authorProfs || []).forEach((p: { id: string; full_name: string | null }) => { authorMap[p.id] = p; });
-      setForumPosts(posts.map((p: GroupForumPost) => ({ ...p, profiles: authorMap[p.author_id] || { full_name: null } })));
-    }
-
     // Active proposals for vote tab
     if (u) {
       const { data: props } = await supabase.from("proposals").select("id, title, status").eq("status", "active");
@@ -212,30 +192,14 @@ export default function GroupDetailPage() {
     loadData();
   }
 
-  // Forum post
-  async function handleForumPost() {
-    if (!user || !newPostBody.trim()) return;
-    setPostingForum(true);
-    await supabase.from("group_forum_posts").insert({
-      group_id: groupId,
-      author_id: user.id,
-      title: newPostTitle.trim() || null,
-      body: newPostBody.trim(),
-    });
-    setNewPostTitle("");
-    setNewPostBody("");
-    setPostingForum(false);
-    loadData();
-  }
-
   const isAdmin = currentMember?.role === "founder" || currentMember?.role === "admin";
 
   const tabs: { id: TabId; labelKey: string; icon: typeof Users; count?: number }[] = [
     { id: "info", labelKey: "groups.tabs.info", icon: Globe },
     { id: "members", labelKey: "groups.tabs.members", icon: Users, count: members.length },
     { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
+    { id: "discussions", labelKey: "groups.tabs.discussions", icon: MessageSquare },
     { id: "votes", labelKey: "groups.tabs.votes", icon: Vote },
-    { id: "forum", labelKey: "groups.tabs.forum", icon: MessageSquare, count: forumPosts.length },
   ];
 
   if (loading) {
@@ -538,60 +502,15 @@ export default function GroupDetailPage() {
             </div>
           )}
 
-          {/* FORUM TAB */}
-          {activeTab === "forum" && (
-            <div className="p-6 space-y-6">
-              {/* New post form (members only) */}
-              {currentMember && (
-                <div className="space-y-3 pb-6" style={{ borderBottom: "1px solid var(--border)" }}>
-                  <input
-                    type="text"
-                    value={newPostTitle}
-                    onChange={(e) => setNewPostTitle(e.target.value)}
-                    placeholder={t("groups.forum.titlePlaceholder")}
-                    className="w-full px-4 py-2.5 rounded-lg border text-sm"
-                    style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }}
-                  />
-                  <textarea
-                    value={newPostBody}
-                    onChange={(e) => setNewPostBody(e.target.value)}
-                    placeholder={t("groups.forum.bodyPlaceholder")}
-                    rows={3}
-                    className="w-full px-4 py-2.5 rounded-lg border text-sm resize-none"
-                    style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }}
-                  />
-                  <button
-                    onClick={handleForumPost}
-                    disabled={postingForum || !newPostBody.trim()}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {postingForum ? "..." : t("groups.forum.post")}
-                  </button>
-                </div>
-              )}
-
-              {/* Posts */}
-              <div className="space-y-4">
-                {forumPosts.map((p) => (
-                  <div key={p.id} className="p-4 rounded-lg" style={{ backgroundColor: "var(--muted)" }}>
-                    {p.title && (
-                      <h4 className="text-sm font-semibold mb-1" style={{ color: "var(--foreground)" }}>{p.title}</h4>
-                    )}
-                    <p className="text-sm leading-relaxed" style={{ color: "var(--muted-foreground)" }}>{p.body}</p>
-                    <div className="flex items-center gap-2 mt-2 text-xs" style={{ color: "var(--muted-foreground)" }}>
-                      <PrivacyName userId={p.author_id} fullName={p.profiles?.full_name || null} fallback="Anonymous" className="font-medium" />
-                      <span>·</span>
-                      <span>{new Date(p.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                ))}
-                {forumPosts.length === 0 && (
-                  <div className="text-center py-12 text-sm" style={{ color: "var(--muted-foreground)" }}>
-                    {t("groups.forum.empty")}
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* DISCUSSIONS TAB (B4 — Group Discussions with voting, threading, mentions) */}
+          {activeTab === "discussions" && (
+            <GroupDiscussions
+              groupId={groupId}
+              userId={user?.id}
+              isMember={!!currentMember}
+              isAdmin={isAdmin}
+              groupName={group.name}
+            />
           )}
         </div>
       </div>

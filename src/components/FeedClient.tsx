@@ -17,6 +17,8 @@ interface FeedClientProps {
 const EVENT_ICONS: Record<string, React.ReactNode> = {
   proposal_created: <FileText className="w-4 h-4 text-fg-primary" />,
   discussion_created: <MessageSquare className="w-4 h-4 text-blue-400" />,
+  new_discussion: <MessageSquare className="w-4 h-4 text-blue-400" />,
+  new_post: <Rss className="w-4 h-4 text-pink-400" />,
   party_vote: <Vote className="w-4 h-4 text-amber-400" />,
   vote_cast: <Vote className="w-4 h-4 text-fg-success" />,
   law_approved: <Globe className="w-4 h-4 text-emerald-400" />,
@@ -26,6 +28,8 @@ const EVENT_ICONS: Record<string, React.ReactNode> = {
 const EVENT_COLORS: Record<string, string> = {
   proposal_created: "border-l-pangea-500",
   discussion_created: "border-l-blue-500",
+  new_discussion: "border-l-blue-500",
+  new_post: "border-l-pink-500",
   party_vote: "border-l-amber-500",
   vote_cast: "border-l-green-500",
   law_approved: "border-l-emerald-500",

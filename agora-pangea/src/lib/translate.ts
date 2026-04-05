@@ -21,6 +21,8 @@ export type ContentType =
   | "party_manifesto"
   | "party_post_title"
   | "party_post_body"
+  | "group_post_title"
+  | "group_post_body"
   | "election_description"
   | "candidate_platform"
   | "citizen_bio"

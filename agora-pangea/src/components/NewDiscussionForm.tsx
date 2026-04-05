@@ -7,6 +7,7 @@ import { X, Search } from "lucide-react";
 import type { DiscussionChannel, Tag } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 import { triggerMultiFieldTranslation } from "@/lib/translate";
+import MentionInput, { extractMentions } from "@/components/MentionInput";
 
 interface NewDiscussionFormProps {
   userId?: string;
@@ -176,8 +177,22 @@ export default function NewDiscussionForm({
         }
       }
 
-      // Trigger batch translations (fire & forget)
+      // Save entity mentions
       if (discussion) {
+        const mentions = extractMentions(body);
+        if (mentions.length > 0) {
+          const mentionInserts = mentions.map((m) => ({
+            source_type: "discussion",
+            source_id: discussion.id,
+            target_type: m.type,
+            target_id: m.id,
+            target_uid: m.uid,
+            mentioned_by: userId,
+          }));
+          await supabase.from("entity_mentions").insert(mentionInserts);
+        }
+
+        // Trigger batch translations (fire & forget)
         triggerMultiFieldTranslation([
           { text: title.trim(), contentType: "forum_post_title", contentId: discussion.id },
           { text: body.trim(), contentType: "forum_post_body", contentId: discussion.id },
@@ -266,9 +281,9 @@ export default function NewDiscussionForm({
         </div>
 
         {!showPreview ? (
-          <textarea
+          <MentionInput
             value={body}
-            onChange={(e) => setBody(e.target.value)}
+            onChange={setBody}
             placeholder={t("forum.shareThoughts")}
             rows={6}
             className="w-full bg-theme-base border border-theme rounded-lg px-4 py-2.5 text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors resize-none"
