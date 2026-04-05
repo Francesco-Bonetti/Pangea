@@ -7,7 +7,7 @@ const it: TranslationKeys = {
     laws: "Leggi",
     groups: "Gruppi",
     elections: "Elezioni",
-    forum: "Forum",
+    agora: "Agora",
     about: "Informazioni",
     feed: "Notizie",
     messages: "Messaggi",
@@ -294,7 +294,7 @@ const it: TranslationKeys = {
       members: "Membri",
       subgroups: "Sottogruppi",
       votes: "Voti",
-      forum: "Forum",
+      agora: "Forum",
     },
     view: {
       tree: "Vista Albero",
@@ -319,7 +319,7 @@ const it: TranslationKeys = {
       location: "Località",
       locationPlaceholder: "es. Lisbona, Portogallo",
     },
-    forum: {
+    agora: {
       titlePlaceholder: "Titolo del post (opzionale)",
       bodyPlaceholder: "Scrivi il tuo messaggio...",
       post: "Pubblica",
@@ -332,7 +332,7 @@ const it: TranslationKeys = {
   },
 
   // ── Forum / Social ──
-  forum: {
+  agora: {
     title: "Forum della Comunità",
     newDiscussion: "Nuova Discussione",
     newChannel: "Nuovo Canale",
@@ -758,7 +758,7 @@ const it: TranslationKeys = {
     lockedDiscussion: "ha chiuso la tua discussione",
     moderationAction: "Azione di moderazione",
   },
-  forumExtra: {
+  agoraExtra: {
     loadMore: "Carica altri",
     loadingMore: "Caricamento...",
     noMoreDiscussions: "Nessuna altra discussione",
@@ -780,7 +780,7 @@ const it: TranslationKeys = {
     nestedReplies: "risposte annidate",
     maxDepthReached: "Profondità massima raggiunta",
   },
-  adminForum: {
+  adminAgora: {
     tabLabel: "Forum",
     reports: "Segnalazioni forum",
     noReports: "Nessuna segnalazione",

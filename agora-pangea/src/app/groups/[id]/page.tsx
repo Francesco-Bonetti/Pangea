@@ -40,7 +40,7 @@ import type {
 } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 
-type TabId = "info" | "members" | "votes" | "forum" | "subgroups";
+type TabId = "info" | "members" | "votes" | "agora" | "subgroups";
 
 const ROLE_ICONS = { founder: Crown, admin: Shield, member: Users };
 const ROLE_COLORS = {
@@ -234,7 +234,7 @@ export default function GroupDetailPage() {
     { id: "members", labelKey: "groups.tabs.members", icon: Users, count: members.length },
     { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
     { id: "votes", labelKey: "groups.tabs.votes", icon: Vote },
-    { id: "forum", labelKey: "groups.tabs.forum", icon: MessageSquare, count: forumPosts.length },
+    { id: "agora", labelKey: "groups.tabs.agora", icon: MessageSquare, count: forumPosts.length },
   ];
 
   if (loading) {
@@ -538,7 +538,7 @@ export default function GroupDetailPage() {
           )}
 
           {/* FORUM TAB */}
-          {activeTab === "forum" && (
+          {activeTab === "agora" && (
             <div className="p-6 space-y-6">
               {/* New post form (members only) */}
               {currentMember && (

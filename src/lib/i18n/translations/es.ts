@@ -3,7 +3,7 @@ import type { TranslationKeys } from "./en";
 const es: TranslationKeys = {
   nav: {
     dashboard: "Panel", laws: "Leyes", groups: "Grupos", elections: "Elecciones",
-    forum: "Foro", about: "Acerca de", feed: "Noticias",
+    agora: "Agora",
     messages: "Mensajes", settings: "Configuración", delegations: "Delegaciones",
     adminPanel: "Panel Admin", newProposal: "Nueva Propuesta", signIn: "Iniciar Sesión",
     logout: "Cerrar Sesión", loggingOut: "Cerrando sesión...", navigation: "Navegación",
@@ -175,7 +175,7 @@ const es: TranslationKeys = {
       members: "Miembros",
       subgroups: "Subgrupos",
       votes: "Votos",
-      forum: "Foro",
+      agora: "Foro",
     },
     view: {
       tree: "Vista Árbol",
@@ -200,7 +200,7 @@ const es: TranslationKeys = {
       location: "Ubicación",
       locationPlaceholder: "ej. Lisboa, Portugal",
     },
-    forum: {
+    agora: {
       titlePlaceholder: "Título del post (opcional)",
       bodyPlaceholder: "Escribe tu mensaje...",
       post: "Publicar",
@@ -211,7 +211,7 @@ const es: TranslationKeys = {
       founderCantLeave: "El fundador no puede salir. Transfiere el rol primero.",
     },
   },
-  forum: {
+  agora: {
     title: "Foro de la Comunidad", newDiscussion: "Nueva Discusión", newChannel: "Nuevo Canal",
     channels: "Canales", discussions: "Discusiones", replies: "Respuestas",
     upvote: "Me gusta", downvote: "No me gusta", report: "Reportar", pinned: "Fijado",
@@ -496,7 +496,7 @@ const es: TranslationKeys = {
     lockedDiscussion: "bloqueó tu discusión",
     moderationAction: "Acción de moderación",
   },
-  forumExtra: {
+  agoraExtra: {
     loadMore: "Cargar más",
     loadingMore: "Cargando...",
     noMoreDiscussions: "No hay más discusiones",
@@ -518,7 +518,7 @@ const es: TranslationKeys = {
     nestedReplies: "respuestas anidadas",
     maxDepthReached: "Profundidad máxima alcanzada",
   },
-  adminForum: {
+  adminAgora: {
     tabLabel: "Foro",
     reports: "Reportes del foro",
     noReports: "Sin reportes",

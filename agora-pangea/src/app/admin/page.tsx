@@ -93,7 +93,7 @@ export default function AdminPage() {
   const [totalCounts, setTotalCounts] = useState({ users: 0, proposals: 0, laws: 0, openReports: 0 });
 
   // UI State
-  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity" | "forum">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity" | "agora">("users");
   const [integrityStats, setIntegrityStats] = useState<Record<string, unknown> | null>(null);
   const [hashingAll, setHashingAll] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -421,7 +421,7 @@ export default function AdminPage() {
             { key: "proposals", label: t("admin.proposals"), icon: FileText },
             { key: "laws", label: t("admin.laws"), icon: BookOpen },
             { key: "reports", label: t("admin.reports"), icon: Bug },
-            { key: "forum", label: t("social.forum"), icon: MessageSquare },
+            { key: "agora", label: t("social.forum"), icon: MessageSquare },
             { key: "stats", label: t("admin.statistics"), icon: BarChart3 },
             { key: "integrity", label: t("integrity.navTitle"), icon: ShieldCheck },
           ] as const).map(({ key, label, icon: Icon }) => (
@@ -640,7 +640,7 @@ export default function AdminPage() {
         )}
 
         {/* Forum tab */}
-        {activeTab === "forum" && (
+        {activeTab === "agora" && (
           <div className="space-y-6">
             {/* Section A: Forum Reports */}
             <div>

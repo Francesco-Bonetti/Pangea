@@ -234,7 +234,7 @@ export default function GroupDetailPage() {
     { id: "members", labelKey: "groups.tabs.members", icon: Users, count: members.length },
     { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
     { id: "votes", labelKey: "groups.tabs.votes", icon: Vote },
-    { id: "forum", labelKey: "groups.tabs.forum", icon: MessageSquare, count: forumPosts.length },
+    { id: "forum", labelKey: "groups.tabs.agora", icon: MessageSquare, count: forumPosts.length },
   ];
 
   if (loading) {
@@ -547,14 +547,14 @@ export default function GroupDetailPage() {
                     type="text"
                     value={newPostTitle}
                     onChange={(e) => setNewPostTitle(e.target.value)}
-                    placeholder={t("groups.forum.titlePlaceholder")}
+                    placeholder={t("groups.agora.titlePlaceholder")}
                     className="w-full px-4 py-2.5 rounded-lg border text-sm"
                     style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }}
                   />
                   <textarea
                     value={newPostBody}
                     onChange={(e) => setNewPostBody(e.target.value)}
-                    placeholder={t("groups.forum.bodyPlaceholder")}
+                    placeholder={t("groups.agora.bodyPlaceholder")}
                     rows={3}
                     className="w-full px-4 py-2.5 rounded-lg border text-sm resize-none"
                     style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }}
@@ -564,7 +564,7 @@ export default function GroupDetailPage() {
                     disabled={postingForum || !newPostBody.trim()}
                     className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
                   >
-                    {postingForum ? "..." : t("groups.forum.post")}
+                    {postingForum ? "..." : t("groups.agora.post")}
                   </button>
                 </div>
               )}
@@ -586,7 +586,7 @@ export default function GroupDetailPage() {
                 ))}
                 {forumPosts.length === 0 && (
                   <div className="text-center py-12 text-sm" style={{ color: "var(--muted-foreground)" }}>
-                    {t("groups.forum.empty")}
+                    {t("groups.agora.empty")}
                   </div>
                 )}
               </div>

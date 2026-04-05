@@ -5,7 +5,7 @@ const en = {
     laws: "Laws",
     groups: "Groups",
     elections: "Elections",
-    forum: "Forum",
+    agora: "Agora",
     about: "About",
     feed: "Feed",
     messages: "Messages",
@@ -336,7 +336,7 @@ const en = {
   },
 
   // ── Forum / Social ──
-  forum: {
+  agora: {
     title: "Community Forum",
     newDiscussion: "New Discussion",
     newChannel: "New Channel",
@@ -771,7 +771,7 @@ const en = {
   },
 
   // ── Forum (extended) ──
-  forumExtra: {
+  agoraExtra: {
     loadMore: "Load More",
     loadingMore: "Loading...",
     noMoreDiscussions: "No more discussions",
@@ -795,7 +795,7 @@ const en = {
   },
 
   // ── Admin Forum Moderation ──
-  adminForum: {
+  adminAgora: {
     tabLabel: "Forum",
     reports: "Forum Reports",
     noReports: "No forum reports",

@@ -3,7 +3,7 @@ import type { TranslationKeys } from "./en";
 const fr: TranslationKeys = {
   nav: {
     dashboard: "Tableau de bord", laws: "Lois", groups: "Groupes", elections: "Élections",
-    forum: "Forum", about: "À propos", feed: "Actualités",
+    agora: "Agora",
     messages: "Messages", settings: "Paramètres", delegations: "Délégations",
     adminPanel: "Panneau Admin", newProposal: "Nouvelle Proposition", signIn: "Se connecter",
     logout: "Déconnexion", loggingOut: "Déconnexion...", navigation: "Navigation",
@@ -176,7 +176,7 @@ const fr: TranslationKeys = {
       members: "Membres",
       subgroups: "Sous-groupes",
       votes: "Votes",
-      forum: "Forum",
+      agora: "Forum",
     },
     view: {
       tree: "Vue Arbre",
@@ -201,7 +201,7 @@ const fr: TranslationKeys = {
       location: "Localisation",
       locationPlaceholder: "ex. Lisbonne, Portugal",
     },
-    forum: {
+    agora: {
       titlePlaceholder: "Titre du post (optionnel)",
       bodyPlaceholder: "Écrivez votre message...",
       post: "Publier",
@@ -212,7 +212,7 @@ const fr: TranslationKeys = {
       founderCantLeave: "Le fondateur ne peut pas quitter. Transférez d'abord le rôle.",
     },
   },
-  forum: {
+  agora: {
     title: "Forum Communautaire", newDiscussion: "Nouvelle Discussion", newChannel: "Nouveau Canal",
     channels: "Canaux", discussions: "Discussions", replies: "Réponses",
     upvote: "Positif", downvote: "Négatif", report: "Signaler", pinned: "Épinglé",
@@ -497,7 +497,7 @@ const fr: TranslationKeys = {
     lockedDiscussion: "a verrouillé votre discussion",
     moderationAction: "Action de modération",
   },
-  forumExtra: {
+  agoraExtra: {
     loadMore: "Charger plus",
     loadingMore: "Chargement...",
     noMoreDiscussions: "Plus de discussions",
@@ -519,7 +519,7 @@ const fr: TranslationKeys = {
     nestedReplies: "réponses imbriquées",
     maxDepthReached: "Profondeur maximale atteinte",
   },
-  adminForum: {
+  adminAgora: {
     tabLabel: "Forum",
     reports: "Signalements du forum",
     noReports: "Aucun signalement",
