@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import type { LawNode } from "@/app/laws/page";
 import LawPositions from "@/components/LawPositions";
+import { useLanguage } from "@/components/language-provider";
 
 interface LawTreeProps {
   node: LawNode;
@@ -23,62 +24,60 @@ interface LawTreeProps {
   isAdmin?: boolean;
 }
 
-const typeConfig: Record<
-  string,
-  { icon: typeof BookOpen; color: string; bg: string; inactiveBg: string; label: string }
-> = {
+const typeKeys: Record<string, { icon: typeof BookOpen; color: string; bg: string; inactiveBg: string; labelKey: string }> = {
   code: {
     icon: Scale,
     color: "text-blue-400",
     bg: "bg-blue-900/20 border-blue-800/30",
     inactiveBg: "bg-theme-card/40 border-theme/20",
-    label: "Code",
+    labelKey: "laws.typeCode",
   },
   book: {
     icon: BookOpen,
     color: "text-fg-primary",
     bg: "bg-pangea-900/20 border-pangea-800/30",
     inactiveBg: "bg-theme-card/30 border-theme/20",
-    label: "Book",
+    labelKey: "laws.typeBook",
   },
   title: {
     icon: Scroll,
     color: "text-amber-400",
     bg: "bg-warning-tint border-amber-800/30",
     inactiveBg: "bg-theme-card/30 border-theme/20",
-    label: "Title",
+    labelKey: "laws.typeTitle",
   },
   chapter: {
     icon: FileText,
     color: "text-fg-success",
     bg: "bg-success-tint border-green-800/30",
     inactiveBg: "bg-theme-card/30 border-theme/20",
-    label: "Chapter",
+    labelKey: "laws.typeChapter",
   },
   section: {
     icon: FileText,
     color: "text-fg-muted",
     bg: "bg-theme-card border-theme/30",
     inactiveBg: "bg-theme-card/30 border-theme/20",
-    label: "Section",
+    labelKey: "laws.typeSection",
   },
   article: {
     icon: FileText,
     color: "text-fg",
     bg: "bg-theme-card/30 border-theme/20",
     inactiveBg: "bg-theme-base border-theme/10",
-    label: "Article",
+    labelKey: "laws.typeArticle",
   },
 };
 
 export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawTreeProps) {
   const [expanded, setExpanded] = useState(depth === 0);
   const [showSimplified, setShowSimplified] = useState(false);
+  const { t } = useLanguage();
   const hasChildren = node.children && node.children.length > 0;
   const isArticle = node.law_type === "article";
   const hasContent = !!node.content;
   const isExpandable = hasChildren || (isArticle && hasContent);
-  const config = typeConfig[node.law_type] || typeConfig.section;
+  const config = typeKeys[node.law_type] || typeKeys.section;
   const Icon = config.icon;
   const isInactive = !node.is_active;
   const bgClass = isInactive ? config.inactiveBg : config.bg;
@@ -144,7 +143,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
                       : "bg-green-900/30 text-fg-success"
                   }`}
                 >
-                  {isInactive ? "Not yet active" : "Active"}
+                  {isInactive ? t("laws.notYetActive") : t("laws.active")}
                 </span>
               )}
             </div>
@@ -159,7 +158,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
             {/* Children count when collapsed */}
             {hasChildren && !expanded && (
               <p className="text-xs text-fg-muted mt-1">
-                {node.children!.length} {node.children!.length === 1 ? "element" : "elements"}
+                {node.children!.length} {node.children!.length === 1 ? t("laws.element") : t("laws.elements")}
               </p>
             )}
           </div>
@@ -176,7 +175,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
                   ? "bg-amber-500/20 text-amber-400"
                   : "bg-theme-muted/30 text-fg-muted hover:text-amber-400 hover:bg-amber-500/10"
               }`}
-              title={showSimplified ? "Show technical text" : "Show simplified explanation"}
+              title={showSimplified ? t("laws.showTechnical") : t("laws.showSimplified")}
             >
               <Lightbulb className="w-4 h-4" />
             </button>
@@ -189,7 +188,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
             <div className="bg-warning-tint border border-amber-800/20 rounded-lg p-3">
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-xs font-medium text-amber-400">Simplified Explanation</span>
+                <span className="text-xs font-medium text-amber-400">{t("laws.simplifiedExplanation")}</span>
               </div>
               <p className="text-sm text-amber-200/80 leading-relaxed">
                 {node.simplified_content}
@@ -211,7 +210,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3 h-3 text-fg-muted" />
                   <span className="text-xs text-fg-muted">
-                    Last updated: {new Date(node.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                    {t("laws.lastUpdated")} {new Date(node.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                   </span>
                 </div>
               )}
@@ -221,7 +220,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
                 className="flex items-center gap-1 text-xs text-fg-muted hover:text-blue-400 transition-colors ml-auto"
               >
                 <History className="w-3 h-3" />
-                Version History
+                {t("laws.versionHistory")}
               </Link>
             </div>
 

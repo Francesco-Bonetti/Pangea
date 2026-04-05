@@ -5,6 +5,7 @@ import type { ProposalWithResults } from "@/lib/types";
 import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
 import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle } from "lucide-react";
 import TranslatedContent from "@/components/TranslatedContent";
+import { useLanguage } from "@/components/language-provider";
 
 interface ProposalCardProps {
   proposal: ProposalWithResults;
@@ -12,42 +13,43 @@ interface ProposalCardProps {
 }
 
 export default function ProposalCard({ proposal, curationThreshold = 2 }: ProposalCardProps) {
+  const { t } = useLanguage();
   const results = proposal.results ?? { yea_count: 0, nay_count: 0, abstain_count: 0 };
   const total = getTotalVotes(results);
   const yeaPercent = calcPercentage(results.yea_count, total);
   const nayPercent = calcPercentage(results.nay_count, total);
   const abstainPercent = calcPercentage(results.abstain_count, total);
 
-  const statusConfig: Record<string, { icon: typeof Clock; label: string; className: string }> = {
+  const statusConfig: Record<string, { icon: typeof Clock; labelKey: string; className: string }> = {
     draft: {
       icon: FileText,
-      label: "Draft",
+      labelKey: "laws.statusDraft",
       className: "status-draft",
     },
     curation: {
       icon: Flame,
-      label: "Community Review",
+      labelKey: "laws.statusCommunityReview",
       className: "status-curation",
     },
     active: {
       icon: Clock,
-      label: "Active Vote",
+      labelKey: "laws.statusActiveVote",
       className: "status-active",
     },
     closed: {
       icon: CheckCircle2,
-      label: "Concluded",
+      labelKey: "laws.statusConcluded",
       className: "status-closed",
     },
     repealed: {
       icon: XCircle,
-      label: "Repealed",
+      labelKey: "laws.statusRepealed",
       className: "status-repealed",
     },
   };
 
   const config = statusConfig[proposal.status] ?? statusConfig.draft;
-  const { icon: StatusIcon, label: statusLabel, className: statusClass } = config;
+  const { icon: StatusIcon, labelKey: statusLabelKey, className: statusClass } = config;
 
   return (
     <Link
@@ -60,7 +62,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className={`${statusClass} shrink-0`}>
               <StatusIcon className="w-3 h-3 inline mr-1" />
-              {statusLabel}
+              {t(statusLabelKey)}
             </span>
             {proposal.proposal_type === "amendment" && (
               <span
@@ -70,7 +72,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
                   backgroundColor: "color-mix(in srgb, #7c3aed 12%, transparent)",
                 }}
               >
-                <Edit3 className="w-3 h-3" /> Amendment
+                <Edit3 className="w-3 h-3" /> {t("laws.amendmentBadge")}
               </span>
             )}
             {proposal.proposal_type === "repeal" && (
@@ -81,7 +83,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
                   backgroundColor: "color-mix(in srgb, var(--destructive) 12%, transparent)",
                 }}
               >
-                <Trash2 className="w-3 h-3" /> Repeal
+                <Trash2 className="w-3 h-3" /> {t("laws.repealBadge")}
               </span>
             )}
             {proposal.has_voted && (
@@ -89,7 +91,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
                 className="text-xs font-medium shrink-0"
                 style={{ color: "var(--success)" }}
               >
-                ✓ Voted
+                ✓ {t("laws.voted")}
               </span>
             )}
           </div>
@@ -130,7 +132,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
           <div className="flex justify-between text-xs mb-1 overflow-hidden gap-2">
             <span className="flex items-center gap-1 min-w-0" style={{ color: "var(--muted-foreground)" }}>
               <Flame className="w-3 h-3 shrink-0" style={{ color: "#d97706" }} />
-              <span className="truncate">Signals</span>
+              <span className="truncate">{t("laws.signals")}</span>
             </span>
             <span className="shrink-0" style={{ color: "var(--muted-foreground)" }}>
               {proposal.signal_count} / {curationThreshold}
@@ -179,15 +181,15 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
           <div className="flex items-center gap-4 mt-2 text-xs flex-wrap">
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: "var(--success)" }} />
-              <span style={{ color: "var(--muted-foreground)" }}>In Favor {yeaPercent}%</span>
+              <span style={{ color: "var(--muted-foreground)" }}>{t("laws.inFavor")} {yeaPercent}%</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: "var(--destructive)" }} />
-              <span style={{ color: "var(--muted-foreground)" }}>Against {nayPercent}%</span>
+              <span style={{ color: "var(--muted-foreground)" }}>{t("laws.against")} {nayPercent}%</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: "var(--muted-foreground)" }} />
-              <span style={{ color: "var(--muted-foreground)" }}>Abstain {abstainPercent}%</span>
+              <span style={{ color: "var(--muted-foreground)" }}>{t("laws.abstain")} {abstainPercent}%</span>
             </span>
           </div>
         </div>
@@ -239,12 +241,12 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
           {proposal.status === "curation" ? (
             <>
               <Flame className="w-3 h-3 shrink-0" />
-              <span className="truncate">{proposal.signal_count ?? 0} signals</span>
+              <span className="truncate">{proposal.signal_count ?? 0} {t("laws.signals").toLowerCase()}</span>
             </>
           ) : (
             <>
               <Users className="w-3 h-3 shrink-0" />
-              <span className="truncate">{total} {total === 1 ? "vote" : "votes"}</span>
+              <span className="truncate">{total} {total === 1 ? t("laws.vote") : t("laws.votes")}</span>
             </>
           )}
         </div>

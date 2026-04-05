@@ -530,6 +530,92 @@ a, button, input, select, textarea,
   background-color: var(--muted-foreground);
 }
 
+/* ============================================
+   INTERACTIVE HOVER EFFECTS
+   ============================================ */
+/* Activity row hover — used in dashboard recent activity */
+.activity-row {
+  @apply rounded-lg transition-all duration-200;
+}
+.activity-row:hover {
+  background-color: color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+/* Clickable list item — generic hover for list-based interactive elements */
+.list-item-hover {
+  @apply transition-all duration-200;
+}
+.list-item-hover:hover {
+  background-color: color-mix(in srgb, var(--primary) 5%, transparent);
+  transform: translateX(2px);
+}
+
+/* Card with lift effect on hover */
+.card-lift {
+  @apply transition-all duration-300;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15), 0 4px 10px -5px rgba(0, 0, 0, 0.08);
+}
+.dark .card-lift:hover {
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.35), 0 4px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Focus-visible — only show focus ring on keyboard navigation */
+.focus-visible-ring:focus-visible {
+  @apply outline-none ring-2;
+  --tw-ring-color: var(--primary);
+  ring-offset-width: 2px;
+  ring-offset-color: var(--background);
+}
+
+/* Tab button — for tab navigation elements */
+.tab-button {
+  @apply transition-all duration-200;
+}
+.tab-button:hover:not(.tab-active) {
+  background-color: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+/* Badge hover — for status badges and tags */
+.badge-hover {
+  @apply transition-all duration-200 cursor-pointer;
+}
+.badge-hover:hover {
+  filter: brightness(1.15);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   IMPROVED LOADING STATES
+   ============================================ */
+.skeleton-wave {
+  @apply rounded-lg overflow-hidden relative;
+  background-color: var(--muted);
+}
+.skeleton-wave::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--card) 30%, transparent), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+/* Pulse dot for loading indicators */
+.loading-dot {
+  @apply w-2 h-2 rounded-full;
+  background-color: var(--primary);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
 /* Empty state styling */
 .empty-state {
   @apply text-center py-16;

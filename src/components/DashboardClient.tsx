@@ -167,12 +167,9 @@ export default function DashboardClient({
                     <Link
                       key={proposal.id}
                       href={`/proposals/${proposal.id}`}
-                      className="flex items-center gap-3 p-3 rounded-lg transition-colors duration-150"
-                      style={{
-                        backgroundColor: "transparent",
-                      }}
+                      className="activity-row flex items-center gap-3 p-3 rounded-lg"
                     >
-                      <div className="activity-row flex items-center gap-3 w-full">
+                      <div className="flex items-center gap-3 w-full">
                         <span
                           className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0"
                           style={{

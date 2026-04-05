@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
 // LibreTranslate instances (primary + fallbacks)
 const LIBRETRANSLATE_ENDPOINTS = [
@@ -75,6 +76,23 @@ async function translateText(
  *    Body: { text, source_language, target_language, content_type?, content_id? }
  */
 export async function POST(request: Request) {
+  // Rate limiting
+  const clientIp = getClientIp(request);
+  const rateLimitResult = checkRateLimit(`translate:${clientIp}`, RATE_LIMITS.translate);
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { error: "Too many translation requests. Please wait a moment." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000)),
+          "X-RateLimit-Limit": String(rateLimitResult.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
   try {
     const body = await request.json();
     const {

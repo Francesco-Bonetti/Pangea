@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
 // Endpoint called by Vercel Cron to evaluate Community Review.
 // Calls the RPC evaluate_curation_markets() which:
@@ -9,6 +10,23 @@ import { createClient } from "@supabase/supabase-js";
 // 4. Automatically sets expires_at
 
 export async function GET(request: Request) {
+  // Rate limiting
+  const clientIp = getClientIp(request);
+  const rateLimitResult = checkRateLimit(`cron:${clientIp}`, RATE_LIMITS.cron);
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000)),
+          "X-RateLimit-Limit": String(rateLimitResult.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
   // Verify the call comes from Vercel Cron
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {

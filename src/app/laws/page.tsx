@@ -5,6 +5,9 @@ import LawsPageHeader from "@/components/LawsPageHeader";
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
 
+// Revalidate every 5 minutes — laws don't change frequently
+export const revalidate = 300;
+
 // Type for tree nodes
 export interface LawNode {
   id: string;

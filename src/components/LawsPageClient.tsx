@@ -3,6 +3,7 @@
 import { useState } from "react";
 import LawTree from "@/components/LawTree";
 import { BookOpen, Globe, Scale, Shield, Eye } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 interface LawNode {
   id: string;
@@ -41,6 +42,7 @@ export default function LawsPageClient({
   isAdmin,
 }: LawsPageClientProps) {
   const [activeTab, setActiveTab] = useState<"living" | "operative">("living");
+  const { t } = useLanguage();
 
   return (
     <>
@@ -56,11 +58,11 @@ export default function LawsPageClient({
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            Living Codes
+            {t("laws.livingCodes")}
             <span className={`text-xs px-2 py-0.5 rounded-full ${
               activeTab === "living" ? "bg-blue-500/20" : "bg-theme-muted"
             }`}>
-              {totalCodes} codes &middot; {totalArticles} articles
+              {totalCodes} {t("laws.codes").toLowerCase()} &middot; {totalArticles} {t("laws.articles").toLowerCase()}
             </span>
           </button>
           <button
@@ -72,11 +74,11 @@ export default function LawsPageClient({
             }`}
           >
             <Shield className="w-4 h-4" />
-            Operative Laws
+            {t("laws.operativeLaws")}
             <span className={`text-xs px-2 py-0.5 rounded-full ${
               activeTab === "operative" ? "bg-green-500/20" : "bg-theme-muted"
             }`}>
-              {activeCodes} codes &middot; {activeArticles} articles
+              {activeCodes} {t("laws.codes").toLowerCase()} &middot; {activeArticles} {t("laws.articles").toLowerCase()}
             </span>
           </button>
         </div>
@@ -87,18 +89,15 @@ export default function LawsPageClient({
         <section>
           <div className="flex items-center gap-3 mb-4">
             <BookOpen className="w-6 h-6 text-blue-400" />
-            <h2 className="text-xl font-bold text-fg">Living Codes</h2>
+            <h2 className="text-xl font-bold text-fg">{t("laws.livingCodes")}</h2>
             <span className="text-xs text-fg-muted bg-theme-card px-2 py-1 rounded">
-              Complete Collection
+              {t("laws.completeCollection")}
             </span>
           </div>
           <div className="card border border-blue-800/20 bg-blue-900/5 p-4 mb-6">
             <p className="text-sm text-fg-muted leading-relaxed">
               <Eye className="w-4 h-4 inline mr-1 text-blue-400" />
-              The complete collection of all Pangean laws — both those currently
-              in force and those that will be progressively activated. Inactive laws
-              are shown with a slightly different style. All laws can be amended or
-              repealed through Pangea&apos;s democratic process.
+              {t("laws.livingCodesDesc")}
             </p>
           </div>
 
@@ -106,19 +105,19 @@ export default function LawsPageClient({
             <div className="card p-4 bg-blue-900/10">
               <Scale className="w-5 h-5 text-blue-400 mb-2" />
               <p className="text-2xl font-bold text-fg">{totalCodes}</p>
-              <p className="text-xs text-fg-muted">Codes</p>
+              <p className="text-xs text-fg-muted">{t("laws.codes")}</p>
             </div>
             <div className="card p-4 bg-pangea-900/10">
               <BookOpen className="w-5 h-5 text-fg-primary mb-2" />
               <p className="text-2xl font-bold text-fg">{totalArticles}</p>
-              <p className="text-xs text-fg-muted">Articles</p>
+              <p className="text-xs text-fg-muted">{t("laws.articles")}</p>
             </div>
             <div className="card p-4 bg-green-900/10">
               <Globe className="w-5 h-5 text-fg-success mb-2" />
               <p className="text-2xl font-bold text-fg">
                 {activeCodes}/{totalCodes}
               </p>
-              <p className="text-xs text-fg-muted">Active Codes</p>
+              <p className="text-xs text-fg-muted">{t("laws.activeCodes")}</p>
             </div>
           </div>
 
@@ -135,17 +134,15 @@ export default function LawsPageClient({
         <section>
           <div className="flex items-center gap-3 mb-4">
             <Shield className="w-6 h-6 text-fg-success" />
-            <h2 className="text-xl font-bold text-fg">Operative Laws</h2>
+            <h2 className="text-xl font-bold text-fg">{t("laws.operativeLaws")}</h2>
             <span className="text-xs text-fg-success bg-green-900/30 px-2 py-1 rounded">
-              Currently In Force
+              {t("laws.currentlyInForce")}
             </span>
           </div>
           <div className="card border border-green-800/20 bg-green-900/5 p-4 mb-6">
             <p className="text-sm text-fg-muted leading-relaxed">
               <Shield className="w-4 h-4 inline mr-1 text-fg-success" />
-              Only the laws currently in force. When an inactive law in the Living Codes
-              becomes active, it automatically appears here. These are the laws that govern
-              the Commonwealth today.
+              {t("laws.operativeDesc")}
             </p>
           </div>
 
@@ -153,12 +150,12 @@ export default function LawsPageClient({
             <div className="card p-4 bg-green-900/10">
               <Scale className="w-5 h-5 text-fg-success mb-2" />
               <p className="text-2xl font-bold text-fg">{activeCodes}</p>
-              <p className="text-xs text-fg-muted">Active Codes</p>
+              <p className="text-xs text-fg-muted">{t("laws.activeCodes")}</p>
             </div>
             <div className="card p-4 bg-green-900/10">
               <BookOpen className="w-5 h-5 text-fg-success mb-2" />
               <p className="text-2xl font-bold text-fg">{activeArticles}</p>
-              <p className="text-xs text-fg-muted">Active Articles</p>
+              <p className="text-xs text-fg-muted">{t("laws.activeArticles")}</p>
             </div>
           </div>
 
@@ -172,10 +169,10 @@ export default function LawsPageClient({
             <div className="text-center py-20 card">
               <Shield className="w-16 h-16 text-fg-muted mx-auto mb-4" strokeWidth={1} />
               <h3 className="text-xl font-semibold text-fg mb-2">
-                No operative laws yet
+                {t("laws.noOperativeLaws")}
               </h3>
               <p className="text-fg-muted">
-                Operative laws will appear here as the Pangea project advances.
+                {t("laws.operativeWillAppear")}
               </p>
             </div>
           )}
