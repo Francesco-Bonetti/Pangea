@@ -878,27 +878,6 @@ const it: TranslationKeys = {
     },
   },
 
-  // ── Discussioni di Gruppo (B4) ──
-  groupDiscussions: {
-    title: "Discussioni",
-    new: "Nuova Discussione",
-    cancel: "Annulla",
-    titlePlaceholder: "Titolo della discussione...",
-    bodyPlaceholder: "Condividi i tuoi pensieri con il gruppo... Usa @ per menzionare persone o # per entità.",
-    post: "Pubblica",
-    empty: "Nessuna discussione in questo gruppo.",
-    startFirst: "Sii il primo ad avviare una discussione!",
-    pinned: "Fissata",
-    locked: "Bloccata",
-    by: "di",
-    report: "Segnala",
-    sort: {
-      newest: "Più Recenti",
-      most_upvoted: "Più Votate",
-      most_discussed: "Più Discusse",
-    },
-  },
-
   // ── Post Personali (B5) ──
   posts: {
     composerPlaceholder: "Cosa pensi? Condividi con la comunità di Pangea...",

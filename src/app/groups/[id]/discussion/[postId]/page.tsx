@@ -201,7 +201,7 @@ function ReplyItem({
           <div className="mt-3 space-y-2">
             <MentionInput value={replyBody} onChange={setReplyBody} placeholder={t("groupDiscussions.writeReply")} rows={3}
               className="w-full px-3 py-2 rounded-lg border text-sm resize-none"
-              style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }} />
+              />
             <div className="flex gap-2">
               <button onClick={handleSubmitReply} disabled={posting || !replyBody.trim()}
                 className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50">
@@ -305,7 +305,7 @@ export default function GroupDiscussionThreadPage() {
       const threadReplies = filterThreadReplies(allReplies, postId);
 
       // Fetch profiles
-      const authorIds = [...new Set(threadReplies.map(r => r.author_id))];
+      const authorIds = Array.from(new Set(threadReplies.map(r => r.author_id)));
       const { data: profs } = await supabase.from("profiles").select("id, full_name").in("id", authorIds.length ? authorIds : ["00000000-0000-0000-0000-000000000000"]);
       const profMap: Record<string, { full_name: string | null }> = {};
       (profs || []).forEach((pr: { id: string; full_name: string | null }) => { profMap[pr.id] = { full_name: pr.full_name }; });
@@ -550,7 +550,7 @@ export default function GroupDiscussionThreadPage() {
             <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--foreground)" }}>{t("groupDiscussions.writeReply")}</h3>
             <MentionInput value={replyBody} onChange={setReplyBody} placeholder={t("groupDiscussions.replyPlaceholder")} rows={4}
               className="w-full px-4 py-2.5 rounded-lg border text-sm resize-none"
-              style={{ backgroundColor: "var(--input-bg)", borderColor: "var(--border)", color: "var(--foreground)" }} />
+              />
             <button onClick={handlePostReply} disabled={posting || !replyBody.trim()}
               className="mt-3 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50">
               {posting ? "..." : t("groupDiscussions.postReply")}

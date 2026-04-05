@@ -614,26 +614,6 @@ const es: TranslationKeys = {
     },
   },
 
-  groupDiscussions: {
-    title: "Discusiones",
-    new: "Nueva Discusión",
-    cancel: "Cancelar",
-    titlePlaceholder: "Título de la discusión...",
-    bodyPlaceholder: "Comparte tus ideas con el grupo... Usa @ para mencionar personas o # para entidades.",
-    post: "Publicar",
-    empty: "No hay discusiones en este grupo.",
-    startFirst: "¡Sé el primero en iniciar una discusión!",
-    pinned: "Fijada",
-    locked: "Bloqueada",
-    by: "por",
-    report: "Reportar",
-    sort: {
-      newest: "Más Recientes",
-      most_upvoted: "Más Votadas",
-      most_discussed: "Más Discutidas",
-    },
-  },
-
   posts: {
     composerPlaceholder: "¿Qué piensas? Comparte con la comunidad de Pangea...",
     publish: "Publicar",

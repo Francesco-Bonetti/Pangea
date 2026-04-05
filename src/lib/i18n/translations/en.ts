@@ -904,27 +904,6 @@ const en = {
     },
   },
 
-  // ── Group Discussions (B4) ──
-  groupDiscussions: {
-    title: "Discussions",
-    new: "New Discussion",
-    cancel: "Cancel",
-    titlePlaceholder: "Discussion title...",
-    bodyPlaceholder: "Share your thoughts with the group... Use @ to mention people or # for entities.",
-    post: "Post",
-    empty: "No discussions yet in this group.",
-    startFirst: "Be the first to start a discussion!",
-    pinned: "Pinned",
-    locked: "Locked",
-    by: "by",
-    report: "Report",
-    sort: {
-      newest: "Newest",
-      most_upvoted: "Most Upvoted",
-      most_discussed: "Most Discussed",
-    },
-  },
-
   // ── Personal Posts (B5) ──
   posts: {
     composerPlaceholder: "What's on your mind? Share with the Pangea community...",

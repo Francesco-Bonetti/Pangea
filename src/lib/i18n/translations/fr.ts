@@ -615,26 +615,6 @@ const fr: TranslationKeys = {
     },
   },
 
-  groupDiscussions: {
-    title: "Discussions",
-    new: "Nouvelle Discussion",
-    cancel: "Annuler",
-    titlePlaceholder: "Titre de la discussion...",
-    bodyPlaceholder: "Partagez vos idées avec le groupe... Utilisez @ pour mentionner des personnes ou # pour des entités.",
-    post: "Publier",
-    empty: "Aucune discussion dans ce groupe.",
-    startFirst: "Soyez le premier à lancer une discussion !",
-    pinned: "Épinglée",
-    locked: "Verrouillée",
-    by: "par",
-    report: "Signaler",
-    sort: {
-      newest: "Plus Récentes",
-      most_upvoted: "Plus Votées",
-      most_discussed: "Plus Discutées",
-    },
-  },
-
   posts: {
     composerPlaceholder: "Qu'avez-vous en tête ? Partagez avec la communauté Pangea...",
     publish: "Publier",
