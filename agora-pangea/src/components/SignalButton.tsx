@@ -1,0 +1,127 @@
+"use client";
+
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Flame, Loader2, CheckCircle2 } from "lucide-react";
+
+export interface SignalButtonProps {
+  proposalId: string;
+  userId: string;
+  initialSignalCount: number;
+  initialHasSignaled: boolean;
+  threshold?: number;
+  activeUsersCount?: number;
+}
+
+export default function SignalButton({
+  proposalId,
+  userId,
+  initialSignalCount,
+  initialHasSignaled,
+  threshold = 100,
+}: SignalButtonProps) {
+  const [signalCount, setSignalCount] = useState(initialSignalCount);
+  const [hasSignaled, setHasSignaled] = useState(initialHasSignaled);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = createClient();
+
+  const progress = Math.min((signalCount / threshold) * 100, 100);
+
+  async function toggleSignal() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (hasSignaled) {
+        // Withdraw signal
+        const { error: deleteError } = await supabase
+          .from("proposal_signals")
+          .delete()
+          .eq("proposal_id", proposalId)
+          .eq("supporter_id", userId);
+
+        if (deleteError) throw deleteError;
+        setSignalCount((c) => Math.max(0, c - 1));
+        setHasSignaled(false);
+      } else {
+        // Send signal
+        const { error: insertError } = await supabase
+          .from("proposal_signals")
+          .insert({
+            proposal_id: proposalId,
+            supporter_id: userId,
+            signal_strength: 1,
+          });
+
+        if (insertError) {
+          if (insertError.code === "23505") {
+            setHasSignaled(true);
+            return;
+          }
+          throw insertError;
+        }
+        setSignalCount((c) => c + 1);
+        setHasSignaled(true);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Progress bar toward threshold */}
+      <div>
+        <div className="flex justify-between text-xs text-fg-muted mb-1.5">
+          <span>Support signals</span>
+          <span className="font-medium">
+            {signalCount} / {threshold}
+          </span>
+        </div>
+        <div className="bg-theme-muted rounded-full h-2.5">
+          <div
+            className="bg-amber-500 h-2.5 rounded-full transition-all duration-700"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="text-xs text-fg-muted mt-1">
+          {signalCount >= threshold
+            ? "Threshold reached — awaiting promotion"
+            : `${threshold - signalCount} signals needed for the deliberation phase`}
+        </p>
+      </div>
+
+      {/* Signal button */}
+      <button
+        onClick={toggleSignal}
+        disabled={loading}
+        className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 font-semibold text-sm transition-all duration-200 disabled:opacity-50 ${
+          hasSignaled
+            ? "border-amber-600 bg-amber-900/30 text-amber-300 hover:bg-amber-900/50"
+            : "border-theme bg-theme-card text-fg hover:bg-theme-muted hover:border-amber-600"
+        }`}
+      >
+        {loading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : hasSignaled ? (
+          <CheckCircle2 className="w-4 h-4" />
+        ) : (
+          <Flame className="w-4 h-4" />
+        )}
+        {loading
+          ? "Updating..."
+          : hasSignaled
+          ? "Signal sent — Withdraw"
+          : "Support this proposal"}
+      </button>
+
+      {error && (
+        <p className="text-xs text-fg-danger">{error}</p>
+      )}
+    </div>
+  );
+}

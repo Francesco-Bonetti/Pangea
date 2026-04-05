@@ -1,0 +1,270 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Flag, Eye, Pin } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import type { Discussion } from "@/lib/types";
+import PrivacyName from "@/components/PrivacyName";
+import TranslatedContent from "@/components/TranslatedContent";
+import UidBadge from "@/components/UidBadge";
+import "@/styles/discussion-card.css";
+
+interface DiscussionCardProps {
+  discussion: Discussion;
+  userId?: string;
+  onReport?: (discussionId: string) => void;
+}
+
+function formatTimeAgo(dateString: string): string {
+  const now = new Date();
+  const date = new Date(dateString);
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return "now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+  return date.toLocaleDateString();
+}
+
+export default function DiscussionCard({
+  discussion,
+  userId,
+  onReport,
+}: DiscussionCardProps) {
+  const supabase = createClient();
+  const [upvotes, setUpvotes] = useState(discussion.upvotes_count || 0);
+  const [downvotes, setDownvotes] = useState(discussion.downvotes_count || 0);
+  const [userVote, setUserVote] = useState<"up" | "down" | null>(null);
+  const [isVoting, setIsVoting] = useState(false);
+
+  const handleVote = async (voteType: "up" | "down") => {
+    if (!userId) {
+      alert("Please sign in to vote");
+      return;
+    }
+
+    setIsVoting(true);
+    try {
+      // If user already voted same type, remove it
+      if (userVote === voteType) {
+        const { error: deleteError } = await supabase
+          .from("discussion_votes")
+          .delete()
+          .eq("user_id", userId)
+          .eq("discussion_id", discussion.id)
+          .eq("vote_type", voteType);
+
+        if (!deleteError) {
+          if (voteType === "up") {
+            setUpvotes(Math.max(0, upvotes - 1));
+          } else {
+            setDownvotes(Math.max(0, downvotes - 1));
+          }
+          setUserVote(null);
+        }
+      } else {
+        // First, remove opposite vote if it exists
+        if (userVote) {
+          await supabase
+            .from("discussion_votes")
+            .delete()
+            .eq("user_id", userId)
+            .eq("discussion_id", discussion.id)
+            .eq("vote_type", userVote);
+
+          if (userVote === "up") {
+            setUpvotes(Math.max(0, upvotes - 1));
+          } else {
+            setDownvotes(Math.max(0, downvotes - 1));
+          }
+        }
+
+        // Insert new vote
+        const { error: insertError } = await supabase
+          .from("discussion_votes")
+          .insert([
+            {
+              user_id: userId,
+              discussion_id: discussion.id,
+              reply_id: null,
+              vote_type: voteType,
+            },
+          ]);
+
+        if (!insertError) {
+          if (voteType === "up") {
+            setUpvotes(upvotes + 1);
+          } else {
+            setDownvotes(downvotes + 1);
+          }
+          setUserVote(voteType);
+        }
+      }
+    } catch (error) {
+      console.error("Error voting:", error);
+    } finally {
+      setIsVoting(false);
+    }
+  };
+
+  const netScore = upvotes - downvotes;
+  const preview = discussion.body.length > 150 ? discussion.body.substring(0, 150) + "..." : discussion.body;
+
+  return (
+    <Link href={`/social/${discussion.id}`}>
+      <div className="discussion-card card p-6 hover:border-theme hover:bg-theme-card transition-all duration-200 group block overflow-hidden hover:scale-[1.01] hover:shadow-lg">
+        {/* Header row: title + badges */}
+        <div className="flex items-start justify-between gap-4 mb-3 overflow-hidden">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              {discussion.is_pinned && (
+                <span className="inline-flex items-center gap-1 bg-pangea-900/40 text-fg-primary border border-pangea-700/50 px-2.5 py-1 rounded-full text-xs font-medium">
+                  <Pin className="w-3 h-3" />
+                  Pinned
+                </span>
+              )}
+              {discussion.uid && <UidBadge uid={discussion.uid} size="xs" clickable={false} />}
+            </div>
+            <h3 className="font-semibold text-fg text-base leading-snug group-hover:text-fg truncate">
+              <TranslatedContent
+                text={discussion.title}
+                contentType="forum_post_title"
+                contentId={discussion.id}
+                compact
+              />
+            </h3>
+            {discussion.discussion_channels && (
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-xs text-fg bg-theme-muted/40 px-2.5 py-1 rounded-full">
+                  <span className="text-sm">{discussion.discussion_channels.emoji}</span>
+                  {discussion.discussion_channels.name}
+                </span>
+                <span className="text-xs text-fg-muted">
+                  {formatTimeAgo(discussion.created_at)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Preview text */}
+        <p className="text-sm text-fg line-clamp-2 mb-4">
+          <TranslatedContent
+            text={discussion.body}
+            contentType="forum_post_body"
+            contentId={discussion.id}
+            compact
+          />
+        </p>
+
+        {/* Tags if any */}
+        {discussion.tags && discussion.tags.length > 0 && (
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {discussion.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag.id}
+                className="text-xs text-fg-primary bg-pangea-900/20 px-2 py-1 rounded-full border border-pangea-800/30"
+              >
+                #{tag.name}
+              </span>
+            ))}
+            {discussion.tags.length > 3 && (
+              <span className="text-xs text-fg-muted">+{discussion.tags.length - 3}</span>
+            )}
+          </div>
+        )}
+
+        {/* Author info */}
+        <div className="flex items-center gap-2 text-xs text-fg-muted mb-4">
+          <span>by <PrivacyName userId={discussion.author_id} fullName={discussion.profiles?.full_name ?? null} currentUserId={userId} /></span>
+        </div>
+
+        {/* Footer: voting + reply count */}
+        <div className="flex items-center justify-between pt-4 border-t border-theme overflow-hidden">
+          <div className="flex items-center gap-4 overflow-hidden">
+            {/* Upvote button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handleVote("up");
+              }}
+              disabled={isVoting}
+              className={`flex items-center gap-1 px-2 py-1 rounded transition-colors shrink-0 ${
+                userVote === "up"
+                  ? "text-fg-primary bg-pangea-900/30"
+                  : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <ArrowBigUp className="w-4 h-4 shrink-0" />
+              <span className="text-xs font-medium">{upvotes}</span>
+            </button>
+
+            {/* Net score */}
+            <span
+              className={`text-xs font-semibold px-2 py-1 rounded shrink-0 ${
+                netScore > 0
+                  ? "text-fg-success bg-success-tint"
+                  : netScore < 0
+                    ? "text-fg-danger bg-danger-tint"
+                    : "text-fg-muted"
+              }`}
+            >
+              {netScore > 0 ? "+" : ""}{netScore}
+            </span>
+
+            {/* Downvote button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handleVote("down");
+              }}
+              disabled={isVoting}
+              className={`flex items-center gap-1 px-2 py-1 rounded transition-colors shrink-0 ${
+                userVote === "down"
+                  ? "text-fg-danger bg-danger-tint"
+                  : "text-fg-muted hover:text-fg hover:bg-theme-muted/30"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <ArrowBigDown className="w-4 h-4 shrink-0" />
+              <span className="text-xs font-medium">{downvotes}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {/* View count */}
+            <div
+              onClick={(e) => e.preventDefault()}
+              className="flex items-center gap-1 text-xs text-fg-muted hover:text-fg shrink-0"
+            >
+              <Eye className="w-4 h-4 shrink-0" />
+              <span>{discussion.views_count || 0}</span>
+            </div>
+
+            {/* Reply count */}
+            <div
+              onClick={(e) => e.preventDefault()}
+              className="flex items-center gap-1 text-xs text-fg-muted hover:text-fg shrink-0"
+            >
+              <MessageCircle className="w-4 h-4 shrink-0" />
+              <span>{discussion.replies_count || 0}</span>
+            </div>
+
+            {/* Report button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                onReport?.(discussion.id);
+              }}
+              className="p-1 rounded text-fg-muted hover:text-fg hover:bg-theme-muted/30 transition-colors shrink-0"
+              title="Report"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
