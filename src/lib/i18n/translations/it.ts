@@ -465,6 +465,18 @@ const it: TranslationKeys = {
     conversationNotFound: "Questa conversazione non esiste o non sei un partecipante.",
     participantNotFound: "L'altro partecipante di questa conversazione non è stato trovato.",
     backToMessages: "Torna ai Messaggi",
+    searchConversations: "Cerca conversazioni...",
+    noMatchingConversations: "Nessuna conversazione corrispondente",
+    startFirstConversation: "Inizia la tua prima conversazione",
+    selectConversation: "Seleziona una conversazione",
+    selectConversationDesc: "Scegli una conversazione dalla lista o iniziane una nuova.",
+    e2eEncrypted: "Crittografia end-to-end",
+    e2eNotice: "I messaggi sono crittografati end-to-end. Solo tu e {name} potete leggerli.",
+    startConversationWith: "Inizia una conversazione con {name}",
+    willBeEncrypted: "I tuoi messaggi saranno crittografati end-to-end.",
+    encryptedMessage: "Messaggio crittografato",
+    noEncryptionYet: "{name} non ha ancora configurato la crittografia. Potrai inviare messaggi quando la attiverà.",
+    waitingEncryption: "In attesa che il destinatario configuri la crittografia...",
   },
 
   // ── Impostazioni ──

@@ -1,11 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import AppShell from "@/components/AppShell";
-import MessagesClient from "@/components/MessagesClient";
+import MessagingApp from "@/components/MessagingApp";
 
 export const dynamic = "force-dynamic";
 
-export default async function MessagesPage() {
+interface Props {
+  searchParams: Promise<{ c?: string }>;
+}
+
+export default async function MessagesPage({ searchParams }: Props) {
+  const { c: conversationId } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -51,25 +57,21 @@ export default async function MessagesPage() {
   }[] = [];
 
   if (conversationIds.length > 0) {
-    // Get all participants for these conversations (separate queries - no cross-schema joins)
     const { data: allParticipants } = await supabase
       .from("dm_participants")
       .select("conversation_id, user_id")
       .in("conversation_id", conversationIds);
 
-    // Get conversations metadata
     const { data: convData } = await supabase
       .from("dm_conversations")
       .select("id, last_message_at")
       .in("id", conversationIds)
       .order("last_message_at", { ascending: false });
 
-    // Get public keys for other users
     const otherUserIds = (allParticipants || [])
       .filter((p: { user_id: string }) => p.user_id !== user.id)
       .map((p: { user_id: string }) => p.user_id);
 
-    // Get profiles for other users (direct query, no embedded join)
     const { data: otherProfiles } = otherUserIds.length > 0
       ? await supabase
           .from("profiles")
@@ -92,7 +94,6 @@ export default async function MessagesPage() {
       (otherKeys || []).map((k: { user_id: string; public_key: string }) => [k.user_id, k.public_key])
     );
 
-    // Build conversation list
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     conversations = (convData || []).map((conv: any) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -138,10 +139,33 @@ export default async function MessagesPage() {
       return {
         ...conv,
         last_message: lastMsg || null,
-        unread_count: 0, // will be computed client-side
+        unread_count: 0,
       };
     })
   );
+
+  // If a conversation is selected via query param, pre-load its data
+  let initialChatData = null;
+  if (conversationId) {
+    const conv = conversations.find((c) => c.id === conversationId);
+    if (conv) {
+      const { data: msgs } = await supabase
+        .from("dm_messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      initialChatData = {
+        otherUserId: conv.other_user_id,
+        otherUserName: conv.other_user_name,
+        otherUserCode: conv.other_user_code,
+        otherUserPublicKey: conv.other_user_public_key,
+        messages: (msgs || []).reverse(),
+      };
+    }
+  }
 
   // Pending delegations for navbar badge
   const { count: pendingDelegations } = await supabase
@@ -152,13 +176,15 @@ export default async function MessagesPage() {
 
   return (
     <AppShell userEmail={user.email} userName={profile?.full_name} userRole={profile?.role} pendingDelegations={pendingDelegations || 0}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <MessagesClient
+      <Suspense fallback={<div className="flex items-center justify-center h-[60vh]"><span className="animate-spin w-8 h-8 border-3 border-blue-400 border-t-transparent rounded-full" /></div>}>
+        <MessagingApp
           userId={user.id}
           userKeys={userKeys}
           conversations={conversationsWithLastMsg}
+          initialConversationId={conversationId}
+          initialChatData={initialChatData}
         />
-      </div>
+      </Suspense>
     </AppShell>
   );
 }

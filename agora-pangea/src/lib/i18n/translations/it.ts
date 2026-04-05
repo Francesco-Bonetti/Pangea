@@ -465,6 +465,18 @@ const it: TranslationKeys = {
     conversationNotFound: "Questa conversazione non esiste o non sei un partecipante.",
     participantNotFound: "L'altro partecipante di questa conversazione non è stato trovato.",
     backToMessages: "Torna ai Messaggi",
+    searchConversations: "Cerca conversazioni...",
+    noMatchingConversations: "Nessuna conversazione corrispondente",
+    startFirstConversation: "Inizia la tua prima conversazione",
+    selectConversation: "Seleziona una conversazione",
+    selectConversationDesc: "Scegli una conversazione dalla lista o iniziane una nuova.",
+    e2eEncrypted: "Crittografia end-to-end",
+    e2eNotice: "I messaggi sono crittografati end-to-end. Solo tu e {name} potete leggerli.",
+    startConversationWith: "Inizia una conversazione con {name}",
+    willBeEncrypted: "I tuoi messaggi saranno crittografati end-to-end.",
+    encryptedMessage: "Messaggio crittografato",
+    noEncryptionYet: "{name} non ha ancora configurato la crittografia. Potrai inviare messaggi quando la attiverà.",
+    waitingEncryption: "In attesa che il destinatario configuri la crittografia...",
   },
 
   // ── Impostazioni ──
@@ -875,27 +887,6 @@ const it: TranslationKeys = {
       fev: "Evento",
       vot: "Voto",
       elv: "Voto Elettorale",
-    },
-  },
-
-  // ── Discussioni di Gruppo (B4) ──
-  groupDiscussions: {
-    title: "Discussioni",
-    new: "Nuova Discussione",
-    cancel: "Annulla",
-    titlePlaceholder: "Titolo della discussione...",
-    bodyPlaceholder: "Condividi i tuoi pensieri con il gruppo... Usa @ per menzionare persone o # per entità.",
-    post: "Pubblica",
-    empty: "Nessuna discussione in questo gruppo.",
-    startFirst: "Sii il primo ad avviare una discussione!",
-    pinned: "Fissata",
-    locked: "Bloccata",
-    by: "di",
-    report: "Segnala",
-    sort: {
-      newest: "Più Recenti",
-      most_upvoted: "Più Votate",
-      most_discussed: "Più Discusse",
     },
   },
 

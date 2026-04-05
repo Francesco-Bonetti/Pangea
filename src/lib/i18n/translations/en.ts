@@ -473,6 +473,18 @@ const en = {
     conversationNotFound: "This conversation does not exist or you are not a participant.",
     participantNotFound: "The other participant in this conversation could not be found.",
     backToMessages: "Back to Messages",
+    searchConversations: "Search conversations...",
+    noMatchingConversations: "No matching conversations",
+    startFirstConversation: "Start your first conversation",
+    selectConversation: "Select a conversation",
+    selectConversationDesc: "Choose a conversation from the list or start a new one.",
+    e2eEncrypted: "End-to-end encrypted",
+    e2eNotice: "Messages are end-to-end encrypted. Only you and {name} can read them.",
+    startConversationWith: "Start a conversation with {name}",
+    willBeEncrypted: "Your messages will be encrypted end-to-end.",
+    encryptedMessage: "Encrypted message",
+    noEncryptionYet: "{name} hasn't set up encryption yet. You can send messages once they enable it.",
+    waitingEncryption: "Waiting for recipient to set up encryption...",
   },
 
   // ── Settings ──
