@@ -26,7 +26,10 @@ export type ContentType =
   | "election_description"
   | "candidate_platform"
   | "citizen_bio"
-  | "comment";
+  | "comment"
+  | "post_body"
+  | "discussion_title"
+  | "discussion_body";
 
 /**
  * Fires a background translation request.
