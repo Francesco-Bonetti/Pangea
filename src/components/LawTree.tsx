@@ -113,12 +113,12 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               {node.article_number && (
-                <span className="text-xs font-medium text-fg-muted bg-theme-muted px-1.5 py-0.5 rounded shrink-0">
+                <span className="law-code-ref text-xs shrink-0">
                   {node.article_number}
                 </span>
               )}
               {node.code && depth === 0 && (
-                <span className="text-xs font-medium text-fg-muted bg-theme-muted px-1.5 py-0.5 rounded shrink-0">
+                <span className="law-code-ref text-xs shrink-0">
                   {node.code}
                 </span>
               )}
@@ -135,7 +135,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
               </h3>
 
               {/* Active/Inactive badge */}
-              {showActiveStatus && node.law_type === "code" && (
+              {showActiveStatus && (node.law_type === "code" || node.law_type === "book") && (
                 <span
                   className={`text-xs px-2 py-0.5 rounded-full ${
                     isInactive

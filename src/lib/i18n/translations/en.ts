@@ -217,6 +217,10 @@ const en = {
     publishForReview: "Publish for Review",
     validationTitleReason: "Enter a title (min. 5 characters) and a reason (min. 20 characters)",
     validationOptions: "Add at least 2 voting options",
+    // Proposals list page
+    allProposals: "All Proposals",
+    noProposalsFound: "No proposals found",
+    tryDifferentFilter: "Try a different filter or create a new proposal.",
   },
 
   // ── Elections ──

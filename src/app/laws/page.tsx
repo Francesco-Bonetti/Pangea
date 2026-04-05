@@ -75,11 +75,30 @@ export default async function LawsPage() {
 
   const fullTree = buildTree(laws, null);
 
-  // Build operative-only tree (filter to is_active = true)
-  const activeLaws = laws.filter((l) => l.is_active);
-  const activeTree = buildTree(activeLaws, null);
+  // Build operative-only tree: include active laws AND their ancestors
+  // so the tree structure stays intact (parent codes/sections shown even if
+  // they are not themselves "active", as long as they have active descendants)
+  const activeIds = new Set(laws.filter((l) => l.is_active).map((l) => l.id));
 
-  // Stats
+  // Walk up from every active law to include all ancestors
+  const idsToInclude = new Set(activeIds);
+  const lawByIdMap: Record<string, LawNode> = {};
+  laws.forEach((l) => { lawByIdMap[l.id] = l; });
+  const activeIdArray = laws.filter((l) => l.is_active).map((l) => l.id);
+  activeIdArray.forEach((id) => {
+    let current = lawByIdMap[id];
+    while (current?.parent_id) {
+      if (idsToInclude.has(current.parent_id)) break;
+      idsToInclude.add(current.parent_id);
+      current = lawByIdMap[current.parent_id];
+    }
+  });
+
+  const operativeLaws = laws.filter((l) => idsToInclude.has(l.id));
+  const activeTree = buildTree(operativeLaws, null);
+
+  // Stats — count only truly active laws (is_active = true)
+  const activeLaws = laws.filter((l) => l.is_active);
   const totalCodes = laws.filter((l) => l.law_type === "code").length;
   const totalArticles = laws.filter((l) => l.law_type === "article").length;
   const activeCodes = activeLaws.filter((l) => l.law_type === "code").length;

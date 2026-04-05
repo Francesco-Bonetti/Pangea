@@ -17,7 +17,7 @@
     --secondary: #f1f5f9;        /* Slate 100 */
     --secondary-foreground: #1e293b;
     --muted: #f1f5f9;
-    --muted-foreground: #64748b; /* Slate 500 */
+    --muted-foreground: #546478; /* Slate 500 darkened — WCAG AA 4.5:1 on white */
     --accent: #f1f5f9;
     --accent-foreground: #1e293b;
     --destructive: #b91c1c;      /* Red 700 — rust, accessible */
@@ -51,7 +51,7 @@
     --secondary: #1e293b;
     --secondary-foreground: #f1f5f9;
     --muted: #334155;            /* Slate 700 */
-    --muted-foreground: #94a3b8; /* Slate 400 */
+    --muted-foreground: #a1b1c7; /* Slate 400 brightened — WCAG AA 4.5:1 on Slate 800 */
     --accent: #1e293b;
     --accent-foreground: #f1f5f9;
     --destructive: #ef4444;      /* Red 500 */
@@ -302,6 +302,25 @@
   .text-fg-success   { color: var(--success); }
   .text-fg-danger    { color: var(--destructive); }
 
+  /* ============================================
+     HIGH-CONTRAST TEXT HELPERS (WCAG AA 4.5:1)
+     For body text that needs guaranteed readability.
+     ============================================ */
+  .text-high-contrast {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  .text-body {
+    color: var(--foreground);
+    font-size: 1rem;      /* 16px — never smaller for body */
+    line-height: 1.6;
+  }
+  .text-caption {
+    color: var(--muted-foreground);
+    font-size: 0.8125rem; /* 13px — smallest allowed for secondary text */
+    line-height: 1.5;
+  }
+
   /* Background colors */
   .bg-theme-base     { background-color: var(--background); }
   .bg-theme-card     { background-color: var(--card); }
@@ -506,9 +525,23 @@ a, button, input, select, textarea,
 
 /* Law content — Merriweather serif for immersive legislative reading */
 .law-content {
-  @apply text-base leading-[1.75] whitespace-pre-wrap;
+  @apply text-base leading-[1.85] whitespace-pre-wrap;
   font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
   color: var(--foreground);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  word-spacing: 0.05em;
+}
+
+/* Law code references — monospace for codes/article numbers */
+.law-code-ref {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.85em;
+  font-weight: 600;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  background-color: color-mix(in srgb, var(--primary) 8%, var(--card));
+  color: var(--primary);
 }
 
 /* Scrollbar styling — adapts to theme */

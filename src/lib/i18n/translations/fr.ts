@@ -114,6 +114,9 @@ const fr: TranslationKeys = {
     publishForReview: "Publier pour Révision",
     validationTitleReason: "Entrez un titre (min. 5 caractères) et une raison (min. 20 caractères)",
     validationOptions: "Ajoutez au moins 2 options de vote",
+    allProposals: "Toutes les Propositions",
+    noProposalsFound: "Aucune proposition trouvée",
+    tryDifferentFilter: "Essayez un filtre différent ou créez une nouvelle proposition.",
   },
   elections: {
     title: "Élections", newElection: "Nouvelle Élection", candidates: "Candidats",

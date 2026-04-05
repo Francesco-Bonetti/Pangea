@@ -161,7 +161,7 @@ export default function LawsPageClient({
 
           <div className="space-y-4">
             {activeTree.map((code) => (
-              <LawTree key={code.id} node={code} depth={0} isAdmin={isAdmin} />
+              <LawTree key={code.id} node={code} depth={0} showActiveStatus isAdmin={isAdmin} />
             ))}
           </div>
 

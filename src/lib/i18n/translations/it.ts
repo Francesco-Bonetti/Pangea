@@ -215,6 +215,9 @@ const it: TranslationKeys = {
     publishForReview: "Pubblica per Revisione",
     validationTitleReason: "Inserisci un titolo (min. 5 caratteri) e una motivazione (min. 20 caratteri)",
     validationOptions: "Aggiungi almeno 2 opzioni di voto",
+    allProposals: "Tutte le Proposte",
+    noProposalsFound: "Nessuna proposta trovata",
+    tryDifferentFilter: "Prova un filtro diverso o crea una nuova proposta.",
   },
 
   // ── Elezioni ──
