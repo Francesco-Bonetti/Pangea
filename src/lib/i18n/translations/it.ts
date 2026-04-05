@@ -898,6 +898,19 @@ const it: TranslationKeys = {
     empty: "Nessun post ancora.",
     writeFirst: "Scrivi il tuo primo post!",
   },
+
+  // ── Floating Messages (C3) ──
+  floatingMessages: {
+    title: "Messaggi",
+    tooltip: "Messaggi",
+    search: "Cerca conversazioni...",
+    noResults: "Nessuna conversazione trovata",
+    noConversations: "Ancora nessuna conversazione",
+    encrypted: "Crittografia end-to-end",
+    openFull: "Apri messaggi",
+    viewAll: "Vedi tutti i messaggi",
+    justNow: "Ora",
+  },
 };
 
 export default it;

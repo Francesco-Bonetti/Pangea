@@ -634,6 +634,19 @@ const fr: TranslationKeys = {
     empty: "Aucune publication pour le moment.",
     writeFirst: "Écrivez votre première publication !",
   },
+
+  // ── Floating Messages (C3) ──
+  floatingMessages: {
+    title: "Messages",
+    tooltip: "Messages",
+    search: "Rechercher des conversations...",
+    noResults: "Aucune conversation trouvée",
+    noConversations: "Pas encore de conversations",
+    encrypted: "Chiffrement de bout en bout",
+    openFull: "Ouvrir les messages",
+    viewAll: "Voir tous les messages",
+    justNow: "Maintenant",
+  },
 };
 
 export default fr;

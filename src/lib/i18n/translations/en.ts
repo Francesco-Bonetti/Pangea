@@ -925,6 +925,19 @@ const en = {
     writeFirst: "Write your first post!",
   },
 
+  // ── Floating Messages (C3) ──
+  floatingMessages: {
+    title: "Messages",
+    tooltip: "Messages",
+    search: "Search conversations...",
+    noResults: "No matching conversations",
+    noConversations: "No conversations yet",
+    encrypted: "End-to-end encrypted",
+    openFull: "Open messages",
+    viewAll: "View all messages",
+    justNow: "Now",
+  },
+
 };
 
 export default en;
