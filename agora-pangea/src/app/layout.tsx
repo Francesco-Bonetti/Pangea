@@ -9,6 +9,8 @@ import "./globals.css";
 // Lazy load heavy floating components — not needed for initial render
 const AiAssistant = dynamic(() => import("@/components/AiAssistant"), { ssr: false });
 const BugReportButton = dynamic(() => import("@/components/BugReportButton"), { ssr: false });
+const FloatingMessageButton = dynamic(() => import("@/components/FloatingMessageButton"), { ssr: false });
+const MessageBadgeProvider = dynamic(() => import("@/components/MessageBadgeProvider"), { ssr: false });
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,9 +57,12 @@ export default function RootLayout({
         >
           <LanguageProvider>
             <ToastProvider>
-              {children}
-              <AiAssistant />
-              <BugReportButton />
+              <MessageBadgeProvider>
+                {children}
+                <FloatingMessageButton />
+                <AiAssistant />
+                <BugReportButton />
+              </MessageBadgeProvider>
             </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>

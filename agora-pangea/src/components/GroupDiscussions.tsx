@@ -7,7 +7,7 @@ import type { GroupForumPost } from "@/lib/types";
 import GroupDiscussionCard from "@/components/GroupDiscussionCard";
 import MentionInput, { extractMentions } from "@/components/MentionInput";
 import { useLanguage } from "@/components/language-provider";
-import { triggerMultiFieldTranslation } from "@/lib/translate";
+import { triggerMultiFieldTranslation, type ContentType } from "@/lib/translate";
 
 interface GroupDiscussionsProps {
   groupId: string;
@@ -115,7 +115,7 @@ export default function GroupDiscussions({ groupId, userId, isMember, isAdmin, g
         }
 
         // Trigger translation
-        const fields: { text: string; contentType: string; contentId: string }[] = [
+        const fields: { text: string; contentType: ContentType; contentId: string }[] = [
           { text: body.trim(), contentType: "group_post_body", contentId: post.id },
         ];
         if (title.trim()) {
@@ -135,7 +135,7 @@ export default function GroupDiscussions({ groupId, userId, isMember, isAdmin, g
             group_name: groupName,
             uid: post.uid,
           },
-        }).then(() => {}).catch(() => {});
+        });
       }
 
       setTitle("");

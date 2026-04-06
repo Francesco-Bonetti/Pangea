@@ -27,6 +27,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import NotificationBell from "@/components/NotificationBell";
+import { useMessageBadge } from "@/components/MessageBadgeProvider";
 
 interface AppSidebarProps {
   userName?: string | null;
@@ -68,6 +69,7 @@ export default function AppSidebar({
   const [loggingOut, setLoggingOut] = useState(false);
 
   const isAdmin = userRole === "admin" || userRole === "moderator";
+  const { unreadCount: unreadMessages } = useMessageBadge();
 
   const initials = userName
     ? userName
@@ -206,6 +208,7 @@ export default function AppSidebar({
               {userNavItems.map((item) => {
                 const active = isActive(item.href);
                 const Icon = item.icon;
+                const isMessages = item.href === "/messages";
                 return (
                   <Link
                     key={item.href}
@@ -217,8 +220,20 @@ export default function AppSidebar({
                       ${active ? "sidebar-nav-active" : "sidebar-nav-inactive"}
                     `}
                   >
-                    <Icon className="w-[18px] h-[18px] shrink-0" />
-                    {t(item.labelKey)}
+                    <div className="relative shrink-0">
+                      <Icon className="w-[18px] h-[18px]" />
+                      {isMessages && unreadMessages > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-600 text-fg text-[9px] font-bold rounded-full flex items-center justify-center">
+                          {unreadMessages > 9 ? "9+" : unreadMessages}
+                        </span>
+                      )}
+                    </div>
+                    <span className="flex-1">{t(item.labelKey)}</span>
+                    {isMessages && unreadMessages > 0 && (
+                      <span className="px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full">
+                        {unreadMessages}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

@@ -8,7 +8,6 @@ import type { PersonalPost } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import TranslatedContent from "@/components/TranslatedContent";
 import UidBadge from "@/components/UidBadge";
-import MentionText from "@/components/MentionText";
 
 interface PostCardProps {
   post: PersonalPost;
@@ -98,12 +97,12 @@ export default function PostCard({ post, userId, showAuthor = true }: PostCardPr
       {/* Body */}
       <div className="text-sm leading-relaxed mb-3" style={{ color: "var(--foreground)" }}>
         <TranslatedContent
-          originalText={post.body}
-          entityId={post.id}
-          context="post_body"
-        >
-          <MentionText text={post.body} />
-        </TranslatedContent>
+          text={post.body}
+          contentType="post_body"
+          contentId={post.id}
+          as="div"
+          compact
+        />
       </div>
 
       {/* Actions bar */}
