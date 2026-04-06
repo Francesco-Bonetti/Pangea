@@ -354,7 +354,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
               disabled={voting}
               className="px-3 py-1.5 text-sm text-fg-danger border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
             >
-              {voting ? "Revoking..." : "Change Vote"}
+              {voting ? t("proposals.revoking") : t("proposals.changeVote")}
             </button>
           </div>
         </div>

@@ -131,12 +131,11 @@ export default function DelegationsPage() {
       if (insertError) {
         if (insertError.message?.includes("ciclo infinito")) {
           setError(
-            "Cannot create this delegation: it would form a cycle. " +
-              "The selected citizen has already delegated to you (directly or transitively) for this category."
+            t("settings.cycleError")
           );
         } else if (insertError.code === "23505") {
           setError(
-            "You already have an active delegation for this category. It will be updated with the new delegate."
+            t("settings.duplicateError")
           );
         } else {
           throw insertError;
@@ -152,7 +151,7 @@ export default function DelegationsPage() {
       await loadData();
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error creating delegation";
+        err instanceof Error ? err.message : t("settings.errorCreating");
       setError(msg);
     } finally {
       setSaving(false);
@@ -167,7 +166,7 @@ export default function DelegationsPage() {
       .update({ status: "accepted" })
       .eq("id", delegationId);
     if (err) {
-      setError("Failed to accept delegation: " + err.message);
+      setError(t("settings.failedToAccept") + ": " + err.message);
     } else {
       await loadData();
     }
@@ -181,7 +180,7 @@ export default function DelegationsPage() {
       .update({ status: "rejected" })
       .eq("id", delegationId);
     if (err) {
-      setError("Failed to reject delegation: " + err.message);
+      setError(t("settings.failedToReject") + ": " + err.message);
     } else {
       await loadData();
     }
@@ -395,7 +394,7 @@ export default function DelegationsPage() {
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
             <ChevronRight className="w-5 h-5 text-fg-primary" />
-            Your delegations
+            {t("settings.yourDelegations")}
             <span className="text-xs text-fg-muted font-normal">
               ({delegations.length})
             </span>
@@ -405,7 +404,7 @@ export default function DelegationsPage() {
             <div className="card p-8 text-center">
               <Users className="w-12 h-12 text-fg-muted mx-auto mb-3" />
               <p className="text-fg-muted text-sm">
-                You haven&apos;t delegated your vote to anyone yet.
+                {t("settings.noDelegationsYet")}
               </p>
             </div>
           ) : (
@@ -434,7 +433,7 @@ export default function DelegationsPage() {
                         ) : (
                           <>
                             <Globe className="w-3 h-3 shrink-0" />
-                            Global delegation
+                            {t("settings.globalDelegationLabel")}
                           </>
                         )}
                       </p>
@@ -446,9 +445,9 @@ export default function DelegationsPage() {
                         "text-amber-300 bg-warning-tint border border-theme"
                       }`}
                       title={
-                        d.status === "accepted" ? "This citizen accepted your delegation — their vote counts for you when you don't vote directly" :
-                        d.status === "rejected" ? "This citizen rejected your delegation — it won't take effect" :
-                        "Waiting for this citizen to accept or reject your delegation request"
+                        d.status === "accepted" ? t("settings.acceptedTooltip") :
+                        d.status === "rejected" ? t("settings.rejectedTooltip") :
+                        t("settings.pendingTooltip")
                       }
                     >
                       {d.status === "accepted" ? t("settings.accepted") :
@@ -462,7 +461,7 @@ export default function DelegationsPage() {
                     <button
                       onClick={() => revokeDelegation(d.id)}
                       className="shrink-0 text-fg-muted hover:text-fg-danger transition-colors p-2"
-                      title="Revoke delegation"
+                      title={t("settings.revokeDelegationAction")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -477,7 +476,7 @@ export default function DelegationsPage() {
         <section>
           <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
-            Received delegations
+            {t("settings.receivedDelegations")}
             <span className="text-xs text-fg-muted font-normal">
               ({receivedDelegations.length})
             </span>
@@ -487,7 +486,7 @@ export default function DelegationsPage() {
             <div className="card p-8 text-center">
               <Users className="w-12 h-12 text-fg-muted mx-auto mb-3" />
               <p className="text-fg-muted text-sm">
-                No citizen has delegated their vote to you yet.
+                {t("settings.noReceivedDelegations")}
               </p>
             </div>
           ) : (
@@ -516,7 +515,7 @@ export default function DelegationsPage() {
                         ) : (
                           <>
                             <Globe className="w-3 h-3 shrink-0" />
-                            Global delegation
+                            {t("settings.globalDelegationLabel")}
                           </>
                         )}
                       </p>
@@ -526,28 +525,28 @@ export default function DelegationsPage() {
                         <button
                           onClick={() => acceptDelegation(d.id)}
                           className="p-1.5 rounded-lg text-fg-success hover:bg-green-900/30 transition-colors"
-                          title="Accept delegation"
+                          title={t("settings.acceptDelegationAction")}
                         >
                           <CheckCircle2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => rejectDelegation(d.id)}
                           className="p-1.5 rounded-lg text-fg-danger hover:bg-danger-tint transition-colors"
-                          title="Reject delegation"
+                          title={t("settings.rejectDelegationAction")}
                         >
                           <XCircle className="w-4 h-4" />
                         </button>
                         <span className="text-xs text-amber-500/80 bg-warning-tint px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                          <Clock className="w-3 h-3" /> Pending
+                          <Clock className="w-3 h-3" /> {t("settings.pending")}
                         </span>
                       </div>
                     ) : d.status === "accepted" ? (
                       <span className="text-xs text-fg-success bg-success-tint px-2 py-1 rounded-full">
-                        Accepted
+                        {t("settings.accepted")}
                       </span>
                     ) : (
                       <span className="text-xs text-fg-danger bg-danger-tint px-2 py-1 rounded-full">
-                        Rejected
+                        {t("settings.rejected")}
                       </span>
                     )}
                   </div>

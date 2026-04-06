@@ -213,7 +213,7 @@ export default function LawTreeSelector({
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : t("laws.errorLoading")
+          err instanceof Error ? err.message : t("common.error")
         );
       } finally {
         setLoading(false);

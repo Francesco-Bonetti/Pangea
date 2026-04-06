@@ -144,7 +144,7 @@ export default function DiscussionModTools({
           onClick={() => setShowDeleteConfirm(true)}
           disabled={loading !== null}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-theme-muted/40 text-fg-muted hover:text-fg-danger hover:bg-danger-tint transition-colors disabled:opacity-50"
-          title={t("forum.delete")}
+          title={t("common.delete")}
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>Delete</span>
