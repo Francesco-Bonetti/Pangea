@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useLanguage } from "@/hooks/useLanguage";
 import AppShell from "@/components/AppShell";
 import {
   Search,
@@ -31,6 +32,7 @@ interface SearchResult {
 export default function SearchPageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { translations, t } = useLanguage();
   const initialQuery = searchParams.get("q") ?? "";
 
   const [query, setQuery] = useState(initialQuery);
@@ -256,7 +258,7 @@ export default function SearchPageClient() {
           </Link>
           <h1 className="text-2xl font-bold text-fg flex items-center gap-2">
             <Search className="w-6 h-6 text-fg-primary" />
-            Search
+            {t(translations, "search.title")}
           </h1>
         </div>
 
@@ -266,7 +268,7 @@ export default function SearchPageClient() {
             <Search className="w-5 h-5 text-fg-muted absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search laws, proposals, citizens, groups..."
+              placeholder={t(translations, "search.placeholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="input-field pl-12 pr-4 py-3 text-base"
@@ -277,7 +279,7 @@ export default function SearchPageClient() {
             )}
           </div>
           <p className="text-xs text-fg-muted mt-2">
-            Type at least 2 characters to search across the entire platform
+            {t(translations, "search.hint")}
           </p>
         </form>
 

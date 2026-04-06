@@ -105,7 +105,7 @@ export function getEntityRoute(uid: string): string | null {
   if (!parsed) return null;
 
   switch (parsed.prefix) {
-    case "CIT": return `/profile/${uid}`;
+    case "CIT": return `/citizens/${uid}`;
     case "PRP": return `/proposals?uid=${uid}`;
     case "LAW": return `/laws?uid=${uid}`;
     case "DSC": return `/social?uid=${uid}`;
@@ -115,7 +115,7 @@ export function getEntityRoute(uid: string): string | null {
     case "DLG": return `/delegations?uid=${uid}`;
     case "CAT": return `/proposals?category=${uid}`;
     case "TAG": return `/social?tag=${uid}`;
-    case "BUG": return `/admin/bugs?uid=${uid}`;
+    case "BUG": return `/admin?tab=reports&uid=${uid}`;
     default: return null;
   }
 }

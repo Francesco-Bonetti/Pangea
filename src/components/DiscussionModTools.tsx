@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Pin, Lock, Unlock, Trash2, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/components/language-provider";
 
 interface DiscussionModToolsProps {
   discussionId: string;
@@ -18,6 +19,7 @@ export default function DiscussionModTools({
 }: DiscussionModToolsProps) {
   const supabase = createClient();
   const router = useRouter();
+  const { t, translations } = useLanguage();
   const [pinned, setPinned] = useState(isPinned);
   const [locked, setLocked] = useState(isLocked);
   const [loading, setLoading] = useState<string | null>(null);
@@ -142,7 +144,7 @@ export default function DiscussionModTools({
           onClick={() => setShowDeleteConfirm(true)}
           disabled={loading !== null}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-theme-muted/40 text-fg-muted hover:text-fg-danger hover:bg-danger-tint transition-colors disabled:opacity-50"
-          title="Delete discussion"
+          title={t(translations, "forum.delete")}
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>Delete</span>

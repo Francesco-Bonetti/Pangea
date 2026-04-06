@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Vote, CheckCircle, XCircle, User, Users, Trophy, Flag, AlertTriangle, LogIn } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/hooks/useLanguage";
 import type { Election, ElectionResultEntry } from "@/lib/types";
 import { triggerTranslation } from "@/lib/translate";
 import TranslatedContent from "@/components/TranslatedContent";
@@ -27,6 +28,7 @@ interface ElectionVotingBoothProps {
 
 export default function ElectionVotingBooth({ election, userId, isGuest }: ElectionVotingBoothProps) {
   const supabase = createClient();
+  const { translations, t } = useLanguage();
   const [results, setResults] = useState<CandidateRow[]>([]);
   const [hasVoted, setHasVoted] = useState(false);
   const [myVote, setMyVote] = useState<string | null>(null);
@@ -248,7 +250,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
               <textarea
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
-                placeholder="Describe your platform and why citizens should vote for you... (optional)"
+                placeholder={t(translations, "elections.platformPlaceholder")}
                 className="w-full px-4 py-3 bg-theme-base border border-theme rounded-lg text-fg text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
                 rows={4}
               />
@@ -258,7 +260,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                   disabled={registering}
                   className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-fg text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {registering ? "Registering..." : "Confirm Registration"}
+                  {registering ? t(translations, "elections.registering") : t(translations, "elections.confirmRegistration")}
                 </button>
                 <button
                   onClick={() => setShowRegisterForm(false)}
@@ -273,7 +275,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
               onClick={() => setShowRegisterForm(true)}
               className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95"
             >
-              Register as Candidate
+              {t(translations, "elections.registerAsCandidate")}
             </button>
           )}
         </div>
@@ -284,10 +286,10 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
         <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
           <h3 className="text-lg font-semibold text-fg-success flex items-center gap-2 mb-3">
             <Vote className="w-5 h-5" />
-            Cast Your Vote
+            {t(translations, "elections.castYourVote")}
           </h3>
           <p className="text-sm text-fg-muted mb-4">
-            Select a candidate below and confirm your choice. Your vote is private and cannot be seen by others.
+            {t(translations, "elections.castYourVoteDesc")}
           </p>
 
           {error && (
@@ -334,7 +336,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
             disabled={!selectedCandidate || voting}
             className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-fg font-medium rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {voting ? "Submitting vote..." : "Confirm Vote"}
+            {voting ? t(translations, "elections.submittingVote") : t(translations, "elections.confirmVote")}
           </button>
         </div>
       )}
@@ -345,7 +347,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
           <div className="flex items-center justify-between">
             <p className="text-fg-success flex items-center gap-2 font-medium">
               <CheckCircle className="w-5 h-5" />
-              You have voted in this election
+              {t(translations, "elections.youHaveVoted")}
             </p>
             <button
               onClick={handleRevokeVote}

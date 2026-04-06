@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import AppShell from "@/components/AppShell";
 import type { Category, Delegation, Profile } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
+import { useLanguage } from "@/components/language-provider";
 import {
   ArrowLeft,
   Users,
@@ -25,6 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function DelegationsPage() {
+  const { t, translations } = useLanguage();
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -221,10 +223,10 @@ export default function DelegationsPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-fg flex items-center gap-2">
               <Users className="w-5 h-5 sm:w-6 sm:h-6 text-fg-primary shrink-0" />
-              <span className="truncate">Liquid Democracy</span>
+              <span className="truncate">{t(translations, "settings.liquidDemocracy")}</span>
             </h1>
             <p className="text-xs sm:text-sm text-fg-muted mt-0.5 truncate">
-              Manage your vote delegations — global or by topic
+              {t(translations, "settings.delegationsSubtitle")}
             </p>
           </div>
           <button
@@ -236,7 +238,7 @@ export default function DelegationsPage() {
             ) : (
               <Plus className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">{showForm ? "Cancel" : "New Delegation"}</span>
+            <span className="hidden sm:inline">{showForm ? t(translations, "common.cancel") : t(translations, "settings.createDelegation")}</span>
           </button>
         </div>
 
@@ -245,22 +247,15 @@ export default function DelegationsPage() {
           <Globe className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
           <div className="text-sm text-fg-muted space-y-2">
             <p>
-              <strong className="text-fg">Liquid Democracy</strong>{" "}
-              lets you delegate your vote to another citizen for all topics
-              or for a specific category. Delegations are always{" "}
-              <strong className="text-fg">revocable</strong> and your{" "}
-              <strong className="text-fg">direct vote</strong> always
-              takes precedence.
+              <strong className="text-fg">{t(translations, "settings.liquidDemocracy")}</strong>{" "}
+              {t(translations, "settings.liquidDemocracyDesc")}
             </p>
             <p>
-              <strong className="text-amber-400">How it works:</strong>{" "}
-              When you create a delegation, it starts as{" "}
-              <strong className="text-amber-300">Pending</strong> — the other citizen must accept it before it becomes active.
-              If they accept, their vote will count for you on proposals where you don&apos;t vote directly.
-              If they reject it, the delegation won&apos;t take effect. You can revoke a delegation at any time.
+              <strong className="text-amber-400">{t(translations, "settings.howItWorksTitle")}:</strong>{" "}
+              {t(translations, "settings.howItWorksDesc")}
             </p>
             <p className="text-xs">
-              <strong className="text-fg">Example:</strong> You delegate your vote to Alice on &quot;Environment&quot; topics. When a proposal about carbon tax comes up and you don&apos;t vote, Alice&apos;s vote counts for both of you. If you do vote directly, your vote overrides the delegation.
+              <strong className="text-fg">{t(translations, "settings.delegationExample")}:</strong> {t(translations, "settings.delegationExampleDesc")}
             </p>
           </div>
         </div>
@@ -269,18 +264,18 @@ export default function DelegationsPage() {
         {showForm && (
           <div className="card p-6 mb-6">
             <h2 className="text-lg font-semibold text-fg mb-4">
-              Create a new delegation
+              {t(translations, "settings.createDelegation")}
             </h2>
 
             {/* User search */}
             <div className="mb-4">
-              <label className="label">Search for a citizen</label>
+              <label className="label">{t(translations, "settings.searchCitizen")}</label>
               <div className="relative">
                 <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   className="input-field pl-10"
-                  placeholder="Search by name..."
+                  placeholder={t(translations, "settings.searchByName")}
                   value={searchQuery}
                   onChange={(e) => searchUsers(e.target.value)}
                 />
@@ -306,7 +301,7 @@ export default function DelegationsPage() {
                         {(p.full_name ?? "?")[0].toUpperCase()}
                       </div>
                       <span className="text-sm text-fg">
-                        {p.full_name ?? "Citizen"}
+                        {p.full_name ?? t(translations, "settings.citizen")}
                       </span>
                       <ChevronRight className="w-4 h-4 text-fg-muted ml-auto" />
                     </button>
@@ -340,7 +335,7 @@ export default function DelegationsPage() {
             <div className="mb-4">
               <label className="label flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5" />
-                Category (optional)
+                {t(translations, "settings.categoryOptional")}
               </label>
               <select
                 className="input-field"
@@ -348,7 +343,7 @@ export default function DelegationsPage() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 <option value="">
-                  Global delegation (all categories)
+                  {t(translations, "settings.globalDelegation")}
                 </option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -357,7 +352,7 @@ export default function DelegationsPage() {
                 ))}
               </select>
               <p className="text-xs text-fg-muted mt-1.5">
-                A category-specific delegation takes priority over a global one
+                {t(translations, "settings.categoryPriority")}
               </p>
             </div>
 
@@ -380,7 +375,7 @@ export default function DelegationsPage() {
               ) : (
                 <Users className="w-4 h-4" />
               )}
-              {saving ? "Creating..." : "Confirm delegation"}
+              {saving ? t(translations, "common.creating") : t(translations, "settings.confirmDelegation")}
             </button>
           </div>
         )}
@@ -428,7 +423,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-fg font-medium truncate">
-                        {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
+                        {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : t(translations, "settings.citizen")}
                       </p>
                       <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (
@@ -456,11 +451,11 @@ export default function DelegationsPage() {
                         "Waiting for this citizen to accept or reject your delegation request"
                       }
                     >
-                      {d.status === "accepted" ? "Accepted" :
-                       d.status === "rejected" ? "Rejected" :
+                      {d.status === "accepted" ? t(translations, "settings.accepted") :
+                       d.status === "rejected" ? t(translations, "settings.rejected") :
                        <>
                          <Clock className="w-3 h-3 inline mr-1" />
-                         Pending
+                         {t(translations, "settings.pending")}
                        </>
                       }
                     </span>
@@ -510,7 +505,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-fg font-medium truncate">
-                        {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
+                        {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : t(translations, "settings.citizen")}
                       </p>
                       <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Lock, ShieldCheck, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   generateKeyPair,
   encryptSecretKey,
@@ -25,6 +26,7 @@ export default function KeySetup({
   keySalt,
   onComplete,
 }: KeySetupProps) {
+  const { translations, t } = useLanguage();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -72,7 +74,7 @@ export default function KeySetup({
       onComplete();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to create encryption keys."
+        err instanceof Error ? err.message : t(translations, "messages.encryptionCreateError")
       );
     } finally {
       setLoading(false);
@@ -81,11 +83,11 @@ export default function KeySetup({
 
   async function handleUnlockKeys() {
     if (!password) {
-      setError("Please enter your encryption password.");
+      setError(t(translations, "messages.encryptionEnterPassword"));
       return;
     }
     if (!encryptedPrivateKey || !keySalt) {
-      setError("No encryption keys found. Please create new keys.");
+      setError(t(translations, "messages.encryptionNoKeys"));
       return;
     }
 
@@ -100,7 +102,7 @@ export default function KeySetup({
       );
 
       if (!secretKey) {
-        setError("Wrong password. Please try again.");
+        setError(t(translations, "messages.encryptionWrongPassword"));
         setLoading(false);
         return;
       }
@@ -111,7 +113,7 @@ export default function KeySetup({
       onComplete();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to unlock encryption keys."
+        err instanceof Error ? err.message : t(translations, "messages.encryptionUnlockError")
       );
     } finally {
       setLoading(false);

@@ -47,8 +47,11 @@ export default function AboutPage() {
           setProfile(profileData);
         }
 
-        const stats = await supabase.rpc("get_platform_stats");
-        const stats_result = stats.data?.[0] ?? {
+        const { data: statsData, error: statsError } = await supabase.rpc("get_platform_stats");
+        if (statsError) {
+          console.error("Error fetching platform stats:", statsError);
+        }
+        const stats_result = statsData?.[0] ?? {
           total_users: 0,
           total_proposals: 0,
           total_votes: 0,

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/hooks/useLanguage";
 import type { Proposal, ProposalOption, DistributedResult } from "@/lib/types";
 import {
   CheckCircle2,
@@ -43,6 +44,7 @@ export default function VotingBooth({
   categoryName,
   isGuest = false,
 }: VotingBoothProps) {
+  const { translations, t } = useLanguage();
   const [results, setResults] = useState<DistributedResult[]>(initialResults);
   const [legacyResults, setLegacyResults] = useState<{yea: number; nay: number; abstain: number} | null>(null);
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
@@ -191,7 +193,7 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError("You have already participated in this deliberation.");
+          setError(t(translations, "proposals.alreadyVoted"));
           throw voteError;
         }
         throw voteError;
@@ -223,7 +225,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error during voting";
+        err instanceof Error ? err.message : t(translations, "proposals.votingError");
       setError(msg);
       toast(msg, "error");
       throw err;
@@ -256,10 +258,10 @@ export default function VotingBooth({
       }
 
       setHasVoted(false);
-      toast("Your vote has been revoked.", "info");
+      toast(t(translations, "proposals.voteRevoked"), "info");
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error revoking vote";
+        err instanceof Error ? err.message : t(translations, "proposals.revokeError");
       setError(msg);
       toast(msg, "error");
     } finally {
@@ -290,7 +292,7 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError("You have already participated in this deliberation.");
+          setError(t(translations, "proposals.alreadyVoted"));
           throw voteError;
         }
         throw voteError;
@@ -313,7 +315,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error during voting";
+        err instanceof Error ? err.message : t(translations, "proposals.votingError");
       setError(msg);
       toast(msg, "error");
       throw err;
@@ -324,7 +326,7 @@ export default function VotingBooth({
 
   // Vote type label for the dialog
   const voteTypeLabels: Record<string, string> = {
-    distributed: "your allocation",
+    distributed: t(translations, "proposals.yourAllocation"),
     yea: "In Favor",
     nay: "Against",
     abstain: "Abstain",
@@ -337,12 +339,12 @@ export default function VotingBooth({
         open={confirmDialogOpen}
         onClose={cancelVote}
         onConfirm={confirmVote}
-        title="Irreversible Action"
-        description={`You are about to permanently record your vote${
+        title={t(translations, "proposals.irreversibleAction")}
+        description={`${t(translations, "proposals.irreversibleDesc")}${
           pendingVoteType ? ` (${voteTypeLabels[pendingVoteType]})` : ""
-        } on Pangea's democratic platform. This action is recorded on the blockchain and cannot be undone. Do you wish to proceed?`}
-        confirmLabel="Confirm my vote"
-        cancelLabel="Go back"
+        }`}
+        confirmLabel={t(translations, "proposals.confirmMyVote")}
+        cancelLabel={t(translations, "proposals.goBack")}
         confirmVariant="primary"
         loading={confirmLoading}
       />

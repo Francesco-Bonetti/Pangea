@@ -44,7 +44,10 @@ export default async function SocialPage({
   }
 
   // Fetch channels (full tree via RPC for sidebar, flat for form)
-  const { data: channels } = await supabase.rpc("get_channel_tree", { p_root_id: null });
+  const { data: channels, error: channelError } = await supabase.rpc("get_channel_tree", { p_root_id: null });
+  if (channelError) {
+    console.error("Error fetching channel tree:", channelError);
+  }
 
   // Fetch trending tags
   const { data: trendingTags } = await supabase
