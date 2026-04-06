@@ -429,7 +429,6 @@ const fr: TranslationKeys = {
     searchableInMessages: "Recherchable dans les messages", searchableInMessagesDesc: "Permettre aux autres de vous trouver en démarrant une conversation",
     showElections: "Afficher la participation électorale", showElectionsDesc: "Afficher les élections auxquelles vous avez participé",
     showFollowedTopics: "Afficher les sujets suivis", showFollowedTopicsDesc: "Afficher quels sujets de l'Agora vous suivez",
-    saveProfile: "Enregistrer le profil",
     liquidDemocracy: "Démocratie liquide",
     delegationsSubtitle: "Gérez vos délégations de vote — globales ou par sujet",
     liquidDemocracyDesc: "vous permet de déléguer votre vote à un autre citoyen pour tous les sujets ou pour une catégorie spécifique. Les délégations sont toujours",
