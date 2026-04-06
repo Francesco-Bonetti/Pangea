@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Trophy, MapPin, Flag, User, Clock } from "lucide-react";
 import type { Election, ElectionStatus } from "@/lib/types";
 import TranslatedContent from "@/components/TranslatedContent";
-import { getTranslations } from "@/lib/translations";
+import { getTranslations } from "@/lib/i18n";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -23,7 +23,7 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
   const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const translations = await getTranslations("en");
+  const translations = getTranslations("en");
 
   // Build STATUS_CONFIG with i18n
   const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {

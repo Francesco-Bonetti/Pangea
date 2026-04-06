@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage } from "@/components/language-provider";
 import AppShell from "@/components/AppShell";
 import {
   Search,
@@ -258,7 +258,7 @@ export default function SearchPageClient() {
           </Link>
           <h1 className="text-2xl font-bold text-fg flex items-center gap-2">
             <Search className="w-6 h-6 text-fg-primary" />
-            {t(translations, "search.title")}
+            {t("search.title")}
           </h1>
         </div>
 
@@ -268,7 +268,7 @@ export default function SearchPageClient() {
             <Search className="w-5 h-5 text-fg-muted absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder={t(translations, "search.placeholder")}
+              placeholder={t("search.placeholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="input-field pl-12 pr-4 py-3 text-base"
@@ -279,7 +279,7 @@ export default function SearchPageClient() {
             )}
           </div>
           <p className="text-xs text-fg-muted mt-2">
-            {t(translations, "search.hint")}
+            {t("search.hint")}
           </p>
         </form>
 

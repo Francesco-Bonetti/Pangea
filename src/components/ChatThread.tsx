@@ -217,7 +217,7 @@ export default function ChatThread({
       inputRef.current?.focus();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t(translations, "messages.sendError")
+        err instanceof Error ? err.message : t("messages.sendError")
       );
     } finally {
       setSending(false);

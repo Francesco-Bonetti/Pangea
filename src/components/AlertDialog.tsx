@@ -28,8 +28,8 @@ export default function AlertDialog({
   loading = false,
 }: AlertDialogProps) {
   const { t, translations } = useLanguage();
-  const finalConfirmLabel = confirmLabel ?? t(translations, "common.confirm");
-  const finalCancelLabel = cancelLabel ?? t(translations, "common.cancel");
+  const finalConfirmLabel = confirmLabel ?? t("common.confirm");
+  const finalCancelLabel = cancelLabel ?? t("common.cancel");
   const overlayRef = useRef<HTMLDivElement>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
 

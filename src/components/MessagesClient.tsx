@@ -12,7 +12,7 @@ import {
   PenSquare,
   ShieldCheck,
 } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage } from "@/components/language-provider";
 import KeySetup from "@/components/KeySetup";
 import NewConversationModal from "@/components/NewConversationModal";
 import { getLocalSecretKey, decryptMessage } from "@/lib/crypto";
@@ -189,7 +189,7 @@ export default function MessagesClient({
       {/* E2E badge */}
       <div className="flex items-center gap-2 mb-6 text-xs text-fg-muted overflow-hidden flex-wrap">
         <ShieldCheck className="w-4 h-4 text-fg-success shrink-0" />
-        <span>{t(translations, "messages.e2eDesc")}</span>
+        <span>{t("messages.e2eDesc")}</span>
       </div>
 
       {/* Search */}
@@ -200,7 +200,7 @@ export default function MessagesClient({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={t(translations, "messages.searchConversations")}
+            placeholder={t("messages.searchConversations")}
             className="input-field pl-10 py-2.5 text-sm"
           />
         </div>

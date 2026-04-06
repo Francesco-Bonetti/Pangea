@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Lock, ShieldCheck, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage } from "@/components/language-provider";
 import {
   generateKeyPair,
   encryptSecretKey,
@@ -74,7 +74,7 @@ export default function KeySetup({
       onComplete();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t(translations, "messages.encryptionCreateError")
+        err instanceof Error ? err.message : t("messages.encryptionCreateError")
       );
     } finally {
       setLoading(false);
@@ -83,11 +83,11 @@ export default function KeySetup({
 
   async function handleUnlockKeys() {
     if (!password) {
-      setError(t(translations, "messages.encryptionEnterPassword"));
+      setError(t("messages.encryptionEnterPassword"));
       return;
     }
     if (!encryptedPrivateKey || !keySalt) {
-      setError(t(translations, "messages.encryptionNoKeys"));
+      setError(t("messages.encryptionNoKeys"));
       return;
     }
 
@@ -102,7 +102,7 @@ export default function KeySetup({
       );
 
       if (!secretKey) {
-        setError(t(translations, "messages.encryptionWrongPassword"));
+        setError(t("messages.encryptionWrongPassword"));
         setLoading(false);
         return;
       }
@@ -113,7 +113,7 @@ export default function KeySetup({
       onComplete();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t(translations, "messages.encryptionUnlockError")
+        err instanceof Error ? err.message : t("messages.encryptionUnlockError")
       );
     } finally {
       setLoading(false);

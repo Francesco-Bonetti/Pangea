@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Vote, Calendar, Trophy, Info, MapPin, Flag } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage } from "@/components/language-provider";
 import { triggerTranslation } from "@/lib/translate";
 import type { ElectionType } from "@/lib/types";
 
@@ -306,7 +306,7 @@ export default function NewElectionForm() {
           disabled={submitting}
           className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-fg font-medium rounded-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitting ? t(translations, "proposals.creatingElection") : t(translations, "proposals.createElection")}
+          {submitting ? t("proposals.creatingElection") : t("proposals.createElection")}
         </button>
       </form>
     </div>

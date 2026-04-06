@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage } from "@/components/language-provider";
 import type { Proposal, ProposalOption, DistributedResult } from "@/lib/types";
 import {
   CheckCircle2,
@@ -193,7 +193,7 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError(t(translations, "proposals.alreadyVoted"));
+          setError(t("proposals.alreadyVoted"));
           throw voteError;
         }
         throw voteError;
@@ -225,7 +225,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : t(translations, "proposals.votingError");
+        err instanceof Error ? err.message : t("proposals.votingError");
       setError(msg);
       toast(msg, "error");
       throw err;
@@ -258,10 +258,10 @@ export default function VotingBooth({
       }
 
       setHasVoted(false);
-      toast(t(translations, "proposals.voteRevoked"), "info");
+      toast(t("proposals.voteRevoked"), "info");
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : t(translations, "proposals.revokeError");
+        err instanceof Error ? err.message : t("proposals.revokeError");
       setError(msg);
       toast(msg, "error");
     } finally {
@@ -292,7 +292,7 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError(t(translations, "proposals.alreadyVoted"));
+          setError(t("proposals.alreadyVoted"));
           throw voteError;
         }
         throw voteError;
@@ -315,7 +315,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : t(translations, "proposals.votingError");
+        err instanceof Error ? err.message : t("proposals.votingError");
       setError(msg);
       toast(msg, "error");
       throw err;
@@ -326,7 +326,7 @@ export default function VotingBooth({
 
   // Vote type label for the dialog
   const voteTypeLabels: Record<string, string> = {
-    distributed: t(translations, "proposals.yourAllocation"),
+    distributed: t("proposals.yourAllocation"),
     yea: "In Favor",
     nay: "Against",
     abstain: "Abstain",
@@ -339,12 +339,12 @@ export default function VotingBooth({
         open={confirmDialogOpen}
         onClose={cancelVote}
         onConfirm={confirmVote}
-        title={t(translations, "proposals.irreversibleAction")}
-        description={`${t(translations, "proposals.irreversibleDesc")}${
+        title={t("proposals.irreversibleAction")}
+        description={`${t("proposals.irreversibleDesc")}${
           pendingVoteType ? ` (${voteTypeLabels[pendingVoteType]})` : ""
         }`}
-        confirmLabel={t(translations, "proposals.confirmMyVote")}
-        cancelLabel={t(translations, "proposals.goBack")}
+        confirmLabel={t("proposals.confirmMyVote")}
+        cancelLabel={t("proposals.goBack")}
         confirmVariant="primary"
         loading={confirmLoading}
       />

@@ -223,10 +223,10 @@ export default function DelegationsPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-fg flex items-center gap-2">
               <Users className="w-5 h-5 sm:w-6 sm:h-6 text-fg-primary shrink-0" />
-              <span className="truncate">{t(translations, "settings.liquidDemocracy")}</span>
+              <span className="truncate">{t("settings.liquidDemocracy")}</span>
             </h1>
             <p className="text-xs sm:text-sm text-fg-muted mt-0.5 truncate">
-              {t(translations, "settings.delegationsSubtitle")}
+              {t("settings.delegationsSubtitle")}
             </p>
           </div>
           <button
@@ -238,7 +238,7 @@ export default function DelegationsPage() {
             ) : (
               <Plus className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">{showForm ? t(translations, "common.cancel") : t(translations, "settings.createDelegation")}</span>
+            <span className="hidden sm:inline">{showForm ? t("common.cancel") : t("settings.createDelegation")}</span>
           </button>
         </div>
 
@@ -247,15 +247,15 @@ export default function DelegationsPage() {
           <Globe className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
           <div className="text-sm text-fg-muted space-y-2">
             <p>
-              <strong className="text-fg">{t(translations, "settings.liquidDemocracy")}</strong>{" "}
-              {t(translations, "settings.liquidDemocracyDesc")}
+              <strong className="text-fg">{t("settings.liquidDemocracy")}</strong>{" "}
+              {t("settings.liquidDemocracyDesc")}
             </p>
             <p>
-              <strong className="text-amber-400">{t(translations, "settings.howItWorksTitle")}:</strong>{" "}
-              {t(translations, "settings.howItWorksDesc")}
+              <strong className="text-amber-400">{t("settings.howItWorksTitle")}:</strong>{" "}
+              {t("settings.howItWorksDesc")}
             </p>
             <p className="text-xs">
-              <strong className="text-fg">{t(translations, "settings.delegationExample")}:</strong> {t(translations, "settings.delegationExampleDesc")}
+              <strong className="text-fg">{t("settings.delegationExample")}:</strong> {t("settings.delegationExampleDesc")}
             </p>
           </div>
         </div>
@@ -264,18 +264,18 @@ export default function DelegationsPage() {
         {showForm && (
           <div className="card p-6 mb-6">
             <h2 className="text-lg font-semibold text-fg mb-4">
-              {t(translations, "settings.createDelegation")}
+              {t("settings.createDelegation")}
             </h2>
 
             {/* User search */}
             <div className="mb-4">
-              <label className="label">{t(translations, "settings.searchCitizen")}</label>
+              <label className="label">{t("settings.searchCitizen")}</label>
               <div className="relative">
                 <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   className="input-field pl-10"
-                  placeholder={t(translations, "settings.searchByName")}
+                  placeholder={t("settings.searchByName")}
                   value={searchQuery}
                   onChange={(e) => searchUsers(e.target.value)}
                 />
@@ -301,7 +301,7 @@ export default function DelegationsPage() {
                         {(p.full_name ?? "?")[0].toUpperCase()}
                       </div>
                       <span className="text-sm text-fg">
-                        {p.full_name ?? t(translations, "settings.citizen")}
+                        {p.full_name ?? t("settings.citizen")}
                       </span>
                       <ChevronRight className="w-4 h-4 text-fg-muted ml-auto" />
                     </button>
@@ -335,7 +335,7 @@ export default function DelegationsPage() {
             <div className="mb-4">
               <label className="label flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5" />
-                {t(translations, "settings.categoryOptional")}
+                {t("settings.categoryOptional")}
               </label>
               <select
                 className="input-field"
@@ -343,7 +343,7 @@ export default function DelegationsPage() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 <option value="">
-                  {t(translations, "settings.globalDelegation")}
+                  {t("settings.globalDelegation")}
                 </option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -352,7 +352,7 @@ export default function DelegationsPage() {
                 ))}
               </select>
               <p className="text-xs text-fg-muted mt-1.5">
-                {t(translations, "settings.categoryPriority")}
+                {t("settings.categoryPriority")}
               </p>
             </div>
 
@@ -375,7 +375,7 @@ export default function DelegationsPage() {
               ) : (
                 <Users className="w-4 h-4" />
               )}
-              {saving ? t(translations, "common.creating") : t(translations, "settings.confirmDelegation")}
+              {saving ? t("common.creating") : t("settings.confirmDelegation")}
             </button>
           </div>
         )}
@@ -423,7 +423,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-fg font-medium truncate">
-                        {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : t(translations, "settings.citizen")}
+                        {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : t("settings.citizen")}
                       </p>
                       <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (
@@ -451,11 +451,11 @@ export default function DelegationsPage() {
                         "Waiting for this citizen to accept or reject your delegation request"
                       }
                     >
-                      {d.status === "accepted" ? t(translations, "settings.accepted") :
-                       d.status === "rejected" ? t(translations, "settings.rejected") :
+                      {d.status === "accepted" ? t("settings.accepted") :
+                       d.status === "rejected" ? t("settings.rejected") :
                        <>
                          <Clock className="w-3 h-3 inline mr-1" />
-                         {t(translations, "settings.pending")}
+                         {t("settings.pending")}
                        </>
                       }
                     </span>
@@ -505,7 +505,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-fg font-medium truncate">
-                        {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : t(translations, "settings.citizen")}
+                        {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : t("settings.citizen")}
                       </p>
                       <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (
