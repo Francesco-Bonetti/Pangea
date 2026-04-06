@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { AlertTriangle, X } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 interface AlertDialogProps {
   open: boolean;
@@ -21,11 +22,14 @@ export default function AlertDialog({
   onConfirm,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   confirmVariant = "primary",
   loading = false,
 }: AlertDialogProps) {
+  const { t, translations } = useLanguage();
+  const finalConfirmLabel = confirmLabel ?? t("common.confirm");
+  const finalCancelLabel = cancelLabel ?? t("common.cancel");
   const overlayRef = useRef<HTMLDivElement>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -139,7 +143,7 @@ export default function AlertDialog({
             disabled={loading}
             className="btn-secondary flex-1 text-sm min-h-[44px]"
           >
-            {cancelLabel}
+            {finalCancelLabel}
           </button>
           <button
             ref={confirmBtnRef}
@@ -171,7 +175,7 @@ export default function AlertDialog({
                 />
               </svg>
             )}
-            {loading ? "Recording..." : confirmLabel}
+            {loading ? "Recording..." : finalConfirmLabel}
           </button>
         </div>
       </div>

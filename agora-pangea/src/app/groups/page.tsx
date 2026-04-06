@@ -152,7 +152,7 @@ export default function GroupsPage() {
       });
       router.push(`/groups/${data}`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to create group");
+      setError(err instanceof Error ? err.message : t("common.failedToCreate"));
     } finally {
       setCreating(false);
     }

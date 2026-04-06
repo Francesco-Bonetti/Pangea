@@ -143,7 +143,7 @@ export default function GroupDiscussions({ groupId, userId, isMember, isAdmin, g
       setShowForm(false);
       loadPosts();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to create discussion");
+      setError(err instanceof Error ? err.message : t("common.failedToCreate"));
     } finally {
       setSubmitting(false);
     }

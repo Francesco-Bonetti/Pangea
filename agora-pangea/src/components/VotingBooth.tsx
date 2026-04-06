@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/language-provider";
 import type { Proposal, ProposalOption, DistributedResult } from "@/lib/types";
 import {
   CheckCircle2,
@@ -43,6 +44,7 @@ export default function VotingBooth({
   categoryName,
   isGuest = false,
 }: VotingBoothProps) {
+  const { translations, t } = useLanguage();
   const [results, setResults] = useState<DistributedResult[]>(initialResults);
   const [legacyResults, setLegacyResults] = useState<{yea: number; nay: number; abstain: number} | null>(null);
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
@@ -156,7 +158,7 @@ export default function VotingBooth({
       }
       setConfirmDialogOpen(false);
       setPendingVoteType(null);
-      toast("Your vote has been securely recorded.", "success");
+      toast(t("proposals.voteSecurelyRecorded"), "success");
     } catch {
       // Error already handled in the cast functions
       setConfirmDialogOpen(false);
@@ -191,7 +193,7 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError("You have already participated in this deliberation.");
+          setError(t("proposals.alreadyVoted"));
           throw voteError;
         }
         throw voteError;
@@ -223,7 +225,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error during voting";
+        err instanceof Error ? err.message : t("proposals.votingError");
       setError(msg);
       toast(msg, "error");
       throw err;
@@ -256,10 +258,10 @@ export default function VotingBooth({
       }
 
       setHasVoted(false);
-      toast("Your vote has been revoked.", "info");
+      toast(t("proposals.voteRevoked"), "info");
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error revoking vote";
+        err instanceof Error ? err.message : t("proposals.revokeError");
       setError(msg);
       toast(msg, "error");
     } finally {
@@ -290,7 +292,7 @@ export default function VotingBooth({
       if (voteError) {
         if (voteError.code === "23505") {
           setHasVoted(true);
-          setError("You have already participated in this deliberation.");
+          setError(t("proposals.alreadyVoted"));
           throw voteError;
         }
         throw voteError;
@@ -313,7 +315,7 @@ export default function VotingBooth({
       setHasVoted(true);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error during voting";
+        err instanceof Error ? err.message : t("proposals.votingError");
       setError(msg);
       toast(msg, "error");
       throw err;
@@ -324,10 +326,10 @@ export default function VotingBooth({
 
   // Vote type label for the dialog
   const voteTypeLabels: Record<string, string> = {
-    distributed: "your allocation",
-    yea: "In Favor",
-    nay: "Against",
-    abstain: "Abstain",
+    distributed: t("proposals.yourAllocation"),
+    yea: t("common.inFavor"),
+    nay: t("common.against"),
+    abstain: t("common.abstain"),
   };
 
   return (
@@ -337,12 +339,12 @@ export default function VotingBooth({
         open={confirmDialogOpen}
         onClose={cancelVote}
         onConfirm={confirmVote}
-        title="Irreversible Action"
-        description={`You are about to permanently record your vote${
+        title={t("proposals.irreversibleAction")}
+        description={`${t("proposals.irreversibleDesc")}${
           pendingVoteType ? ` (${voteTypeLabels[pendingVoteType]})` : ""
-        } on Pangea's democratic platform. This action is recorded on the blockchain and cannot be undone. Do you wish to proceed?`}
-        confirmLabel="Confirm my vote"
-        cancelLabel="Go back"
+        }`}
+        confirmLabel={t("proposals.confirmMyVote")}
+        cancelLabel={t("proposals.goBack")}
         confirmVariant="primary"
         loading={confirmLoading}
       />
@@ -351,12 +353,12 @@ export default function VotingBooth({
       <div className="card p-5 mb-4">
         <h2 className="text-base font-semibold text-fg mb-1 flex items-center gap-2">
           <Shield className="w-4 h-4 text-fg-primary" />
-          {isCuration ? "Community Review" : "Voting Booth"}
+          {isCuration ? t("proposals.communityReviewTitle") : t("proposals.votingBoothTitle")}
         </h2>
         <p className="text-xs text-fg-muted">
           {isCuration
-            ? "This proposal is under community review"
-            : "Votes are anonymous. You can change your vote while the proposal is active."}
+            ? t("proposals.communityReviewDesc")
+            : t("proposals.votingBoothDesc")}
         </p>
       </div>
 
@@ -366,10 +368,9 @@ export default function VotingBooth({
           <div className="flex gap-3">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
             <div className="text-xs" style={{ color: "#d97706" }}>
-              <p className="font-medium mb-1">Active delegation{categoryName ? ` in "${categoryName}"` : ""}</p>
+              <p className="font-medium mb-1">{categoryName ? `${t("proposals.activeDelegationIn")} "${categoryName}"` : t("proposals.activeDelegation")}</p>
               <p className="opacity-80">
-                By voting directly, your personal vote will take precedence
-                over the delegation assigned for this category.
+                {t("proposals.delegationOverrideDesc")}
               </p>
             </div>
           </div>
@@ -381,7 +382,7 @@ export default function VotingBooth({
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-fg">
-              Live Results
+              {t("proposals.liveResults")}
             </h3>
             <div className="flex items-center gap-1 text-xs text-fg-muted">
               <Users className="w-3.5 h-3.5" />
@@ -421,7 +422,7 @@ export default function VotingBooth({
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-fg">
-              Results
+              {t("proposals.results")}
             </h3>
             <div className="flex items-center gap-1 text-xs text-fg-muted">
               <Users className="w-3.5 h-3.5" />
@@ -432,9 +433,9 @@ export default function VotingBooth({
           </div>
           <div className="space-y-3">
             {[
-              { label: "In Favor", count: legacyResults.yea, colorVar: "var(--success)" },
-              { label: "Against", count: legacyResults.nay, colorVar: "var(--destructive)" },
-              { label: "Abstain", count: legacyResults.abstain, colorVar: "var(--muted-foreground)" },
+              { label: t("common.inFavor"), count: legacyResults.yea, colorVar: "var(--success)" },
+              { label: t("common.against"), count: legacyResults.nay, colorVar: "var(--destructive)" },
+              { label: t("common.abstain"), count: legacyResults.abstain, colorVar: "var(--muted-foreground)" },
             ].map((item) => {
               const total = legacyResults.yea + legacyResults.nay + legacyResults.abstain;
               const pct = total > 0 ? (item.count / total) * 100 : 0;
@@ -464,11 +465,10 @@ export default function VotingBooth({
           <div className="text-center py-4">
             <CheckCircle2 className="w-10 h-10 text-fg-success mx-auto mb-3" />
             <p className="text-fg font-semibold mb-1">
-              Vote recorded
+              {t("proposals.voteRecorded")}
             </p>
             <p className="text-xs text-fg-muted leading-relaxed">
-              Your allocation has been securely and anonymously recorded.
-              GDPR compliant.
+              {t("proposals.voteRecordedDesc")}
             </p>
             {isActive && (
               <button
@@ -481,7 +481,7 @@ export default function VotingBooth({
                 ) : (
                   <RotateCcw className="w-4 h-4" />
                 )}
-                {revoking ? "Revoking..." : "Change vote"}
+                {revoking ? t("proposals.revoking") : t("proposals.changeVote")}
               </button>
             )}
           </div>
@@ -491,9 +491,9 @@ export default function VotingBooth({
         {proposal.status === "closed" && !hasVoted && (
           <div className="text-center py-4">
             <Lock className="w-10 h-10 text-fg-muted mx-auto mb-3" />
-            <p className="text-fg-muted font-medium mb-1">Vote concluded</p>
+            <p className="text-fg-muted font-medium mb-1">{t("proposals.voteConcluded")}</p>
             <p className="text-xs text-fg-muted">
-              Voting on this proposal has ended.
+              {t("proposals.voteConcludedDesc")}
             </p>
           </div>
         )}
@@ -502,10 +502,9 @@ export default function VotingBooth({
         {isCuration && (
           <div className="text-center py-4">
             <Flame className="w-10 h-10 mx-auto mb-3" style={{ color: "#d97706" }} />
-            <p className="text-fg font-medium mb-1">Community Review</p>
+            <p className="text-fg font-medium mb-1">{t("proposals.communityReviewTitle")}</p>
             <p className="text-xs text-fg-muted leading-relaxed">
-              This proposal needs to reach the signal threshold before
-              moving to the voting phase. Support it with a signal.
+              {t("proposals.communityReviewSignal")}
             </p>
           </div>
         )}
@@ -515,14 +514,14 @@ export default function VotingBooth({
           <div className="text-center py-4">
             <LogIn className="w-10 h-10 text-fg-primary mx-auto mb-3" />
             <p className="text-fg font-semibold mb-1">
-              Want to vote?
+              {t("proposals.wantToVote")}
             </p>
             <p className="text-xs text-fg-muted leading-relaxed mb-4">
-              Sign up to participate in the vote and make your voice heard.
+              {t("proposals.signUpToVote")}
             </p>
             <Link href="/auth" className="btn-primary inline-flex items-center gap-2 text-sm">
               <LogIn className="w-4 h-4" />
-              Sign up to vote
+              {t("proposals.signUpToVoteBtn")}
             </Link>
           </div>
         )}
@@ -533,12 +532,11 @@ export default function VotingBooth({
             <div className="flex items-center gap-2 mb-4">
               <Sliders className="w-4 h-4 text-fg-primary" />
               <p className="text-sm text-fg font-medium">
-                Distribute your vote
+                {t("proposals.distributeYourVote")}
               </p>
             </div>
             <p className="text-xs text-fg-muted mb-5">
-              Allocate 100% of your decision-making power among the options. You can
-              concentrate it all on one or distribute proportionally.
+              {t("proposals.distributeDesc")}
             </p>
 
             <div className="space-y-4">
@@ -589,13 +587,13 @@ export default function VotingBooth({
                 isValidAllocation ? "text-fg-success" : "text-fg-danger"
               }`}
             >
-              <span className="text-sm font-medium">Total allocated</span>
+              <span className="text-sm font-medium">{t("proposals.totalAllocated")}</span>
               <span className="text-lg font-bold">{totalAllocated}%</span>
             </div>
 
             {!isValidAllocation && (
               <p className="text-xs text-fg-danger mt-1">
-                The total must be exactly 100% to confirm your vote.
+                {t("proposals.totalMustBe100")}
               </p>
             )}
 
@@ -606,7 +604,7 @@ export default function VotingBooth({
               className="w-full mt-4 btn-primary flex items-center justify-center gap-2 py-3 min-h-[44px]"
             >
               <CheckCircle2 className="w-4 h-4" />
-              Confirm allocation
+              {t("proposals.confirmAllocation")}
             </button>
           </>
         )}
@@ -617,12 +615,11 @@ export default function VotingBooth({
             <div className="flex items-center gap-2 mb-4">
               <ThumbsUp className="w-4 h-4 text-fg-primary" />
               <p className="text-sm text-fg font-medium">
-                Cast your vote
+                {t("proposals.castYourVote")}
               </p>
             </div>
             <p className="text-xs text-fg-muted mb-5">
-              No voting options have been defined. You can still
-              participate by voting In Favor, Against, or Abstain.
+              {t("proposals.noOptionsDesc")}
             </p>
 
             {/* Positive friction: opens AlertDialog instead of voting directly */}
@@ -635,7 +632,7 @@ export default function VotingBooth({
                   transition-all duration-200 hover:opacity-80 active:scale-95"
               >
                 <ThumbsUp className="w-4 h-4" />
-                <span className="text-xs">In Favor</span>
+                <span className="text-xs">{t("common.inFavor")}</span>
               </button>
 
               <button
@@ -646,7 +643,7 @@ export default function VotingBooth({
                   transition-all duration-200 hover:opacity-80 active:scale-95"
               >
                 <ThumbsDown className="w-4 h-4" />
-                <span className="text-xs">Against</span>
+                <span className="text-xs">{t("common.against")}</span>
               </button>
 
               <button
@@ -657,7 +654,7 @@ export default function VotingBooth({
                   transition-all duration-200 hover:opacity-80 active:scale-95"
               >
                 <MinusCircle className="w-4 h-4" />
-                <span className="text-xs">Abstain</span>
+                <span className="text-xs">{t("common.abstain")}</span>
               </button>
             </div>
           </div>
@@ -675,8 +672,7 @@ export default function VotingBooth({
           <div className="flex items-start gap-2">
             <Shield className="w-3.5 h-3.5 text-fg-muted mt-0.5 shrink-0" />
             <p className="text-xs text-fg-muted leading-relaxed">
-              Voting preferences are never accessible to third parties.
-              Privacy by Design — GDPR Art. 9.
+              {t("proposals.gdprFooter")}
             </p>
           </div>
         </div>

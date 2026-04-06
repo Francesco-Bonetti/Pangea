@@ -83,7 +83,7 @@ export default function BugReportButton() {
         setCategory("bug");
       }, 2000);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to submit report";
+      const msg = err instanceof Error ? err.message : t("bugReport.error");
       setError(msg);
     } finally {
       setLoading(false);

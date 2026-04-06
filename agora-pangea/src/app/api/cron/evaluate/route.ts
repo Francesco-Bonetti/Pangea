@@ -41,10 +41,16 @@ export async function GET(request: Request) {
     );
 
     // 0a. Update election statuses (upcoming → candidature → voting → closed)
-    await supabase.rpc("update_election_statuses");
+    const { error: electionError } = await supabase.rpc("update_election_statuses");
+    if (electionError) {
+      console.error("Error update_election_statuses:", electionError);
+    }
 
     // 0b. Close expired proposals
-    const { data: closedCount } = await supabase.rpc("close_expired_proposals");
+    const { data: closedCount, error: closeError } = await supabase.rpc("close_expired_proposals");
+    if (closeError) {
+      console.error("Error close_expired_proposals:", closeError);
+    }
 
     // 1. Evaluate curation markets (promote proposals to active)
     const { data, error } = await supabase.rpc("evaluate_curation_markets");

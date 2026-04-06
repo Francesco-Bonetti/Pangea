@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/language-provider";
 import {
   ChevronRight,
   ChevronDown,
@@ -179,6 +180,7 @@ export default function LawTreeSelector({
   onSelect,
   replacesNodeId,
 }: LawTreeSelectorProps) {
+  const { t, translations } = useLanguage();
   const [laws, setLaws] = useState<LawNode[]>([]);
   const [treeData, setTreeData] = useState<LawNode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -211,7 +213,7 @@ export default function LawTreeSelector({
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Error loading laws"
+          err instanceof Error ? err.message : t("common.error")
         );
       } finally {
         setLoading(false);
@@ -219,7 +221,7 @@ export default function LawTreeSelector({
     };
 
     fetchLaws();
-  }, []);
+  }, [t, translations]);
 
   const handleSelectParent = (nodeId: string) => {
     onSelect(nodeId, null);
