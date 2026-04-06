@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Vote, CheckCircle, XCircle, User, Users, Trophy, Flag, AlertTriangle, LogIn } from "lucide-react";
 import Link from "next/link";
-import { useLanguage } from "@/components/language-provider";
 import type { Election, ElectionResultEntry } from "@/lib/types";
 import { triggerTranslation } from "@/lib/translate";
 import TranslatedContent from "@/components/TranslatedContent";
+import { useLanguage } from "@/components/language-provider";
 
 interface CandidateRow {
   candidate_id: string;
@@ -27,8 +27,8 @@ interface ElectionVotingBoothProps {
 }
 
 export default function ElectionVotingBooth({ election, userId, isGuest }: ElectionVotingBoothProps) {
+  const { t } = useLanguage();
   const supabase = createClient();
-  const { translations, t } = useLanguage();
   const [results, setResults] = useState<CandidateRow[]>([]);
   const [hasVoted, setHasVoted] = useState(false);
   const [myVote, setMyVote] = useState<string | null>(null);
@@ -250,7 +250,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
               <textarea
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
-                placeholder={t("elections.platformPlaceholder")}
+                placeholder="Describe your platform and why citizens should vote for you... (optional)"
                 className="w-full px-4 py-3 bg-theme-base border border-theme rounded-lg text-fg text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
                 rows={4}
               />
@@ -266,7 +266,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                   onClick={() => setShowRegisterForm(false)}
                   className="px-4 py-2 text-sm text-fg-muted hover:text-fg transition-colors"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
             </div>
@@ -289,7 +289,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
             {t("elections.castYourVote")}
           </h3>
           <p className="text-sm text-fg-muted mb-4">
-            {t("elections.castYourVoteDesc")}
+            {t("elections.selectCandidateDesc")}
           </p>
 
           {error && (
@@ -354,7 +354,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
               disabled={voting}
               className="px-3 py-1.5 text-sm text-fg-danger border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
             >
-              {voting ? t("proposals.revoking") : t("proposals.changeVote")}
+              {voting ? "Revoking..." : "Change Vote"}
             </button>
           </div>
         </div>

@@ -26,7 +26,7 @@ export default function KeySetup({
   keySalt,
   onComplete,
 }: KeySetupProps) {
-  const { translations, t } = useLanguage();
+  const { t } = useLanguage();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -74,7 +74,7 @@ export default function KeySetup({
       onComplete();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t("messages.encryptionCreateError")
+        err instanceof Error ? err.message : t("encryption.failedToCreate")
       );
     } finally {
       setLoading(false);
@@ -83,11 +83,11 @@ export default function KeySetup({
 
   async function handleUnlockKeys() {
     if (!password) {
-      setError(t("messages.encryptionEnterPassword"));
+      setError(t("encryption.enterPassword"));
       return;
     }
     if (!encryptedPrivateKey || !keySalt) {
-      setError(t("messages.encryptionNoKeys"));
+      setError(t("encryption.noKeysFound"));
       return;
     }
 
@@ -102,7 +102,7 @@ export default function KeySetup({
       );
 
       if (!secretKey) {
-        setError(t("messages.encryptionWrongPassword"));
+        setError(t("encryption.wrongPassword"));
         setLoading(false);
         return;
       }
@@ -113,7 +113,7 @@ export default function KeySetup({
       onComplete();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t("messages.encryptionUnlockError")
+        err instanceof Error ? err.message : t("encryption.failedToUnlock")
       );
     } finally {
       setLoading(false);

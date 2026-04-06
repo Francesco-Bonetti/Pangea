@@ -17,9 +17,9 @@ export default function DiscussionModTools({
   isPinned,
   isLocked,
 }: DiscussionModToolsProps) {
+  const { t } = useLanguage();
   const supabase = createClient();
   const router = useRouter();
-  const { t, translations } = useLanguage();
   const [pinned, setPinned] = useState(isPinned);
   const [locked, setLocked] = useState(isLocked);
   const [loading, setLoading] = useState<string | null>(null);
@@ -144,10 +144,10 @@ export default function DiscussionModTools({
           onClick={() => setShowDeleteConfirm(true)}
           disabled={loading !== null}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-theme-muted/40 text-fg-muted hover:text-fg-danger hover:bg-danger-tint transition-colors disabled:opacity-50"
-          title={t("common.delete")}
+          title={t("forum.delete")}
         >
           <Trash2 className="w-3.5 h-3.5" />
-          <span>Delete</span>
+          <span>{t("forum.delete")}</span>
         </button>
       ) : (
         <div className="flex items-center gap-1">
@@ -161,13 +161,13 @@ export default function DiscussionModTools({
             ) : (
               <Trash2 className="w-3.5 h-3.5" />
             )}
-            <span>Confirm</span>
+            <span>{t("common.confirm")}</span>
           </button>
           <button
             onClick={() => setShowDeleteConfirm(false)}
             className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-fg-muted hover:text-fg transition-colors"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       )}

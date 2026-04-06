@@ -12,10 +12,10 @@ import {
   PenSquare,
   ShieldCheck,
 } from "lucide-react";
-import { useLanguage } from "@/components/language-provider";
 import KeySetup from "@/components/KeySetup";
 import NewConversationModal from "@/components/NewConversationModal";
 import { getLocalSecretKey, decryptMessage } from "@/lib/crypto";
+import { useLanguage } from "@/components/language-provider";
 import type { UserKeys } from "@/lib/types";
 
 interface ConversationRow {
@@ -50,8 +50,8 @@ export default function MessagesClient({
   userKeys,
   conversations,
 }: MessagesClientProps) {
+  const { t } = useLanguage();
   const router = useRouter();
-  const { translations, t } = useLanguage();
   const [keysReady, setKeysReady] = useState(false);
   const [secretKey, setSecretKey] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -189,7 +189,7 @@ export default function MessagesClient({
       {/* E2E badge */}
       <div className="flex items-center gap-2 mb-6 text-xs text-fg-muted overflow-hidden flex-wrap">
         <ShieldCheck className="w-4 h-4 text-fg-success shrink-0" />
-        <span>{t("messages.e2eDesc")}</span>
+        <span>End-to-end encrypted. Only you and the recipient can read these messages.</span>
       </div>
 
       {/* Search */}

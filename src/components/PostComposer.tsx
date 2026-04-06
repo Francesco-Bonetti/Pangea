@@ -60,7 +60,7 @@ export default function PostComposer({ userId, userName, onPostCreated, placehol
       setBody("");
       onPostCreated?.();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("common.failedToCreate"));
+      setError(err instanceof Error ? err.message : t("posts.failedToCreate"));
     } finally {
       setSubmitting(false);
     }

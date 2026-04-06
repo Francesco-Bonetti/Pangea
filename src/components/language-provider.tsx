@@ -70,7 +70,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
               setLocaleState(dbLocale);
               setTranslations(getTranslations(dbLocale));
               document.documentElement.lang = dbLocale;
-              try { localStorage.setItem(LOCALE_STORAGE_KEY, dbLocale); } catch (e) { console.warn("Failed to save locale to localStorage:", e); }
+              try { localStorage.setItem(LOCALE_STORAGE_KEY, dbLocale); } catch {}
             }
           }
         }

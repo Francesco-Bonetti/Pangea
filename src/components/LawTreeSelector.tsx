@@ -180,7 +180,7 @@ export default function LawTreeSelector({
   onSelect,
   replacesNodeId,
 }: LawTreeSelectorProps) {
-  const { t, translations } = useLanguage();
+  const { t } = useLanguage();
   const [laws, setLaws] = useState<LawNode[]>([]);
   const [treeData, setTreeData] = useState<LawNode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,7 +213,7 @@ export default function LawTreeSelector({
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : t("common.error")
+          err instanceof Error ? err.message : t("laws.errorLoading")
         );
       } finally {
         setLoading(false);
@@ -221,7 +221,7 @@ export default function LawTreeSelector({
     };
 
     fetchLaws();
-  }, [t, translations]);
+  }, []);
 
   const handleSelectParent = (nodeId: string) => {
     onSelect(nodeId, null);

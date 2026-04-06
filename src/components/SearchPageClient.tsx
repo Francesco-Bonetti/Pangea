@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useLanguage } from "@/components/language-provider";
 import AppShell from "@/components/AppShell";
+import { useLanguage } from "@/components/language-provider";
 import {
   Search,
   FileText,
@@ -30,9 +30,9 @@ interface SearchResult {
 }
 
 export default function SearchPageClient() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { translations, t } = useLanguage();
   const initialQuery = searchParams.get("q") ?? "";
 
   const [query, setQuery] = useState(initialQuery);
@@ -258,7 +258,7 @@ export default function SearchPageClient() {
           </Link>
           <h1 className="text-2xl font-bold text-fg flex items-center gap-2">
             <Search className="w-6 h-6 text-fg-primary" />
-            {t("search.title")}
+            Search
           </h1>
         </div>
 
@@ -279,7 +279,7 @@ export default function SearchPageClient() {
             )}
           </div>
           <p className="text-xs text-fg-muted mt-2">
-            {t("search.hint")}
+            Type at least 2 characters to search across the entire platform
           </p>
         </form>
 

@@ -6,7 +6,14 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Trophy, MapPin, Flag, User, Clock } from "lucide-react";
 import type { Election, ElectionStatus } from "@/lib/types";
 import TranslatedContent from "@/components/TranslatedContent";
-import { getTranslations } from "@/lib/i18n";
+
+const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {
+  upcoming: { label: "Upcoming", color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },
+  candidature: { label: "Open for Candidates", color: "text-amber-400", bg: "bg-amber-500/20 border-amber-500/30" },
+  voting: { label: "Voting Open", color: "text-fg-success", bg: "bg-green-500/20 border-green-500/30" },
+  closed: { label: "Closed", color: "text-fg-muted", bg: "bg-slate-500/20 border-slate-500/30" },
+  cancelled: { label: "Cancelled", color: "text-fg-danger", bg: "bg-red-500/20 border-red-500/30" },
+};
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -23,16 +30,6 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
   const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const translations = getTranslations("en");
-
-  // Build STATUS_CONFIG with i18n
-  const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {
-    upcoming: { label: translations.elections?.statusUpcoming || "Upcoming", color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },
-    candidature: { label: translations.elections?.statusCandidature || "Open for Candidates", color: "text-amber-400", bg: "bg-amber-500/20 border-amber-500/30" },
-    voting: { label: translations.elections?.statusVoting || "Voting Open", color: "text-fg-success", bg: "bg-green-500/20 border-green-500/30" },
-    closed: { label: translations.elections?.statusClosed || "Closed", color: "text-fg-muted", bg: "bg-slate-500/20 border-slate-500/30" },
-    cancelled: { label: translations.elections?.statusCancelled || "Cancelled", color: "text-fg-danger", bg: "bg-red-500/20 border-red-500/30" },
-  };
 
   // Fetch election (no profiles join — created_by FK points to auth.users, not profiles)
   const { data: election } = await supabase

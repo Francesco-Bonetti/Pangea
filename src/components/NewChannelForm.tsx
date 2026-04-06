@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { useLanguage } from "@/components/language-provider";
 import { Plus, X } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 const EMOJI_OPTIONS = [
   "💬", "📢", "🌍", "⚖️", "💡", "🔬", "🏛️", "📊",
@@ -17,9 +17,9 @@ interface NewChannelFormProps {
 }
 
 export default function NewChannelForm({ userId, channels = [] }: NewChannelFormProps) {
+  const { t } = useLanguage();
   const supabase = createClient();
   const router = useRouter();
-  const { translations, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -172,7 +172,7 @@ export default function NewChannelForm({ userId, channels = [] }: NewChannelForm
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder={t("forum.channelNamePlaceholder")}
+          placeholder="e.g. Climate Action"
           maxLength={40}
           className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-sm text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         />
@@ -182,14 +182,14 @@ export default function NewChannelForm({ userId, channels = [] }: NewChannelForm
       {channels.length > 0 && (
         <div>
           <label className="block text-xs text-fg-muted mb-1.5">
-            {t("forum.parentTopic")} <span className="text-fg-muted">({t("common.optional")})</span>
+            Parent topic <span className="text-fg-muted">(optional)</span>
           </label>
           <select
             value={parentId || ""}
             onChange={(e) => setParentId(e.target.value || null)}
             className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-sm text-fg focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
           >
-            <option value="">{t("forum.parentTopicNone")}</option>
+            <option value="">None (top-level)</option>
             {channels.map((ch) => (
               <option key={ch.id} value={ch.id}>
                 {"  ".repeat(ch.depth)}{ch.emoji} {ch.name}
@@ -202,13 +202,13 @@ export default function NewChannelForm({ userId, channels = [] }: NewChannelForm
       {/* Description */}
       <div>
         <label className="block text-xs text-fg-muted mb-1.5">
-          Description <span className="text-fg-muted">({t("common.optional")})</span>
+          Description <span className="text-fg-muted">(optional)</span>
         </label>
         <input
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder={t("forum.channelDescriptionPlaceholder")}
+          placeholder="What is this channel about?"
           maxLength={120}
           className="w-full bg-theme-base border border-theme rounded-lg px-3 py-2 text-sm text-fg placeholder-slate-500 focus:outline-none focus:border-pangea-600 focus:ring-1 focus:ring-pangea-600 transition-colors"
         />
@@ -221,7 +221,7 @@ export default function NewChannelForm({ userId, channels = [] }: NewChannelForm
         disabled={isLoading}
         className="w-full px-3 py-2 bg-pangea-600 hover:bg-pangea-700 disabled:bg-pangea-600/50 text-fg text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
       >
-        {isLoading ? t("forum.creatingChannel") : t("forum.createChannel")}
+        {isLoading ? t("common.creating") : t("forum.createChannel")}
       </button>
     </form>
   );

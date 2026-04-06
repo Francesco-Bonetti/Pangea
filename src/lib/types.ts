@@ -342,11 +342,6 @@ export interface PrivacySettings {
   notify_delegations: boolean;
   notify_proposals: boolean;
   notify_dm: boolean;
-  notify_elections?: boolean;
-  notify_group_updates?: boolean;
-
-  // D1: Extended JSONB settings for future extensibility
-  extended_settings?: Record<string, boolean> | null;
 
   // Timestamps
   created_at: string;

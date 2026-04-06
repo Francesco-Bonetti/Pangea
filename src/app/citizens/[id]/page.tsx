@@ -18,7 +18,7 @@ export default async function CitizenProfilePage({ params }: Props) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // isSelf determined after citizen fetch (id may be UID, not UUID)
+  const isSelf = user?.id === id;
 
   // Fetch viewer profile (for admin check and navbar)
   let viewerIsAdmin = false;
@@ -35,25 +35,20 @@ export default async function CitizenProfilePage({ params }: Props) {
     viewerRole = viewerProfile?.role ?? "citizen";
   }
 
-  // Fetch target citizen profile (supports both UUID and UID like CIT-xxxxxxxx)
-  const isUid = id.startsWith("CIT-");
+  // Fetch target citizen profile
   const { data: citizen, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq(isUid ? "uid" : "id", id)
+    .eq("id", id)
     .single();
 
   if (error || !citizen) notFound();
-
-  // Use the real UUID for all subsequent queries
-  const citizenId = citizen.id;
-  const isSelf = user?.id === citizenId;
 
   // Fetch privacy settings
   const { data: privacy } = await supabase
     .from("privacy_settings")
     .select("*")
-    .eq("user_id", citizenId)
+    .eq("user_id", id)
     .single();
 
   // Determine visibility
@@ -85,7 +80,7 @@ export default async function CitizenProfilePage({ params }: Props) {
     const { data: proposalsData } = await supabase
       .from("proposals")
       .select("id, title, status, created_at")
-      .eq("author_id", citizenId)
+      .eq("author_id", id)
       .in("status", ["active", "closed", "curation"])
       .order("created_at", { ascending: false })
       .limit(10);
@@ -95,7 +90,7 @@ export default async function CitizenProfilePage({ params }: Props) {
     const { data: postsData } = await supabase
       .from("personal_posts")
       .select("id, uid, body, upvotes_count, downvotes_count, replies_count, created_at")
-      .eq("author_id", citizenId)
+      .eq("author_id", id)
       .order("created_at", { ascending: false })
       .limit(10);
     personalPosts = postsData;
@@ -103,7 +98,7 @@ export default async function CitizenProfilePage({ params }: Props) {
     const { count } = await supabase
       .from("votes")
       .select("*", { count: "exact", head: true })
-      .eq("voter_id", citizenId);
+      .eq("voter_id", id);
     voteCount = count;
   }
 
@@ -111,7 +106,7 @@ export default async function CitizenProfilePage({ params }: Props) {
     const { count } = await supabase
       .from("delegations")
       .select("*", { count: "exact", head: true })
-      .eq("delegate_id", citizenId)
+      .eq("delegate_id", id)
       .eq("status", "accepted");
     delegationCount = count;
   }
@@ -220,13 +215,13 @@ export default async function CitizenProfilePage({ params }: Props) {
                 <div className="mt-4 flex flex-col items-center gap-3">
                   <FollowButton
                     currentUserId={user.id}
-                    targetId={citizenId}
+                    targetId={id}
                     targetType="citizen"
                     targetName={displayName}
                   />
                   <SendMessageButton
                     currentUserId={user.id}
-                    targetUserId={citizenId}
+                    targetUserId={id}
                     dmPolicy={privacy?.dm_policy || "everyone"}
                   />
                 </div>

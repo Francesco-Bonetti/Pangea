@@ -27,11 +27,12 @@ export default function AlertDialog({
   confirmVariant = "primary",
   loading = false,
 }: AlertDialogProps) {
-  const { t, translations } = useLanguage();
-  const finalConfirmLabel = confirmLabel ?? t("common.confirm");
-  const finalCancelLabel = cancelLabel ?? t("common.cancel");
+  const { t } = useLanguage();
   const overlayRef = useRef<HTMLDivElement>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
+
+  const resolvedConfirmLabel = confirmLabel || t("common.confirm");
+  const resolvedCancelLabel = cancelLabel || t("common.cancel");
 
   // Focus trap: focus confirm button on open
   useEffect(() => {
@@ -143,7 +144,7 @@ export default function AlertDialog({
             disabled={loading}
             className="btn-secondary flex-1 text-sm min-h-[44px]"
           >
-            {finalCancelLabel}
+            {resolvedCancelLabel}
           </button>
           <button
             ref={confirmBtnRef}
@@ -175,7 +176,7 @@ export default function AlertDialog({
                 />
               </svg>
             )}
-            {loading ? "Recording..." : finalConfirmLabel}
+            {loading ? t("common.recording") : resolvedConfirmLabel}
           </button>
         </div>
       </div>

@@ -14,12 +14,12 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import KeySetup from "@/components/KeySetup";
-import { useLanguage } from "@/components/language-provider";
 import {
   getLocalSecretKey,
   encryptMessage,
   decryptMessage,
 } from "@/lib/crypto";
+import { useLanguage } from "@/components/language-provider";
 import type { DmMessage } from "@/lib/types";
 
 interface ChatThreadProps {
@@ -47,9 +47,9 @@ export default function ChatThread({
   otherUserPublicKey,
   initialMessages,
 }: ChatThreadProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const supabase = createClient();
-  const { t, translations } = useLanguage();
   const [keysReady, setKeysReady] = useState(false);
   const [secretKey, setSecretKey] = useState<string | null>(null);
   const [messages, setMessages] = useState<DmMessage[]>(initialMessages);
@@ -217,7 +217,7 @@ export default function ChatThread({
       inputRef.current?.focus();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t("messages.sendError")
+        err instanceof Error ? err.message : t("messages.failedToSend")
       );
     } finally {
       setSending(false);

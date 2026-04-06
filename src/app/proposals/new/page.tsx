@@ -206,7 +206,7 @@ export default function NewProposalPage() {
       }
       router.refresh();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t("common.errorWhileSaving");
+      const msg = err instanceof Error ? err.message : t("proposals.errorWhileSaving");
       setError(msg);
     } finally {
       setSaving(false);
