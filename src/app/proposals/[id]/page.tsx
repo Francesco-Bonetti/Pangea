@@ -10,6 +10,8 @@ import { ArrowLeft, Calendar, Clock, User, FileText, Hash, Flame, BarChart3, Use
 import Link from "next/link";
 import { formatDateTime } from "@/lib/utils";
 import TranslatedContent from "@/components/TranslatedContent";
+import ProposalStatusBadge from "@/components/ProposalStatusBadge";
+import { AmendmentBadge, RepealBadge, YourProposalBadge, CommunityReviewHeader } from "@/components/ProposalBadges";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -165,44 +167,10 @@ export default async function ProposalDetailPage({ params }: Props) {
         <div className="card p-6 sm:p-8 mb-6 overflow-hidden">
           {/* Status badge */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <span
-              className={
-                proposal.status === "active"
-                  ? "status-active"
-                  : proposal.status === "curation"
-                  ? "status-curation"
-                  : proposal.status === "closed"
-                  ? "status-closed"
-                  : proposal.status === "repealed"
-                  ? "status-repealed"
-                  : "status-draft"
-              }
-            >
-              {proposal.status === "active"
-                ? "Active Vote"
-                : proposal.status === "curation"
-                ? "Community Review"
-                : proposal.status === "closed"
-                ? "Concluded"
-                : proposal.status === "repealed"
-                ? "Repealed"
-                : "Draft"}
-            </span>
-            {proposal.proposal_type === "amendment" && (
-              <span className="text-xs text-purple-400 font-medium bg-purple-tint px-2 py-1 rounded-full border border-purple-800/30">
-                Amendment
-              </span>
-            )}
-            {proposal.proposal_type === "repeal" && (
-              <span className="text-xs text-fg-danger font-medium bg-danger-tint px-2 py-1 rounded-full border border-red-800/30">
-                Repeal
-              </span>
-            )}
-            {isAuthor && (
-              <span className="text-xs text-amber-400 font-medium bg-warning-tint px-2 py-1 rounded-full border border-amber-800/30">
-                Your proposal
-              </span>
-            )}
+            <ProposalStatusBadge status={proposal.status} />
+            {proposal.proposal_type === "amendment" && <AmendmentBadge />}
+            {proposal.proposal_type === "repeal" && <RepealBadge />}
+            {isAuthor && <YourProposalBadge />}
             {tags.map((tag: { name: string; slug: string }, i: number) => (
               <span key={i} className="text-xs text-fg-primary font-medium bg-pangea-900/20 px-2 py-1 rounded-full flex items-center gap-1 border border-pangea-800/30">
                 <Hash className="w-3 h-3" />
@@ -324,13 +292,7 @@ export default async function ProposalDetailPage({ params }: Props) {
               /* Community Review — SignalButton */
               <div className="sticky top-24">
                 <div className="card p-5 mb-4 overflow-hidden">
-                  <h2 className="text-base font-semibold text-fg mb-1 flex items-center gap-2 overflow-hidden">
-                    <Flame className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span className="truncate">Community Review</span>
-                  </h2>
-                  <p className="text-xs text-fg-muted">
-                    Support this proposal to move it to the voting phase
-                  </p>
+                  <CommunityReviewHeader />
                 </div>
                 <div className="card p-5">
                   {isGuest ? (

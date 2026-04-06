@@ -91,7 +91,7 @@ export default function SearchPageClient() {
             id: p.id,
             type: "proposal" as const,
             title: p.title,
-            subtitle: p.status === "curation" ? "Community Review" : p.status === "active" ? "Voting" : p.status,
+            subtitle: p.status === "curation" ? t("proposals.communityReview") : p.status === "active" ? t("proposals.voting") : p.status,
             status: p.status,
             href: `/proposals/${p.id}`,
           }))
