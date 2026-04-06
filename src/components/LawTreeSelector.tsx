@@ -23,6 +23,7 @@ interface LawNode {
   code: string | null;
   article_number: number | null;
   order_index: number;
+  jurisdiction_id: string | null;
   children?: LawNode[];
 }
 
@@ -197,7 +198,7 @@ export default function LawTreeSelector({
         const { data, error: fetchError } = await supabase
           .from("laws")
           .select(
-            "id, parent_id, title, law_type, code, article_number, order_index"
+            "id, parent_id, title, law_type, code, article_number, order_index, jurisdiction_id"
           )
           .order("order_index");
 

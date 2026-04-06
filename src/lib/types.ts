@@ -289,6 +289,27 @@ export type Jurisdiction = Group;
 export type JurisdictionMemberRole = GroupMemberRole;
 export type JurisdictionMember = GroupMember;
 
+// --- Group Links (Art. 5.5 Foundational Charter) ---
+export type GroupLinkType = 'affiliation' | 'partnership' | 'representation' | 'cooperation' | 'custom';
+export type GroupLinkStatus = 'pending' | 'active' | 'rejected' | 'revoked';
+
+export interface GroupLink {
+  id: string;
+  uid?: string | null;
+  source_group_id: string;
+  target_group_id: string;
+  link_type: GroupLinkType;
+  description: string | null;
+  status: GroupLinkStatus;
+  requested_by: string;
+  approved_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joins
+  source_group?: Group;
+  target_group?: Group;
+}
+
 export interface LawConflict {
   new_law_id: string;
   new_law_title: string;
