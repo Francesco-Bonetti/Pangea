@@ -1,8 +1,8 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import GroupTree from "@/components/GroupTree";
 import {
@@ -25,6 +25,15 @@ import { triggerTranslation } from "@/lib/translate";
 
 const PANGEA_ROOT_ID = "00000000-0000-0000-0000-000000000001";
 
+/* Wrapper with Suspense for useSearchParams */
+export default function GroupsPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-16"><div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" /></div>}>
+      <GroupsPageInner />
+    </Suspense>
+  );
+}
+
 const GROUP_TYPES: { value: GroupType; emoji: string; labelKey: string }[] = [
   { value: "jurisdiction", emoji: "🏛️", labelKey: "groups.type.jurisdiction" },
   { value: "party", emoji: "🗳️", labelKey: "groups.type.party" },
@@ -38,10 +47,15 @@ const EMOJI_OPTIONS = [
   "🦁", "🌊", "🏔️", "🔱", "🎪", "🗽", "🌿", "🔍", "💎", "🏙️",
 ];
 
-export default function GroupsPage() {
+function GroupsPageInner() {
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t, locale } = useLanguage();
+
+  // Read URL params for pre-filtering
+  const urlType = searchParams.get("type") as GroupType | null;
+  const urlCreate = searchParams.get("create") === "1";
 
   // Auth state
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -53,7 +67,11 @@ export default function GroupsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "list">("tree");
-  const [filterType, setFilterType] = useState<GroupType | "all">("all");
+  const [filterType, setFilterType] = useState<GroupType | "all">(
+    urlType && ["jurisdiction", "party", "community", "working_group", "custom"].includes(urlType)
+      ? urlType
+      : "all"
+  );
 
   // Create group modal
   const [showCreate, setShowCreate] = useState(false);
@@ -104,6 +122,17 @@ export default function GroupsPage() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Auto-open create modal if ?create=1 and user is logged in
+  useEffect(() => {
+    if (urlCreate && !isGuest && !loading) {
+      setShowCreate(true);
+      // Pre-select the type from URL if provided
+      if (urlType && ["jurisdiction", "party", "community", "working_group", "custom"].includes(urlType)) {
+        setNewGroup((p) => ({ ...p, group_type: urlType }));
+      }
+    }
+  }, [urlCreate, isGuest, loading, urlType]);
 
   // Filtered nodes
   const filteredNodes = treeNodes.filter((n) => {

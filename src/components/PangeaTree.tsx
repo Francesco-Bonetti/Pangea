@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Globe,
   Landmark,
@@ -10,21 +11,30 @@ import {
   BookOpen,
   Vote,
   MessageCircle,
-  ChevronRight,
+  Plus,
   Sparkles,
 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
+/* ── Semantic color palette ── */
+const PALETTE = {
+  jurisdictions: { main: "#2563eb", light: "#3b82f6", glow: "rgba(37,99,235,0.25)" },
+  parties:       { main: "#dc2626", light: "#ef4444", glow: "rgba(220,38,38,0.25)" },
+  communities:   { main: "#7c3aed", light: "#8b5cf6", glow: "rgba(124,58,237,0.25)" },
+  laws:          { main: "#d97706", light: "#f59e0b", glow: "rgba(217,119,6,0.25)" },
+  elections:     { main: "#059669", light: "#10b981", glow: "rgba(5,150,105,0.25)" },
+  forum:         { main: "#db2777", light: "#ec4899", glow: "rgba(219,39,119,0.25)" },
+} as const;
+
 /* ── Branch configuration ── */
 interface TreeBranch {
-  id: string;
+  id: keyof typeof PALETTE;
   href: string;
   iconKey: string;
   labelKey: string;
-  subtitleKey: string;
-  color: string;
-  glowColor: string;
-  statKey?: string;
+  descKey: string;
+  canCreate: boolean;
+  createHref?: string;
 }
 
 const BRANCHES: TreeBranch[] = [
@@ -33,54 +43,50 @@ const BRANCHES: TreeBranch[] = [
     href: "/groups?type=jurisdiction",
     iconKey: "landmark",
     labelKey: "tree.jurisdictions",
-    subtitleKey: "tree.jurisdictionsDesc",
-    color: "#3b82f6",
-    glowColor: "rgba(59,130,246,0.3)",
+    descKey: "tree.jurisdictionsDesc",
+    canCreate: false,
   },
   {
-    id: "movements",
+    id: "parties",
     href: "/groups?type=party",
     iconKey: "flag",
-    labelKey: "tree.movements",
-    subtitleKey: "tree.movementsDesc",
-    color: "#ef4444",
-    glowColor: "rgba(239,68,68,0.3)",
+    labelKey: "tree.parties",
+    descKey: "tree.partiesDesc",
+    canCreate: true,
+    createHref: "/groups?type=party&create=1",
   },
   {
     id: "communities",
     href: "/groups?type=community",
     iconKey: "users",
     labelKey: "tree.communities",
-    subtitleKey: "tree.communitiesDesc",
-    color: "#8b5cf6",
-    glowColor: "rgba(139,92,246,0.3)",
+    descKey: "tree.communitiesDesc",
+    canCreate: true,
+    createHref: "/groups?type=community&create=1",
   },
   {
     id: "laws",
     href: "/laws",
     iconKey: "book",
     labelKey: "tree.laws",
-    subtitleKey: "tree.lawsDesc",
-    color: "#f59e0b",
-    glowColor: "rgba(245,158,11,0.3)",
+    descKey: "tree.lawsDesc",
+    canCreate: false,
   },
   {
     id: "elections",
     href: "/elections",
     iconKey: "vote",
     labelKey: "tree.elections",
-    subtitleKey: "tree.electionsDesc",
-    color: "#10b981",
-    glowColor: "rgba(16,185,129,0.3)",
+    descKey: "tree.electionsDesc",
+    canCreate: false,
   },
   {
-    id: "agora",
+    id: "forum",
     href: "/social",
     iconKey: "message",
-    labelKey: "tree.agora",
-    subtitleKey: "tree.agoraDesc",
-    color: "#ec4899",
-    glowColor: "rgba(236,72,153,0.3)",
+    labelKey: "tree.forum",
+    descKey: "tree.forumDesc",
+    canCreate: false,
   },
 ];
 
@@ -93,133 +99,239 @@ const ICON_MAP: Record<string, React.ElementType> = {
   message: MessageCircle,
 };
 
-/* ── Tree Node (branch) ── */
-function TreeNode({
+/* ── SVG curved branch path ── */
+function BranchPath({
+  startX,
+  startY,
+  endX,
+  endY,
+  color,
+  active,
+  delay,
+  visible,
+}: {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  color: string;
+  active: boolean;
+  delay: number;
+  visible: boolean;
+}) {
+  // Cubic bezier: vertical drop from center, then curve out to the card
+  const midY = startY + (endY - startY) * 0.4;
+  const d = `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`;
+
+  return (
+    <path
+      d={d}
+      fill="none"
+      stroke={color}
+      strokeWidth={active ? 2.5 : 1.5}
+      strokeLinecap="round"
+      opacity={visible ? (active ? 0.8 : 0.3) : 0}
+      style={{
+        transition: `all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${delay}s`,
+        filter: active ? `drop-shadow(0 0 6px ${color})` : "none",
+      }}
+    />
+  );
+}
+
+/* ── Tree Node Card ── */
+function TreeNodeCard({
   branch,
   index,
   visible,
   hovered,
   onHover,
-  stat,
+  isGuest,
 }: {
   branch: TreeBranch;
   index: number;
   visible: boolean;
   hovered: string | null;
   onHover: (id: string | null) => void;
-  stat?: number;
+  isGuest: boolean;
 }) {
   const { t } = useLanguage();
+  const router = useRouter();
   const Icon = ICON_MAP[branch.iconKey] || Globe;
+  const colors = PALETTE[branch.id];
   const isHovered = hovered === branch.id;
   const isFaded = hovered !== null && !isHovered;
-  const delay = 0.15 + index * 0.1;
+  const delay = 0.2 + index * 0.08;
 
   return (
-    <Link
-      href={branch.href}
-      className="tree-node group block"
+    <div
+      className="tree-card-wrapper relative"
       onMouseEnter={() => onHover(branch.id)}
       onMouseLeave={() => onHover(null)}
       style={{
-        opacity: visible ? (isFaded ? 0.5 : 1) : 0,
+        opacity: visible ? (isFaded ? 0.55 : 1) : 0,
         transform: visible
-          ? `scale(${isHovered ? 1.05 : 1})`
-          : "scale(0.8)",
+          ? `scale(${isHovered ? 1.04 : 1}) translateY(${isHovered ? -4 : 0}px)`
+          : "scale(0.85) translateY(12px)",
         transition: `all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${delay}s`,
       }}
     >
-      <div
-        className="relative rounded-2xl p-4 sm:p-5 border transition-all duration-300"
-        style={{
-          borderColor: isHovered ? branch.color : "var(--border)",
-          backgroundColor: "var(--card)",
-          boxShadow: isHovered
-            ? `0 0 30px ${branch.glowColor}, 0 8px 32px rgba(0,0,0,0.12)`
-            : "0 2px 8px rgba(0,0,0,0.06)",
-        }}
-      >
-        {/* Icon circle */}
+      <Link href={branch.href} className="block">
         <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110"
+          className="relative rounded-xl p-4 border transition-all duration-300"
           style={{
-            background: `linear-gradient(135deg, ${branch.color}, ${branch.color}dd)`,
+            borderColor: isHovered ? colors.main : "var(--border)",
+            backgroundColor: "var(--card)",
+            boxShadow: isHovered
+              ? `0 0 24px ${colors.glow}, 0 8px 24px rgba(0,0,0,0.1)`
+              : "0 1px 4px rgba(0,0,0,0.06)",
           }}
         >
-          <Icon className="w-5 h-5 text-white" strokeWidth={2} />
-        </div>
-
-        {/* Label */}
-        <h3
-          className="text-sm font-bold mb-1 tracking-tight"
-          style={{ color: "var(--foreground)" }}
-        >
-          {t(branch.labelKey)}
-        </h3>
-
-        {/* Subtitle */}
-        <p
-          className="text-xs leading-relaxed"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          {t(branch.subtitleKey)}
-        </p>
-
-        {/* Stat badge */}
-        {stat !== undefined && stat > 0 && (
-          <div
-            className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
-            style={{ backgroundColor: branch.color }}
-          >
-            {stat}
+          {/* Top row: Icon + Label inline */}
+          <div className="flex items-center gap-3 mb-2">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-300"
+              style={{
+                background: `linear-gradient(135deg, ${colors.main}, ${colors.light})`,
+                transform: isHovered ? "scale(1.1)" : "scale(1)",
+              }}
+            >
+              <Icon className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+            </div>
+            <h3
+              className="text-base font-bold tracking-tight leading-tight"
+              style={{ color: "var(--foreground)" }}
+            >
+              {t(branch.labelKey)}
+            </h3>
           </div>
-        )}
 
-        {/* Arrow indicator */}
-        <div
-          className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5"
-          style={{ color: branch.color }}
-        >
-          <ChevronRight className="w-4 h-4" />
+          {/* Description */}
+          <p
+            className="text-sm leading-relaxed"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            {t(branch.descKey)}
+          </p>
         </div>
-      </div>
-    </Link>
+      </Link>
+
+      {/* Create New button (overlaid at bottom-right) */}
+      {branch.canCreate && !isGuest && branch.createHref && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(branch.createHref!);
+          }}
+          className="absolute -bottom-2 -right-2 flex items-center gap-1 px-2.5 py-1 rounded-full text-white text-[11px] font-semibold shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 z-10"
+          style={{
+            background: `linear-gradient(135deg, ${colors.main}, ${colors.light})`,
+            boxShadow: `0 2px 8px ${colors.glow}`,
+            opacity: visible ? 1 : 0,
+            transitionDelay: `${delay + 0.2}s`,
+          }}
+          title={t("tree.createNew")}
+        >
+          <Plus className="w-3 h-3" />
+          {t("tree.createNew")}
+        </button>
+      )}
+    </div>
   );
 }
 
 /* ── Main Tree Component ── */
 interface PangeaTreeProps {
-  stats?: {
-    total_users: number;
-    total_proposals: number;
-    total_votes: number;
-    active_proposals: number;
-    closed_proposals: number;
-  };
   isGuest: boolean;
 }
 
-export default function PangeaTree({ stats, isGuest }: PangeaTreeProps) {
+export default function PangeaTree({ isGuest }: PangeaTreeProps) {
   const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [pulseCore, setPulseCore] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const globeRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [paths, setPaths] = useState<
+    { startX: number; startY: number; endX: number; endY: number; color: string; id: string }[]
+  >([]);
 
   useEffect(() => {
-    // Stagger the appearance
     const timer = setTimeout(() => setVisible(true), 100);
-    const pulseTimer = setTimeout(() => setPulseCore(true), 600);
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(pulseTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
+  /* Calculate SVG paths connecting globe to each card */
+  const calculatePaths = useCallback(() => {
+    const container = containerRef.current;
+    const globe = globeRef.current;
+    if (!container || !globe) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const globeRect = globe.getBoundingClientRect();
+
+    const startX = globeRect.left + globeRect.width / 2 - containerRect.left;
+    const startY = globeRect.top + globeRect.height - containerRect.top;
+
+    const newPaths = cardRefs.current.map((card, i) => {
+      if (!card) return null;
+      const cardRect = card.getBoundingClientRect();
+      const endX = cardRect.left + cardRect.width / 2 - containerRect.left;
+      const endY = cardRect.top + 4 - containerRect.top;
+      const branch = BRANCHES[i];
+      return {
+        startX,
+        startY,
+        endX,
+        endY,
+        color: PALETTE[branch.id].main,
+        id: branch.id,
+      };
+    }).filter(Boolean) as typeof paths;
+
+    setPaths(newPaths);
+  }, []);
+
+  useEffect(() => {
+    // Recalculate after render + animation settle
+    const timers = [
+      setTimeout(calculatePaths, 200),
+      setTimeout(calculatePaths, 800),
+      setTimeout(calculatePaths, 1500),
+    ];
+    window.addEventListener("resize", calculatePaths);
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener("resize", calculatePaths);
+    };
+  }, [calculatePaths, visible]);
+
   return (
-    <div className="relative w-full">
-      {/* ── Central Core Node ── */}
-      <div className="flex flex-col items-center mb-8 sm:mb-10">
+    <div ref={containerRef} className="relative w-full max-w-4xl mx-auto">
+      {/* ── SVG Branch Lines ── */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ zIndex: 0 }}
+      >
+        {paths.map((p, i) => (
+          <BranchPath
+            key={p.id}
+            startX={p.startX}
+            startY={p.startY}
+            endX={p.endX}
+            endY={p.endY}
+            color={p.color}
+            active={hovered === p.id}
+            delay={0.1 + i * 0.05}
+            visible={visible}
+          />
+        ))}
+      </svg>
+
+      {/* ── Central Globe ── */}
+      <div className="flex flex-col items-center mb-10 sm:mb-14 relative z-10">
         <div
+          ref={globeRef}
           className="relative"
           style={{
             opacity: visible ? 1 : 0,
@@ -227,23 +339,25 @@ export default function PangeaTree({ stats, isGuest }: PangeaTreeProps) {
             transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
           }}
         >
-          {/* Pulsing ring */}
+          {/* Pulsing aura */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
               background:
-                "radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)",
-              transform: pulseCore ? "scale(2.5)" : "scale(1)",
-              opacity: pulseCore ? 0 : 0.5,
-              transition: "all 2s ease-out",
-              animation: pulseCore
-                ? "treePulse 3s ease-in-out infinite"
-                : "none",
+                "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)",
+              animation: visible ? "globePulse 3s ease-in-out infinite" : "none",
             }}
           />
-
-          {/* Core globe */}
-          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 flex items-center justify-center shadow-2xl shadow-blue-600/30 border-2 border-blue-400/30">
+          {/* Globe */}
+          <div
+            className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center border-2"
+            style={{
+              background: "linear-gradient(135deg, #2563eb, #1d4ed8, #1e40af)",
+              borderColor: "rgba(59,130,246,0.3)",
+              boxShadow: "0 0 40px rgba(37,99,235,0.3), 0 8px 32px rgba(0,0,0,0.2)",
+              perspective: "800px",
+            }}
+          >
             <Globe
               className="w-10 h-10 sm:w-12 sm:h-12 text-white"
               strokeWidth={1.5}
@@ -251,7 +365,7 @@ export default function PangeaTree({ stats, isGuest }: PangeaTreeProps) {
           </div>
         </div>
 
-        {/* Title + subtitle */}
+        {/* Title */}
         <div
           className="text-center mt-4"
           style={{
@@ -276,7 +390,8 @@ export default function PangeaTree({ stats, isGuest }: PangeaTreeProps) {
             <div
               className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-xs font-medium"
               style={{
-                backgroundColor: "color-mix(in srgb, var(--primary) 10%, transparent)",
+                backgroundColor:
+                  "color-mix(in srgb, var(--primary) 10%, transparent)",
                 color: "var(--primary)",
               }}
             >
@@ -287,53 +402,38 @@ export default function PangeaTree({ stats, isGuest }: PangeaTreeProps) {
         </div>
       </div>
 
-      {/* ── SVG Connections (desktop only) ── */}
-      <svg
-        className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none"
-        style={{ zIndex: 0 }}
-        preserveAspectRatio="none"
-      >
-        {/* Lines are drawn dynamically via CSS positioning — we use gradient fades instead */}
-      </svg>
-
       {/* ── Branch Grid ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 relative z-10">
         {BRANCHES.map((branch, i) => (
-          <TreeNode
+          <div
             key={branch.id}
-            branch={branch}
-            index={i}
-            visible={visible}
-            hovered={hovered}
-            onHover={setHovered}
-          />
+            ref={(el) => {
+              cardRefs.current[i] = el;
+            }}
+          >
+            <TreeNodeCard
+              branch={branch}
+              index={i}
+              visible={visible}
+              hovered={hovered}
+              onHover={setHovered}
+              isGuest={isGuest}
+            />
+          </div>
         ))}
       </div>
 
-      {/* ── Decorative connecting lines (CSS-based) ── */}
+      {/* ── Animations ── */}
       <style jsx global>{`
-        @keyframes treePulse {
-          0%,
-          100% {
+        @keyframes globePulse {
+          0%, 100% {
             transform: scale(2);
-            opacity: 0.15;
+            opacity: 0.12;
           }
           50% {
             transform: scale(2.8);
             opacity: 0;
           }
-        }
-
-        /* Connecting line effect from center to grid */
-        .tree-connector {
-          position: absolute;
-          width: 2px;
-          background: linear-gradient(
-            to bottom,
-            var(--primary),
-            transparent
-          );
-          transform-origin: top center;
         }
       `}</style>
     </div>
