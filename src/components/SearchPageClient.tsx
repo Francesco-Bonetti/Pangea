@@ -17,6 +17,7 @@ import {
   Vote,
 } from "lucide-react";
 import Link from "next/link";
+import { logger } from "@/lib/logger";
 
 type ResultCategory = "all" | "proposals" | "laws" | "citizens" | "groups" | "elections";
 
@@ -180,7 +181,7 @@ export default function SearchPageClient() {
 
       setResults(allResults);
     } catch (err) {
-      console.error("Search error:", err);
+      logger.error("Search error:", err);
     } finally {
       setLoading(false);
     }

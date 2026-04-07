@@ -10,6 +10,7 @@ import TranslatedContent from "@/components/TranslatedContent";
 import UidBadge from "@/components/UidBadge";
 import { stripMentions } from "@/components/MentionInput";
 import "@/styles/discussion-card.css";
+import { logger } from "@/lib/logger";
 
 interface DiscussionCardProps {
   discussion: Discussion;
@@ -104,7 +105,7 @@ export default function DiscussionCard({
         }
       }
     } catch (error) {
-      console.error("Error voting:", error);
+      logger.error("Error voting:", error);
     } finally {
       setIsVoting(false);
     }

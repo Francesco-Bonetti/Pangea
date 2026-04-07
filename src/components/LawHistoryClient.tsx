@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Clock, RotateCcw, ChevronDown, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/logger";
 
 interface HistoryEntry {
   id: string;
@@ -56,7 +57,7 @@ export default function LawHistoryClient({
       // Reload page to show updated content
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
-      console.error("Restore failed:", err);
+      logger.error("Restore failed:", err);
       alert("Failed to restore version. Only admins can perform this action.");
     } finally {
       setRestoring(false);

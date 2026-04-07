@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import PrivacyName from "@/components/PrivacyName";
 import { triggerTranslation } from "@/lib/translate";
 import TranslatedContent from "@/components/TranslatedContent";
+import { logger } from "@/lib/logger";
 
 interface Comment {
   id: string;
@@ -125,7 +126,7 @@ function CommentCard({
 
       onReactionsChange();
     } catch (error) {
-      console.error("Error updating reaction:", error);
+      logger.error("Error updating reaction:", error);
     } finally {
       setIsReacting(false);
     }
@@ -255,7 +256,7 @@ function RepliesSection({
 
       setReplies(repliesWithProfiles as Comment[]);
     } catch (error) {
-      console.error("Error fetching replies:", error);
+      logger.error("Error fetching replies:", error);
     } finally {
       setIsLoading(false);
     }
@@ -288,7 +289,7 @@ function RepliesSection({
       await fetchReplies();
       onReactionsChange();
     } catch (error) {
-      console.error("Error submitting reply:", error);
+      logger.error("Error submitting reply:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -447,7 +448,7 @@ export default function CommentSection({
 
       setComments(commentsWithProfiles as Comment[]);
     } catch (error) {
-      console.error("Error fetching comments:", error);
+      logger.error("Error fetching comments:", error);
     } finally {
       setIsLoading(false);
     }
@@ -471,7 +472,7 @@ export default function CommentSection({
 
       setUserReactions(reactionsMap);
     } catch (error) {
-      console.error("Error fetching user reactions:", error);
+      logger.error("Error fetching user reactions:", error);
     }
   };
 
@@ -508,7 +509,7 @@ export default function CommentSection({
       setNewCommentText("");
       await fetchComments();
     } catch (error) {
-      console.error("Error submitting comment:", error);
+      logger.error("Error submitting comment:", error);
     } finally {
       setIsSubmitting(false);
     }

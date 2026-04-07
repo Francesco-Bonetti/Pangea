@@ -26,6 +26,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type { Profile, Group, GroupForumPost, GroupMember } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 function formatTimeAgo(dateString: string): string {
   const now = new Date();
@@ -95,7 +96,7 @@ function ReplyItem({
         else setDownvotes(d => d + 1);
         setUserVote(voteType);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { logger.error(err); }
   };
 
   const handleSubmitReply = async () => {
@@ -353,7 +354,7 @@ export default function GroupDiscussionThreadPage() {
         else setDownvotes(d => d + 1);
         setUserVote(voteType);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { logger.error(err); }
   };
 
   const handlePostReply = async () => {

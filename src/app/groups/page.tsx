@@ -22,6 +22,7 @@ import {
 import type { Profile, GroupTreeNode, GroupType } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 import { triggerTranslation } from "@/lib/translate";
+import { logger } from "@/lib/logger";
 
 const PANGEA_ROOT_ID = "00000000-0000-0000-0000-000000000001";
 
@@ -94,7 +95,7 @@ export default function GroupsPage() {
     const { data: tree, error: treeErr } = await supabase.rpc("get_group_tree", { p_root_id: null });
 
     if (treeErr) {
-      console.error("Error loading group tree:", treeErr);
+      logger.error("Error loading group tree:", treeErr);
       setError(treeErr.message);
     } else if (tree) {
       setTreeNodes(tree as GroupTreeNode[]);

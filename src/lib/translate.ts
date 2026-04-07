@@ -1,3 +1,5 @@
+import { logger } from "@/lib/logger";
+
 /**
  * Translation utilities for Pangea.
  *
@@ -61,7 +63,7 @@ export function triggerTranslation(
       batch: true,
     }),
   }).catch((err) => {
-    console.warn("Background translation failed (non-blocking):", err);
+    logger.warn("Background translation failed (non-blocking):", err);
   });
 }
 

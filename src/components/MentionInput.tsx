@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/components/language-provider";
+import { logger } from "@/lib/logger";
 
 /** Types for entity search results */
 export type EntityResult = {
@@ -158,7 +159,7 @@ export default function MentionInput({
       });
 
       if (error) {
-        console.error("Entity search error:", error);
+        logger.error("Entity search error:", error);
         setResults([]);
       } else {
         // If trigger is @, filter to citizens only; if #, show all others

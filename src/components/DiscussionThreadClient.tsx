@@ -7,6 +7,7 @@ import ReportModal from "./ReportModal";
 import PrivacyName from "./PrivacyName";
 import TranslatedContent from "./TranslatedContent";
 import { triggerTranslation } from "@/lib/translate";
+import { logger } from "@/lib/logger";
 
 interface DiscussionReply {
   id: string;
@@ -114,7 +115,7 @@ function NestedReply({
         onReplyAdded(newReplyData);
       }
     } catch (error) {
-      console.error("Error posting nested reply:", error);
+      logger.error("Error posting nested reply:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -174,7 +175,7 @@ function NestedReply({
         setUserVote(voteType);
       }
     } catch (error) {
-      console.error("Error voting on reply:", error);
+      logger.error("Error voting on reply:", error);
     } finally {
       setIsVoting(false);
     }
@@ -420,7 +421,7 @@ export default function DiscussionThreadClient({
         handleReplyAdded(replyData);
       }
     } catch (error) {
-      console.error("Error posting reply:", error);
+      logger.error("Error posting reply:", error);
     } finally {
       setIsSubmittingReply(false);
     }
@@ -489,7 +490,7 @@ export default function DiscussionThreadClient({
         }
       }
     } catch (error) {
-      console.error("Error voting:", error);
+      logger.error("Error voting:", error);
     } finally {
       setIsVoting(false);
     }

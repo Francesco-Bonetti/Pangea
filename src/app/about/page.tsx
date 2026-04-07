@@ -6,6 +6,7 @@ import AppShell from "@/components/AppShell";
 import { useLanguage } from "@/components/language-provider";
 import { Globe, BookOpen, Users, Vote, FileText, Shield } from "lucide-react";
 import Link from "next/link";
+import { logger } from "@/lib/logger";
 
 interface PlatformStats {
   total_users: number;
@@ -49,7 +50,7 @@ export default function AboutPage() {
 
         const { data: statsData, error: statsError } = await supabase.rpc("get_platform_stats");
         if (statsError) {
-          console.error("Error fetching platform stats:", statsError);
+          logger.error("Error fetching platform stats:", statsError);
         }
         const stats_result = statsData?.[0] ?? {
           total_users: 0,
@@ -60,7 +61,7 @@ export default function AboutPage() {
         };
         setPlatformStats(stats_result);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        logger.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }

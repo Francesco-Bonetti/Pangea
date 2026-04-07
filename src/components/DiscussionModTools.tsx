@@ -5,6 +5,7 @@ import { Pin, Lock, Unlock, Trash2, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/components/language-provider";
+import { logger } from "@/lib/logger";
 
 interface DiscussionModToolsProps {
   discussionId: string;
@@ -36,7 +37,7 @@ export default function DiscussionModTools({
         setPinned(!pinned);
       }
     } catch (err) {
-      console.error("Error toggling pin:", err);
+      logger.error("Error toggling pin:", err);
     } finally {
       setLoading(null);
     }
@@ -53,7 +54,7 @@ export default function DiscussionModTools({
         setLocked(!locked);
       }
     } catch (err) {
-      console.error("Error toggling lock:", err);
+      logger.error("Error toggling lock:", err);
     } finally {
       setLoading(null);
     }
@@ -89,7 +90,7 @@ export default function DiscussionModTools({
         router.push("/social");
       }
     } catch (err) {
-      console.error("Error deleting discussion:", err);
+      logger.error("Error deleting discussion:", err);
     } finally {
       setLoading(null);
       setShowDeleteConfirm(false);

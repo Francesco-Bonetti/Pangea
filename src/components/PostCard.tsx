@@ -8,6 +8,7 @@ import type { PersonalPost } from "@/lib/types";
 import PrivacyName from "@/components/PrivacyName";
 import TranslatedContent from "@/components/TranslatedContent";
 import UidBadge from "@/components/UidBadge";
+import { logger } from "@/lib/logger";
 
 interface PostCardProps {
   post: PersonalPost;
@@ -58,7 +59,7 @@ export default function PostCard({ post, userId, showAuthor = true }: PostCardPr
         setUserVote(voteType);
       }
     } catch (err) {
-      console.error("Vote error:", err);
+      logger.error("Vote error:", err);
     } finally {
       setIsVoting(false);
     }

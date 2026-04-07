@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ArrowBigUp, ArrowBigDown, Flag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ReportModal from "./ReportModal";
+import { logger } from "@/lib/logger";
 
 interface ReplyVoteButtonProps {
   replyId: string;
@@ -77,7 +78,7 @@ export default function ReplyVoteButton({
         }
       }
     } catch (err) {
-      console.error("Error voting on reply:", err);
+      logger.error("Error voting on reply:", err);
     } finally {
       setIsVoting(false);
     }

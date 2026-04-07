@@ -8,6 +8,7 @@ import ReportModal from "./ReportModal";
 import NewDiscussionForm from "./NewDiscussionForm";
 import { useLanguage } from "@/components/language-provider";
 import type { Discussion, DiscussionChannel } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 interface ForumClientProps {
   discussions: Discussion[];
@@ -98,7 +99,7 @@ export default function ForumClient({
         setDiscussions((prev) => [...prev, ...discussionsWithTags]);
       }
     } catch (error) {
-      console.error("Error loading more discussions:", error);
+      logger.error("Error loading more discussions:", error);
     } finally {
       setIsLoadingMore(false);
     }

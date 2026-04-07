@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { X } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import type { ReportReason } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -90,7 +91,7 @@ export default function ReportModal({
       onSuccess?.();
       onClose();
     } catch (err) {
-      console.error("Error submitting report:", err);
+      logger.error("Error submitting report:", err);
       setError(t("reportModal.submitError"));
     } finally {
       setIsSubmitting(false);
