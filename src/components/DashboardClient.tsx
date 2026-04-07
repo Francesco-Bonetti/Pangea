@@ -15,11 +15,13 @@ import {
   ChevronDown,
   ChevronRight,
   ArrowRight,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
 import Link from "next/link";
 import ProposalCard from "@/components/ProposalCard";
-import StatCard from "@/components/StatCard";
 import TranslatedContent from "@/components/TranslatedContent";
+import PangeaTree from "@/components/PangeaTree";
 import type { Proposal, ProposalWithResults } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 
@@ -57,80 +59,85 @@ export default function DashboardClient({
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* ── Header ── */}
-      <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 mb-8">
-        <div className="flex-1 min-w-0">
-          <h1
-            className="text-2xl font-bold flex items-center gap-2"
-            style={{ color: "var(--foreground)" }}
-          >
-            <Globe
-              className="w-6 h-6 shrink-0"
-              style={{ color: "var(--primary)" }}
-              strokeWidth={1.5}
-            />
-            Pangea
-          </h1>
-          <p
-            className="text-sm mt-1"
-            style={{ color: "var(--muted-foreground)" }}
-          >
-            {isGuest ? (
-              <>
-                {t("dashboard.welcomeTo")}{" "}
-                <Link
-                  href="/auth"
-                  className="hover:underline"
-                  style={{ color: "var(--primary)" }}
-                >
-                  {t("dashboard.signUp")}
-                </Link>{" "}
-                {t("dashboard.signUpToParticipate")}
-              </>
-            ) : (
-              <>
-                {t("dashboard.welcome")},{" "}
-                <span className="font-medium" style={{ color: "var(--foreground)" }}>
-                  {fullName || userEmail}
-                </span>
-              </>
-            )}
-          </p>
+      {/* ── Interactive Tree: The Heart of Pangea ── */}
+      <PangeaTree stats={platformStats} isGuest={isGuest} />
+
+      {/* ── Pulse: Live Stats Bar ── */}
+      <div className="mt-10 mb-8">
+        <div
+          className="flex items-center gap-2 mb-4"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          <BarChart3 className="w-4 h-4" style={{ color: "var(--primary)" }} />
+          <span className="text-xs font-semibold uppercase tracking-wider">
+            {t("tree.liveStats")}
+          </span>
         </div>
-        {!isGuest && (
-          <Link
-            href="/proposals/new"
-            className="btn-primary inline-flex items-center gap-2 text-sm shrink-0"
+        <div className="grid grid-cols-3 gap-3">
+          <div
+            className="rounded-xl p-4 border text-center"
+            style={{
+              borderColor: "var(--border)",
+              backgroundColor: "var(--card)",
+            }}
           >
-            <Plus className="w-4 h-4" />
-            {t("nav.newProposal")}
-          </Link>
-        )}
+            <p
+              className="text-2xl sm:text-3xl font-bold tabular-nums"
+              style={{ color: "var(--foreground)" }}
+            >
+              {platformStats.total_users}
+            </p>
+            <p
+              className="text-xs mt-1"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              {t("dashboard.activeCitizens")}
+            </p>
+          </div>
+          <div
+            className="rounded-xl p-4 border text-center"
+            style={{
+              borderColor: "var(--border)",
+              backgroundColor: "var(--card)",
+            }}
+          >
+            <p
+              className="text-2xl sm:text-3xl font-bold tabular-nums"
+              style={{ color: "var(--foreground)" }}
+            >
+              {platformStats.active_proposals + (curationProposals?.length ?? 0)}
+            </p>
+            <p
+              className="text-xs mt-1"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              {t("dashboard.openProposals")}
+            </p>
+          </div>
+          <div
+            className="rounded-xl p-4 border text-center"
+            style={{
+              borderColor: "var(--border)",
+              backgroundColor: "var(--card)",
+            }}
+          >
+            <p
+              className="text-2xl sm:text-3xl font-bold tabular-nums"
+              style={{ color: "var(--foreground)" }}
+            >
+              {platformStats.total_votes}
+            </p>
+            <p
+              className="text-xs mt-1"
+              style={{ color: "var(--muted-foreground)" }}
+            >
+              {t("dashboard.votesCast")}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* ── Bento Grid: Stat Cards ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard
-          label={t("dashboard.activeCitizens")}
-          value={platformStats.total_users}
-          icon={Users}
-          trend={t("dashboard.growth12")}
-        />
-        <StatCard
-          label={t("dashboard.openProposals")}
-          value={platformStats.active_proposals + (curationProposals?.length ?? 0)}
-          icon={FileText}
-          trend={`${curationProposals.length} ${t("dashboard.inReviewShort")}`}
-        />
-        <StatCard
-          label={t("dashboard.votesCast")}
-          value={platformStats.total_votes}
-          icon={Vote}
-          trend={`${closedProposals.length} ${t("dashboard.concluded")}`}
-        />
-      </div>
-
-      {/* ── Bento Grid: Activity + Quick Links ── */}
+      {/* ── Recent Activity + Quick Actions ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         {/* Recent Activity — spans 2 cols on desktop */}
         <div className="lg:col-span-2">
@@ -219,16 +226,26 @@ export default function DashboardClient({
           </div>
         </div>
 
-        {/* Quick Links — 1 col */}
+        {/* Quick Actions — 1 col */}
         <div className="card p-5">
           <h2
             className="text-base font-semibold mb-4 flex items-center gap-2"
             style={{ color: "var(--foreground)" }}
           >
-            <Globe className="w-4 h-4" style={{ color: "var(--primary)" }} />
+            <TrendingUp className="w-4 h-4" style={{ color: "var(--primary)" }} />
             {t("dashboard.quickLinks")}
           </h2>
           <div className="space-y-2">
+            {!isGuest && (
+              <Link
+                href="/proposals/new"
+                className="flex items-center gap-3 p-3 rounded-lg transition-colors duration-150 text-white font-medium text-sm"
+                style={{ background: "linear-gradient(135deg, #3b82f6, #2563eb)" }}
+              >
+                <Plus className="w-4 h-4" />
+                {t("nav.newProposal")}
+              </Link>
+            )}
             <Link
               href="/laws"
               className="flex items-center gap-3 p-3 rounded-lg transition-colors duration-150 hover:opacity-80"
@@ -240,11 +257,11 @@ export default function DashboardClient({
               </span>
             </Link>
             <Link
-              href="/parties"
+              href="/groups?type=party"
               className="flex items-center gap-3 p-3 rounded-lg transition-colors duration-150 hover:opacity-80"
               style={{ backgroundColor: "var(--secondary)" }}
             >
-              <Flag className="w-4 h-4" style={{ color: "var(--primary)" }} />
+              <Flag className="w-4 h-4" style={{ color: "#ef4444" }} />
               <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
                 {t("dashboard.politicalParties")}
               </span>

@@ -23,6 +23,11 @@ const it: TranslationKeys = {
     search: "Cerca leggi, proposte, cittadini...",
     myDelegations: "Le Mie Deleghe",
     yourFeed: "Le Tue Notizie",
+    explore: "Esplora",
+    jurisdictions: "Giurisdizioni",
+    movements: "Movimenti",
+    communities: "Comunità",
+    workingGroups: "Task Force",
   },
 
   // ── Pannello ──
@@ -936,6 +941,24 @@ const it: TranslationKeys = {
     empty: "Nessun post ancora.",
     writeFirst: "Scrivi il tuo primo post!",
     failedToCreate: "Creazione post fallita",
+  },
+
+  tree: {
+    subtitle: "La democrazia del mondo, che si ramifica",
+    welcomeBack: "Bentornato, cittadino",
+    liveStats: "Il polso di Pangea",
+    jurisdictions: "Giurisdizioni",
+    jurisdictionsDesc: "Spazi di governance geografici e virtuali",
+    movements: "Movimenti",
+    movementsDesc: "Partiti politici che plasmano il futuro",
+    communities: "Comunità",
+    communitiesDesc: "Persone unite da obiettivi comuni",
+    laws: "Codici Viventi",
+    lawsDesc: "Leggi che evolvono con il popolo",
+    elections: "Elezioni",
+    electionsDesc: "La tua voce, il tuo potere democratico",
+    agora: "Agorà",
+    agoraDesc: "La piazza pubblica — dibatti e discuti",
   },
 };
 

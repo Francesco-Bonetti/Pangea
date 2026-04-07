@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote } from "lucide-react";
+import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote, Landmark, Users, Wrench, Compass, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useLanguage } from "@/components/language-provider";
@@ -23,7 +23,9 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
   const [loggingOut, setLoggingOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const exploreRef = useRef<HTMLDivElement>(null);
   const isAdmin = userRole === "admin" || userRole === "moderator";
 
   // Close dropdown when clicking outside
@@ -32,13 +34,16 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
       }
+      if (exploreRef.current && !exploreRef.current.contains(event.target as Node)) {
+        setExploreDropdownOpen(false);
+      }
     }
 
-    if (dropdownOpen) {
+    if (dropdownOpen || exploreDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [dropdownOpen]);
+  }, [dropdownOpen, exploreDropdownOpen]);
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -80,13 +85,58 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               <BookOpen className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
               {t("nav.laws")}
             </Link>
-            <Link
-              href="/groups"
-              className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
-            >
-              <Flag className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              {t("nav.groups")}
-            </Link>
+            {/* Explore dropdown */}
+            <div className="relative shrink-0" ref={exploreRef}>
+              <button
+                onClick={() => setExploreDropdownOpen(!exploreDropdownOpen)}
+                className="flex items-center gap-1.5 text-sm text-fg hover:text-fg transition-colors duration-150 group"
+              >
+                <Compass className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
+                {t("nav.explore")}
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${exploreDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              {exploreDropdownOpen && (
+                <div
+                  className="absolute left-0 mt-2 w-52 rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+                  style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
+                >
+                  <div className="py-1.5">
+                    <Link
+                      href="/groups?type=jurisdiction"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
+                      onClick={() => setExploreDropdownOpen(false)}
+                    >
+                      <Landmark className="w-4 h-4 text-blue-500 shrink-0" />
+                      {t("nav.jurisdictions")}
+                    </Link>
+                    <Link
+                      href="/groups?type=party"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
+                      onClick={() => setExploreDropdownOpen(false)}
+                    >
+                      <Flag className="w-4 h-4 text-red-500 shrink-0" />
+                      {t("nav.movements")}
+                    </Link>
+                    <Link
+                      href="/groups?type=community"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
+                      onClick={() => setExploreDropdownOpen(false)}
+                    >
+                      <Users className="w-4 h-4 text-purple-500 shrink-0" />
+                      {t("nav.communities")}
+                    </Link>
+                    <Link
+                      href="/groups?type=working_group"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
+                      onClick={() => setExploreDropdownOpen(false)}
+                    >
+                      <Wrench className="w-4 h-4 text-amber-500 shrink-0" />
+                      {t("nav.workingGroups")}
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
             <Link
               href="/elections"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
@@ -281,13 +331,41 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
               <BookOpen className="w-4 h-4 shrink-0" />
               {t("nav.laws")}
             </Link>
+            {/* Explore group types */}
+            <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
+              {t("nav.explore")}
+            </p>
             <Link
-              href="/groups"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
+              href="/groups?type=jurisdiction"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <Flag className="w-4 h-4 shrink-0" />
-              {t("nav.groups")}
+              <Landmark className="w-4 h-4 text-blue-500 shrink-0" />
+              {t("nav.jurisdictions")}
+            </Link>
+            <Link
+              href="/groups?type=party"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Flag className="w-4 h-4 text-red-500 shrink-0" />
+              {t("nav.movements")}
+            </Link>
+            <Link
+              href="/groups?type=community"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Users className="w-4 h-4 text-purple-500 shrink-0" />
+              {t("nav.communities")}
+            </Link>
+            <Link
+              href="/groups?type=working_group"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Wrench className="w-4 h-4 text-amber-500 shrink-0" />
+              {t("nav.workingGroups")}
             </Link>
             <Link
               href="/elections"

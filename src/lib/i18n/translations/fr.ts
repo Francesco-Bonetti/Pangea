@@ -9,6 +9,8 @@ const fr: TranslationKeys = {
     logout: "Déconnexion", loggingOut: "Déconnexion...", navigation: "Navigation",
     yourSpace: "Votre Espace", search: "Rechercher lois, propositions, citoyens...",
     myDelegations: "Mes Délégations", yourFeed: "Votre Fil",
+    explore: "Explorer", jurisdictions: "Juridictions", movements: "Mouvements",
+    communities: "Communautés", workingGroups: "Groupes de Travail",
   },
   dashboard: {
     title: "Tableau de bord", welcome: "Bienvenue",
@@ -657,6 +659,23 @@ const fr: TranslationKeys = {
     empty: "Aucune publication pour le moment.",
     writeFirst: "Écrivez votre première publication !",
     failedToCreate: "Échec de la création du post",
+  },
+  tree: {
+    subtitle: "La démocratie mondiale, en pleine expansion",
+    welcomeBack: "Bon retour, citoyen",
+    liveStats: "Le pouls de Pangea",
+    jurisdictions: "Juridictions",
+    jurisdictionsDesc: "Espaces de gouvernance géographiques et virtuels",
+    movements: "Mouvements",
+    movementsDesc: "Partis politiques façonnant l'avenir",
+    communities: "Communautés",
+    communitiesDesc: "Des personnes unies par des objectifs communs",
+    laws: "Codes Vivants",
+    lawsDesc: "Des lois qui évoluent avec le peuple",
+    elections: "Élections",
+    electionsDesc: "Votre voix, votre pouvoir démocratique",
+    agora: "Agora",
+    agoraDesc: "La place publique — débattez et discutez",
   },
 };
 

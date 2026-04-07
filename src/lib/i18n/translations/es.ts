@@ -9,6 +9,8 @@ const es: TranslationKeys = {
     logout: "Cerrar Sesión", loggingOut: "Cerrando sesión...", navigation: "Navegación",
     yourSpace: "Tu Espacio", search: "Buscar leyes, propuestas, ciudadanos...",
     myDelegations: "Mis Delegaciones", yourFeed: "Tu Feed",
+    explore: "Explorar", jurisdictions: "Jurisdicciones", movements: "Movimientos",
+    communities: "Comunidades", workingGroups: "Grupos de Trabajo",
   },
   dashboard: {
     title: "Panel", welcome: "Bienvenido de vuelta",
@@ -656,6 +658,23 @@ const es: TranslationKeys = {
     empty: "Aún no hay publicaciones.",
     writeFirst: "¡Escribe tu primera publicación!",
     failedToCreate: "Error al crear la publicación",
+  },
+  tree: {
+    subtitle: "La democracia del mundo, ramificándose",
+    welcomeBack: "Bienvenido de vuelta, ciudadano",
+    liveStats: "El pulso de Pangea",
+    jurisdictions: "Jurisdicciones",
+    jurisdictionsDesc: "Espacios de gobernanza geográficos y virtuales",
+    movements: "Movimientos",
+    movementsDesc: "Partidos políticos forjando el futuro",
+    communities: "Comunidades",
+    communitiesDesc: "Personas unidas por objetivos comunes",
+    laws: "Códigos Vivos",
+    lawsDesc: "Leyes que evolucionan con el pueblo",
+    elections: "Elecciones",
+    electionsDesc: "Tu voz, tu poder democrático",
+    agora: "Ágora",
+    agoraDesc: "La plaza pública — debate y discute",
   },
 };
 

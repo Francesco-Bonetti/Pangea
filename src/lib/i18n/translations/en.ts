@@ -21,6 +21,11 @@ const en = {
     search: "Search laws, proposals, citizens...",
     myDelegations: "My Delegations",
     yourFeed: "Your Feed",
+    explore: "Explore",
+    jurisdictions: "Jurisdictions",
+    movements: "Movements",
+    communities: "Communities",
+    workingGroups: "Task Forces",
   },
 
   // ── Dashboard ──
@@ -962,6 +967,25 @@ const en = {
     empty: "No posts yet.",
     writeFirst: "Write your first post!",
     failedToCreate: "Failed to create post",
+  },
+
+  // ── Pangea Tree (Homepage) ──
+  tree: {
+    subtitle: "The world's democracy, branching out",
+    welcomeBack: "Welcome back, citizen",
+    liveStats: "Pulse of Pangea",
+    jurisdictions: "Jurisdictions",
+    jurisdictionsDesc: "Geographic and virtual governance spaces",
+    movements: "Movements",
+    movementsDesc: "Political parties shaping the future",
+    communities: "Communities",
+    communitiesDesc: "People connecting around shared goals",
+    laws: "Living Codes",
+    lawsDesc: "Laws that evolve with the people",
+    elections: "Elections",
+    electionsDesc: "Your voice, your democratic power",
+    agora: "Agora",
+    agoraDesc: "The public square — debate and discuss",
   },
 
 };
