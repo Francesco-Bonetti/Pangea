@@ -50,6 +50,19 @@ interface TreeNode {
   children?: TreeNode[];
 }
 
+interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+interface LayoutNode3D {
+  node: TreeNode;
+  pos: Vec3;        // 3D position in scene space
+  level: number;
+  parentId?: string; // for branch drawing
+}
+
 /* ═══════════════════════════════════════════════════════════
    Color palette
    ═══════════════════════════════════════════════════════════ */
@@ -62,7 +75,6 @@ const C = {
   personal:   { main: "#7c3aed", light: "#8b5cf6", glow: "rgba(124,58,237,0.25)" },
   settings:   { main: "#6b7280", light: "#9ca3af", glow: "rgba(107,114,128,0.25)" },
   about:      { main: "#0891b2", light: "#22d3ee", glow: "rgba(8,145,178,0.25)" },
-  // Sub-branch variants (inherit parent hue, slightly different)
   jurisdictions: { main: "#1d4ed8", light: "#3b82f6", glow: "rgba(29,78,216,0.25)" },
   parties:       { main: "#dc2626", light: "#ef4444", glow: "rgba(220,38,38,0.25)" },
   communities:   { main: "#7c3aed", light: "#a78bfa", glow: "rgba(124,58,237,0.25)" },
@@ -166,48 +178,69 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 /* ═══════════════════════════════════════════════════════════
-   Geometry helpers — radial layout
+   3D Math: rotation matrix + perspective projection
    ═══════════════════════════════════════════════════════════ */
 
-interface LayoutNode {
-  node: TreeNode;
-  x: number;
-  y: number;
-  level: number;
-  parentX?: number;
-  parentY?: number;
+const DEG = Math.PI / 180;
+
+/** Rotate point by rotX (pitch) then rotY (yaw) — in radians */
+function rotate3D(p: Vec3, rx: number, ry: number): Vec3 {
+  // Rotate around X
+  const cosX = Math.cos(rx), sinX = Math.sin(rx);
+  const y1 = p.y * cosX - p.z * sinX;
+  const z1 = p.y * sinX + p.z * cosX;
+  // Rotate around Y
+  const cosY = Math.cos(ry), sinY = Math.sin(ry);
+  const x2 = p.x * cosY + z1 * sinY;
+  const z2 = -p.x * sinY + z1 * cosY;
+  return { x: x2, y: y1, z: z2 };
 }
 
-function computeLayout(
-  tree: TreeNode[],
-  maxDepth: number,
-  centerX: number,
-  centerY: number,
-  radius1: number,
-  radius2: number,
-): LayoutNode[] {
-  const result: LayoutNode[] = [];
+/** Project 3D point to 2D screen coords with perspective */
+function project(p: Vec3, perspective: number, cx: number, cy: number): { sx: number; sy: number; scale: number } {
+  const d = perspective + p.z;
+  const scale = d > 10 ? perspective / d : 0.01;
+  return {
+    sx: cx + p.x * scale,
+    sy: cy + p.y * scale,
+    scale,
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3D Layout: spherical positioning
+   ═══════════════════════════════════════════════════════════ */
+
+function computeLayout3D(tree: TreeNode[], maxDepth: number, r1: number, r2: number): LayoutNode3D[] {
+  const result: LayoutNode3D[] = [];
   const n = tree.length;
 
   tree.forEach((node, i) => {
-    // Distribute L1 nodes evenly around the circle, starting from top (-90°)
-    const angle = ((2 * Math.PI) / n) * i - Math.PI / 2;
-    const x = centerX + radius1 * Math.cos(angle);
-    const y = centerY + radius1 * Math.sin(angle);
-    result.push({ node, x, y, level: 1, parentX: centerX, parentY: centerY });
+    // L1: horizontal ring around Y axis, slightly tilted for visual depth
+    const angle = (2 * Math.PI / n) * i;
+    const tilt = Math.sin(angle * 2) * 0.15; // subtle vertical variation
+    const pos: Vec3 = {
+      x: r1 * Math.cos(angle),
+      y: r1 * tilt,
+      z: r1 * Math.sin(angle),
+    };
+    result.push({ node, pos, level: 1 });
 
     if (maxDepth >= 2 && node.children) {
       const childCount = node.children.length;
-      // Spread children in a small arc centered on parent angle
-      const arcSpread = Math.min(0.35, (0.8 / n));
+      const arcSpread = Math.min(0.4, 0.9 / n);
       node.children.forEach((child, ci) => {
         const offset = childCount === 1
           ? 0
           : (ci / (childCount - 1) - 0.5) * arcSpread * 2 * Math.PI;
         const childAngle = angle + offset;
-        const cx = centerX + radius2 * Math.cos(childAngle);
-        const cy = centerY + radius2 * Math.sin(childAngle);
-        result.push({ node: child, x: cx, y: cy, level: 2, parentX: x, parentY: y });
+        // L2: further out, slightly lower
+        const childPos: Vec3 = {
+          x: r2 * Math.cos(childAngle),
+          y: r2 * tilt - 15 + ci * 10,
+          z: r2 * Math.sin(childAngle),
+        };
+        result.push({ node: child, pos: childPos, level: 2, parentId: node.id });
       });
     }
   });
@@ -216,48 +249,21 @@ function computeLayout(
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SVG curved branch
+   Node Card — always faces viewer (billboard)
    ═══════════════════════════════════════════════════════════ */
 
-function Branch({
-  x1, y1, x2, y2, color, active, visible, level,
-}: {
-  x1: number; y1: number; x2: number; y2: number;
-  color: string; active: boolean; visible: boolean; level: number;
-}) {
-  // Curved path: control point at midpoint shifted towards center
-  const mx = (x1 + x2) / 2;
-  const my = (y1 + y2) / 2;
-  const d = `M ${x1} ${y1} Q ${mx} ${my}, ${x2} ${y2}`;
-
-  return (
-    <path
-      d={d}
-      fill="none"
-      stroke={color}
-      strokeWidth={active ? (level === 1 ? 2.5 : 2) : (level === 1 ? 1.8 : 1.2)}
-      strokeLinecap="round"
-      opacity={visible ? (active ? 0.85 : 0.3) : 0}
-      style={{
-        transition: "all 0.5s ease",
-        filter: active ? `drop-shadow(0 0 6px ${color})` : "none",
-      }}
-    />
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════
-   Node card component
-   ═══════════════════════════════════════════════════════════ */
-
-function NodeCard({
-  layoutNode,
+function NodeCard3D({
+  ln,
+  sx, sy, depthScale,
   hovered,
   onHover,
   isGuest,
   visible,
 }: {
-  layoutNode: LayoutNode;
+  ln: LayoutNode3D;
+  sx: number;
+  sy: number;
+  depthScale: number;
   hovered: string | null;
   onHover: (id: string | null) => void;
   isGuest: boolean;
@@ -265,68 +271,69 @@ function NodeCard({
 }) {
   const { t } = useLanguage();
   const router = useRouter();
-  const { node, x, y, level } = layoutNode;
+  const { node, level } = ln;
   const Icon = ICON_MAP[node.iconKey] || Globe;
   const isHovered = hovered === node.id;
-  const isParentHovered = hovered !== null && node.id !== hovered &&
-    TREE.some(b => b.id === hovered && b.children?.some(c => c.id === node.id));
-  const isFaded = hovered !== null && !isHovered && !isParentHovered;
-
+  const isFaded = hovered !== null && !isHovered;
   const isL1 = level === 1;
-  const cardW = isL1 ? 140 : 120;
-  const cardH = isL1 ? 100 : 72;
+
+  // Scale cards by perspective depth
+  const cardScale = Math.max(0.4, Math.min(1.2, depthScale));
+  const baseW = isL1 ? 140 : 115;
+  const w = baseW * cardScale;
 
   return (
     <div
       className="absolute"
       style={{
-        left: x - cardW / 2,
-        top: y - cardH / 2,
-        width: cardW,
-        zIndex: isHovered ? 20 : (isL1 ? 10 : 5),
+        left: sx - w / 2,
+        top: sy - (isL1 ? 30 : 20) * cardScale,
+        width: w,
+        zIndex: Math.round(depthScale * 100),
+        pointerEvents: depthScale < 0.3 ? "none" : "auto",
       }}
       onMouseEnter={() => onHover(node.id)}
       onMouseLeave={() => onHover(null)}
       onTouchStart={() => onHover(node.id)}
     >
       <div
-        className="cursor-pointer rounded-xl border transition-all duration-300"
+        className="cursor-pointer rounded-xl border transition-all duration-200"
         onClick={() => router.push(node.href)}
         style={{
-          padding: isL1 ? "12px" : "8px 10px",
-          opacity: visible ? (isFaded ? 0.5 : 1) : 0,
-          transform: visible
-            ? `scale(${isHovered ? 1.08 : 1})`
-            : "scale(0.7)",
+          padding: `${(isL1 ? 10 : 7) * cardScale}px`,
+          opacity: visible ? (isFaded ? 0.45 : Math.max(0.3, depthScale)) : 0,
+          transform: `scale(${isHovered ? 1.1 : 1})`,
           borderColor: isHovered ? node.color : "var(--border)",
           backgroundColor: "var(--card)",
           boxShadow: isHovered
             ? `0 0 20px ${node.glow}, 0 8px 24px rgba(0,0,0,0.12)`
             : "0 1px 4px rgba(0,0,0,0.06)",
-          transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          transition: "transform 0.2s ease, opacity 0.4s ease, border-color 0.2s ease, box-shadow 0.2s ease",
         }}
       >
         {/* Icon + Label */}
         <div className="flex items-center gap-2 mb-1">
           <div
-            className="shrink-0 rounded-lg flex items-center justify-center transition-transform duration-300"
+            className="shrink-0 rounded-lg flex items-center justify-center"
             style={{
-              width: isL1 ? 32 : 26,
-              height: isL1 ? 32 : 26,
+              width: (isL1 ? 28 : 22) * cardScale,
+              height: (isL1 ? 28 : 22) * cardScale,
               background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
-              transform: isHovered ? "scale(1.12)" : "scale(1)",
             }}
           >
             <Icon
               className="text-white"
-              style={{ width: isL1 ? 16 : 13, height: isL1 ? 16 : 13 }}
+              style={{
+                width: (isL1 ? 14 : 11) * cardScale,
+                height: (isL1 ? 14 : 11) * cardScale,
+              }}
               strokeWidth={2}
             />
           </div>
           <span
             className="font-bold leading-tight truncate"
             style={{
-              fontSize: isL1 ? 13 : 11,
+              fontSize: Math.max(9, (isL1 ? 12 : 10) * cardScale),
               color: "var(--foreground)",
             }}
           >
@@ -334,12 +341,12 @@ function NodeCard({
           </span>
         </div>
 
-        {/* Description (L1 only, on hover show full; otherwise truncated) */}
-        {isL1 && (
+        {/* Description (L1 only) */}
+        {isL1 && cardScale > 0.6 && (
           <p
             className="leading-snug line-clamp-2"
             style={{
-              fontSize: 11,
+              fontSize: Math.max(8, 10 * cardScale),
               color: "var(--muted-foreground)",
               marginTop: 2,
             }}
@@ -354,35 +361,35 @@ function NodeCard({
             e.stopPropagation();
             router.push(node.actionHref || node.href);
           }}
-          className="mt-1.5 flex items-center gap-1 text-white font-semibold rounded-full transition-all duration-200 hover:brightness-110 active:scale-95"
+          className="mt-1 flex items-center gap-0.5 text-white font-semibold rounded-full hover:brightness-110 active:scale-95"
           style={{
-            fontSize: isL1 ? 10 : 9,
-            padding: isL1 ? "3px 8px" : "2px 6px",
+            fontSize: Math.max(8, (isL1 ? 10 : 9) * cardScale),
+            padding: `${2 * cardScale}px ${6 * cardScale}px`,
             background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
           }}
         >
-          <ChevronRight style={{ width: isL1 ? 10 : 8, height: isL1 ? 10 : 8 }} />
+          <ChevronRight style={{ width: 8 * cardScale, height: 8 * cardScale }} />
           {t(node.actionKey)}
         </button>
       </div>
 
       {/* Create New badge */}
-      {node.canCreate && !isGuest && node.createHref && (
+      {node.canCreate && !isGuest && node.createHref && cardScale > 0.5 && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             router.push(node.createHref!);
           }}
-          className="absolute -bottom-2 -right-2 flex items-center gap-0.5 px-2 py-0.5 rounded-full text-white font-semibold shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 z-20"
+          className="absolute -bottom-2 -right-2 flex items-center gap-0.5 px-2 py-0.5 rounded-full text-white font-semibold shadow-lg hover:scale-105 active:scale-95 z-20"
           style={{
-            fontSize: 9,
+            fontSize: 9 * cardScale,
             background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
             boxShadow: `0 2px 8px ${node.glow}`,
             opacity: visible ? 1 : 0,
           }}
           title={t("tree.createNew")}
         >
-          <Plus style={{ width: 9, height: 9 }} />
+          <Plus style={{ width: 9 * cardScale, height: 9 * cardScale }} />
           {t("tree.createNew")}
         </button>
       )}
@@ -391,7 +398,7 @@ function NodeCard({
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Main PangeaTree component
+   Main PangeaTree component — true 3D
    ═══════════════════════════════════════════════════════════ */
 
 interface PangeaTreeProps {
@@ -405,15 +412,18 @@ export default function PangeaTree({ isGuest }: PangeaTreeProps) {
   // State
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [depth, setDepth] = useState(1);         // 1 = L1 only, 2 = L1+L2
-  const [rotX, setRotX] = useState(0);            // 3D rotation X (deg)
-  const [rotY, setRotY] = useState(0);            // 3D rotation Y (deg)
-  const [zoom, setZoom] = useState(1);            // zoom scale
+  const [depth, setDepth] = useState(1);
+  const [rotX, setRotX] = useState(-10);       // slight pitch for perspective feel
+  const [rotY, setRotY] = useState(0);
+  const [zoom, setZoom] = useState(1);
   const [dragging, setDragging] = useState(false);
   const lastPointer = useRef({ x: 0, y: 0 });
 
-  // Responsive sizing
-  const [sceneSize, setSceneSize] = useState({ w: 800, h: 800 });
+  // Responsive scene size
+  const [sceneW, setSceneW] = useState(800);
+  const [sceneH, setSceneH] = useState(700);
+
+  const PERSPECTIVE = 800;
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 100);
@@ -423,27 +433,52 @@ export default function PangeaTree({ isGuest }: PangeaTreeProps) {
   useEffect(() => {
     function handleResize() {
       const w = Math.min(window.innerWidth - 32, 900);
-      const h = Math.min(w, 800);
-      setSceneSize({ w, h });
+      setSceneW(w);
+      setSceneH(Math.min(w * 0.85, 750));
     }
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Layout computation
-  const layout = useMemo(() => {
-    const cx = sceneSize.w / 2;
-    const cy = sceneSize.h / 2;
-    const r1 = Math.min(sceneSize.w, sceneSize.h) * 0.3;
-    const r2 = Math.min(sceneSize.w, sceneSize.h) * 0.47;
-    return computeLayout(TREE, depth, cx, cy, r1, r2);
-  }, [depth, sceneSize]);
+  // 3D layout
+  const r1 = Math.min(sceneW, sceneH) * 0.28 * zoom;
+  const r2 = Math.min(sceneW, sceneH) * 0.46 * zoom;
 
-  /* ── Drag handlers (mouse + touch) ── */
+  const layout3D = useMemo(
+    () => computeLayout3D(TREE, depth, r1, r2),
+    [depth, r1, r2],
+  );
 
+  // Build a map nodeId → LayoutNode3D for branch lookups
+  const nodeMap = useMemo(() => {
+    const map: Record<string, LayoutNode3D> = {};
+    layout3D.forEach(ln => { map[ln.node.id] = ln; });
+    return map;
+  }, [layout3D]);
+
+  // Project all nodes + globe center
+  const rxRad = rotX * DEG;
+  const ryRad = rotY * DEG;
+  const cx = sceneW / 2;
+  const cy = sceneH / 2;
+
+  const projected = useMemo(() => {
+    return layout3D.map(ln => {
+      const rotated = rotate3D(ln.pos, rxRad, ryRad);
+      const proj = project(rotated, PERSPECTIVE, cx, cy);
+      return { ln, ...proj };
+    });
+  }, [layout3D, rxRad, ryRad, cx, cy]);
+
+  // Globe center projection (always at origin)
+  const globeProj = useMemo(() => {
+    const rotated = rotate3D({ x: 0, y: 0, z: 0 }, rxRad, ryRad);
+    return project(rotated, PERSPECTIVE, cx, cy);
+  }, [rxRad, ryRad, cx, cy]);
+
+  /* ── Drag handlers ── */
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    // Don't start drag on interactive elements
     if ((e.target as HTMLElement).closest("button, a")) return;
     setDragging(true);
     lastPointer.current = { x: e.clientX, y: e.clientY };
@@ -455,90 +490,62 @@ export default function PangeaTree({ isGuest }: PangeaTreeProps) {
     const dx = e.clientX - lastPointer.current.x;
     const dy = e.clientY - lastPointer.current.y;
     lastPointer.current = { x: e.clientX, y: e.clientY };
-    setRotY(prev => prev + dx * 0.3);
-    setRotX(prev => Math.max(-40, Math.min(40, prev - dy * 0.3)));
+    setRotY(prev => prev + dx * 0.4);
+    setRotX(prev => Math.max(-60, Math.min(60, prev - dy * 0.4)));
   }, [dragging]);
 
-  const onPointerUp = useCallback(() => {
-    setDragging(false);
-  }, []);
+  const onPointerUp = useCallback(() => setDragging(false), []);
 
   /* ── Scroll zoom ── */
   const onWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    setZoom(prev => Math.max(0.5, Math.min(1.8, prev - e.deltaY * 0.001)));
+    setZoom(prev => Math.max(0.5, Math.min(2, prev - e.deltaY * 0.001)));
   }, []);
 
-  /* ── Reset view ── */
   const resetView = useCallback(() => {
-    setRotX(0);
+    setRotX(-10);
     setRotY(0);
     setZoom(1);
   }, []);
 
-  const cx = sceneSize.w / 2;
-  const cy = sceneSize.h / 2;
+  /* ── Sort by z-depth for correct layering ── */
+  const sortedProjected = useMemo(
+    () => [...projected].sort((a, b) => a.scale - b.scale),
+    [projected],
+  );
 
   return (
     <div className="relative w-full flex flex-col items-center">
-      {/* ── Controls bar ── */}
-      <div className="flex items-center gap-2 mb-4 z-30 relative">
-        {/* Depth controls */}
+      {/* ── Controls ── */}
+      <div className="flex items-center gap-2 mb-3 z-30 relative">
         <div className="flex items-center gap-1 rounded-full px-3 py-1.5 border"
-          style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
-        >
+          style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
           <Layers className="w-3.5 h-3.5" style={{ color: "var(--muted-foreground)" }} />
-          <button
-            onClick={() => setDepth(d => Math.max(1, d - 1))}
-            disabled={depth <= 1}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-colors disabled:opacity-30"
-            style={{ color: "var(--foreground)" }}
-            aria-label={t("tree.lessDepth")}
-          >
-            −
-          </button>
-          <span className="text-xs font-medium px-1" style={{ color: "var(--foreground)" }}>
-            {depth}
-          </span>
-          <button
-            onClick={() => setDepth(d => Math.min(2, d + 1))}
-            disabled={depth >= 2}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-colors disabled:opacity-30"
-            style={{ color: "var(--foreground)" }}
-            aria-label={t("tree.moreDepth")}
-          >
-            +
-          </button>
+          <button onClick={() => setDepth(d => Math.max(1, d - 1))} disabled={depth <= 1}
+            className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold disabled:opacity-30"
+            style={{ color: "var(--foreground)" }} aria-label={t("tree.lessDepth")}>−</button>
+          <span className="text-xs font-medium px-1" style={{ color: "var(--foreground)" }}>{depth}</span>
+          <button onClick={() => setDepth(d => Math.min(2, d + 1))} disabled={depth >= 2}
+            className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold disabled:opacity-30"
+            style={{ color: "var(--foreground)" }} aria-label={t("tree.moreDepth")}>+</button>
         </div>
 
-        {/* Zoom controls */}
         <div className="flex items-center gap-1 rounded-full px-2 py-1.5 border"
-          style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
-        >
-          <button
-            onClick={() => setZoom(z => Math.max(0.5, z - 0.15))}
-            className="w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:bg-black/5"
-            aria-label="Zoom out"
-          >
+          style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
+          <button onClick={() => setZoom(z => Math.max(0.5, z - 0.15))}
+            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5" aria-label="Zoom out">
             <ZoomOut className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />
           </button>
-          <button
-            onClick={() => setZoom(z => Math.min(1.8, z + 0.15))}
-            className="w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:bg-black/5"
-            aria-label="Zoom in"
-          >
+          <button onClick={() => setZoom(z => Math.min(2, z + 0.15))}
+            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5" aria-label="Zoom in">
             <ZoomIn className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />
           </button>
         </div>
 
-        {/* Reset */}
-        <button
-          onClick={resetView}
-          className="w-8 h-8 rounded-full flex items-center justify-center border transition-colors hover:bg-black/5"
+        <button onClick={resetView}
+          className="w-8 h-8 rounded-full flex items-center justify-center border hover:bg-black/5"
           style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
-          aria-label={t("tree.resetView")}
-          title={t("tree.resetView")}
-        >
+          aria-label={t("tree.resetView")} title={t("tree.resetView")}>
           <RotateCcw className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />
         </button>
       </div>
@@ -546,11 +553,10 @@ export default function PangeaTree({ isGuest }: PangeaTreeProps) {
       {/* ── 3D Scene ── */}
       <div
         ref={containerRef}
-        className="relative select-none"
+        className="relative select-none overflow-hidden"
         style={{
-          width: sceneSize.w,
-          height: sceneSize.h,
-          perspective: "1200px",
+          width: sceneW,
+          height: sceneH,
           cursor: dragging ? "grabbing" : "grab",
         }}
         onPointerDown={onPointerDown}
@@ -559,114 +565,111 @@ export default function PangeaTree({ isGuest }: PangeaTreeProps) {
         onPointerCancel={onPointerUp}
         onWheel={onWheel}
       >
+        {/* ── SVG branches (projected 2D) ── */}
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox={`0 0 ${sceneW} ${sceneH}`}
+          style={{ zIndex: 1 }}
+        >
+          {projected.map(({ ln, sx, sy, scale }) => {
+            // Branch from parent (or globe center) to this node
+            let psx: number, psy: number;
+            if (ln.parentId && nodeMap[ln.parentId]) {
+              const parent = nodeMap[ln.parentId];
+              const pRot = rotate3D(parent.pos, rxRad, ryRad);
+              const pProj = project(pRot, PERSPECTIVE, cx, cy);
+              psx = pProj.sx;
+              psy = pProj.sy;
+            } else if (ln.level === 1) {
+              psx = globeProj.sx;
+              psy = globeProj.sy;
+            } else {
+              return null;
+            }
+
+            const isActive =
+              hovered === ln.node.id ||
+              (ln.parentId && hovered === ln.parentId) ||
+              (ln.level === 1 && TREE.find(b => b.id === ln.node.id)?.children?.some(c => c.id === hovered));
+
+            // Quadratic bezier for gentle curve
+            const mx = (psx + sx) / 2;
+            const my = (psy + sy) / 2 - 10;
+            const d = `M ${psx} ${psy} Q ${mx} ${my}, ${sx} ${sy}`;
+
+            return (
+              <path
+                key={`br-${ln.node.id}`}
+                d={d}
+                fill="none"
+                stroke={ln.node.color}
+                strokeWidth={isActive ? 2.5 : 1.5}
+                strokeLinecap="round"
+                opacity={visible ? (isActive ? 0.8 : 0.25) : 0}
+                style={{
+                  transition: "opacity 0.3s, stroke-width 0.2s",
+                  filter: isActive ? `drop-shadow(0 0 4px ${ln.node.color})` : "none",
+                }}
+              />
+            );
+          })}
+        </svg>
+
+        {/* ── Globe (projected center) ── */}
         <div
-          className="absolute inset-0"
+          className="absolute flex flex-col items-center"
           style={{
-            transformStyle: "preserve-3d",
-            transform: `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(${zoom})`,
-            transition: dragging ? "none" : "transform 0.3s ease-out",
+            left: globeProj.sx - 52,
+            top: globeProj.sy - 52,
+            width: 104,
+            zIndex: Math.round(globeProj.scale * 100) + 1,
+            opacity: visible ? 1 : 0,
+            transform: visible ? `scale(${globeProj.scale})` : `scale(${globeProj.scale * 0.5})`,
+            transition: "opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
           }}
         >
-          {/* ── SVG layer for branches ── */}
-          <svg
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            viewBox={`0 0 ${sceneSize.w} ${sceneSize.h}`}
-            style={{ zIndex: 1 }}
-          >
-            {layout.map((ln) => {
-              if (ln.parentX === undefined || ln.parentY === undefined) return null;
-              return (
-                <Branch
-                  key={`branch-${ln.node.id}`}
-                  x1={ln.parentX}
-                  y1={ln.parentY}
-                  x2={ln.x}
-                  y2={ln.y}
-                  color={ln.node.color}
-                  active={hovered === ln.node.id ||
-                    (ln.level === 2 && TREE.some(b => b.id === hovered && b.children?.some(c => c.id === ln.node.id))) ||
-                    (ln.level === 1 && TREE.find(b => b.id === ln.node.id)?.children?.some(c => c.id === hovered) === true)
-                  }
-                  visible={visible}
-                  level={ln.level}
-                />
-              );
-            })}
-          </svg>
-
-          {/* ── Central Globe ── */}
+          <div className="absolute rounded-full" style={{
+            width: 104, height: 104,
+            background: "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)",
+            animation: visible ? "globePulse 3s ease-in-out infinite" : "none",
+          }} />
           <div
-            className="absolute flex flex-col items-center"
+            className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center border-2"
             style={{
-              left: cx - 52,
-              top: cy - 52,
-              width: 104,
-              zIndex: 15,
-              opacity: visible ? 1 : 0,
-              transform: visible ? "scale(1)" : "scale(0.5)",
-              transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              background: "linear-gradient(135deg, #2563eb, #1d4ed8, #1e40af)",
+              borderColor: "rgba(59,130,246,0.3)",
+              boxShadow: "0 0 40px rgba(37,99,235,0.3), 0 8px 32px rgba(0,0,0,0.2)",
             }}
           >
-            {/* Pulsing aura */}
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: 104,
-                height: 104,
-                background: "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)",
-                animation: visible ? "globePulse 3s ease-in-out infinite" : "none",
-              }}
-            />
-            {/* Globe circle */}
-            <div
-              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center border-2"
-              style={{
-                background: "linear-gradient(135deg, #2563eb, #1d4ed8, #1e40af)",
-                borderColor: "rgba(59,130,246,0.3)",
-                boxShadow: "0 0 40px rgba(37,99,235,0.3), 0 8px 32px rgba(0,0,0,0.2)",
-              }}
-            >
-              <Globe className="w-10 h-10 sm:w-12 sm:h-12 text-white" strokeWidth={1.5} />
-            </div>
-            {/* Title */}
-            <h1
-              className="text-lg sm:text-xl font-extrabold tracking-tight mt-1"
-              style={{ color: "var(--foreground)" }}
-            >
-              PANGEA
-            </h1>
-            <p className="text-[10px] sm:text-xs text-center max-w-[160px]"
-              style={{ color: "var(--muted-foreground)" }}
-            >
-              {t("tree.subtitle")}
-            </p>
-            {!isGuest && (
-              <div
-                className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full"
-                style={{
-                  fontSize: 9,
-                  backgroundColor: "color-mix(in srgb, var(--primary) 10%, transparent)",
-                  color: "var(--primary)",
-                }}
-              >
-                <Sparkles style={{ width: 9, height: 9 }} />
-                {t("tree.welcomeBack")}
-              </div>
-            )}
+            <Globe className="w-10 h-10 sm:w-12 sm:h-12 text-white" strokeWidth={1.5} />
           </div>
-
-          {/* ── Node cards ── */}
-          {layout.map((ln) => (
-            <NodeCard
-              key={ln.node.id}
-              layoutNode={ln}
-              hovered={hovered}
-              onHover={setHovered}
-              isGuest={isGuest}
-              visible={visible}
-            />
-          ))}
+          <h1 className="text-base sm:text-lg font-extrabold tracking-tight mt-1"
+            style={{ color: "var(--foreground)" }}>PANGEA</h1>
+          <p className="text-[9px] sm:text-[10px] text-center max-w-[140px]"
+            style={{ color: "var(--muted-foreground)" }}>{t("tree.subtitle")}</p>
+          {!isGuest && (
+            <div className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full"
+              style={{ fontSize: 8, backgroundColor: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}>
+              <Sparkles style={{ width: 8, height: 8 }} />
+              {t("tree.welcomeBack")}
+            </div>
+          )}
         </div>
+
+        {/* ── Node cards (sorted by z-depth, furthest first) ── */}
+        {sortedProjected.map(({ ln, sx, sy, scale }) => (
+          <NodeCard3D
+            key={ln.node.id}
+            ln={ln}
+            sx={sx}
+            sy={sy}
+            depthScale={scale}
+            hovered={hovered}
+            onHover={setHovered}
+            isGuest={isGuest}
+            visible={visible}
+          />
+        ))}
       </div>
 
       {/* Drag hint */}
@@ -674,7 +677,6 @@ export default function PangeaTree({ isGuest }: PangeaTreeProps) {
         {t("tree.dragHint")}
       </p>
 
-      {/* ── Animations ── */}
       <style jsx global>{`
         @keyframes globePulse {
           0%, 100% { transform: scale(1); opacity: 0.12; }
