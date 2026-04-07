@@ -1,5 +1,3 @@
-import { logger } from "@/lib/logger";
-
 /**
  * Pangea Push Notifications — Client-side utilities
  *
@@ -59,7 +57,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
     });
     return registration;
   } catch (error) {
-    logger.error('[Push] Service Worker registration failed:', error);
+    console.error('[Push] Service Worker registration failed:', error);
     return null;
   }
 }
@@ -84,7 +82,7 @@ export async function getExistingSubscription(): Promise<PushSubscription | null
  */
 export async function subscribeToPush(userId: string): Promise<PushSubscription | null> {
   if (!isPushSupported() || !VAPID_PUBLIC_KEY) {
-    logger.warn('[Push] Push not supported or VAPID key missing');
+    console.warn('[Push] Push not supported or VAPID key missing');
     return null;
   }
 
@@ -111,7 +109,7 @@ export async function subscribeToPush(userId: string): Promise<PushSubscription 
 
     return subscription;
   } catch (error) {
-    logger.error('[Push] Subscription failed:', error);
+    console.error('[Push] Subscription failed:', error);
     return null;
   }
 }
@@ -131,7 +129,7 @@ export async function unsubscribeFromPush(userId: string): Promise<boolean> {
     await subscription.unsubscribe();
     return true;
   } catch (error) {
-    logger.error('[Push] Unsubscribe failed:', error);
+    console.error('[Push] Unsubscribe failed:', error);
     return false;
   }
 }
@@ -168,6 +166,6 @@ async function removeSubscription(userId: string, subscription: PushSubscription
   });
 
   if (!response.ok) {
-    logger.warn('[Push] Failed to remove subscription from server');
+    console.warn('[Push] Failed to remove subscription from server');
   }
 }

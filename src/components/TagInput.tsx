@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Hash, X, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
 
 interface Tag {
   id: string;
@@ -42,13 +41,13 @@ export default function TagInput({
           .order("usage_count", { ascending: false });
 
         if (error) {
-          logger.error("Error fetching tags:", error);
+          console.error("Error fetching tags:", error);
           setAllTags([]);
         } else {
           setAllTags(data || []);
         }
       } catch (err) {
-        logger.error("Error fetching tags:", err);
+        console.error("Error fetching tags:", err);
         setAllTags([]);
       } finally {
         setLoading(false);
@@ -124,7 +123,7 @@ export default function TagInput({
         .single();
 
       if (error) {
-        logger.error("Error creating tag:", error);
+        console.error("Error creating tag:", error);
         return;
       }
 
@@ -135,7 +134,7 @@ export default function TagInput({
         setInputValue("");
       }
     } catch (err) {
-      logger.error("Error creating tag:", err);
+      console.error("Error creating tag:", err);
     }
   };
 

@@ -7,7 +7,6 @@ import FollowButton from "@/components/FollowButton";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import TranslatedContent from "@/components/TranslatedContent";
-import ProposalStatusBadge from "@/components/ProposalStatusBadge";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -268,7 +267,9 @@ export default async function CitizenProfilePage({ params }: Props) {
                         </p>
                         <p className="text-xs text-fg-muted truncate">{formatDate(p.created_at)}</p>
                       </div>
-                      <ProposalStatusBadge status={p.status} />
+                      <span className={statusConfig[p.status] || "status-draft"}>
+                        {p.status === "active" ? "Active Vote" : p.status === "closed" ? "Concluded" : "Community Review"}
+                      </span>
                     </Link>
                   ))}
                 </div>

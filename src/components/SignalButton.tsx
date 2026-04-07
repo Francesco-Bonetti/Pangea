@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Flame, Loader2, CheckCircle2 } from "lucide-react";
-import { useLanguage } from "@/components/language-provider";
 
 export interface SignalButtonProps {
   proposalId: string;
@@ -25,7 +24,6 @@ export default function SignalButton({
   const [hasSignaled, setHasSignaled] = useState(initialHasSignaled);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useLanguage();
   const supabase = createClient();
 
   const progress = Math.min((signalCount / threshold) * 100, 100);
@@ -79,7 +77,7 @@ export default function SignalButton({
       {/* Progress bar toward threshold */}
       <div>
         <div className="flex justify-between text-xs text-fg-muted mb-1.5">
-          <span>{t("proposals.supportSignals")}</span>
+          <span>Support signals</span>
           <span className="font-medium">
             {signalCount} / {threshold}
           </span>
@@ -92,8 +90,8 @@ export default function SignalButton({
         </div>
         <p className="text-xs text-fg-muted mt-1">
           {signalCount >= threshold
-            ? t("proposals.thresholdReached")
-            : `${threshold - signalCount} ${t("proposals.signalsNeeded")}`}
+            ? "Threshold reached — awaiting promotion"
+            : `${threshold - signalCount} signals needed for the deliberation phase`}
         </p>
       </div>
 
@@ -115,10 +113,10 @@ export default function SignalButton({
           <Flame className="w-4 h-4" />
         )}
         {loading
-          ? t("proposals.updating")
+          ? "Updating..."
           : hasSignaled
-          ? t("proposals.signalSentWithdraw")
-          : t("proposals.supportThisProposal")}
+          ? "Signal sent — Withdraw"
+          : "Support this proposal"}
       </button>
 
       {error && (

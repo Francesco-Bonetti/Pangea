@@ -339,10 +339,10 @@ export default function VotingBooth({
         open={confirmDialogOpen}
         onClose={cancelVote}
         onConfirm={confirmVote}
-        title={t("proposals.irreversibleAction")}
-        description={`${t("proposals.irreversibleDesc")}${
+        title="Irreversible Action"
+        description={`You are about to permanently record your vote${
           pendingVoteType ? ` (${voteTypeLabels[pendingVoteType]})` : ""
-        }`}
+        } on Pangea's democratic platform. This action is recorded on the blockchain and cannot be undone. Do you wish to proceed?`}
         confirmLabel={t("proposals.confirmMyVote")}
         cancelLabel={t("common.goBack")}
         confirmVariant="primary"
@@ -353,12 +353,12 @@ export default function VotingBooth({
       <div className="card p-5 mb-4">
         <h2 className="text-base font-semibold text-fg mb-1 flex items-center gap-2">
           <Shield className="w-4 h-4 text-fg-primary" />
-          {isCuration ? t("proposals.communityReview") : t("proposals.votingBooth")}
+          {isCuration ? "Community Review" : "Voting Booth"}
         </h2>
         <p className="text-xs text-fg-muted">
           {isCuration
-            ? t("proposals.underCommunityReview")
-            : t("proposals.votesAnonymous")}
+            ? "This proposal is under community review"
+            : "Votes are anonymous. You can change your vote while the proposal is active."}
         </p>
       </div>
 
@@ -368,9 +368,10 @@ export default function VotingBooth({
           <div className="flex gap-3">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
             <div className="text-xs" style={{ color: "#d97706" }}>
-              <p className="font-medium mb-1">{t("proposals.activeDelegation")}{categoryName ? ` — "${categoryName}"` : ""}</p>
+              <p className="font-medium mb-1">Active delegation{categoryName ? ` in "${categoryName}"` : ""}</p>
               <p className="opacity-80">
-                {t("proposals.delegationOverride")}
+                By voting directly, your personal vote will take precedence
+                over the delegation assigned for this category.
               </p>
             </div>
           </div>
@@ -382,12 +383,12 @@ export default function VotingBooth({
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-fg">
-              {t("proposals.liveResults")}
+              Live Results
             </h3>
             <div className="flex items-center gap-1 text-xs text-fg-muted">
               <Users className="w-3.5 h-3.5" />
               <span>
-                {totalVotes} {totalVotes === 1 ? t("laws.vote") : t("laws.votes")}
+                {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
               </span>
             </div>
           </div>
@@ -422,20 +423,20 @@ export default function VotingBooth({
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-fg">
-              {t("proposals.results")}
+              Results
             </h3>
             <div className="flex items-center gap-1 text-xs text-fg-muted">
               <Users className="w-3.5 h-3.5" />
               <span>
-                {legacyResults.yea + legacyResults.nay + legacyResults.abstain} {t("laws.votes")}
+                {legacyResults.yea + legacyResults.nay + legacyResults.abstain} votes
               </span>
             </div>
           </div>
           <div className="space-y-3">
             {[
-              { label: t("laws.inFavor"), count: legacyResults.yea, colorVar: "var(--success)" },
-              { label: t("laws.against"), count: legacyResults.nay, colorVar: "var(--destructive)" },
-              { label: t("laws.abstain"), count: legacyResults.abstain, colorVar: "var(--muted-foreground)" },
+              { label: "In Favor", count: legacyResults.yea, colorVar: "var(--success)" },
+              { label: "Against", count: legacyResults.nay, colorVar: "var(--destructive)" },
+              { label: "Abstain", count: legacyResults.abstain, colorVar: "var(--muted-foreground)" },
             ].map((item) => {
               const total = legacyResults.yea + legacyResults.nay + legacyResults.abstain;
               const pct = total > 0 ? (item.count / total) * 100 : 0;
@@ -465,10 +466,11 @@ export default function VotingBooth({
           <div className="text-center py-4">
             <CheckCircle2 className="w-10 h-10 text-fg-success mx-auto mb-3" />
             <p className="text-fg font-semibold mb-1">
-              {t("proposals.voteRecorded")}
+              Vote recorded
             </p>
             <p className="text-xs text-fg-muted leading-relaxed">
-              {t("proposals.voteRecordedDesc")}
+              Your allocation has been securely and anonymously recorded.
+              GDPR compliant.
             </p>
             {isActive && (
               <button
@@ -481,7 +483,7 @@ export default function VotingBooth({
                 ) : (
                   <RotateCcw className="w-4 h-4" />
                 )}
-                {revoking ? t("proposals.revoking") : t("proposals.changeVote")}
+                {revoking ? "Revoking..." : "Change vote"}
               </button>
             )}
           </div>
@@ -491,9 +493,9 @@ export default function VotingBooth({
         {proposal.status === "closed" && !hasVoted && (
           <div className="text-center py-4">
             <Lock className="w-10 h-10 text-fg-muted mx-auto mb-3" />
-            <p className="text-fg-muted font-medium mb-1">{t("proposals.voteConcluded")}</p>
+            <p className="text-fg-muted font-medium mb-1">Vote concluded</p>
             <p className="text-xs text-fg-muted">
-              {t("proposals.votingEnded")}
+              Voting on this proposal has ended.
             </p>
           </div>
         )}
@@ -502,9 +504,10 @@ export default function VotingBooth({
         {isCuration && (
           <div className="text-center py-4">
             <Flame className="w-10 h-10 mx-auto mb-3" style={{ color: "#d97706" }} />
-            <p className="text-fg font-medium mb-1">{t("proposals.communityReview")}</p>
+            <p className="text-fg font-medium mb-1">Community Review</p>
             <p className="text-xs text-fg-muted leading-relaxed">
-              {t("proposals.communityReviewDesc")}
+              This proposal needs to reach the signal threshold before
+              moving to the voting phase. Support it with a signal.
             </p>
           </div>
         )}
@@ -514,14 +517,14 @@ export default function VotingBooth({
           <div className="text-center py-4">
             <LogIn className="w-10 h-10 text-fg-primary mx-auto mb-3" />
             <p className="text-fg font-semibold mb-1">
-              {t("proposals.wantToVote")}
+              Want to vote?
             </p>
             <p className="text-xs text-fg-muted leading-relaxed mb-4">
-              {t("proposals.signUpToVote")}
+              Sign up to participate in the vote and make your voice heard.
             </p>
             <Link href="/auth" className="btn-primary inline-flex items-center gap-2 text-sm">
               <LogIn className="w-4 h-4" />
-              {t("proposals.signUpToVoteBtn")}
+              Sign up to vote
             </Link>
           </div>
         )}
@@ -532,11 +535,12 @@ export default function VotingBooth({
             <div className="flex items-center gap-2 mb-4">
               <Sliders className="w-4 h-4 text-fg-primary" />
               <p className="text-sm text-fg font-medium">
-                {t("proposals.distributeVote")}
+                Distribute your vote
               </p>
             </div>
             <p className="text-xs text-fg-muted mb-5">
-              {t("proposals.distributeVoteDesc")}
+              Allocate 100% of your decision-making power among the options. You can
+              concentrate it all on one or distribute proportionally.
             </p>
 
             <div className="space-y-4">
@@ -587,13 +591,13 @@ export default function VotingBooth({
                 isValidAllocation ? "text-fg-success" : "text-fg-danger"
               }`}
             >
-              <span className="text-sm font-medium">{t("proposals.totalAllocated")}</span>
+              <span className="text-sm font-medium">Total allocated</span>
               <span className="text-lg font-bold">{totalAllocated}%</span>
             </div>
 
             {!isValidAllocation && (
               <p className="text-xs text-fg-danger mt-1">
-                {t("proposals.totalMustBe100")}
+                The total must be exactly 100% to confirm your vote.
               </p>
             )}
 
@@ -604,7 +608,7 @@ export default function VotingBooth({
               className="w-full mt-4 btn-primary flex items-center justify-center gap-2 py-3 min-h-[44px]"
             >
               <CheckCircle2 className="w-4 h-4" />
-              {t("proposals.confirmAllocation")}
+              Confirm allocation
             </button>
           </>
         )}
@@ -615,11 +619,12 @@ export default function VotingBooth({
             <div className="flex items-center gap-2 mb-4">
               <ThumbsUp className="w-4 h-4 text-fg-primary" />
               <p className="text-sm text-fg font-medium">
-                {t("proposals.castYourVote")}
+                Cast your vote
               </p>
             </div>
             <p className="text-xs text-fg-muted mb-5">
-              {t("proposals.noOptionsLegacy")}
+              No voting options have been defined. You can still
+              participate by voting In Favor, Against, or Abstain.
             </p>
 
             {/* Positive friction: opens AlertDialog instead of voting directly */}
@@ -632,7 +637,7 @@ export default function VotingBooth({
                   transition-all duration-200 hover:opacity-80 active:scale-95"
               >
                 <ThumbsUp className="w-4 h-4" />
-                <span className="text-xs">{t("laws.inFavor")}</span>
+                <span className="text-xs">In Favor</span>
               </button>
 
               <button
@@ -643,7 +648,7 @@ export default function VotingBooth({
                   transition-all duration-200 hover:opacity-80 active:scale-95"
               >
                 <ThumbsDown className="w-4 h-4" />
-                <span className="text-xs">{t("laws.against")}</span>
+                <span className="text-xs">Against</span>
               </button>
 
               <button
@@ -654,7 +659,7 @@ export default function VotingBooth({
                   transition-all duration-200 hover:opacity-80 active:scale-95"
               >
                 <MinusCircle className="w-4 h-4" />
-                <span className="text-xs">{t("laws.abstain")}</span>
+                <span className="text-xs">Abstain</span>
               </button>
             </div>
           </div>
@@ -672,7 +677,8 @@ export default function VotingBooth({
           <div className="flex items-start gap-2">
             <Shield className="w-3.5 h-3.5 text-fg-muted mt-0.5 shrink-0" />
             <p className="text-xs text-fg-muted leading-relaxed">
-              {t("proposals.gdprFooter")}
+              Voting preferences are never accessible to third parties.
+              Privacy by Design — GDPR Art. 9.
             </p>
           </div>
         </div>

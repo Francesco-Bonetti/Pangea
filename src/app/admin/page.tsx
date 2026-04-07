@@ -93,7 +93,13 @@ export default function AdminPage() {
   const [totalCounts, setTotalCounts] = useState({ users: 0, proposals: 0, laws: 0, openReports: 0 });
 
   // UI State
-  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity" | "forum">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity" | "forum">(() => {
+    if (typeof window === "undefined") return "users";
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const validTabs = ["users", "proposals", "laws", "reports", "stats", "integrity", "forum"] as const;
+    return (validTabs as readonly string[]).includes(tab ?? "") ? (tab as typeof validTabs[number]) : "users";
+  });
   const [integrityStats, setIntegrityStats] = useState<Record<string, unknown> | null>(null);
   const [hashingAll, setHashingAll] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);

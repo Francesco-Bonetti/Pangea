@@ -19,7 +19,6 @@ interface LawNode {
   is_active: boolean;
   order_index: number;
   updated_at: string | null;
-  jurisdiction_id: string | null;
   children?: LawNode[];
 }
 

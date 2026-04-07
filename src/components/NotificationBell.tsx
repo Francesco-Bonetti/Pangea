@@ -5,7 +5,6 @@ import { Bell, MessageCircle, AtSign, ArrowBigUp, Pin, Lock, Shield } from "luci
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/components/language-provider";
-import { logger } from "@/lib/logger";
 
 interface NotificationRow {
   id: string;
@@ -91,7 +90,7 @@ export default function NotificationBell() {
       if (error) throw error;
       setUnreadCount(data || 0);
     } catch (err) {
-      logger.error("Failed to fetch unread count:", err);
+      console.error("Failed to fetch unread count:", err);
     }
   }
 
@@ -107,7 +106,7 @@ export default function NotificationBell() {
       if (error) throw error;
       setNotifications((data as NotificationRow[]) || []);
     } catch (err) {
-      logger.error("Failed to fetch notifications:", err);
+      console.error("Failed to fetch notifications:", err);
     } finally {
       setLoading(false);
     }
@@ -126,7 +125,7 @@ export default function NotificationBell() {
       setUnreadCount(0);
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     } catch (err) {
-      logger.error("Failed to mark all as read:", err);
+      console.error("Failed to mark all as read:", err);
     }
   }
 
@@ -149,7 +148,7 @@ export default function NotificationBell() {
         router.push(notification.link);
       }
     } catch (err) {
-      logger.error("Failed to handle notification click:", err);
+      console.error("Failed to handle notification click:", err);
     }
   }
 

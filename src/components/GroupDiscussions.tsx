@@ -8,7 +8,6 @@ import GroupDiscussionCard from "@/components/GroupDiscussionCard";
 import MentionInput, { extractMentions } from "@/components/MentionInput";
 import { useLanguage } from "@/components/language-provider";
 import { triggerMultiFieldTranslation, type ContentType } from "@/lib/translate";
-import { logger } from "@/lib/logger";
 
 interface GroupDiscussionsProps {
   groupId: string;
@@ -53,7 +52,7 @@ export default function GroupDiscussions({ groupId, userId, isMember, isAdmin, g
 
     const { data, error: err } = await query;
     if (err) {
-      logger.error("Error loading group discussions:", err);
+      console.error("Error loading group discussions:", err);
     } else if (data) {
       // Fetch author profiles separately
       const authorIds = Array.from(new Set(data.map((d: GroupForumPost) => d.author_id)));

@@ -245,7 +245,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
           {proposal.status === "curation" ? (
             <>
               <Flame className="w-3 h-3 shrink-0" />
-              <span className="truncate">{proposal.signal_count ?? 0} {(proposal.signal_count ?? 0) === 1 ? t("laws.signal") : t("laws.signals").toLowerCase()}</span>
+              <span className="truncate">{proposal.signal_count ?? 0} {t("laws.signals").toLowerCase()}</span>
             </>
           ) : (
             <>

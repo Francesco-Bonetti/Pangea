@@ -10,7 +10,6 @@ import TranslatedContent from "@/components/TranslatedContent";
 import UidBadge from "@/components/UidBadge";
 import { stripMentions } from "@/components/MentionInput";
 import { useLanguage } from "@/components/language-provider";
-import { logger } from "@/lib/logger";
 
 interface GroupDiscussionCardProps {
   post: GroupForumPost;
@@ -81,7 +80,7 @@ export default function GroupDiscussionCard({
         setUserVote(voteType);
       }
     } catch (err) {
-      logger.error("Vote error:", err);
+      console.error("Vote error:", err);
     } finally {
       setIsVoting(false);
     }

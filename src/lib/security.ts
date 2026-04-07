@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/client";
-import { logger } from "@/lib/logger";
 
 /**
  * Security utilities for Pangea platform
@@ -83,7 +82,7 @@ export async function logSecurityEvent(
     });
   } catch {
     // Silently fail — audit logging should never break the app
-    logger.warn("Failed to log security event:", action);
+    console.warn("Failed to log security event:", action);
   }
 }
 

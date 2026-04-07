@@ -8,7 +8,6 @@ import type { DiscussionChannel, Tag } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 import { triggerMultiFieldTranslation } from "@/lib/translate";
 import MentionInput, { extractMentions } from "@/components/MentionInput";
-import { logger } from "@/lib/logger";
 
 interface NewDiscussionFormProps {
   userId?: string;
@@ -174,7 +173,7 @@ export default function NewDiscussionForm({
             "increment_tag_usage",
             { tag_ids: selectedTags.map((t) => t.id) }
           );
-          if (updateError) logger.error("Error updating tag counts:", updateError);
+          if (updateError) console.error("Error updating tag counts:", updateError);
         }
       }
 
@@ -211,7 +210,7 @@ export default function NewDiscussionForm({
       router.refresh();
       onSuccess?.();
     } catch (error) {
-      logger.error("Error creating discussion:", error);
+      console.error("Error creating discussion:", error);
       alert(t("forum.failedToCreate"));
     } finally {
       setIsLoading(false);

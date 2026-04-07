@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Plus, X } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
-import { logger } from "@/lib/logger";
 
 const EMOJI_OPTIONS = [
   "💬", "📢", "🌍", "⚖️", "💡", "🔬", "🏛️", "📊",
@@ -110,7 +109,7 @@ export default function NewChannelForm({ userId, channels = [] }: NewChannelForm
       setIsOpen(false);
       router.refresh();
     } catch (err) {
-      logger.error("Error creating channel:", err);
+      console.error("Error creating channel:", err);
       setError(t("forum.failedToCreateChannel"));
     } finally {
       setIsLoading(false);

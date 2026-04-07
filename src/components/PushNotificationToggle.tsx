@@ -11,7 +11,6 @@ import {
 } from "@/lib/push-notifications";
 import { Toggle } from "@/components/SettingsCollapsible";
 import { Bell, BellOff, AlertTriangle, Info, Smartphone } from "lucide-react";
-import { logger } from "@/lib/logger";
 
 interface PushNotificationToggleProps {
   userId: string;
@@ -60,7 +59,7 @@ export default function PushNotificationToggle({ userId, t }: PushNotificationTo
         if (success) setSubscribed(false);
       }
     } catch (error) {
-      logger.error("[PushToggle] Error:", error);
+      console.error("[PushToggle] Error:", error);
     }
     setLoading(false);
   };
