@@ -24,6 +24,9 @@ import {
   Flag,
   Compass,
   Wrench,
+  FileText,
+  Heart,
+  User,
 } from "lucide-react";
 import { useSidebar } from "@/components/sidebar-provider";
 import { useLanguage } from "@/components/language-provider";
@@ -44,24 +47,26 @@ interface AppSidebarProps {
 const mainNavItems = [
   { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
   { href: "/laws", labelKey: "nav.laws", icon: BookOpen },
+  { href: "/proposals", labelKey: "nav.proposals", icon: FileText },
   { href: "/elections", labelKey: "nav.elections", icon: Vote },
   { href: "/social", labelKey: "nav.forum", icon: MessageCircle },
   { href: "/about", labelKey: "nav.about", icon: Info },
   { href: "/verify", labelKey: "integrity.navTitle", icon: ShieldCheck },
 ];
 
-/* ── Explore sub-items (group types) ── */
+/* ── Groups sub-items (group types) ── */
 const exploreItems = [
   { href: "/groups?type=jurisdiction", labelKey: "nav.jurisdictions", icon: Landmark },
   { href: "/groups?type=party", labelKey: "nav.movements", icon: Flag },
   { href: "/groups?type=community", labelKey: "nav.communities", icon: Users },
   { href: "/groups?type=working_group", labelKey: "nav.workingGroups", icon: Wrench },
+  { href: "/groups?type=religion", labelKey: "nav.religions", icon: Heart },
 ];
 
 const userNavItems = [
-  { href: "/feed", labelKey: "nav.feed", icon: Rss },
+  { href: "/settings", labelKey: "nav.citizenProfile", icon: User },
   { href: "/messages", labelKey: "nav.messages", icon: Mail },
-  { href: "/settings", labelKey: "nav.settings", icon: Settings },
+  { href: "/feed", labelKey: "nav.feed", icon: Rss },
 ];
 
 export default function AppSidebar({
@@ -222,7 +227,7 @@ export default function AppSidebar({
               `}
             >
               <Compass className="w-[18px] h-[18px] shrink-0" />
-              <span className="flex-1 text-left">{t("nav.explore")}</span>
+              <span className="flex-1 text-left">{t("nav.groups")}</span>
               <ChevronDown
                 className={`w-4 h-4 shrink-0 transition-transform duration-200 ${
                   exploreOpen ? "rotate-0" : "-rotate-90"
@@ -321,7 +326,7 @@ export default function AppSidebar({
                 )}
               </Link>
 
-              {/* Admin */}
+              {/* Positions (formerly Admin) */}
               {isAdmin && (
                 <Link
                   href="/admin"
@@ -333,9 +338,23 @@ export default function AppSidebar({
                   `}
                 >
                   <Shield className="w-[18px] h-[18px] shrink-0 text-amber-500" />
-                  {t("nav.adminPanel")}
+                  {t("nav.positions")}
                 </Link>
               )}
+
+              {/* Settings */}
+              <Link
+                href="/settings"
+                onClick={handleNavClick}
+                className={`
+                  sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                  transition-all duration-150
+                  ${isActive("/settings") ? "sidebar-nav-active" : "sidebar-nav-inactive"}
+                `}
+              >
+                <Settings className="w-[18px] h-[18px] shrink-0" />
+                {t("nav.settings")}
+              </Link>
             </>
           )}
         </nav>

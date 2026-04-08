@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote, Landmark, Users, Wrench, Compass, ChevronDown } from "lucide-react";
+import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote, Landmark, Users, Wrench, Compass, ChevronDown, FileText, Heart } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useLanguage } from "@/components/language-provider";
@@ -78,21 +78,14 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8 overflow-hidden">
-            <Link
-              href="/laws"
-              className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
-            >
-              <BookOpen className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-              {t("nav.laws")}
-            </Link>
-            {/* Explore dropdown */}
+            {/* Groups dropdown */}
             <div className="relative shrink-0" ref={exploreRef}>
               <button
                 onClick={() => setExploreDropdownOpen(!exploreDropdownOpen)}
                 className="flex items-center gap-1.5 text-sm text-fg hover:text-fg transition-colors duration-150 group"
               >
                 <Compass className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
-                {t("nav.explore")}
+                {t("nav.groups")}
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${exploreDropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {exploreDropdownOpen && (
@@ -133,10 +126,32 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                       <Wrench className="w-4 h-4 text-amber-500 shrink-0" />
                       {t("nav.workingGroups")}
                     </Link>
+                    <Link
+                      href="/groups?type=religion"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
+                      onClick={() => setExploreDropdownOpen(false)}
+                    >
+                      <Heart className="w-4 h-4 text-teal-500 shrink-0" />
+                      {t("nav.religions")}
+                    </Link>
                   </div>
                 </div>
               )}
             </div>
+            <Link
+              href="/laws"
+              className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
+            >
+              <BookOpen className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
+              {t("nav.laws")}
+            </Link>
+            <Link
+              href="/proposals"
+              className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
+            >
+              <FileText className="w-4 h-4 group-hover:scale-110 transition-transform duration-150 shrink-0" />
+              {t("nav.proposals")}
+            </Link>
             <Link
               href="/elections"
               className="flex items-center gap-2 text-sm text-fg hover:text-fg transition-colors duration-150 group shrink-0"
@@ -237,6 +252,16 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
 
                       {/* Menu Items */}
                       <div className="py-2">
+                        {/* Citizen Profile */}
+                        <Link
+                          href="/settings"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card transition-colors duration-150"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <User className="w-4 h-4 shrink-0" />
+                          {t("nav.citizenProfile")}
+                        </Link>
+
                         {/* Messages */}
                         <Link
                           href="/messages"
@@ -247,6 +272,45 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                           {t("nav.messages")}
                         </Link>
 
+                        {/* Feed */}
+                        <Link
+                          href="/feed"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card transition-colors duration-150"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Rss className="w-4 h-4 shrink-0" />
+                          {t("nav.feed")}
+                        </Link>
+
+                        {/* Delegations */}
+                        <Link
+                          href="/dashboard/delegations"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card transition-colors duration-150 relative overflow-hidden"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <div className="flex items-center gap-3 w-full min-w-0">
+                            <Users className="w-4 h-4 shrink-0" />
+                            <span className="min-w-0">{t("nav.delegations")}</span>
+                            {pendingDelegations > 0 && (
+                              <span className="ml-auto px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full shrink-0">
+                                {pendingDelegations}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+
+                        {/* Positions (replaces Admin) */}
+                        {isAdmin && (
+                          <Link
+                            href="/admin"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card transition-colors duration-150"
+                            onClick={() => setDropdownOpen(false)}
+                          >
+                            <Shield className="w-4 h-4 text-amber-500 shrink-0" />
+                            {t("nav.positions")}
+                          </Link>
+                        )}
+
                         {/* Settings */}
                         <Link
                           href="/settings"
@@ -256,38 +320,6 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                           <Settings className="w-4 h-4 shrink-0" />
                           {t("nav.settings")}
                         </Link>
-
-                        {/* My Delegations */}
-                        <Link
-                          href="/dashboard/delegations"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card transition-colors duration-150 relative overflow-hidden"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <div className="flex items-center gap-3 w-full min-w-0">
-                            <MessageCircle className="w-4 h-4 shrink-0" />
-                            <span className="min-w-0">{t("nav.myDelegations")}</span>
-                            {pendingDelegations > 0 && (
-                              <span className="ml-auto px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full shrink-0">
-                                {pendingDelegations}
-                              </span>
-                            )}
-                          </div>
-                        </Link>
-
-                        {/* Admin Panel - Only for admins/moderators */}
-                        {isAdmin && (
-                          <>
-                            <div className="border-t border-theme my-1" />
-                            <Link
-                              href="/admin"
-                              className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card transition-colors duration-150"
-                              onClick={() => setDropdownOpen(false)}
-                            >
-                              <Shield className="w-4 h-4 text-amber-500 shrink-0" />
-                              {t("nav.adminPanel")}
-                            </Link>
-                          </>
-                        )}
 
                         {/* Logout */}
                         <div className="border-t border-theme my-1" />
@@ -322,18 +354,9 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 px-4 space-y-2 animate-in slide-in-from-top duration-200 overflow-hidden" style={{ borderTop: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
-            {/* Navigation Links */}
-            <Link
-              href="/laws"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <BookOpen className="w-4 h-4 shrink-0" />
-              {t("nav.laws")}
-            </Link>
-            {/* Explore group types */}
+            {/* Groups section */}
             <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
-              {t("nav.explore")}
+              {t("nav.groups")}
             </p>
             <Link
               href="/groups?type=jurisdiction"
@@ -366,6 +389,34 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             >
               <Wrench className="w-4 h-4 text-amber-500 shrink-0" />
               {t("nav.workingGroups")}
+            </Link>
+            <Link
+              href="/groups?type=religion"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Heart className="w-4 h-4 text-teal-500 shrink-0" />
+              {t("nav.religions")}
+            </Link>
+
+            <div className="border-t border-theme my-2" />
+
+            {/* Main navigation */}
+            <Link
+              href="/laws"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              {t("nav.laws")}
+            </Link>
+            <Link
+              href="/proposals"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <FileText className="w-4 h-4 shrink-0" />
+              {t("nav.proposals")}
             </Link>
             <Link
               href="/elections"
@@ -403,13 +454,18 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   <Plus className="w-4 h-4 shrink-0" />
                   {t("nav.newProposal")}
                 </Link>
+
+                <div className="border-t border-theme my-2" />
+                <p className="px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
+                  {t("nav.yourSpace")}
+                </p>
                 <Link
-                  href="/feed"
+                  href="/settings"
                   className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Rss className="w-4 h-4 shrink-0" />
-                  {t("nav.yourFeed")}
+                  <User className="w-4 h-4 shrink-0" />
+                  {t("nav.citizenProfile")}
                 </Link>
                 <Link
                   href="/messages"
@@ -420,20 +476,20 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   {t("nav.messages")}
                 </Link>
                 <Link
-                  href="/settings"
+                  href="/feed"
                   className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Settings className="w-4 h-4 shrink-0" />
-                  {t("nav.settings")}
+                  <Rss className="w-4 h-4 shrink-0" />
+                  {t("nav.feed")}
                 </Link>
                 <Link
                   href="/dashboard/delegations"
                   className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 relative overflow-hidden"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <MessageCircle className="w-4 h-4 shrink-0" />
-                  <span className="min-w-0">{t("nav.myDelegations")}</span>
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span className="min-w-0">{t("nav.delegations")}</span>
                   {pendingDelegations > 0 && (
                     <span className="ml-auto px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full shrink-0">
                       {pendingDelegations}
@@ -447,9 +503,17 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Shield className="w-4 h-4 text-amber-500 shrink-0" />
-                    {t("nav.adminPanel")}
+                    {t("nav.positions")}
                   </Link>
                 )}
+                <Link
+                  href="/settings"
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Settings className="w-4 h-4 shrink-0" />
+                  {t("nav.settings")}
+                </Link>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);

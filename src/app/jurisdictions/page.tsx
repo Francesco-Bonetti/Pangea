@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function JurisdictionsRedirect() {
-  redirect("/groups");
+  redirect("/groups?type=jurisdiction");
 }

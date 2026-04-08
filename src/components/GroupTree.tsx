@@ -25,6 +25,7 @@ const GROUP_TYPE_CONFIG: Record<
   party: { icon: Flag, color: "text-purple-400", bgColor: "bg-purple-500/15" },
   community: { icon: Globe, color: "text-blue-400", bgColor: "bg-blue-500/15" },
   working_group: { icon: Briefcase, color: "text-amber-400", bgColor: "bg-amber-500/15" },
+  religion: { icon: Globe, color: "text-teal-400", bgColor: "bg-teal-500/15" },
   custom: { icon: Layers, color: "text-slate-400", bgColor: "bg-slate-500/15" },
 };
 

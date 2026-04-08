@@ -39,6 +39,7 @@ const GROUP_TYPES: { value: GroupType; emoji: string; labelKey: string }[] = [
   { value: "party", emoji: "🗳️", labelKey: "groups.type.party" },
   { value: "community", emoji: "🌍", labelKey: "groups.type.community" },
   { value: "working_group", emoji: "💼", labelKey: "groups.type.working_group" },
+  { value: "religion", emoji: "🕊️", labelKey: "groups.type.religion" },
   { value: "custom", emoji: "✨", labelKey: "groups.type.custom" },
 ];
 

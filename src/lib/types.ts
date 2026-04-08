@@ -166,7 +166,7 @@ export interface CommentReaction {
 }
 
 // --- Recursive Tree Group System (Phase 5 — A2) ---
-export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "custom";
+export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "religion" | "custom";
 export type GroupMemberRole = "member" | "admin" | "founder";
 export type JurisdictionType = "virtual" | "geographic";
 
