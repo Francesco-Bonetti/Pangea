@@ -3,7 +3,8 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, LogOut, Plus, User, Menu, X, BookOpen, Shield, Settings, LogIn, MessageCircle, Flag, Mail, Rss, Map, Info, Vote, Landmark, Users, Wrench, Compass, ChevronDown, FileText, Heart } from "lucide-react";
+import { Globe, LogOut, Plus, User, Users, Menu, X, Shield, Settings, LogIn, Mail, Rss, Info, Vote, Compass, ChevronDown, BookOpen, FileText, MessageCircle } from "lucide-react";
+import { GROUP_NODES, ICON_MAP } from "@/lib/platform-nodes";
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useLanguage } from "@/components/language-provider";
@@ -94,46 +95,20 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
                   style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <div className="py-1.5">
-                    <Link
-                      href="/groups?type=jurisdiction"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
-                      onClick={() => setExploreDropdownOpen(false)}
-                    >
-                      <Landmark className="w-4 h-4 text-blue-500 shrink-0" />
-                      {t("nav.jurisdictions")}
-                    </Link>
-                    <Link
-                      href="/groups?type=party"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
-                      onClick={() => setExploreDropdownOpen(false)}
-                    >
-                      <Flag className="w-4 h-4 text-red-500 shrink-0" />
-                      {t("nav.movements")}
-                    </Link>
-                    <Link
-                      href="/groups?type=community"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
-                      onClick={() => setExploreDropdownOpen(false)}
-                    >
-                      <Users className="w-4 h-4 text-purple-500 shrink-0" />
-                      {t("nav.communities")}
-                    </Link>
-                    <Link
-                      href="/groups?type=working_group"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
-                      onClick={() => setExploreDropdownOpen(false)}
-                    >
-                      <Wrench className="w-4 h-4 text-amber-500 shrink-0" />
-                      {t("nav.workingGroups")}
-                    </Link>
-                    <Link
-                      href="/groups?type=religion"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
-                      onClick={() => setExploreDropdownOpen(false)}
-                    >
-                      <Heart className="w-4 h-4 text-teal-500 shrink-0" />
-                      {t("nav.religions")}
-                    </Link>
+                    {GROUP_NODES.map((node) => {
+                      const Icon = ICON_MAP[node.iconKey];
+                      return (
+                        <Link
+                          key={node.id}
+                          href={node.href}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg hover:bg-theme-card transition-colors duration-150"
+                          onClick={() => setExploreDropdownOpen(false)}
+                        >
+                          <Icon className="w-4 h-4 shrink-0" style={{ color: node.color }} />
+                          {t(node.labelKey)}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -358,46 +333,20 @@ export default function Navbar({ userEmail, userName, userRole, isGuest = false,
             <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
               {t("nav.groups")}
             </p>
-            <Link
-              href="/groups?type=jurisdiction"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Landmark className="w-4 h-4 text-blue-500 shrink-0" />
-              {t("nav.jurisdictions")}
-            </Link>
-            <Link
-              href="/groups?type=party"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Flag className="w-4 h-4 text-red-500 shrink-0" />
-              {t("nav.movements")}
-            </Link>
-            <Link
-              href="/groups?type=community"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Users className="w-4 h-4 text-purple-500 shrink-0" />
-              {t("nav.communities")}
-            </Link>
-            <Link
-              href="/groups?type=working_group"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Wrench className="w-4 h-4 text-amber-500 shrink-0" />
-              {t("nav.workingGroups")}
-            </Link>
-            <Link
-              href="/groups?type=religion"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Heart className="w-4 h-4 text-teal-500 shrink-0" />
-              {t("nav.religions")}
-            </Link>
+            {GROUP_NODES.map((node) => {
+              const Icon = ICON_MAP[node.iconKey];
+              return (
+                <Link
+                  key={node.id}
+                  href={node.href}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-fg hover:text-fg hover:bg-theme-card rounded-lg transition-colors duration-150 ml-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Icon className="w-4 h-4 shrink-0" style={{ color: node.color }} />
+                  {t(node.labelKey)}
+                </Link>
+              );
+            })}
 
             <div className="border-t border-theme my-2" />
 

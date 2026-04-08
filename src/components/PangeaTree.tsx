@@ -4,51 +4,23 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Globe,
-  Landmark,
-  Flag,
-  Users,
-  BookOpen,
-  Vote,
-  MessageCircle,
-  User,
-  Settings,
-  Info,
-  Search,
   Plus,
   ChevronRight,
   ZoomIn,
   ZoomOut,
   Layers,
-  Briefcase,
-  Scale,
-  Bell,
-  Heart,
-  Shield,
-  FileText,
   Sparkles,
   RotateCcw,
 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import { ICON_MAP, PLATFORM_TREE, type PlatformTreeNode } from "@/lib/platform-nodes";
 
 /* ═══════════════════════════════════════════════════════════
    Types
    ═══════════════════════════════════════════════════════════ */
 
-interface TreeNode {
-  id: string;
-  labelKey: string;
-  descKey: string;
-  iconKey: string;
-  color: string;
-  colorLight: string;
-  glow: string;
-  href: string;
-  actionKey: string;
-  actionHref?: string;
-  canCreate?: boolean;
-  createHref?: string;
-  children?: TreeNode[];
-}
+/** Alias — PangeaTree uses PlatformTreeNode from the registry */
+type TreeNode = PlatformTreeNode;
 
 interface Vec3 {
   x: number;
@@ -64,132 +36,11 @@ interface LayoutNode3D {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Color palette
+   Tree data + Icon map — imported from platform-nodes registry
+   TREE = PLATFORM_TREE, ICON_MAP imported above
    ═══════════════════════════════════════════════════════════ */
 
-const C = {
-  groups:     { main: "#2563eb", light: "#3b82f6", glow: "rgba(37,99,235,0.25)" },
-  laws:       { main: "#d97706", light: "#f59e0b", glow: "rgba(217,119,6,0.25)" },
-  agora:      { main: "#db2777", light: "#ec4899", glow: "rgba(219,39,119,0.25)" },
-  elections:  { main: "#059669", light: "#10b981", glow: "rgba(5,150,105,0.25)" },
-  personal:   { main: "#7c3aed", light: "#8b5cf6", glow: "rgba(124,58,237,0.25)" },
-  settings:   { main: "#6b7280", light: "#9ca3af", glow: "rgba(107,114,128,0.25)" },
-  about:      { main: "#0891b2", light: "#22d3ee", glow: "rgba(8,145,178,0.25)" },
-  jurisdictions: { main: "#1d4ed8", light: "#3b82f6", glow: "rgba(29,78,216,0.25)" },
-  parties:       { main: "#dc2626", light: "#ef4444", glow: "rgba(220,38,38,0.25)" },
-  communities:   { main: "#7c3aed", light: "#a78bfa", glow: "rgba(124,58,237,0.25)" },
-  workingGroups: { main: "#0d9488", light: "#2dd4bf", glow: "rgba(13,148,136,0.25)" },
-  religions:     { main: "#0f766e", light: "#5eead4", glow: "rgba(15,118,110,0.25)" },
-  browseLaws:    { main: "#b45309", light: "#f59e0b", glow: "rgba(180,83,9,0.25)" },
-  proposeLaw:    { main: "#ea580c", light: "#fb923c", glow: "rgba(234,88,12,0.25)" },
-  proposals:     { main: "#c2410c", light: "#fb923c", glow: "rgba(194,65,12,0.25)" },
-  activeProposals: { main: "#ea580c", light: "#fdba74", glow: "rgba(234,88,12,0.25)" },
-  curation:      { main: "#9a3412", light: "#f97316", glow: "rgba(154,52,18,0.25)" },
-  archiveProposals: { main: "#78350f", light: "#d97706", glow: "rgba(120,53,15,0.25)" },
-  discussions:   { main: "#be185d", light: "#f472b6", glow: "rgba(190,24,93,0.25)" },
-  channels:      { main: "#9d174d", light: "#ec4899", glow: "rgba(157,23,77,0.25)" },
-  activeElections: { main: "#047857", light: "#34d399", glow: "rgba(4,120,87,0.25)" },
-  pastResults:   { main: "#065f46", light: "#6ee7b7", glow: "rgba(6,95,70,0.25)" },
-  profile:       { main: "#6d28d9", light: "#a78bfa", glow: "rgba(109,40,217,0.25)" },
-  messages:      { main: "#7e22ce", light: "#c084fc", glow: "rgba(126,34,206,0.25)" },
-  feed:          { main: "#5b21b6", light: "#a78bfa", glow: "rgba(91,33,182,0.25)" },
-  delegations:   { main: "#4c1d95", light: "#8b5cf6", glow: "rgba(76,29,149,0.25)" },
-  positions:     { main: "#6d28d9", light: "#c4b5fd", glow: "rgba(109,40,217,0.25)" },
-  account:       { main: "#4b5563", light: "#9ca3af", glow: "rgba(75,85,99,0.25)" },
-  preferences:   { main: "#374151", light: "#6b7280", glow: "rgba(55,65,81,0.25)" },
-  mission:       { main: "#0e7490", light: "#22d3ee", glow: "rgba(14,116,144,0.25)" },
-  charter:       { main: "#155e75", light: "#67e8f9", glow: "rgba(21,94,117,0.25)" },
-};
-
-/* ═══════════════════════════════════════════════════════════
-   Tree data
-   ═══════════════════════════════════════════════════════════ */
-
-const TREE: TreeNode[] = [
-  {
-    id: "groups", labelKey: "tree.groups", descKey: "tree.groupsDesc",
-    iconKey: "users", color: C.groups.main, colorLight: C.groups.light, glow: C.groups.glow,
-    href: "/groups", actionKey: "tree.explore",
-    children: [
-      { id: "jurisdictions", labelKey: "tree.jurisdictions", descKey: "tree.jurisdictionsDesc", iconKey: "landmark", color: C.jurisdictions.main, colorLight: C.jurisdictions.light, glow: C.jurisdictions.glow, href: "/groups?type=jurisdiction", actionKey: "tree.browse" },
-      { id: "parties", labelKey: "tree.parties", descKey: "tree.partiesDesc", iconKey: "flag", color: C.parties.main, colorLight: C.parties.light, glow: C.parties.glow, href: "/groups?type=party", actionKey: "tree.browse", canCreate: true, createHref: "/groups?type=party&create=1" },
-      { id: "communities", labelKey: "tree.communities", descKey: "tree.communitiesDesc", iconKey: "users", color: C.communities.main, colorLight: C.communities.light, glow: C.communities.glow, href: "/groups?type=community", actionKey: "tree.browse", canCreate: true, createHref: "/groups?type=community&create=1" },
-      { id: "workingGroups", labelKey: "tree.workingGroups", descKey: "tree.workingGroupsDesc", iconKey: "briefcase", color: C.workingGroups.main, colorLight: C.workingGroups.light, glow: C.workingGroups.glow, href: "/groups?type=working_group", actionKey: "tree.browse", canCreate: true, createHref: "/groups?type=working_group&create=1" },
-      { id: "religions", labelKey: "tree.religions", descKey: "tree.religionsDesc", iconKey: "heart", color: C.religions.main, colorLight: C.religions.light, glow: C.religions.glow, href: "/groups?type=religion", actionKey: "tree.browse", canCreate: true, createHref: "/groups?type=religion&create=1" },
-    ],
-  },
-  {
-    id: "laws", labelKey: "tree.laws", descKey: "tree.lawsDesc",
-    iconKey: "book", color: C.laws.main, colorLight: C.laws.light, glow: C.laws.glow,
-    href: "/laws", actionKey: "tree.explore",
-    children: [
-      { id: "browseLaws", labelKey: "tree.browseLaws", descKey: "tree.browseLawsDesc", iconKey: "search", color: C.browseLaws.main, colorLight: C.browseLaws.light, glow: C.browseLaws.glow, href: "/laws", actionKey: "tree.browse" },
-      { id: "proposeLaw", labelKey: "tree.proposeLaw", descKey: "tree.proposeLawDesc", iconKey: "fileText", color: C.proposeLaw.main, colorLight: C.proposeLaw.light, glow: C.proposeLaw.glow, href: "/laws?propose=1", actionKey: "tree.create" },
-    ],
-  },
-  {
-    id: "proposals", labelKey: "tree.proposals", descKey: "tree.proposalsDesc",
-    iconKey: "fileText", color: C.proposals.main, colorLight: C.proposals.light, glow: C.proposals.glow,
-    href: "/proposals", actionKey: "tree.explore",
-    children: [
-      { id: "activeProposals", labelKey: "tree.activeProposals", descKey: "tree.activeProposalsDesc", iconKey: "vote", color: C.activeProposals.main, colorLight: C.activeProposals.light, glow: C.activeProposals.glow, href: "/proposals?status=active", actionKey: "tree.browse" },
-      { id: "curation", labelKey: "tree.curation", descKey: "tree.curationDesc", iconKey: "search", color: C.curation.main, colorLight: C.curation.light, glow: C.curation.glow, href: "/proposals?status=curation", actionKey: "tree.browse" },
-      { id: "archiveProposals", labelKey: "tree.archiveProposals", descKey: "tree.archiveProposalsDesc", iconKey: "book", color: C.archiveProposals.main, colorLight: C.archiveProposals.light, glow: C.archiveProposals.glow, href: "/proposals?status=closed", actionKey: "tree.browse" },
-    ],
-  },
-  {
-    id: "agora", labelKey: "tree.agora", descKey: "tree.agoraDesc",
-    iconKey: "message", color: C.agora.main, colorLight: C.agora.light, glow: C.agora.glow,
-    href: "/social", actionKey: "tree.explore",
-    children: [
-      { id: "discussions", labelKey: "tree.discussions", descKey: "tree.discussionsDesc", iconKey: "message", color: C.discussions.main, colorLight: C.discussions.light, glow: C.discussions.glow, href: "/social", actionKey: "tree.browse" },
-      { id: "channels", labelKey: "tree.channels", descKey: "tree.channelsDesc", iconKey: "message", color: C.channels.main, colorLight: C.channels.light, glow: C.channels.glow, href: "/social?tab=channels", actionKey: "tree.browse" },
-    ],
-  },
-  {
-    id: "elections", labelKey: "tree.elections", descKey: "tree.electionsDesc",
-    iconKey: "vote", color: C.elections.main, colorLight: C.elections.light, glow: C.elections.glow,
-    href: "/elections", actionKey: "tree.explore",
-    children: [
-      { id: "activeElections", labelKey: "tree.activeElections", descKey: "tree.activeElectionsDesc", iconKey: "vote", color: C.activeElections.main, colorLight: C.activeElections.light, glow: C.activeElections.glow, href: "/elections?status=active", actionKey: "tree.browse" },
-      { id: "pastResults", labelKey: "tree.pastResults", descKey: "tree.pastResultsDesc", iconKey: "scale", color: C.pastResults.main, colorLight: C.pastResults.light, glow: C.pastResults.glow, href: "/elections?status=completed", actionKey: "tree.browse" },
-    ],
-  },
-  {
-    id: "personal", labelKey: "tree.personal", descKey: "tree.personalDesc",
-    iconKey: "user", color: C.personal.main, colorLight: C.personal.light, glow: C.personal.glow,
-    href: "/settings", actionKey: "tree.open",
-    children: [
-      { id: "profile", labelKey: "tree.profile", descKey: "tree.profileDesc", iconKey: "user", color: C.profile.main, colorLight: C.profile.light, glow: C.profile.glow, href: "/settings", actionKey: "tree.open" },
-      { id: "messagesNode", labelKey: "tree.messages", descKey: "tree.messagesDesc", iconKey: "message", color: C.messages.main, colorLight: C.messages.light, glow: C.messages.glow, href: "/messages", actionKey: "tree.open" },
-      { id: "feedNode", labelKey: "tree.feed", descKey: "tree.feedDesc", iconKey: "bell", color: C.feed.main, colorLight: C.feed.light, glow: C.feed.glow, href: "/feed", actionKey: "tree.open" },
-      { id: "delegationsNode", labelKey: "tree.delegations", descKey: "tree.delegationsDesc", iconKey: "users", color: C.delegations.main, colorLight: C.delegations.light, glow: C.delegations.glow, href: "/dashboard/delegations", actionKey: "tree.open" },
-      { id: "positions", labelKey: "tree.positions", descKey: "tree.positionsDesc", iconKey: "shield", color: C.positions.main, colorLight: C.positions.light, glow: C.positions.glow, href: "/admin", actionKey: "tree.open" },
-      { id: "settingsNode", labelKey: "tree.settings", descKey: "tree.settingsDesc", iconKey: "settings", color: C.settings.main, colorLight: C.settings.light, glow: C.settings.glow, href: "/settings", actionKey: "tree.open" },
-    ],
-  },
-  {
-    id: "about", labelKey: "tree.about", descKey: "tree.aboutDesc",
-    iconKey: "info", color: C.about.main, colorLight: C.about.light, glow: C.about.glow,
-    href: "/about", actionKey: "tree.learn",
-    children: [
-      { id: "mission", labelKey: "tree.mission", descKey: "tree.missionDesc", iconKey: "heart", color: C.mission.main, colorLight: C.mission.light, glow: C.mission.glow, href: "/about#mission", actionKey: "tree.learn" },
-      { id: "charter", labelKey: "tree.charter", descKey: "tree.charterDesc", iconKey: "fileText", color: C.charter.main, colorLight: C.charter.light, glow: C.charter.glow, href: "/about#charter", actionKey: "tree.learn" },
-    ],
-  },
-];
-
-/* ═══════════════════════════════════════════════════════════
-   Icon map
-   ═══════════════════════════════════════════════════════════ */
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  globe: Globe, landmark: Landmark, flag: Flag, users: Users,
-  book: BookOpen, vote: Vote, message: MessageCircle, user: User,
-  settings: Settings, info: Info, search: Search, briefcase: Briefcase,
-  scale: Scale, bell: Bell, heart: Heart, shield: Shield,
-  fileText: FileText,
-};
+const TREE: TreeNode[] = PLATFORM_TREE;
 
 /* ═══════════════════════════════════════════════════════════
    3D Math: rotation matrix + perspective projection

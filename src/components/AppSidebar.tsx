@@ -4,29 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Globe,
-  BookOpen,
-  Vote,
-  MessageCircle,
-  Info,
-  LayoutDashboard,
   Plus,
-  Rss,
-  Mail,
-  Settings,
   Shield,
   LogOut,
   Users,
   LogIn,
   ChevronLeft,
   ChevronDown,
-  ShieldCheck,
-  Landmark,
-  Flag,
   Compass,
-  Wrench,
-  FileText,
-  Heart,
-  User,
 } from "lucide-react";
 import { useSidebar } from "@/components/sidebar-provider";
 import { useLanguage } from "@/components/language-provider";
@@ -34,6 +19,13 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import NotificationBell from "@/components/NotificationBell";
+import {
+  ICON_MAP,
+  GROUP_NODES,
+  SIDEBAR_MAIN_NODES,
+  USER_NAV_NODES,
+  getNodeById,
+} from "@/lib/platform-nodes";
 
 interface AppSidebarProps {
   userName?: string | null;
@@ -43,31 +35,11 @@ interface AppSidebarProps {
   pendingDelegations?: number;
 }
 
-/* ── Navigation structure (keys reference i18n) ── */
-const mainNavItems = [
-  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
-  { href: "/laws", labelKey: "nav.laws", icon: BookOpen },
-  { href: "/proposals", labelKey: "nav.proposals", icon: FileText },
-  { href: "/elections", labelKey: "nav.elections", icon: Vote },
-  { href: "/social", labelKey: "nav.forum", icon: MessageCircle },
-  { href: "/about", labelKey: "nav.about", icon: Info },
-  { href: "/verify", labelKey: "integrity.navTitle", icon: ShieldCheck },
-];
-
-/* ── Groups sub-items (group types) ── */
-const exploreItems = [
-  { href: "/groups?type=jurisdiction", labelKey: "nav.jurisdictions", icon: Landmark },
-  { href: "/groups?type=party", labelKey: "nav.movements", icon: Flag },
-  { href: "/groups?type=community", labelKey: "nav.communities", icon: Users },
-  { href: "/groups?type=working_group", labelKey: "nav.workingGroups", icon: Wrench },
-  { href: "/groups?type=religion", labelKey: "nav.religions", icon: Heart },
-];
-
-const userNavItems = [
-  { href: "/settings", labelKey: "nav.citizenProfile", icon: User },
-  { href: "/messages", labelKey: "nav.messages", icon: Mail },
-  { href: "/feed", labelKey: "nav.feed", icon: Rss },
-];
+/* ── Navigation derived from platform-nodes registry ── */
+const dashboardNode = getNodeById("dashboard")!;
+const delegationsNode = getNodeById("delegationsNode")!;
+const positionsNode = getNodeById("positions")!;
+const settingsNode = getNodeById("settingsNode")!;
 
 export default function AppSidebar({
   userName,
@@ -197,12 +169,11 @@ export default function AppSidebar({
           </p>
           {/* Dashboard link */}
           {(() => {
-            const dashItem = mainNavItems[0];
-            const DashIcon = dashItem.icon;
-            const dashActive = isActive(dashItem.href);
+            const DashIcon = ICON_MAP[dashboardNode.iconKey];
+            const dashActive = isActive(dashboardNode.href);
             return (
               <Link
-                href={dashItem.href}
+                href={dashboardNode.href}
                 onClick={handleNavClick}
                 className={`
                   sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
@@ -211,7 +182,7 @@ export default function AppSidebar({
                 `}
               >
                 <DashIcon className="w-[18px] h-[18px] shrink-0" />
-                {t(dashItem.labelKey)}
+                {t(dashboardNode.labelKey)}
               </Link>
             );
           })()}
@@ -236,12 +207,12 @@ export default function AppSidebar({
             </button>
             {exploreOpen && (
               <div className="ml-3 mt-1 space-y-0.5 border-l-2 pl-3" style={{ borderColor: "var(--border)" }}>
-                {exploreItems.map((item) => {
-                  const active = pathname === item.href || pathname.startsWith(item.href.split("?")[0]) && new URLSearchParams(item.href.split("?")[1]).get("type") === new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("type");
-                  const Icon = item.icon;
+                {GROUP_NODES.map((item) => {
+                  const active = pathname === item.href || (pathname.startsWith(item.href.split("?")[0]) && new URLSearchParams(item.href.split("?")[1]).get("type") === new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("type"));
+                  const Icon = ICON_MAP[item.iconKey];
                   return (
                     <Link
-                      key={item.href}
+                      key={item.id}
                       href={item.href}
                       onClick={handleNavClick}
                       className={`
@@ -259,13 +230,13 @@ export default function AppSidebar({
             )}
           </div>
 
-          {/* Remaining main nav items (Laws, Elections, Agora, About, Verify) */}
-          {mainNavItems.slice(1).map((item) => {
+          {/* Remaining main nav items (Laws, Proposals, Elections, Agora, About, Verify) */}
+          {SIDEBAR_MAIN_NODES.map((item) => {
             const active = isActive(item.href);
-            const Icon = item.icon;
+            const Icon = ICON_MAP[item.iconKey];
             return (
               <Link
-                key={item.href}
+                key={item.id}
                 href={item.href}
                 onClick={handleNavClick}
                 className={`
@@ -287,12 +258,12 @@ export default function AppSidebar({
               <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
                 {t("nav.yourSpace")}
               </p>
-              {userNavItems.map((item) => {
+              {USER_NAV_NODES.map((item) => {
                 const active = isActive(item.href);
-                const Icon = item.icon;
+                const Icon = ICON_MAP[item.iconKey];
                 return (
                   <Link
-                    key={item.href}
+                    key={item.id}
                     href={item.href}
                     onClick={handleNavClick}
                     className={`
@@ -308,53 +279,66 @@ export default function AppSidebar({
               })}
 
               {/* Delegations with badge */}
-              <Link
-                href="/dashboard/delegations"
-                onClick={handleNavClick}
-                className={`
-                  sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                  transition-all duration-150
-                  ${isActive("/dashboard/delegations") ? "sidebar-nav-active" : "sidebar-nav-inactive"}
-                `}
-              >
-                <Users className="w-[18px] h-[18px] shrink-0" />
-                <span className="flex-1">{t("nav.delegations")}</span>
-                {pendingDelegations > 0 && (
-                  <span className="px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full">
-                    {pendingDelegations}
-                  </span>
-                )}
-              </Link>
+              {(() => {
+                const DelIcon = ICON_MAP[delegationsNode.iconKey];
+                return (
+                  <Link
+                    href={delegationsNode.href}
+                    onClick={handleNavClick}
+                    className={`
+                      sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      transition-all duration-150
+                      ${isActive(delegationsNode.href) ? "sidebar-nav-active" : "sidebar-nav-inactive"}
+                    `}
+                  >
+                    <DelIcon className="w-[18px] h-[18px] shrink-0" />
+                    <span className="flex-1">{t(delegationsNode.labelKey)}</span>
+                    {pendingDelegations > 0 && (
+                      <span className="px-2 py-0.5 bg-red-600 text-fg text-[10px] font-bold rounded-full">
+                        {pendingDelegations}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })()}
 
               {/* Positions (formerly Admin) */}
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  onClick={handleNavClick}
-                  className={`
-                    sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                    transition-all duration-150
-                    ${isActive("/admin") ? "sidebar-nav-active" : "sidebar-nav-inactive"}
-                  `}
-                >
-                  <Shield className="w-[18px] h-[18px] shrink-0 text-amber-500" />
-                  {t("nav.positions")}
-                </Link>
-              )}
+              {isAdmin && (() => {
+                const PosIcon = ICON_MAP[positionsNode.iconKey];
+                return (
+                  <Link
+                    href={positionsNode.href}
+                    onClick={handleNavClick}
+                    className={`
+                      sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      transition-all duration-150
+                      ${isActive(positionsNode.href) ? "sidebar-nav-active" : "sidebar-nav-inactive"}
+                    `}
+                  >
+                    <PosIcon className="w-[18px] h-[18px] shrink-0 text-amber-500" />
+                    {t(positionsNode.labelKey)}
+                  </Link>
+                );
+              })()}
 
               {/* Settings */}
-              <Link
-                href="/settings"
-                onClick={handleNavClick}
-                className={`
-                  sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                  transition-all duration-150
-                  ${isActive("/settings") ? "sidebar-nav-active" : "sidebar-nav-inactive"}
-                `}
-              >
-                <Settings className="w-[18px] h-[18px] shrink-0" />
-                {t("nav.settings")}
-              </Link>
+              {(() => {
+                const SettIcon = ICON_MAP[settingsNode.iconKey];
+                return (
+                  <Link
+                    href={settingsNode.href}
+                    onClick={handleNavClick}
+                    className={`
+                      sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      transition-all duration-150
+                      ${isActive(settingsNode.href) ? "sidebar-nav-active" : "sidebar-nav-inactive"}
+                    `}
+                  >
+                    <SettIcon className="w-[18px] h-[18px] shrink-0" />
+                    {t(settingsNode.labelKey)}
+                  </Link>
+                );
+              })()}
             </>
           )}
         </nav>
