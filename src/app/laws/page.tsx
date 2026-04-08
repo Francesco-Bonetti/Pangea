@@ -118,6 +118,7 @@ export default async function LawsPage() {
           activeCodes={activeCodes}
           activeArticles={activeArticles}
           isAdmin={isAdmin}
+          isGuest={isGuest}
         />
       </div>
     </AppShell>

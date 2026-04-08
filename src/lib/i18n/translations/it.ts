@@ -129,6 +129,8 @@ const it: TranslationKeys = {
     simplifiedExplanation: "Spiegazione Semplificata",
     lastUpdated: "Ultimo aggiornamento:",
     versionHistory: "Storico Versioni",
+    view3D: "Vista 3D",
+    view3DDesc: "Esplora le leggi di Pangea come un albero 3D interattivo. Trascina per ruotare, scorri per lo zoom. Esempio: ruota il globo e clicca sul nodo Codice Penale per aprirlo.",
     statusDraft: "Bozza",
     statusCommunityReview: "Revisione della Comunità",
     statusActiveVote: "Voto Attivo",

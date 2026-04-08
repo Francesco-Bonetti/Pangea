@@ -129,6 +129,9 @@ const en = {
     simplifiedExplanation: "Simplified Explanation",
     lastUpdated: "Last updated:",
     versionHistory: "Version History",
+    // 3D Tree view
+    view3D: "3D View",
+    view3DDesc: "Explore the Pangea laws as an interactive 3D tree. Drag to rotate, scroll to zoom. Example: spin the globe and click on the Criminal Code node to open it.",
     // ProposalCard
     statusDraft: "Draft",
     statusCommunityReview: "Community Review",
