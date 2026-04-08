@@ -1,15 +1,6 @@
 "use client";
 
-/**
- * TreeViewer3D — Generic 3D tree visualizer.
- *
- * Accepts any PlatformTreeNode[] array (platform tree, law tree, group tree…).
- * Render the center sphere content via the `centerContent` render prop.
- *
- * Used by: PangeaTree (homepage), potentially LawTree3D, GroupTree3D, etc.
- */
-
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   Globe,
@@ -27,11 +18,7 @@ import { ICON_MAP, type PlatformTreeNode } from "@/lib/platform-nodes";
    Types
    ═══════════════════════════════════════════════════════════ */
 
-interface Vec3 {
-  x: number;
-  y: number;
-  z: number;
-}
+interface Vec3 { x: number; y: number; z: number }
 
 interface LayoutNode3D {
   node: PlatformTreeNode;
@@ -41,12 +28,12 @@ interface LayoutNode3D {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   3D Math: rotation matrix + perspective projection
+   3D Math
    ═══════════════════════════════════════════════════════════ */
 
 const DEG = Math.PI / 180;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ~2.399 rad
 
-/** Rotate point by rotX (pitch) then rotY (yaw) — in radians */
 function rotate3D(p: Vec3, rx: number, ry: number): Vec3 {
   const cosX = Math.cos(rx), sinX = Math.sin(rx);
   const y1 = p.y * cosX - p.z * sinX;
@@ -57,25 +44,36 @@ function rotate3D(p: Vec3, rx: number, ry: number): Vec3 {
   return { x: x2, y: y1, z: z2 };
 }
 
-/** Project 3D point to 2D screen coords with perspective */
-function project(
-  p: Vec3,
-  perspective: number,
-  cx: number,
-  cy: number,
-): { sx: number; sy: number; scale: number } {
+function project(p: Vec3, perspective: number, cx: number, cy: number) {
   const d = perspective + p.z;
   const scale = d > 10 ? perspective / d : 0.01;
-  return {
-    sx: cx + p.x * scale,
-    sy: cy + p.y * scale,
-    scale,
-  };
+  return { sx: cx + p.x * scale, sy: cy + p.y * scale, scale };
 }
 
 /* ═══════════════════════════════════════════════════════════
-   3D Layout: spherical positioning
+   Fibonacci Sphere Layout — TRUE 3D distribution
+   Points are uniformly distributed on a sphere surface.
+   When rotated, you see nodes in front, behind, above, below.
    ═══════════════════════════════════════════════════════════ */
+
+function fibonacciSphere(n: number, radius: number, center: Vec3 = { x: 0, y: 0, z: 0 }): Vec3[] {
+  if (n === 0) return [];
+  if (n === 1) return [{ x: center.x + radius, y: center.y, z: center.z }];
+
+  const points: Vec3[] = [];
+  for (let i = 0; i < n; i++) {
+    // y goes from +1 to -1 (top to bottom of sphere)
+    const y = 1 - (2 * i) / (n - 1);
+    const radiusAtY = Math.sqrt(1 - y * y);
+    const theta = GOLDEN_ANGLE * i;
+    points.push({
+      x: center.x + radius * radiusAtY * Math.cos(theta),
+      y: center.y + radius * y,
+      z: center.z + radius * radiusAtY * Math.sin(theta),
+    });
+  }
+  return points;
+}
 
 function computeLayout3D(
   tree: PlatformTreeNode[],
@@ -84,38 +82,34 @@ function computeLayout3D(
   r2: number,
 ): LayoutNode3D[] {
   const result: LayoutNode3D[] = [];
-  const n = tree.length;
+
+  // Level 1: distribute root nodes on a sphere of radius r1
+  const l1Positions = fibonacciSphere(tree.length, r1);
 
   tree.forEach((node, i) => {
-    const angle = ((2 * Math.PI) / n) * i;
-    const tilt = Math.sin(angle * 2) * 0.15;
-    const pos: Vec3 = {
-      x: r1 * Math.cos(angle),
-      y: r1 * tilt,
-      z: r1 * Math.sin(angle),
-    };
-    result.push({ node, pos, level: 1 });
+    result.push({ node, pos: l1Positions[i], level: 1 });
 
-    if (maxDepth >= 2 && node.children) {
-      const childCount = node.children.length;
-      const arcSpread = Math.min(0.4, 0.9 / n);
+    // Level 2: distribute children on a smaller sub-sphere centered on parent
+    if (maxDepth >= 2 && node.children && node.children.length > 0) {
+      const parentPos = l1Positions[i];
+      // Direction from origin to parent — children cluster around parent
+      const dist = Math.sqrt(parentPos.x ** 2 + parentPos.y ** 2 + parentPos.z ** 2) || 1;
+      // Push children outward from parent along the same radial direction
+      const pushX = (parentPos.x / dist) * (r2 - r1);
+      const pushY = (parentPos.y / dist) * (r2 - r1);
+      const pushZ = (parentPos.z / dist) * (r2 - r1);
+
+      const childCenter: Vec3 = {
+        x: parentPos.x + pushX * 0.5,
+        y: parentPos.y + pushY * 0.5,
+        z: parentPos.z + pushZ * 0.5,
+      };
+
+      const childRadius = r1 * 0.35; // sub-sphere smaller than main
+      const childPositions = fibonacciSphere(node.children.length, childRadius, childCenter);
+
       node.children.forEach((child, ci) => {
-        const offset =
-          childCount === 1
-            ? 0
-            : (ci / (childCount - 1) - 0.5) * arcSpread * 2 * Math.PI;
-        const childAngle = angle + offset;
-        const childPos: Vec3 = {
-          x: r2 * Math.cos(childAngle),
-          y: r2 * tilt - 15 + ci * 10,
-          z: r2 * Math.sin(childAngle),
-        };
-        result.push({
-          node: child,
-          pos: childPos,
-          level: 2,
-          parentId: node.id,
-        });
+        result.push({ node: child, pos: childPositions[ci], level: 2, parentId: node.id });
       });
     }
   });
@@ -124,23 +118,14 @@ function computeLayout3D(
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Node Card — always faces viewer (billboard)
+   Node Card — billboard (always faces viewer as HTML div)
    ═══════════════════════════════════════════════════════════ */
 
 function NodeCard3D({
-  ln,
-  sx,
-  sy,
-  depthScale,
-  hovered,
-  onHover,
-  isGuest,
-  visible,
+  ln, sx, sy, depthScale, hovered, onHover, isGuest, visible,
 }: {
   ln: LayoutNode3D;
-  sx: number;
-  sy: number;
-  depthScale: number;
+  sx: number; sy: number; depthScale: number;
   hovered: string | null;
   onHover: (id: string | null) => void;
   isGuest: boolean;
@@ -154,9 +139,12 @@ function NodeCard3D({
   const isFaded = hovered !== null && !isHovered;
   const isL1 = level === 1;
 
-  const cardScale = Math.max(0.4, Math.min(1.2, depthScale));
-  const baseW = isL1 ? 140 : 115;
+  const cardScale = Math.max(0.35, Math.min(1.3, depthScale));
+  const baseW = isL1 ? 140 : 110;
   const w = baseW * cardScale;
+
+  // Depth-based opacity: nodes behind the sphere are more transparent
+  const depthOpacity = Math.max(0.15, Math.min(1, depthScale * 1.1));
 
   return (
     <div
@@ -165,8 +153,8 @@ function NodeCard3D({
         left: sx - w / 2,
         top: sy - (isL1 ? 30 : 20) * cardScale,
         width: w,
-        zIndex: Math.round(depthScale * 100),
-        pointerEvents: depthScale < 0.3 ? "none" : "auto",
+        zIndex: Math.round(depthScale * 1000),
+        pointerEvents: depthScale < 0.35 ? "none" : "auto",
       }}
       onMouseEnter={() => onHover(node.id)}
       onMouseLeave={() => onHover(null)}
@@ -177,22 +165,16 @@ function NodeCard3D({
         onClick={() => router.push(node.href)}
         style={{
           padding: `${(isL1 ? 10 : 7) * cardScale}px`,
-          opacity: visible
-            ? isFaded
-              ? 0.45
-              : Math.max(0.3, depthScale)
-            : 0,
-          transform: `scale(${isHovered ? 1.1 : 1})`,
+          opacity: visible ? (isFaded ? 0.3 : depthOpacity) : 0,
+          transform: `scale(${isHovered ? 1.12 : 1})`,
           borderColor: isHovered ? node.color : "var(--border)",
           backgroundColor: "var(--card)",
           boxShadow: isHovered
-            ? `0 0 20px ${node.glow}, 0 8px 24px rgba(0,0,0,0.12)`
+            ? `0 0 24px ${node.glow}, 0 8px 24px rgba(0,0,0,0.15)`
             : "0 1px 4px rgba(0,0,0,0.06)",
-          transition:
-            "transform 0.2s ease, opacity 0.4s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+          transition: "transform 0.2s ease, opacity 0.5s ease, border-color 0.2s ease, box-shadow 0.2s ease",
         }}
       >
-        {/* Icon + Label */}
         <div className="flex items-center gap-2 mb-1">
           <div
             className="shrink-0 rounded-lg flex items-center justify-center"
@@ -202,46 +184,21 @@ function NodeCard3D({
               background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
             }}
           >
-            <Icon
-              className="text-white"
-              style={{
-                width: (isL1 ? 14 : 11) * cardScale,
-                height: (isL1 ? 14 : 11) * cardScale,
-              }}
-              strokeWidth={2}
-            />
+            <Icon className="text-white" style={{ width: (isL1 ? 14 : 11) * cardScale, height: (isL1 ? 14 : 11) * cardScale }} strokeWidth={2} />
           </div>
-          <span
-            className="font-bold leading-tight truncate"
-            style={{
-              fontSize: Math.max(9, (isL1 ? 12 : 10) * cardScale),
-              color: "var(--foreground)",
-            }}
-          >
+          <span className="font-bold leading-tight truncate" style={{ fontSize: Math.max(9, (isL1 ? 12 : 10) * cardScale), color: "var(--foreground)" }}>
             {t(node.labelKey)}
           </span>
         </div>
 
-        {/* Description (L1 only) */}
-        {isL1 && cardScale > 0.6 && (
-          <p
-            className="leading-snug line-clamp-2"
-            style={{
-              fontSize: Math.max(8, 10 * cardScale),
-              color: "var(--muted-foreground)",
-              marginTop: 2,
-            }}
-          >
+        {isL1 && cardScale > 0.55 && (
+          <p className="leading-snug line-clamp-2" style={{ fontSize: Math.max(8, 10 * cardScale), color: "var(--muted-foreground)", marginTop: 2 }}>
             {t(node.descKey)}
           </p>
         )}
 
-        {/* Action button */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            router.push(node.actionHref || node.href);
-          }}
+          onClick={(e) => { e.stopPropagation(); router.push(node.actionHref || node.href); }}
           className="mt-1 flex items-center gap-0.5 text-white font-semibold rounded-full hover:brightness-110 active:scale-95"
           style={{
             fontSize: Math.max(8, (isL1 ? 10 : 9) * cardScale),
@@ -249,20 +206,14 @@ function NodeCard3D({
             background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
           }}
         >
-          <ChevronRight
-            style={{ width: 8 * cardScale, height: 8 * cardScale }}
-          />
+          <ChevronRight style={{ width: 8 * cardScale, height: 8 * cardScale }} />
           {t(node.actionKey)}
         </button>
       </div>
 
-      {/* Create New badge */}
       {node.canCreate && !isGuest && node.createHref && cardScale > 0.5 && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            router.push(node.createHref!);
-          }}
+          onClick={(e) => { e.stopPropagation(); router.push(node.createHref!); }}
           className="absolute -bottom-2 -right-2 flex items-center gap-0.5 px-2 py-0.5 rounded-full text-white font-semibold shadow-lg hover:scale-105 active:scale-95 z-20"
           style={{
             fontSize: 9 * cardScale,
@@ -281,54 +232,26 @@ function NodeCard3D({
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Default center content (used when no centerContent prop)
-   ═══════════════════════════════════════════════════════════ */
-
-function DefaultCenter() {
-  return (
-    <div className="flex flex-col items-center">
-      <div
-        className="w-20 h-20 rounded-full flex items-center justify-center border-2"
-        style={{
-          background: "linear-gradient(135deg, #2563eb, #1d4ed8, #1e40af)",
-          borderColor: "rgba(59,130,246,0.3)",
-          boxShadow:
-            "0 0 40px rgba(37,99,235,0.3), 0 8px 32px rgba(0,0,0,0.2)",
-        }}
-      >
-        <Globe className="w-10 h-10 text-white" strokeWidth={1.5} />
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════
-   TreeViewer3D — main generic component
+   TreeViewer3D — Generic reusable 3D tree viewer
    ═══════════════════════════════════════════════════════════ */
 
 export interface TreeViewer3DProps {
-  /** The tree data to visualize — any PlatformTreeNode[] */
   nodes: PlatformTreeNode[];
-  /** Whether the current user is a guest (hides create buttons) */
   isGuest?: boolean;
-  /**
-   * Render prop for the center sphere content.
-   * Receives `visible` boolean for entrance animation sync.
-   * Defaults to a plain globe icon.
-   */
-  centerContent?: (visible: boolean) => React.ReactNode;
-  /** Initial pitch angle in degrees (default: -10) */
+  /** Render prop for center content (e.g. globe orb). Receives `visible` for entrance animation. */
+  centerContent?: (visible: boolean) => ReactNode;
   initialRotX?: number;
-  /** Initial yaw angle in degrees (default: 0) */
   initialRotY?: number;
+  maxDepthLimit?: number;
 }
 
 export default function TreeViewer3D({
   nodes,
   isGuest = false,
   centerContent,
-  initialRotX = -10,
-  initialRotY = 0,
+  initialRotX = -12,
+  initialRotY = 25,
+  maxDepthLimit = 2,
 }: TreeViewer3DProps) {
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -356,26 +279,23 @@ export default function TreeViewer3D({
     function handleResize() {
       const w = Math.min(window.innerWidth - 32, 900);
       setSceneW(w);
-      setSceneH(Math.min(w * 0.85, 750));
+      setSceneH(Math.min(w * 0.88, 780));
     }
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const r1 = Math.min(sceneW, sceneH) * 0.28 * zoom;
-  const r2 = Math.min(sceneW, sceneH) * 0.46 * zoom;
+  // Sphere radii scale with scene size and zoom
+  const baseR = Math.min(sceneW, sceneH) * 0.30 * zoom;
+  const r1 = baseR;
+  const r2 = baseR * 1.65;
 
-  const layout3D = useMemo(
-    () => computeLayout3D(nodes, depth, r1, r2),
-    [nodes, depth, r1, r2],
-  );
+  const layout3D = useMemo(() => computeLayout3D(nodes, depth, r1, r2), [nodes, depth, r1, r2]);
 
   const nodeMap = useMemo(() => {
     const map: Record<string, LayoutNode3D> = {};
-    layout3D.forEach((ln) => {
-      map[ln.node.id] = ln;
-    });
+    layout3D.forEach(ln => { map[ln.node.id] = ln; });
     return map;
   }, [layout3D]);
 
@@ -385,14 +305,18 @@ export default function TreeViewer3D({
   const cy = sceneH / 2;
 
   const projected = useMemo(() => {
-    return layout3D.map((ln) => {
+    return layout3D.map(ln => {
       const rotated = rotate3D(ln.pos, rxRad, ryRad);
       const proj = project(rotated, PERSPECTIVE, cx, cy);
       return { ln, ...proj };
     });
   }, [layout3D, rxRad, ryRad, cx, cy]);
 
-  /* ── Drag handlers ── */
+  const globeProj = useMemo(() => {
+    return project(rotate3D({ x: 0, y: 0, z: 0 }, rxRad, ryRad), PERSPECTIVE, cx, cy);
+  }, [rxRad, ryRad, cx, cy]);
+
+  /* ── Drag ── */
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest("button, a")) return;
     setDragging(true);
@@ -400,23 +324,20 @@ export default function TreeViewer3D({
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
   }, []);
 
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!dragging) return;
-      const dx = e.clientX - lastPointer.current.x;
-      const dy = e.clientY - lastPointer.current.y;
-      lastPointer.current = { x: e.clientX, y: e.clientY };
-      setRotY((prev) => prev + dx * 0.4);
-      setRotX((prev) => Math.max(-60, Math.min(60, prev - dy * 0.4)));
-    },
-    [dragging],
-  );
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastPointer.current.x;
+    const dy = e.clientY - lastPointer.current.y;
+    lastPointer.current = { x: e.clientX, y: e.clientY };
+    setRotY(prev => prev + dx * 0.4);
+    setRotX(prev => Math.max(-80, Math.min(80, prev - dy * 0.4)));
+  }, [dragging]);
 
   const onPointerUp = useCallback(() => setDragging(false), []);
 
   const onWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    setZoom((prev) => Math.max(0.5, Math.min(2, prev - e.deltaY * 0.001)));
+    setZoom(prev => Math.max(0.4, Math.min(2.2, prev - e.deltaY * 0.001)));
   }, []);
 
   const resetView = useCallback(() => {
@@ -432,138 +353,70 @@ export default function TreeViewer3D({
 
   return (
     <div className="relative w-full flex flex-col items-center">
-      {/* ── Controls ── */}
+      {/* Controls */}
       <div className="flex items-center gap-2 mb-3 z-30 relative">
-        <div
-          className="flex items-center gap-1 rounded-full px-3 py-1.5 border"
-          style={{
-            backgroundColor: "var(--card)",
-            borderColor: "var(--border)",
-          }}
-        >
-          <Layers
-            className="w-3.5 h-3.5"
-            style={{ color: "var(--muted-foreground)" }}
-          />
-          <button
-            onClick={() => setDepth((d) => Math.max(1, d - 1))}
-            disabled={depth <= 1}
+        <div className="flex items-center gap-1 rounded-full px-3 py-1.5 border" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
+          <Layers className="w-3.5 h-3.5" style={{ color: "var(--muted-foreground)" }} />
+          <button onClick={() => setDepth(d => Math.max(1, d - 1))} disabled={depth <= 1}
             className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold disabled:opacity-30"
-            style={{ color: "var(--foreground)" }}
-            aria-label={t("tree.lessDepth")}
-          >
-            −
+            style={{ color: "var(--foreground)" }} aria-label={t("tree.lessDepth")}>−</button>
+          <span className="text-xs font-medium px-1" style={{ color: "var(--foreground)" }}>{depth}</span>
+          <button onClick={() => setDepth(d => Math.min(maxDepthLimit, d + 1))} disabled={depth >= maxDepthLimit}
+            className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold disabled:opacity-30"
+            style={{ color: "var(--foreground)" }} aria-label={t("tree.moreDepth")}>+</button>
+        </div>
+
+        <div className="flex items-center gap-1 rounded-full px-2 py-1.5 border" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
+          <button onClick={() => setZoom(z => Math.max(0.4, z - 0.15))}
+            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5" aria-label="Zoom out">
+            <ZoomOut className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />
           </button>
-          <span
-            className="text-xs font-medium px-1"
-            style={{ color: "var(--foreground)" }}
-          >
-            {depth}
-          </span>
-          <button
-            onClick={() => setDepth((d) => Math.min(2, d + 1))}
-            disabled={depth >= 2}
-            className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold disabled:opacity-30"
-            style={{ color: "var(--foreground)" }}
-            aria-label={t("tree.moreDepth")}
-          >
-            +
+          <button onClick={() => setZoom(z => Math.min(2.2, z + 0.15))}
+            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5" aria-label="Zoom in">
+            <ZoomIn className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />
           </button>
         </div>
 
-        <div
-          className="flex items-center gap-1 rounded-full px-2 py-1.5 border"
-          style={{
-            backgroundColor: "var(--card)",
-            borderColor: "var(--border)",
-          }}
-        >
-          <button
-            onClick={() => setZoom((z) => Math.max(0.5, z - 0.15))}
-            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5"
-            aria-label="Zoom out"
-          >
-            <ZoomOut
-              className="w-3.5 h-3.5"
-              style={{ color: "var(--foreground)" }}
-            />
-          </button>
-          <button
-            onClick={() => setZoom((z) => Math.min(2, z + 0.15))}
-            className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5"
-            aria-label="Zoom in"
-          >
-            <ZoomIn
-              className="w-3.5 h-3.5"
-              style={{ color: "var(--foreground)" }}
-            />
-          </button>
-        </div>
-
-        <button
-          onClick={resetView}
+        <button onClick={resetView}
           className="w-8 h-8 rounded-full flex items-center justify-center border hover:bg-black/5"
-          style={{
-            backgroundColor: "var(--card)",
-            borderColor: "var(--border)",
-          }}
-          aria-label={t("tree.resetView")}
-          title={t("tree.resetView")}
-        >
-          <RotateCcw
-            className="w-3.5 h-3.5"
-            style={{ color: "var(--foreground)" }}
-          />
+          style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+          aria-label={t("tree.resetView")} title={t("tree.resetView")}>
+          <RotateCcw className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />
         </button>
       </div>
 
-      {/* ── 3D Scene ── */}
+      {/* 3D Scene */}
       <div
         ref={containerRef}
         className="relative select-none overflow-hidden"
-        style={{
-          width: sceneW,
-          height: sceneH,
-          cursor: dragging ? "grabbing" : "grab",
-        }}
+        style={{ width: sceneW, height: sceneH, cursor: dragging ? "grabbing" : "grab" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onWheel={onWheel}
       >
-        {/* ── SVG branches (projected 2D) ── */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          viewBox={`0 0 ${sceneW} ${sceneH}`}
-          style={{ zIndex: 1 }}
-        >
+        {/* SVG branches */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${sceneW} ${sceneH}`} style={{ zIndex: 1 }}>
           {projected.map(({ ln, sx, sy }) => {
             let psx: number, psy: number;
             if (ln.parentId && nodeMap[ln.parentId]) {
               const parent = nodeMap[ln.parentId];
               const pRot = rotate3D(parent.pos, rxRad, ryRad);
               const pProj = project(pRot, PERSPECTIVE, cx, cy);
-              psx = pProj.sx;
-              psy = pProj.sy;
+              psx = pProj.sx; psy = pProj.sy;
             } else if (ln.level === 1) {
-              // Connect to center (always at cx, cy)
-              psx = cx;
-              psy = cy;
+              psx = globeProj.sx; psy = globeProj.sy;
             } else {
               return null;
             }
 
-            const isActive =
-              hovered === ln.node.id ||
-              (ln.parentId != null && hovered === ln.parentId) ||
-              (ln.level === 1 &&
-                nodes
-                  .find((b) => b.id === ln.node.id)
-                  ?.children?.some((c) => c.id === hovered));
+            const isActive = hovered === ln.node.id
+              || (ln.parentId && hovered === ln.parentId)
+              || (ln.level === 1 && nodes.find(b => b.id === ln.node.id)?.children?.some(c => c.id === hovered));
 
             const mx = (psx + sx) / 2;
-            const my = (psy + sy) / 2 - 10;
+            const my = (psy + sy) / 2 - 8;
             const d = `M ${psx} ${psy} Q ${mx} ${my}, ${sx} ${sy}`;
 
             return (
@@ -572,37 +425,31 @@ export default function TreeViewer3D({
                 d={d}
                 fill="none"
                 stroke={ln.node.color}
-                strokeWidth={isActive ? 2.5 : 1.5}
+                strokeWidth={isActive ? 2.5 : 1.2}
                 strokeLinecap="round"
-                opacity={visible ? (isActive ? 0.8 : 0.25) : 0}
-                style={{
-                  transition: "opacity 0.3s, stroke-width 0.2s",
-                  filter: isActive
-                    ? `drop-shadow(0 0 4px ${ln.node.color})`
-                    : "none",
-                }}
+                opacity={visible ? (isActive ? 0.85 : 0.2) : 0}
+                style={{ transition: "opacity 0.3s, stroke-width 0.2s", filter: isActive ? `drop-shadow(0 0 4px ${ln.node.color})` : "none" }}
               />
             );
           })}
         </svg>
 
-        {/* ── Center sphere content ── */}
-        <div
-          className="absolute flex flex-col items-center"
-          style={{
-            left: "50%",
-            top: "50%",
-            transform: `translate(-50%, -50%) scale(${visible ? 1 : 0.5})`,
-            opacity: visible ? 1 : 0,
-            transition:
-              "opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-            zIndex: 101,
-          }}
-        >
-          {centerContent ? centerContent(visible) : <DefaultCenter />}
-        </div>
+        {/* Center content (rendered via prop) */}
+        {centerContent && (
+          <div
+            className="absolute flex flex-col items-center"
+            style={{
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: Math.round(globeProj.scale * 1000) + 1,
+            }}
+          >
+            {centerContent(visible)}
+          </div>
+        )}
 
-        {/* ── Node cards (sorted by z-depth, furthest first) ── */}
+        {/* Node cards (z-sorted) */}
         {sortedProjected.map(({ ln, sx, sy, scale }) => (
           <NodeCard3D
             key={ln.node.id}
@@ -618,7 +465,6 @@ export default function TreeViewer3D({
         ))}
       </div>
 
-      {/* Drag hint */}
       <p className="text-[10px] mt-2" style={{ color: "var(--muted-foreground)" }}>
         {t("tree.dragHint")}
       </p>
