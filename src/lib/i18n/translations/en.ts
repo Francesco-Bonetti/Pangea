@@ -1058,6 +1058,43 @@ const en = {
     expandBranch: "Expand branch",
   },
 
+  identity: {
+    // Tier labels
+    tierGhost: "Ghost",
+    tierResident: "Resident",
+    tierCitizen: "Citizen",
+    tierGuarantor: "Guarantor",
+    // Gate popup
+    verificationRequired: "Sovereignty Verification Required",
+    verificationDesc: "To {action}, you need to verify your identity. This protects democratic integrity by ensuring one person = one vote.",
+    verificationDescExample: "For example, verifying via SPID or CIE grants you full citizen rights: voting on proposals, submitting new laws, and running for elections.",
+    currentTier: "Your current tier: {tier}",
+    requiredTier: "Required tier: {tier}",
+    verifyNow: "Verify Identity",
+    verifyLater: "Maybe Later",
+    upgradePrompt: "Upgrade your identity to unlock more actions",
+    // Actions that require verification
+    actionVote: "vote on proposals",
+    actionPropose: "submit proposals",
+    actionDelegate: "create delegations",
+    actionCandidate: "run for election",
+    actionCreateGroup: "create groups",
+    // Simulator (testing)
+    simulatorTitle: "Identity Simulator (Testing)",
+    simulatorDesc: "Simulate identity verification for testing purposes. In production, this will use real SPID/CIE providers.",
+    simulateSPID: "Simulate SPID Verification",
+    simulateCIE: "Simulate CIE Verification",
+    simulatePhone: "Simulate Phone Verification",
+    simulationSuccess: "Identity verified successfully! You are now a {tier}.",
+    simulationError: "Verification failed. Please try again.",
+    fiscalCodePlaceholder: "Enter simulated fiscal code",
+    phonePlaceholder: "Enter simulated phone number",
+    // Badge
+    tierBadge: "Tier {level}",
+    verified: "Verified",
+    unverified: "Unverified",
+  },
+
 };
 
 export default en;

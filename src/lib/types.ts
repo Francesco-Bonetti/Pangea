@@ -10,6 +10,30 @@ export type UserRole = "citizen" | "moderator" | "admin";
 export type DelegationStatus = "pending" | "accepted" | "rejected";
 export type ProposalType = "new" | "amendment" | "repeal";
 
+// --- Identity Tiers (Diamond Edition DE-01) ---
+export type IdentityTier = 0 | 1 | 2 | 3;
+export type IdentityProvider = "email" | "phone" | "spid" | "cie" | "eidas";
+
+// Tier labels for UI
+export const IDENTITY_TIER_LABELS: Record<IdentityTier, string> = {
+  0: "ghost",       // T0: email only
+  1: "resident",    // T1: + phone verified
+  2: "citizen",     // T2: + SPID/CIE verified
+  3: "guarantor",   // T3: Phase 2 with staking
+};
+
+// Tier minimum requirements for actions
+export const TIER_REQUIREMENTS = {
+  read: 0 as IdentityTier,
+  comment: 0 as IdentityTier,
+  discuss: 0 as IdentityTier,
+  vote: 2 as IdentityTier,
+  propose: 2 as IdentityTier,
+  delegate: 1 as IdentityTier,
+  run_for_election: 2 as IdentityTier,
+  create_group: 1 as IdentityTier,
+} as const;
+
 // --- Privacy Enums ---
 export type ProfileVisibility = "public" | "registered_only" | "private";
 export type DmPolicy = "everyone" | "followed_only" | "nobody";
@@ -29,7 +53,30 @@ export interface Profile {
   user_code?: string | null;
   allow_delegations?: boolean;
   is_searchable?: boolean;
+  identity_tier: IdentityTier;
   created_at: string;
+}
+
+// --- Identity Proofs (Diamond Edition DE-02) ---
+export interface UserIdentityProof {
+  id: string;
+  user_id: string;
+  provider_type: IdentityProvider;
+  proof_hash: string;
+  tier_granted: IdentityTier;
+  verified_at: string;
+  expires_at: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+// Response from verify_identity RPC
+export interface VerifyIdentityResult {
+  success: boolean;
+  tier?: IdentityTier;
+  provider?: IdentityProvider;
+  error?: string;
+  message?: string;
 }
 
 export interface Category {

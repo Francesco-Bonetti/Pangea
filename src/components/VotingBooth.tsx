@@ -2,8 +2,11 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Proposal, ProposalOption, DistributedResult } from "@/lib/types";
+import type { Proposal, ProposalOption, DistributedResult, IdentityTier } from "@/lib/types";
+import { TIER_REQUIREMENTS } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
+import TierGate, { useTierGate } from "@/components/TierGate";
+import { useIdentityTier } from "@/hooks/useIdentityTier";
 import {
   CheckCircle2,
   Lock,
@@ -73,6 +76,10 @@ export default function VotingBooth({
   const { toast } = useToast();
   const supabase = createClient();
 
+  // Identity tier gate (DE-04)
+  const { tier: userTier, loading: tierLoading } = useIdentityTier(userId);
+  const { checkTier, gateOpen, gateAction, gateRequiredTier, closeGate } = useTierGate(userTier);
+
   const isActive = proposal.status === "active";
   const isClosed = proposal.status === "closed";
   const isCuration = proposal.status === "curation";
@@ -134,8 +141,10 @@ export default function VotingBooth({
     []
   );
 
-  // ── Positive Friction: open dialog instead of voting directly ──
+  // ── Positive Friction: tier check + confirm dialog ──
   function requestVote(type: "distributed" | "yea" | "nay" | "abstain") {
+    // DE-04: Check identity tier before allowing vote
+    if (!checkTier(TIER_REQUIREMENTS.vote, "identity.actionVote")) return;
     setPendingVoteType(type);
     setConfirmDialogOpen(true);
   }
@@ -335,6 +344,15 @@ export default function VotingBooth({
   return (
     <div className="sticky top-24">
       {/* Positive Friction: Vote Confirmation Dialog */}
+      {/* DE-04: Identity tier gate popup */}
+      <TierGate
+        open={gateOpen}
+        onClose={closeGate}
+        currentTier={userTier}
+        requiredTier={gateRequiredTier}
+        actionKey={gateAction}
+      />
+
       <AlertDialog
         open={confirmDialogOpen}
         onClose={cancelVote}
