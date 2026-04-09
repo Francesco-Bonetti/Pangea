@@ -5,37 +5,41 @@ import {
   useRef,
   useEffect,
   useCallback,
+  useMemo,
   type ReactNode,
+  type MouseEvent,
 } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Globe,
-  Plus,
-  ChevronRight,
-  Box,
-} from "lucide-react";
+import { Globe, Plus, ChevronRight, Box } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { ICON_MAP, type PlatformTreeNode } from "@/lib/platform-nodes";
 
 /* ═══════════════════════════════════════════════════════════
-   TreeViewer2D — Horizontal Miller-column tree
-   Root on left → children expand right → auto-scroll
+   TreeViewer2D v2 — Generic horizontal tree with glassmorphism
+   ─────────────────────────────────────────────────────────
+   • Compact cards → root level fits on screen without scroll
+   • Expand reveals children to the right
+   • Breadcrumb trail for navigation context
+   • Dimming of non-active siblings for visual focus
+   • Reusable: works for any PlatformTreeNode[] data
    ═══════════════════════════════════════════════════════════ */
 
-/* ── Types ─────────────────────────────────────────────── */
-
 export interface TreeViewer2DProps {
+  /** Tree data — any nested PlatformTreeNode array */
   nodes: PlatformTreeNode[];
   isGuest?: boolean;
-  /** Called when user clicks "3D View" button */
+  /** Callback to switch to 3D view */
   onToggle3D?: () => void;
-  /** Render prop for the root orb — receives nothing, PangeaTree supplies it */
+  /** Custom root element (left of the tree) */
   rootContent?: () => ReactNode;
+  /** Hide the breadcrumb (e.g. when used inside a section) */
+  hideBreadcrumb?: boolean;
+  /** Hide the 3D toggle button */
+  hideToggle3D?: boolean;
 }
 
 /* ── Helpers ───────────────────────────────────────────── */
 
-/** Build a flat lookup: id → PlatformTreeNode */
 function buildLookup(
   nodes: PlatformTreeNode[],
   map: Map<string, PlatformTreeNode> = new Map(),
@@ -47,224 +51,340 @@ function buildLookup(
   return map;
 }
 
-/* ── Connector line (SVG curved) ─────────────────────── */
+/* ── Compact Node Card ─────────────────────────────────── */
 
-function ConnectorLine({ color, height }: { color: string; height: number }) {
-  const w = 48;
-  const h = Math.abs(height);
-  const sign = height >= 0 ? 1 : -1;
-  const y2 = sign * h;
-
-  return (
-    <svg
-      width={w}
-      height={h + 4}
-      viewBox={`0 ${sign < 0 ? -h - 2 : -2} ${w} ${h + 4}`}
-      className="shrink-0 hidden sm:block"
-      style={{ overflow: "visible" }}
-    >
-      <path
-        d={`M 0 0 C ${w * 0.5} 0, ${w * 0.5} ${y2}, ${w} ${y2}`}
-        fill="none"
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        opacity={0.35}
-      />
-    </svg>
-  );
-}
-
-/* ── Single node card ────────────────────────────────── */
-
-function NodeCard2D({
+function TreeNodeCard({
   node,
   isExpanded,
+  isDimmed,
   onToggleExpand,
   isGuest,
-  isActive,
+  enterDelay,
 }: {
   node: PlatformTreeNode;
   isExpanded: boolean;
+  isDimmed: boolean;
   onToggleExpand: () => void;
   isGuest: boolean;
-  isActive: boolean;
+  enterDelay: number;
 }) {
   const { t } = useLanguage();
   const router = useRouter();
   const Icon = ICON_MAP[node.iconKey] || Globe;
   const hasChildren = (node.children?.length ?? 0) > 0;
+  const childCount = node.children?.length ?? 0;
+  const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setVisible(true), enterDelay);
+    return () => clearTimeout(id);
+  }, [enterDelay]);
+
+  const handleCardClick = useCallback(
+    (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.closest("[data-expand-btn]") || t.closest("[data-create-btn]")) return;
+      router.push(node.actionHref || node.href);
+    },
+    [router, node.actionHref, node.href],
+  );
 
   return (
     <div
-      className="relative flex flex-col rounded-2xl border backdrop-blur-sm transition-all duration-300"
       style={{
-        minWidth: 220,
-        maxWidth: 300,
-        padding: "16px 18px",
-        borderColor: isActive
-          ? node.color
-          : "var(--border)",
-        backgroundColor: isActive
-          ? `color-mix(in srgb, ${node.color} 6%, var(--card))`
-          : "var(--card)",
-        boxShadow: isActive
-          ? `0 0 20px ${node.glow}, 0 4px 20px rgba(0,0,0,0.12)`
-          : "0 1px 6px rgba(0,0,0,0.06)",
+        opacity: visible ? (isDimmed ? 0.4 : 1) : 0,
+        transform: visible
+          ? isDimmed
+            ? "scale(0.97)"
+            : "translateX(0)"
+          : "translateX(-10px)",
+        transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        filter: isDimmed ? "grayscale(0.25)" : "none",
+        pointerEvents: isDimmed ? "none" as const : "auto" as const,
       }}
     >
-      {/* Header: icon + title */}
-      <div className="flex items-start gap-3 mb-2">
+      <div
+        className="relative flex items-center gap-2.5 rounded-xl cursor-pointer"
+        onClick={handleCardClick}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          width: 232,
+          padding: "10px 10px 10px 14px",
+          background: isExpanded
+            ? `color-mix(in srgb, ${node.color} 6%, var(--card))`
+            : "var(--card)",
+          border: `1px solid ${
+            isExpanded
+              ? node.color + "45"
+              : hovered
+                ? node.color + "22"
+                : "var(--border)"
+          }`,
+          boxShadow: isExpanded
+            ? `0 4px 24px ${node.glow}, inset 0 1px 0 ${node.color}08`
+            : hovered
+              ? `0 4px 16px rgba(0,0,0,0.05), 0 0 0 1px ${node.color}0a`
+              : "0 1px 3px rgba(0,0,0,0.02)",
+          transform: hovered && !isExpanded ? "translateY(-1px)" : "none",
+          transition: "all 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        {/* Left accent bar */}
         <div
-          className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+          className="absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-r-full"
+          style={{
+            background: `linear-gradient(180deg, ${node.color}, ${node.colorLight})`,
+            opacity: isExpanded ? 1 : 0,
+            transform: isExpanded ? "scaleY(1)" : "scaleY(0)",
+            transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            boxShadow: isExpanded ? `0 0 8px ${node.glow}` : "none",
+          }}
+        />
+
+        {/* Icon badge */}
+        <div
+          className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
           style={{
             background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
-            boxShadow: `0 2px 10px ${node.glow}`,
+            boxShadow: `0 2px 8px ${node.glow}`,
+            transition: "transform 0.2s ease",
+            transform: hovered ? "scale(1.06)" : "scale(1)",
           }}
         >
-          <Icon className="w-5 h-5 text-white" strokeWidth={2} />
+          <Icon className="w-[17px] h-[17px] text-white" strokeWidth={1.8} />
         </div>
+
+        {/* Text */}
         <div className="min-w-0 flex-1">
-          <h3
-            className="text-base font-bold leading-tight truncate"
+          <span
+            className="text-[13px] font-semibold leading-tight block truncate"
             style={{ color: "var(--foreground)" }}
           >
             {t(node.labelKey)}
-          </h3>
+          </span>
           <p
-            className="text-xs leading-snug mt-0.5 line-clamp-2"
+            className="text-[10px] leading-snug mt-0.5 truncate"
             style={{ color: "var(--muted-foreground)" }}
           >
             {t(node.descKey)}
           </p>
         </div>
-      </div>
 
-      {/* Buttons */}
-      <div className="flex items-center gap-2 mt-auto pt-3 border-t"
-        style={{ borderColor: "color-mix(in srgb, var(--border) 50%, transparent)" }}
-      >
-        {/* Action button */}
-        <button
-          onClick={() => router.push(node.actionHref || node.href)}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-white text-sm font-semibold transition-all duration-200 hover:brightness-110 active:scale-[0.97]"
-          style={{
-            background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
-            boxShadow: `0 2px 8px ${node.glow}`,
-          }}
-        >
-          <ChevronRight className="w-3.5 h-3.5" />
-          {t(node.actionKey)}
-        </button>
-
-        {/* Expand button */}
+        {/* Expand button + count */}
         {hasChildren && (
           <button
-            onClick={onToggleExpand}
-            className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
+            data-expand-btn=""
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand();
+            }}
+            className="shrink-0 flex items-center gap-px h-7 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
+              padding: isExpanded ? "0 6px" : "0 5px 0 7px",
               backgroundColor: isExpanded
                 ? node.color
-                : "color-mix(in srgb, var(--foreground) 8%, transparent)",
-              color: isExpanded ? "#fff" : "var(--foreground)",
-              boxShadow: isExpanded ? `0 2px 10px ${node.glow}` : "none",
+                : "color-mix(in srgb, var(--foreground) 5%, transparent)",
+              color: isExpanded ? "#fff" : "var(--muted-foreground)",
+              boxShadow: isExpanded ? `0 2px 8px ${node.glow}` : "none",
             }}
             title={t("tree.expandBranch")}
           >
+            {!isExpanded && (
+              <span className="text-[10px] font-medium tabular-nums">
+                {childCount}
+              </span>
+            )}
             <ChevronRight
-              className="w-5 h-5 transition-transform duration-300"
-              style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+              className="w-3.5 h-3.5 transition-transform duration-300"
+              style={{
+                transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+              }}
             />
           </button>
         )}
-      </div>
 
-      {/* Create badge */}
-      {node.canCreate && !isGuest && node.createHref && (
-        <button
-          onClick={() => router.push(node.createHref!)}
-          className="absolute -top-2 -right-2 flex items-center gap-0.5 px-2.5 py-1 rounded-full text-white text-[10px] font-bold shadow-lg hover:scale-105 active:scale-95 z-10 transition-transform"
-          style={{
-            background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
-            boxShadow: `0 2px 8px ${node.glow}`,
-          }}
-        >
-          <Plus className="w-3 h-3" />
-          {t("tree.createNew")}
-        </button>
-      )}
+        {/* Navigate hint on hover */}
+        {!hasChildren && hovered && (
+          <ChevronRight
+            className="shrink-0 w-4 h-4"
+            style={{
+              color: node.color,
+              opacity: 0.6,
+              animation: "fadeIn 0.15s ease",
+            }}
+          />
+        )}
+
+        {/* Create badge */}
+        {node.canCreate && !isGuest && node.createHref && (
+          <button
+            data-create-btn=""
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(node.createHref!);
+            }}
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-md hover:scale-110 active:scale-95 z-10 transition-transform duration-200"
+            style={{
+              background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
+              boxShadow: `0 2px 6px ${node.glow}`,
+            }}
+            title={t("tree.createNew")}
+          >
+            <Plus className="w-3 h-3" strokeWidth={2.5} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
-/* ── Main component ──────────────────────────────────── */
+/* ── Branch connector between columns ────────────────── */
+
+function BranchLine({ color }: { color: string }) {
+  return (
+    <div className="shrink-0 flex items-center">
+      <div
+        className="w-5 sm:w-8 h-[2px] rounded-full"
+        style={{
+          background: `linear-gradient(90deg, ${color}55, ${color}12)`,
+          animation: "branchGrow 0.35s ease-out both",
+          transformOrigin: "left center",
+        }}
+      />
+    </div>
+  );
+}
+
+/* ── Breadcrumb trail ────────────────────────────────── */
+
+function TreeBreadcrumb({
+  path,
+  onNavigateToLevel,
+  onReset,
+}: {
+  path: { labelKey: string; color: string }[];
+  onNavigateToLevel: (level: number) => void;
+  onReset: () => void;
+}) {
+  const { t } = useLanguage();
+
+  if (path.length === 0) return null;
+
+  return (
+    <nav
+      className="flex items-center gap-0.5 mb-2.5 px-1"
+      style={{ animation: "fadeIn 0.25s ease" }}
+    >
+      <button
+        onClick={onReset}
+        className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] transition-opacity hover:opacity-70"
+        style={{ color: "var(--muted-foreground)" }}
+      >
+        <Globe className="w-3 h-3" />
+        Pangea
+      </button>
+
+      {path.map((seg, i) => (
+        <div key={i} className="flex items-center gap-0.5">
+          <ChevronRight
+            className="w-3 h-3"
+            style={{ color: "var(--muted-foreground)", opacity: 0.35 }}
+          />
+          <button
+            onClick={() => onNavigateToLevel(i)}
+            className="px-2 py-1 rounded-md text-[11px] font-semibold transition-opacity hover:opacity-75"
+            style={{ color: seg.color }}
+          >
+            {t(seg.labelKey)}
+          </button>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Main TreeViewer2D
+   ═══════════════════════════════════════════════════════════ */
 
 export default function TreeViewer2D({
   nodes,
   isGuest = false,
   onToggle3D,
   rootContent,
+  hideBreadcrumb = false,
+  hideToggle3D = false,
 }: TreeViewer2DProps) {
   const { t } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const lookup = useRef(buildLookup(nodes));
 
-  // expandedAtLevel[level] = nodeId — only one expanded per level
   const [expandedAtLevel, setExpandedAtLevel] = useState<
     Record<number, string>
   >({});
+  const [entered, setEntered] = useState(false);
 
   // Entrance animation
-  const [entered, setEntered] = useState(false);
   useEffect(() => {
-    const id = setTimeout(() => setEntered(true), 80);
+    const id = setTimeout(() => setEntered(true), 50);
     return () => clearTimeout(id);
   }, []);
 
-  // Auto-scroll right when new columns appear
-  const colCount = useRef(1);
+  // Auto-scroll right when deeper columns appear
+  const prevColCount = useRef(1);
   useEffect(() => {
     const numCols = 1 + Object.keys(expandedAtLevel).length;
-    if (numCols > colCount.current && scrollRef.current) {
+    if (numCols > prevColCount.current && scrollRef.current) {
       scrollRef.current.scrollTo({
         left: scrollRef.current.scrollWidth,
         behavior: "smooth",
       });
     }
-    colCount.current = numCols;
+    prevColCount.current = numCols;
   }, [expandedAtLevel]);
 
-  const toggleExpand = useCallback(
-    (nodeId: string, level: number) => {
-      setExpandedAtLevel((prev) => {
-        const next: Record<number, string> = {};
-        // Keep all levels < current level
-        for (const [k, v] of Object.entries(prev)) {
-          const lvl = Number(k);
-          if (lvl < level) next[lvl] = v;
-        }
-        // Toggle this level
-        if (prev[level] !== nodeId) {
-          next[level] = nodeId;
-        }
-        // Deeper levels are cleared (already not copied)
-        return next;
-      });
-    },
-    [],
-  );
+  /* ── Expand / collapse ─────────────────────────────── */
 
-  /* Build visible columns */
-  const columns: { nodes: PlatformTreeNode[]; level: number; parentColor: string }[] = [];
+  const toggleExpand = useCallback((nodeId: string, level: number) => {
+    setExpandedAtLevel((prev) => {
+      const next: Record<number, string> = {};
+      for (const [k, v] of Object.entries(prev)) {
+        const lvl = Number(k);
+        if (lvl < level) next[lvl] = v;
+      }
+      if (prev[level] !== nodeId) next[level] = nodeId;
+      return next;
+    });
+  }, []);
 
-  // Column 0: root-level nodes
+  const collapseToLevel = useCallback((level: number) => {
+    setExpandedAtLevel((prev) => {
+      const next: Record<number, string> = {};
+      for (const [k, v] of Object.entries(prev)) {
+        const lvl = Number(k);
+        if (lvl <= level) next[lvl] = v;
+      }
+      return next;
+    });
+  }, []);
+
+  const collapseAll = useCallback(() => setExpandedAtLevel({}), []);
+
+  /* ── Build visible columns ─────────────────────────── */
+
+  const columns: {
+    nodes: PlatformTreeNode[];
+    level: number;
+    parentColor: string;
+  }[] = [];
+
   columns.push({ nodes, level: 0, parentColor: "#2563eb" });
 
-  // Deeper columns from expanded nodes
   let lvl = 0;
   while (expandedAtLevel[lvl] !== undefined) {
-    const parentId = expandedAtLevel[lvl];
-    const parent = lookup.current.get(parentId);
+    const parent = lookup.current.get(expandedAtLevel[lvl]);
     if (parent?.children?.length) {
       columns.push({
         nodes: parent.children,
@@ -277,162 +397,177 @@ export default function TreeViewer2D({
     lvl++;
   }
 
+  /* ── Breadcrumb path ───────────────────────────────── */
+
+  const breadcrumbPath = useMemo(() => {
+    const path: { labelKey: string; color: string }[] = [];
+    let l = 0;
+    while (expandedAtLevel[l]) {
+      const node = lookup.current.get(expandedAtLevel[l]);
+      if (node) path.push({ labelKey: node.labelKey, color: node.color });
+      l++;
+    }
+    return path;
+  }, [expandedAtLevel]);
+
+  /* ── Active section color (for ambient glow) ───────── */
+
+  const activeColor =
+    breadcrumbPath.length > 0
+      ? breadcrumbPath[breadcrumbPath.length - 1].color
+      : "#2563eb";
+
   return (
     <div className="relative w-full">
-      {/* Scroll container */}
+      {/* Ambient background glow (follows active section color) */}
+      <div
+        className="absolute inset-0 pointer-events-none rounded-2xl"
+        style={{
+          background: `radial-gradient(ellipse at 20% 50%, ${activeColor}05 0%, transparent 65%)`,
+          transition: "background 0.6s ease",
+        }}
+      />
+
+      {/* Breadcrumb */}
+      {!hideBreadcrumb && (
+        <TreeBreadcrumb
+          path={breadcrumbPath}
+          onNavigateToLevel={collapseToLevel}
+          onReset={collapseAll}
+        />
+      )}
+
+      {/* Scroll container (horizontal scroll only for deep trees) */}
       <div
         ref={scrollRef}
         className="w-full overflow-x-auto overflow-y-hidden"
-        style={{ minHeight: "75vh" }}
       >
         <div
-          className="flex items-stretch gap-0 sm:gap-2 px-2 sm:px-6 py-6 transition-all duration-500"
+          className="flex items-center px-1 sm:px-2 py-2"
           style={{
-            minHeight: "75vh",
             opacity: entered ? 1 : 0,
-            transform: entered ? "translateX(0)" : "translateX(-20px)",
-            transition: "opacity 0.5s ease, transform 0.5s ease",
+            transition: "opacity 0.35s ease",
           }}
         >
-          {/* Root orb — leftmost */}
-          <div className="shrink-0 flex flex-col items-center justify-center px-2 sm:px-6">
+          {/* Root orb */}
+          <div className="shrink-0 flex flex-col items-center justify-center px-2 sm:px-4">
             {rootContent ? (
               rootContent()
             ) : (
               <div className="flex flex-col items-center">
                 <div
-                  className="w-20 h-20 rounded-full flex items-center justify-center border-2"
+                  className="w-14 h-14 rounded-full flex items-center justify-center"
                   style={{
                     background:
                       "linear-gradient(135deg, #2563eb, #1d4ed8, #1e40af)",
-                    borderColor: "rgba(59,130,246,0.3)",
                     boxShadow:
-                      "0 0 40px rgba(37,99,235,0.3), 0 8px 32px rgba(0,0,0,0.2)",
+                      "0 0 28px rgba(37,99,235,0.2), 0 4px 16px rgba(0,0,0,0.12)",
                   }}
                 >
                   <Globe
-                    className="w-10 h-10 text-white"
+                    className="w-7 h-7 text-white"
                     strokeWidth={1.5}
                   />
                 </div>
-                <h1
-                  className="text-lg font-extrabold tracking-tight mt-2"
+                <span
+                  className="text-xs font-bold tracking-tight mt-1.5"
                   style={{ color: "var(--foreground)" }}
                 >
                   PANGEA
-                </h1>
-                <p
-                  className="text-[10px] text-center max-w-[120px]"
-                  style={{ color: "var(--muted-foreground)" }}
-                >
-                  {t("tree.subtitle")}
-                </p>
+                </span>
               </div>
             )}
           </div>
 
-          {/* Connector from root to first column */}
-          <div className="shrink-0 flex items-center">
-            <div
-              className="w-6 sm:w-10 h-0.5 rounded-full"
-              style={{
-                background:
-                  "linear-gradient(90deg, rgba(37,99,235,0.4), rgba(37,99,235,0.1))",
-              }}
-            />
-          </div>
+          {/* Root → first column connector */}
+          <BranchLine color="#2563eb" />
 
-          {/* Columns */}
-          {columns.map((col, colIdx) => (
-            <div key={`col-${colIdx}`} className="flex items-stretch gap-0 sm:gap-2">
-              {/* Column of node cards */}
-              <div
-                className="flex flex-col justify-center gap-3 py-4"
-                style={{
-                  animation: colIdx > 0 ? "treeColIn 0.4s ease both" : undefined,
-                  animationDelay: colIdx > 0 ? "0.05s" : undefined,
-                }}
-              >
-                {col.nodes.map((node, nodeIdx) => {
-                  const isExpanded = expandedAtLevel[col.level] === node.id;
-                  return (
-                    <div
+          {/* Tree columns */}
+          {columns.map((col, colIdx) => {
+            const expandedId = expandedAtLevel[col.level];
+
+            return (
+              <div key={`col-${col.level}`} className="flex items-center">
+                {/* Cards stack */}
+                <div
+                  className="flex flex-col gap-1.5 py-1"
+                  style={{
+                    animation:
+                      colIdx > 0
+                        ? "treeSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both"
+                        : undefined,
+                  }}
+                >
+                  {col.nodes.map((node, nodeIdx) => (
+                    <TreeNodeCard
                       key={node.id}
-                      style={{
-                        opacity: entered ? 1 : 0,
-                        transform: entered
-                          ? "translateX(0)"
-                          : "translateX(-16px)",
-                        transition: `opacity 0.4s ease ${
-                          colIdx * 0.15 + nodeIdx * 0.04
-                        }s, transform 0.4s ease ${
-                          colIdx * 0.15 + nodeIdx * 0.04
-                        }s`,
-                      }}
-                    >
-                      <NodeCard2D
-                        node={node}
-                        isExpanded={isExpanded}
-                        onToggleExpand={() =>
-                          toggleExpand(node.id, col.level)
-                        }
-                        isGuest={isGuest}
-                        isActive={isExpanded}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Connector to next column */}
-              {expandedAtLevel[col.level] !== undefined &&
-                colIdx < columns.length - 1 && (
-                  <div className="shrink-0 flex items-center">
-                    <div
-                      className="w-6 sm:w-10 h-0.5 rounded-full"
-                      style={{
-                        background: `linear-gradient(90deg, ${
-                          lookup.current.get(expandedAtLevel[col.level])
-                            ?.color ?? "#666"
-                        }66, ${
-                          lookup.current.get(expandedAtLevel[col.level])
-                            ?.color ?? "#666"
-                        }1a)`,
-                      }}
+                      node={node}
+                      isExpanded={expandedId === node.id}
+                      isDimmed={!!expandedId && expandedId !== node.id}
+                      onToggleExpand={() =>
+                        toggleExpand(node.id, col.level)
+                      }
+                      isGuest={isGuest}
+                      enterDelay={colIdx * 100 + nodeIdx * 30}
                     />
-                  </div>
+                  ))}
+                </div>
+
+                {/* Connector to next column */}
+                {expandedId && colIdx < columns.length - 1 && (
+                  <BranchLine
+                    color={
+                      lookup.current.get(expandedId)?.color ?? "#666"
+                    }
+                  />
                 )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Floating 3D button */}
-      {onToggle3D && (
+      {/* Floating 3D toggle */}
+      {!hideToggle3D && onToggle3D && (
         <button
           onClick={onToggle3D}
-          className="absolute bottom-4 right-4 flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-sm font-semibold shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 z-30"
+          className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-white text-xs font-medium shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 z-30"
           style={{
             background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-            boxShadow:
-              "0 4px 20px rgba(37,99,235,0.35), 0 2px 8px rgba(0,0,0,0.15)",
+            boxShadow: "0 4px 16px rgba(37,99,235,0.3)",
           }}
         >
-          <Box className="w-4 h-4" />
+          <Box className="w-3.5 h-3.5" />
           {t("tree.switch3D")}
         </button>
       )}
 
-      {/* Keyframes */}
+      {/* Global keyframes */}
       <style jsx global>{`
-        @keyframes treeColIn {
+        @keyframes treeSlideIn {
           from {
             opacity: 0;
-            transform: translateX(-24px) scale(0.96);
+            transform: translateX(-16px) scale(0.97);
           }
           to {
             opacity: 1;
             transform: translateX(0) scale(1);
+          }
+        }
+        @keyframes branchGrow {
+          from {
+            transform: scaleX(0);
+          }
+          to {
+            transform: scaleX(1);
+          }
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
           }
         }
       `}</style>

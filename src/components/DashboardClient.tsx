@@ -8,7 +8,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ isGuest }: DashboardClientProps) {
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <PangeaTree isGuest={isGuest} />
     </div>
   );
