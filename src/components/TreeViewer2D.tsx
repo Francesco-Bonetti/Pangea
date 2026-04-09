@@ -10,27 +10,33 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Globe, Plus, ChevronRight, Box } from "lucide-react";
+import { Globe, Plus, ChevronRight, Loader2 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { ICON_MAP, type PlatformTreeNode } from "@/lib/platform-nodes";
 
 /* ═══════════════════════════════════════════════════════════
-   TreeViewer2D v3 — Horizontal tree with SVG bezier connectors
+   TreeViewer2D v4 — Dynamic mega-tree with lazy loading
    ─────────────────────────────────────────────────────────
-   • SVG curves connect FROM the expanded node TO each child
-   • Hover expands card to show full description
-   • Wider cards (300px) for readability
-   • Auto-shifts left when children overflow viewport
-   • Generic: works for any PlatformTreeNode[] data
+   • SVG bezier curves from expanded node to each child
+   • Slower, smoother hover animations
+   • Root orb stays fixed (no movement on hover)
+   • Longer description expansion on hover
+   • Auto-color derivation for dynamic (DB-loaded) nodes
+   • Loading spinner for async children
+   • No 3D toggle
    ═══════════════════════════════════════════════════════════ */
 
 export interface TreeViewer2DProps {
   nodes: PlatformTreeNode[];
   isGuest?: boolean;
-  onToggle3D?: () => void;
   rootContent?: () => ReactNode;
   hideBreadcrumb?: boolean;
-  hideToggle3D?: boolean;
+  /** Called when user expands a node that has dynamicChildSource */
+  onRequestChildren?: (
+    nodeId: string,
+    node: PlatformTreeNode,
+    parentDbId?: string,
+  ) => void;
 }
 
 /* ── Helpers ───────────────────────────────────────────── */
@@ -66,10 +72,15 @@ function TreeNodeCard({
   const { t } = useLanguage();
   const router = useRouter();
   const Icon = ICON_MAP[node.iconKey] || Globe;
-  const hasChildren = (node.children?.length ?? 0) > 0;
+  const hasChildren =
+    (node.children?.length ?? 0) > 0 || !!node.dynamicChildSource;
   const childCount = node.children?.length ?? 0;
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
+
+  // Resolve label: raw (DB) or i18n key
+  const label = node.rawLabel ? node.labelKey : t(node.labelKey);
+  const desc = node.rawDesc ? node.descKey : t(node.descKey);
 
   useEffect(() => {
     const id = setTimeout(() => setVisible(true), enterDelay);
@@ -89,14 +100,14 @@ function TreeNodeCard({
   return (
     <div
       style={{
-        opacity: visible ? (isDimmed ? 0.3 : 1) : 0,
+        opacity: visible ? (isDimmed ? 0.25 : 1) : 0,
         transform: visible
           ? isDimmed
             ? "scale(0.96)"
             : "translateX(0)"
           : "translateX(-12px)",
-        transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        filter: isDimmed ? "grayscale(0.3)" : "none",
+        transition: "all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1)",
+        filter: isDimmed ? "grayscale(0.35)" : "none",
         pointerEvents: isDimmed ? ("none" as const) : ("auto" as const),
       }}
     >
@@ -124,10 +135,8 @@ function TreeNodeCard({
               ? `0 6px 24px rgba(0,0,0,0.07), 0 0 0 1px ${node.color}10`
               : "0 1px 4px rgba(0,0,0,0.03)",
           transform:
-            hovered && !isExpanded && !isDimmed
-              ? "translateY(-2px)"
-              : "none",
-          transition: "all 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
+            hovered && !isExpanded && !isDimmed ? "translateY(-1px)" : "none",
+          transition: "all 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
         {/* Left accent bar */}
@@ -137,7 +146,7 @@ function TreeNodeCard({
             background: `linear-gradient(180deg, ${node.color}, ${node.colorLight})`,
             opacity: isExpanded ? 1 : 0,
             transform: isExpanded ? "scaleY(1)" : "scaleY(0)",
-            transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            transition: "all 0.5s cubic-bezier(0.34, 1.2, 0.64, 1)",
             boxShadow: isExpanded ? `0 0 10px ${node.glow}` : "none",
           }}
         />
@@ -148,8 +157,6 @@ function TreeNodeCard({
           style={{
             background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
             boxShadow: `0 3px 12px ${node.glow}`,
-            transition: "transform 0.2s ease",
-            transform: hovered ? "scale(1.06)" : "scale(1)",
           }}
         >
           <Icon className="w-[22px] h-[22px] text-white" strokeWidth={1.8} />
@@ -161,21 +168,21 @@ function TreeNodeCard({
             className="text-[15px] font-semibold leading-tight block"
             style={{ color: "var(--foreground)" }}
           >
-            {t(node.labelKey)}
+            {label}
           </span>
-          {/* Description — expands on hover */}
+          {/* Description — expands on hover (slower, taller) */}
           <div
             style={{
-              maxHeight: hovered ? "80px" : "20px",
+              maxHeight: hovered ? "120px" : "22px",
               overflow: "hidden",
-              transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "max-height 0.55s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
             <p
               className="text-[12px] leading-relaxed mt-1"
               style={{ color: "var(--muted-foreground)" }}
             >
-              {t(node.descKey)}
+              {desc}
             </p>
           </div>
         </div>
@@ -188,7 +195,7 @@ function TreeNodeCard({
               e.stopPropagation();
               onToggleExpand();
             }}
-            className="shrink-0 flex items-center gap-0.5 h-9 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 mt-px"
+            className="shrink-0 flex items-center gap-0.5 h-9 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 mt-px"
             style={{
               padding: isExpanded ? "0 8px" : "0 7px 0 10px",
               backgroundColor: isExpanded
@@ -197,19 +204,33 @@ function TreeNodeCard({
               color: isExpanded ? "#fff" : "var(--muted-foreground)",
               boxShadow: isExpanded ? `0 3px 10px ${node.glow}` : "none",
             }}
-            title={t("tree.expandBranch")}
+            title={node.rawLabel ? "Expand" : t("tree.expandBranch")}
           >
-            {!isExpanded && (
-              <span className="text-[11px] font-semibold tabular-nums">
-                {childCount}
-              </span>
+            {node.isLoading ? (
+              <Loader2
+                className="w-4 h-4 animate-spin"
+                style={{ color: isExpanded ? "#fff" : node.color }}
+              />
+            ) : (
+              <>
+                {!isExpanded && childCount > 0 && (
+                  <span className="text-[11px] font-semibold tabular-nums">
+                    {childCount}
+                  </span>
+                )}
+                {!isExpanded && childCount === 0 && node.dynamicChildSource && (
+                  <span className="text-[11px] font-semibold tabular-nums opacity-60">
+                    …
+                  </span>
+                )}
+                <ChevronRight
+                  className="w-4 h-4 transition-transform duration-500"
+                  style={{
+                    transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+                  }}
+                />
+              </>
             )}
-            <ChevronRight
-              className="w-4 h-4 transition-transform duration-300"
-              style={{
-                transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-              }}
-            />
           </button>
         )}
 
@@ -220,7 +241,7 @@ function TreeNodeCard({
             style={{
               color: node.color,
               opacity: 0.5,
-              animation: "tvFadeIn 0.15s ease",
+              animation: "tvFadeIn 0.2s ease",
             }}
           />
         )}
@@ -238,7 +259,7 @@ function TreeNodeCard({
               background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
               boxShadow: `0 2px 6px ${node.glow}`,
             }}
-            title={t("tree.createNew")}
+            title={node.rawLabel ? "Create" : t("tree.createNew")}
           >
             <Plus className="w-3 h-3" strokeWidth={2.5} />
           </button>
@@ -255,17 +276,16 @@ function TreeBreadcrumb({
   onNavigateToLevel,
   onReset,
 }: {
-  path: { labelKey: string; color: string }[];
+  path: { label: string; color: string }[];
   onNavigateToLevel: (level: number) => void;
   onReset: () => void;
 }) {
-  const { t } = useLanguage();
   if (path.length === 0) return null;
 
   return (
     <nav
       className="flex items-center gap-0.5 mb-3 px-1 flex-wrap"
-      style={{ animation: "tvFadeIn 0.25s ease" }}
+      style={{ animation: "tvFadeIn 0.3s ease" }}
     >
       <button
         onClick={onReset}
@@ -286,7 +306,7 @@ function TreeBreadcrumb({
             className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-opacity hover:opacity-75"
             style={{ color: seg.color }}
           >
-            {t(seg.labelKey)}
+            {seg.label}
           </button>
         </div>
       ))}
@@ -301,19 +321,22 @@ function TreeBreadcrumb({
 export default function TreeViewer2D({
   nodes,
   isGuest = false,
-  onToggle3D,
   rootContent,
   hideBreadcrumb = false,
-  hideToggle3D = false,
+  onRequestChildren,
 }: TreeViewer2DProps) {
   const { t } = useLanguage();
-  const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const columnRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  const lookup = useRef(buildLookup(nodes));
+  const lookupRef = useRef(buildLookup(nodes));
   const nodesRef = useRef(nodes);
-  nodesRef.current = nodes;
+
+  // Rebuild lookup when nodes change (e.g., after dynamic load)
+  useEffect(() => {
+    lookupRef.current = buildLookup(nodes);
+    nodesRef.current = nodes;
+  }, [nodes]);
 
   const [expandedAtLevel, setExpandedAtLevel] = useState<
     Record<number, string>
@@ -340,7 +363,7 @@ export default function TreeViewer2D({
 
     let lvl = 0;
     while (expandedAtLevel[lvl] !== undefined) {
-      const parent = lookup.current.get(expandedAtLevel[lvl]);
+      const parent = lookupRef.current.get(expandedAtLevel[lvl]);
       if (parent?.children?.length) {
         cols.push({
           nodes: parent.children,
@@ -364,12 +387,11 @@ export default function TreeViewer2D({
 
     const newPaths: { d: string; color: string; key: string }[] = [];
 
-    // Rebuild columns internally for accuracy
     const rootNodes = nodesRef.current;
     const cols: PlatformTreeNode[][] = [rootNodes];
     let lvl = 0;
     while (expandedAtLevel[lvl] !== undefined) {
-      const parent = lookup.current.get(expandedAtLevel[lvl]);
+      const parent = lookupRef.current.get(expandedAtLevel[lvl]);
       if (parent?.children?.length) {
         cols.push(parent.children);
       } else break;
@@ -395,15 +417,13 @@ export default function TreeViewer2D({
         | undefined;
       if (!expandedCard) continue;
 
-      const node = lookup.current.get(expandedId);
+      const node = lookupRef.current.get(expandedId);
       const color = node?.color ?? "#666";
 
-      // Start: right edge center of expanded card
       const eRect = expandedCard.getBoundingClientRect();
       const startX = eRect.right - containerRect.left + 2;
       const startY = eRect.top + eRect.height / 2 - containerRect.top;
 
-      // End: left edge center of each child card
       const childCards = childCol.children;
       for (let i = 0; i < childCards.length; i++) {
         const cRect = (childCards[i] as HTMLElement).getBoundingClientRect();
@@ -429,16 +449,14 @@ export default function TreeViewer2D({
       return;
     }
 
-    // Initial delayed computation (after slide-in animation)
-    const timer = setTimeout(computePaths, 400);
+    const timer = setTimeout(computePaths, 500);
 
-    // Recompute on column resize (hover expand, window resize)
     let debounce: ReturnType<typeof setTimeout>;
     const observer =
       typeof ResizeObserver !== "undefined"
         ? new ResizeObserver(() => {
             clearTimeout(debounce);
-            debounce = setTimeout(computePaths, 50);
+            debounce = setTimeout(computePaths, 80);
           })
         : null;
 
@@ -451,7 +469,7 @@ export default function TreeViewer2D({
       clearTimeout(debounce);
       observer?.disconnect();
     };
-  }, [entered, expandedAtLevel, computePaths]);
+  }, [entered, expandedAtLevel, computePaths, nodes]);
 
   /* ── Auto-scroll right when deeper columns appear ──── */
 
@@ -471,17 +489,30 @@ export default function TreeViewer2D({
 
   /* ── Expand / collapse ─────────────────────────────── */
 
-  const toggleExpand = useCallback((nodeId: string, level: number) => {
-    setExpandedAtLevel((prev) => {
-      const next: Record<number, string> = {};
-      for (const [k, v] of Object.entries(prev)) {
-        const lvl = Number(k);
-        if (lvl < level) next[lvl] = v;
+  const toggleExpand = useCallback(
+    (nodeId: string, level: number) => {
+      setExpandedAtLevel((prev) => {
+        const next: Record<number, string> = {};
+        for (const [k, v] of Object.entries(prev)) {
+          const lvl = Number(k);
+          if (lvl < level) next[lvl] = v;
+        }
+        if (prev[level] !== nodeId) next[level] = nodeId;
+        return next;
+      });
+
+      // Trigger dynamic child loading if needed
+      const node = lookupRef.current.get(nodeId);
+      if (node && node.dynamicChildSource && !node.childrenLoaded && onRequestChildren) {
+        // Extract DB id from dynamic node id (dyn-table-uuid)
+        const dbId = nodeId.startsWith("dyn-")
+          ? nodeId.split("-").slice(2).join("-")
+          : undefined;
+        onRequestChildren(nodeId, node, dbId);
       }
-      if (prev[level] !== nodeId) next[level] = nodeId;
-      return next;
-    });
-  }, []);
+    },
+    [onRequestChildren],
+  );
 
   const collapseToLevel = useCallback((level: number) => {
     setExpandedAtLevel((prev) => {
@@ -499,17 +530,20 @@ export default function TreeViewer2D({
   /* ── Breadcrumb path ───────────────────────────────── */
 
   const breadcrumbPath = useMemo(() => {
-    const path: { labelKey: string; color: string }[] = [];
+    const path: { label: string; color: string }[] = [];
     let l = 0;
     while (expandedAtLevel[l] !== undefined) {
-      const node = lookup.current.get(expandedAtLevel[l]);
-      if (node) path.push({ labelKey: node.labelKey, color: node.color });
+      const node = lookupRef.current.get(expandedAtLevel[l]);
+      if (node) {
+        path.push({
+          label: node.rawLabel ? node.labelKey : t(node.labelKey),
+          color: node.color,
+        });
+      }
       l++;
     }
     return path;
-  }, [expandedAtLevel]);
-
-  /* ── Active color for ambient glow ─────────────────── */
+  }, [expandedAtLevel, t, nodes]);
 
   const activeColor =
     breadcrumbPath.length > 0
@@ -525,7 +559,7 @@ export default function TreeViewer2D({
         className="absolute inset-0 pointer-events-none rounded-2xl"
         style={{
           background: `radial-gradient(ellipse at 15% 50%, ${activeColor}06 0%, transparent 65%)`,
-          transition: "background 0.6s ease",
+          transition: "background 0.8s ease",
         }}
       />
 
@@ -548,7 +582,7 @@ export default function TreeViewer2D({
           className="relative flex items-center px-1 sm:px-3 py-3"
           style={{
             opacity: entered ? 1 : 0,
-            transition: "opacity 0.35s ease",
+            transition: "opacity 0.5s ease",
           }}
         >
           {/* Root orb */}
@@ -597,10 +631,7 @@ export default function TreeViewer2D({
             const expandedId = expandedAtLevel[col.level];
 
             return (
-              <div
-                key={`col-${col.level}`}
-                className="flex items-center"
-              >
+              <div key={`col-${col.level}`} className="flex items-center">
                 {/* Column of cards */}
                 <div
                   ref={(el) => {
@@ -610,7 +641,7 @@ export default function TreeViewer2D({
                   style={{
                     animation:
                       colIdx > 0
-                        ? "tvSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both"
+                        ? "tvSlideIn 0.45s cubic-bezier(0.34,1.2,0.64,1) both"
                         : undefined,
                   }}
                 >
@@ -619,19 +650,17 @@ export default function TreeViewer2D({
                       key={node.id}
                       node={node}
                       isExpanded={expandedId === node.id}
-                      isDimmed={
-                        !!expandedId && expandedId !== node.id
-                      }
+                      isDimmed={!!expandedId && expandedId !== node.id}
                       onToggleExpand={() =>
                         toggleExpand(node.id, col.level)
                       }
                       isGuest={isGuest}
-                      enterDelay={colIdx * 100 + nodeIdx * 30}
+                      enterDelay={colIdx * 120 + nodeIdx * 40}
                     />
                   ))}
                 </div>
 
-                {/* Spacer between columns (SVG curves render here) */}
+                {/* Spacer between columns */}
                 {expandedId && colIdx < columns.length - 1 && (
                   <div className="shrink-0 w-10 sm:w-16" />
                 )}
@@ -639,7 +668,7 @@ export default function TreeViewer2D({
             );
           })}
 
-          {/* SVG connector overlay — bezier curves from expanded nodes to children */}
+          {/* SVG connector overlay */}
           <svg
             className="absolute inset-0 pointer-events-none"
             style={{ overflow: "visible", zIndex: 1 }}
@@ -653,11 +682,9 @@ export default function TreeViewer2D({
                   strokeWidth={2}
                   strokeLinecap="round"
                   opacity={0.22}
-                  style={{ animation: "tvFadeIn 0.4s ease-out both" }}
+                  style={{ animation: "tvFadeIn 0.5s ease-out both" }}
                 />
-                {/* Small dot at child endpoint */}
                 {(() => {
-                  // Extract endpoint from path: last coordinates
                   const parts = d.split(" ");
                   const endY = parseFloat(parts[parts.length - 1]);
                   const endX = parseFloat(
@@ -671,7 +698,7 @@ export default function TreeViewer2D({
                       fill={color}
                       opacity={0.3}
                       style={{
-                        animation: "tvFadeIn 0.3s ease-out 0.2s both",
+                        animation: "tvFadeIn 0.4s ease-out 0.2s both",
                       }}
                     />
                   );
@@ -681,21 +708,6 @@ export default function TreeViewer2D({
           </svg>
         </div>
       </div>
-
-      {/* Floating 3D toggle */}
-      {!hideToggle3D && onToggle3D && (
-        <button
-          onClick={onToggle3D}
-          className="absolute bottom-3 right-3 flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white text-xs font-medium shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 z-30"
-          style={{
-            background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-            boxShadow: "0 4px 16px rgba(37,99,235,0.3)",
-          }}
-        >
-          <Box className="w-3.5 h-3.5" />
-          {t("tree.switch3D")}
-        </button>
-      )}
 
       {/* Global keyframes */}
       <style jsx global>{`

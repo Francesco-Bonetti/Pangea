@@ -36,6 +36,28 @@ import {
    Types
    ═══════════════════════════════════════════════════════════ */
 
+/** Describes how to fetch children dynamically from Supabase */
+export interface DynamicChildSource {
+  /** Supabase table name */
+  table: string;
+  /** Column filters (e.g., { group_type: 'jurisdiction' }) */
+  filter?: Record<string, string>;
+  /** Column that holds parent reference for recursive loading */
+  parentField?: string;
+  /** Select columns */
+  select?: string;
+  /** Column for display name */
+  nameField?: string;
+  /** Column for ordering */
+  orderField?: string;
+  /** Prefix for href generation */
+  hrefPrefix?: string;
+  /** Icon key for dynamic children */
+  childIconKey?: string;
+  /** Max items to load */
+  limit?: number;
+}
+
 export interface PlatformNode {
   /** Stable unique id — used as React key and for tree relationships */
   id: string;
@@ -68,6 +90,8 @@ export interface PlatformNode {
   createHref?: string;
   /** Parent node id — null means top-level */
   parent: string | null;
+  /** If set, children are loaded dynamically from Supabase */
+  dynamicChildSource?: DynamicChildSource;
 }
 
 /** Subset of PlatformNode used as PangeaTree tree node (recursive children added by buildPlatformTree) */
@@ -75,6 +99,14 @@ export interface PlatformTreeNode
   extends Omit<PlatformNode, "parent" | "labelKey" | "treeLabelKey"> {
   labelKey: string; // resolved (treeLabelKey ?? labelKey)
   children?: PlatformTreeNode[];
+  /** True while async children are being fetched */
+  isLoading?: boolean;
+  /** True once dynamic children have been loaded */
+  childrenLoaded?: boolean;
+  /** If true, label is raw text (not i18n key) — used for DB-loaded nodes */
+  rawLabel?: boolean;
+  /** If true, description is raw text (not i18n key) */
+  rawDesc?: boolean;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -188,6 +220,12 @@ export const PLATFORM_NODES: PlatformNode[] = [
     color: "#1d4ed8", colorLight: "#3b82f6", glow: "rgba(29,78,216,0.25)",
     descKey: "tree.jurisdictionsDesc", actionKey: "tree.browse",
     parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "jurisdiction" },
+      parentField: "parent_group_id", nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "landmark", orderField: "name", limit: 50,
+    },
   },
   {
     id: "parties", href: "/groups?type=party",
@@ -196,6 +234,12 @@ export const PLATFORM_NODES: PlatformNode[] = [
     descKey: "tree.partiesDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=party&create=1",
     parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "party" },
+      parentField: "parent_group_id", nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "flag", orderField: "name", limit: 50,
+    },
   },
   {
     id: "communities", href: "/groups?type=community",
@@ -204,6 +248,12 @@ export const PLATFORM_NODES: PlatformNode[] = [
     descKey: "tree.communitiesDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=community&create=1",
     parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "community" },
+      parentField: "parent_group_id", nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "users", orderField: "name", limit: 50,
+    },
   },
   {
     id: "workingGroups", href: "/groups?type=working_group",
@@ -212,6 +262,12 @@ export const PLATFORM_NODES: PlatformNode[] = [
     descKey: "tree.workingGroupsDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=working_group&create=1",
     parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "working_group" },
+      parentField: "parent_group_id", nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "wrench", orderField: "name", limit: 50,
+    },
   },
   {
     id: "religions", href: "/groups?type=religion",
@@ -220,6 +276,12 @@ export const PLATFORM_NODES: PlatformNode[] = [
     descKey: "tree.religionsDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=religion&create=1",
     parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "religion" },
+      parentField: "parent_group_id", nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "heart", orderField: "name", limit: 50,
+    },
   },
 
   /* ── Laws children ──────────────────────────────────────── */
@@ -229,6 +291,12 @@ export const PLATFORM_NODES: PlatformNode[] = [
     color: "#b45309", colorLight: "#f59e0b", glow: "rgba(180,83,9,0.25)",
     descKey: "tree.browseLawsDesc", actionKey: "tree.browse",
     parent: "laws",
+    dynamicChildSource: {
+      table: "laws", filter: {},
+      parentField: "parent_id", nameField: "title",
+      select: "id,uid,title,code,law_type,parent_id,article_number",
+      hrefPrefix: "/laws/", childIconKey: "book", orderField: "article_number", limit: 60,
+    },
   },
   {
     id: "proposeLaw", href: "/laws?propose=1",
@@ -245,6 +313,11 @@ export const PLATFORM_NODES: PlatformNode[] = [
     color: "#ea580c", colorLight: "#fdba74", glow: "rgba(234,88,12,0.25)",
     descKey: "tree.activeProposalsDesc", actionKey: "tree.browse",
     parent: "proposals",
+    dynamicChildSource: {
+      table: "proposals", filter: { status: "active" },
+      nameField: "title", select: "id,uid,title,status",
+      hrefPrefix: "/proposals/", childIconKey: "fileText", orderField: "created_at", limit: 20,
+    },
   },
   {
     id: "curation", href: "/proposals?status=curation",
@@ -268,6 +341,12 @@ export const PLATFORM_NODES: PlatformNode[] = [
     color: "#be185d", colorLight: "#f472b6", glow: "rgba(190,24,93,0.25)",
     descKey: "tree.discussionsDesc", actionKey: "tree.browse",
     parent: "agora",
+    dynamicChildSource: {
+      table: "discussion_channels", filter: {},
+      parentField: "parent_id", nameField: "name",
+      select: "id,uid,name,description,emoji,color,sort_order,parent_id",
+      hrefPrefix: "/social?channel=", childIconKey: "message", orderField: "sort_order", limit: 30,
+    },
   },
   {
     id: "channels", href: "/social?tab=channels",
@@ -284,6 +363,11 @@ export const PLATFORM_NODES: PlatformNode[] = [
     color: "#047857", colorLight: "#34d399", glow: "rgba(4,120,87,0.25)",
     descKey: "tree.activeElectionsDesc", actionKey: "tree.browse",
     parent: "elections",
+    dynamicChildSource: {
+      table: "elections", filter: {},
+      nameField: "title", select: "id,uid,title,status,election_type",
+      hrefPrefix: "/elections/", childIconKey: "vote", orderField: "created_at", limit: 20,
+    },
   },
   {
     id: "pastResults", href: "/elections?status=completed",
@@ -404,6 +488,7 @@ function toPlatformTreeNode(node: PlatformNode): PlatformTreeNode {
     actionHref: node.actionHref,
     canCreate: node.canCreate,
     createHref: node.createHref,
+    dynamicChildSource: node.dynamicChildSource,
     children: children.length > 0 ? children.map(toPlatformTreeNode) : undefined,
   };
 }
