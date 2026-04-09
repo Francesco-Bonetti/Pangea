@@ -1095,6 +1095,35 @@ const en = {
     unverified: "Unverified",
   },
 
+  cooldown: {
+    waitMessage: "Please wait before performing this action",
+    waitSeconds: "Available in {time}",
+    ready: "You can proceed",
+    reduceCTA: "Verify your identity to reduce wait times",
+    tierBonus: "Tier {tier} citizens enjoy shorter cooldowns",
+    actionBlocked: "This action is temporarily on cooldown",
+    actionBlockedDesc: "Pangea uses thermodynamic friction to prevent spam and protect democratic quality. Higher identity tiers enjoy shorter wait times.",
+    actionBlockedExample: "For example, a Tier 2 (Citizen) user waits ~60% less than an unverified account. Verify via SPID/CIE to unlock faster participation.",
+  },
+
+  voting: {
+    fluidVoteTitle: "Fluid Voting",
+    fluidVoteDesc: "You can change your vote at any time while the proposal is active. Your vote becomes final when the voting period ends.",
+    voteSealed: "Your vote has been sealed and is now final",
+    sealedDesc: "The voting period has ended. Votes are now immutable and will be counted for the final result.",
+    changeVote: "Change vote",
+    voteUpdated: "Your vote has been updated successfully",
+    voteRecorded: "Your vote has been securely recorded",
+    confirmTitle: "Confirm Your Vote",
+    confirmDesc: "You are about to record your vote on Pangea's democratic platform. You can change it later while the proposal is active.",
+    irreversibleTitle: "Final Vote",
+    irreversibleDesc: "The voting period has ended. This vote cannot be changed.",
+    showResultsAfter: "Results will be visible after the voting period ends",
+    turnoutOnly: "Only turnout is visible during active voting",
+    turnout: "Turnout",
+    votersParticipated: "{count} voters participated",
+  },
+
 };
 
 export default en;

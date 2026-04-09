@@ -1062,6 +1062,35 @@ const it: TranslationKeys = {
     verified: "Verificato",
     unverified: "Non verificato",
   },
+
+  cooldown: {
+    waitMessage: "Attendi prima di eseguire questa azione",
+    waitSeconds: "Disponibile tra {time}",
+    ready: "Puoi procedere",
+    reduceCTA: "Verifica la tua identità per ridurre i tempi di attesa",
+    tierBonus: "I cittadini di livello {tier} godono di cooldown più brevi",
+    actionBlocked: "Questa azione è temporaneamente in cooldown",
+    actionBlockedDesc: "Pangea utilizza l'attrito termodinamico per prevenire lo spam e proteggere la qualità democratica. Livelli di identità superiori godono di tempi di attesa inferiori.",
+    actionBlockedExample: "Ad esempio, un utente di Livello 2 (Cittadino) attende circa il 60% in meno rispetto a un account non verificato. Verifica tramite SPID/CIE per partecipare più velocemente.",
+  },
+
+  voting: {
+    fluidVoteTitle: "Voto Fluido",
+    fluidVoteDesc: "Puoi cambiare il tuo voto in qualsiasi momento mentre la proposta è attiva. Il tuo voto diventa definitivo alla chiusura del periodo di votazione.",
+    voteSealed: "Il tuo voto è stato sigillato ed è ora definitivo",
+    sealedDesc: "Il periodo di votazione è terminato. I voti sono ora immutabili e saranno conteggiati per il risultato finale.",
+    changeVote: "Cambia voto",
+    voteUpdated: "Il tuo voto è stato aggiornato con successo",
+    voteRecorded: "Il tuo voto è stato registrato in modo sicuro",
+    confirmTitle: "Conferma il Tuo Voto",
+    confirmDesc: "Stai per registrare il tuo voto sulla piattaforma democratica di Pangea. Puoi modificarlo in seguito mentre la proposta è attiva.",
+    irreversibleTitle: "Voto Finale",
+    irreversibleDesc: "Il periodo di votazione è terminato. Questo voto non può essere modificato.",
+    showResultsAfter: "I risultati saranno visibili dopo la fine del periodo di votazione",
+    turnoutOnly: "Solo l'affluenza è visibile durante la votazione attiva",
+    turnout: "Affluenza",
+    votersParticipated: "{count} votanti hanno partecipato",
+  },
 };
 
 export default it;

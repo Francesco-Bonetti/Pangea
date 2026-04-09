@@ -777,6 +777,35 @@ const fr: TranslationKeys = {
     verified: "Vérifié",
     unverified: "Non vérifié",
   },
+
+  cooldown: {
+    waitMessage: "Veuillez patienter avant d'effectuer cette action",
+    waitSeconds: "Disponible dans {time}",
+    ready: "Vous pouvez procéder",
+    reduceCTA: "Vérifiez votre identité pour réduire les temps d'attente",
+    tierBonus: "Les citoyens de niveau {tier} bénéficient de cooldowns plus courts",
+    actionBlocked: "Cette action est temporairement en cooldown",
+    actionBlockedDesc: "Pangea utilise la friction thermodynamique pour prévenir le spam et protéger la qualité démocratique. Les niveaux d'identité supérieurs bénéficient de temps d'attente réduits.",
+    actionBlockedExample: "Par exemple, un utilisateur de Niveau 2 (Citoyen) attend ~60% de moins qu'un compte non vérifié. Vérifiez via SPID/CIE pour participer plus rapidement.",
+  },
+
+  voting: {
+    fluidVoteTitle: "Vote Fluide",
+    fluidVoteDesc: "Vous pouvez changer votre vote à tout moment tant que la proposition est active. Votre vote devient définitif à la fin de la période de vote.",
+    voteSealed: "Votre vote a été scellé et est désormais définitif",
+    sealedDesc: "La période de vote est terminée. Les votes sont désormais immuables et seront comptabilisés pour le résultat final.",
+    changeVote: "Changer le vote",
+    voteUpdated: "Votre vote a été mis à jour avec succès",
+    voteRecorded: "Votre vote a été enregistré de manière sécurisée",
+    confirmTitle: "Confirmez Votre Vote",
+    confirmDesc: "Vous êtes sur le point d'enregistrer votre vote sur la plateforme démocratique de Pangea. Vous pourrez le modifier ultérieurement tant que la proposition est active.",
+    irreversibleTitle: "Vote Final",
+    irreversibleDesc: "La période de vote est terminée. Ce vote ne peut pas être modifié.",
+    showResultsAfter: "Les résultats seront visibles après la fin de la période de vote",
+    turnoutOnly: "Seule la participation est visible pendant le vote actif",
+    turnout: "Participation",
+    votersParticipated: "{count} votants ont participé",
+  },
 };
 
 export default fr;

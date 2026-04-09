@@ -776,6 +776,35 @@ const es: TranslationKeys = {
     verified: "Verificado",
     unverified: "No verificado",
   },
+
+  cooldown: {
+    waitMessage: "Espera antes de realizar esta acción",
+    waitSeconds: "Disponible en {time}",
+    ready: "Puedes proceder",
+    reduceCTA: "Verifica tu identidad para reducir los tiempos de espera",
+    tierBonus: "Los ciudadanos de nivel {tier} disfrutan de cooldowns más cortos",
+    actionBlocked: "Esta acción está temporalmente en cooldown",
+    actionBlockedDesc: "Pangea utiliza fricción termodinámica para prevenir el spam y proteger la calidad democrática. Niveles de identidad superiores disfrutan de tiempos de espera menores.",
+    actionBlockedExample: "Por ejemplo, un usuario de Nivel 2 (Ciudadano) espera ~60% menos que una cuenta no verificada. Verifica mediante SPID/CIE para participar más rápido.",
+  },
+
+  voting: {
+    fluidVoteTitle: "Voto Fluido",
+    fluidVoteDesc: "Puedes cambiar tu voto en cualquier momento mientras la propuesta esté activa. Tu voto se vuelve definitivo cuando finaliza el período de votación.",
+    voteSealed: "Tu voto ha sido sellado y es definitivo",
+    sealedDesc: "El período de votación ha finalizado. Los votos son ahora inmutables y se contarán para el resultado final.",
+    changeVote: "Cambiar voto",
+    voteUpdated: "Tu voto ha sido actualizado con éxito",
+    voteRecorded: "Tu voto ha sido registrado de forma segura",
+    confirmTitle: "Confirma Tu Voto",
+    confirmDesc: "Estás a punto de registrar tu voto en la plataforma democrática de Pangea. Puedes modificarlo después mientras la propuesta esté activa.",
+    irreversibleTitle: "Voto Final",
+    irreversibleDesc: "El período de votación ha finalizado. Este voto no puede ser modificado.",
+    showResultsAfter: "Los resultados serán visibles después del fin del período de votación",
+    turnoutOnly: "Solo la participación es visible durante la votación activa",
+    turnout: "Participación",
+    votersParticipated: "{count} votantes participaron",
+  },
 };
 
 export default es;

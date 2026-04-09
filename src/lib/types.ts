@@ -147,7 +147,32 @@ export interface Vote {
   voter_id: string;
   vote_type: VoteType;
   voting_weight: number;
+  is_final: boolean;
   created_at: string;
+}
+
+// Response from upsert_proposal_vote RPC (DE-13)
+export interface UpsertVoteResult {
+  success: boolean;
+  vote_id?: string;
+  action?: "created" | "updated";
+  is_final?: boolean;
+  error?: string;
+  message?: string;
+}
+
+// Response from get_my_proposal_vote RPC (DE-13)
+export interface MyProposalVote {
+  has_voted: boolean;
+  vote_id?: string;
+  vote_type?: VoteType;
+  voting_weight?: number;
+  is_final?: boolean;
+  created_at?: string;
+  allocations?: Array<{
+    option_id: string;
+    allocation_percentage: number;
+  }>;
 }
 
 // --- Democrazia Liquida ---

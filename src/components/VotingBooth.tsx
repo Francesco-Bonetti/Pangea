@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Proposal, ProposalOption, DistributedResult, IdentityTier } from "@/lib/types";
+import type { Proposal, ProposalOption, DistributedResult, IdentityTier, UpsertVoteResult, MyProposalVote } from "@/lib/types";
 import { TIER_REQUIREMENTS } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 import TierGate, { useTierGate } from "@/components/TierGate";
@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import AlertDialog from "@/components/AlertDialog";
 import { useToast } from "@/components/Toast";
+import CooldownTimer from "@/components/CooldownTimer";
 
 interface VotingBoothProps {
   proposal: Proposal;
@@ -51,6 +52,8 @@ export default function VotingBooth({
   const [results, setResults] = useState<DistributedResult[]>(initialResults);
   const [legacyResults, setLegacyResults] = useState<{yea: number; nay: number; abstain: number} | null>(null);
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
+  const [voteIsSealed, setVoteIsSealed] = useState(false);
+  const [existingVoteId, setExistingVoteId] = useState<string | null>(null);
   const [allocations, setAllocations] = useState<Record<string, number>>(
     () => {
       const initial: Record<string, number> = {};
@@ -80,10 +83,41 @@ export default function VotingBooth({
   const { tier: userTier, loading: tierLoading } = useIdentityTier(userId);
   const { checkTier, gateOpen, gateAction, gateRequiredTier, closeGate } = useTierGate(userTier);
 
+  // Cooldown state (DE-11)
+  const [cooldownReady, setCooldownReady] = useState(true);
+
   const isActive = proposal.status === "active";
   const isClosed = proposal.status === "closed";
   const isCuration = proposal.status === "curation";
   const canVote = isActive && !hasVoted && options.length > 0;
+
+  // DE-13: Load existing vote for fluid voting
+  useEffect(() => {
+    async function loadMyVote() {
+      if (!userId || isGuest) return;
+      const { data } = await supabase.rpc("get_my_proposal_vote", {
+        p_proposal_id: proposal.id,
+        p_voter_id: userId,
+      });
+      if (data) {
+        const myVote = data as MyProposalVote;
+        if (myVote.has_voted) {
+          setHasVoted(true);
+          setExistingVoteId(myVote.vote_id ?? null);
+          setVoteIsSealed(myVote.is_final ?? false);
+          // Restore allocations if any
+          if (myVote.allocations && myVote.allocations.length > 0) {
+            const restored: Record<string, number> = {};
+            myVote.allocations.forEach((a) => {
+              restored[a.option_id] = a.allocation_percentage;
+            });
+            setAllocations(restored);
+          }
+        }
+      }
+    }
+    loadMyVote();
+  }, [userId, proposal.id, isGuest, supabase]);
 
   // Fetch legacy results for proposals without distributed options
   useEffect(() => {
@@ -167,7 +201,7 @@ export default function VotingBooth({
       }
       setConfirmDialogOpen(false);
       setPendingVoteType(null);
-      toast("Your vote has been securely recorded.", "success");
+      toast(t("voting.voteRecorded"), "success");
     } catch {
       // Error already handled in the cast functions
       setConfirmDialogOpen(false);
@@ -178,7 +212,12 @@ export default function VotingBooth({
   }
 
   async function executeCastDistributedVote() {
-    if (!canVote || !isValidAllocation) return;
+    if (!isValidAllocation) return;
+    // DE-13: Allow re-vote if not sealed (fluid voting)
+    if (voteIsSealed) {
+      setError(t("voting.voteSealed"));
+      return;
+    }
     setError(null);
     setVoting(true);
 
@@ -188,30 +227,32 @@ export default function VotingBooth({
         p_voter_id: userId,
       });
 
-      const { data: voteData, error: voteError } = await supabase
-        .from("votes")
-        .insert({
-          proposal_id: proposal.id,
-          voter_id: userId,
-          vote_type: "yea",
-          voting_weight: weight ?? 1,
-        })
-        .select("id")
-        .single();
-
-      if (voteError) {
-        if (voteError.code === "23505") {
-          setHasVoted(true);
-          setError("You have already participated in this deliberation.");
-          throw voteError;
+      // DE-13: Use UPSERT RPC instead of direct INSERT
+      const { data: upsertData, error: upsertError } = await supabase.rpc(
+        "upsert_proposal_vote",
+        {
+          p_proposal_id: proposal.id,
+          p_voter_id: userId,
+          p_vote_type: "yea",
+          p_voting_weight: weight ?? 1,
         }
-        throw voteError;
+      );
+
+      if (upsertError) throw upsertError;
+
+      const result = upsertData as UpsertVoteResult;
+      if (!result.success) {
+        throw new Error(result.message || result.error || "Vote failed");
       }
 
+      const voteId = result.vote_id!;
+      setExistingVoteId(voteId);
+
+      // Insert new allocations (old ones cleared by RPC on update)
       const allocationRows = Object.entries(allocations)
         .filter(([, pct]) => pct > 0)
         .map(([optionId, pct]) => ({
-          vote_id: voteData.id,
+          vote_id: voteId,
           option_id: optionId,
           allocation_percentage: pct,
         }));
@@ -232,6 +273,10 @@ export default function VotingBooth({
       }
 
       setHasVoted(true);
+      // Show different message for update vs create
+      if (result.action === "updated") {
+        toast(t("voting.voteUpdated"), "success");
+      }
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Error during voting";
@@ -243,43 +288,13 @@ export default function VotingBooth({
     }
   }
 
-  async function revokeVote() {
-    if (!isActive || !hasVoted || revoking) return;
-    setError(null);
-    setRevoking(true);
-
-    try {
-      const { error: deleteError } = await supabase
-        .from("votes")
-        .delete()
-        .eq("proposal_id", proposal.id)
-        .eq("voter_id", userId);
-
-      if (deleteError) throw deleteError;
-
-      const { data: newResults } = await supabase.rpc(
-        "get_distributed_proposal_results",
-        { p_proposal_id: proposal.id }
-      );
-
-      if (newResults) {
-        setResults(newResults);
-      }
-
-      setHasVoted(false);
-      toast("Your vote has been revoked.", "info");
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Error revoking vote";
-      setError(msg);
-      toast(msg, "error");
-    } finally {
-      setRevoking(false);
-    }
-  }
-
   async function executeCastSimpleVote(voteType: "yea" | "nay" | "abstain") {
-    if (!isActive || hasVoted) return;
+    if (!isActive) return;
+    // DE-13: Allow re-vote if not sealed
+    if (voteIsSealed) {
+      setError(t("voting.voteSealed"));
+      return;
+    }
     setError(null);
     setRevoking(true);
 
@@ -289,23 +304,25 @@ export default function VotingBooth({
         p_voter_id: userId,
       });
 
-      const { error: voteError } = await supabase
-        .from("votes")
-        .insert({
-          proposal_id: proposal.id,
-          voter_id: userId,
-          vote_type: voteType,
-          voting_weight: weight ?? 1,
-        });
-
-      if (voteError) {
-        if (voteError.code === "23505") {
-          setHasVoted(true);
-          setError("You have already participated in this deliberation.");
-          throw voteError;
+      // DE-13: Use UPSERT RPC
+      const { data: upsertData, error: upsertError } = await supabase.rpc(
+        "upsert_proposal_vote",
+        {
+          p_proposal_id: proposal.id,
+          p_voter_id: userId,
+          p_vote_type: voteType,
+          p_voting_weight: weight ?? 1,
         }
-        throw voteError;
+      );
+
+      if (upsertError) throw upsertError;
+
+      const result = upsertData as UpsertVoteResult;
+      if (!result.success) {
+        throw new Error(result.message || result.error || "Vote failed");
       }
+
+      setExistingVoteId(result.vote_id ?? null);
 
       const { data: votesData } = await supabase
         .from("votes")
@@ -322,6 +339,9 @@ export default function VotingBooth({
       }
 
       setHasVoted(true);
+      if (result.action === "updated") {
+        toast(t("voting.voteUpdated"), "success");
+      }
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Error during voting";
@@ -357,10 +377,10 @@ export default function VotingBooth({
         open={confirmDialogOpen}
         onClose={cancelVote}
         onConfirm={confirmVote}
-        title="Irreversible Action"
-        description={`You are about to permanently record your vote${
+        title={t("voting.confirmTitle")}
+        description={`${t("voting.confirmDesc")}${
           pendingVoteType ? ` (${voteTypeLabels[pendingVoteType]})` : ""
-        } on Pangea's democratic platform. This action is recorded on the blockchain and cannot be undone. Do you wish to proceed?`}
+        }`}
         confirmLabel={t("proposals.confirmMyVote")}
         cancelLabel={t("common.goBack")}
         confirmVariant="primary"
@@ -376,7 +396,7 @@ export default function VotingBooth({
         <p className="text-xs text-fg-muted">
           {isCuration
             ? "This proposal is under community review"
-            : "Votes are anonymous. You can change your vote while the proposal is active."}
+            : t("voting.fluidVoteDesc")}
         </p>
       </div>
 
@@ -482,26 +502,39 @@ export default function VotingBooth({
         {/* Already voted */}
         {hasVoted && (
           <div className="text-center py-4">
-            <CheckCircle2 className="w-10 h-10 text-fg-success mx-auto mb-3" />
-            <p className="text-fg font-semibold mb-1">
-              Vote recorded
-            </p>
-            <p className="text-xs text-fg-muted leading-relaxed">
-              Your allocation has been securely and anonymously recorded.
-              GDPR compliant.
-            </p>
-            {isActive && (
+            {voteIsSealed ? (
+              <>
+                <Lock className="w-10 h-10 text-fg-muted mx-auto mb-3" />
+                <p className="text-fg font-semibold mb-1">
+                  {t("voting.voteSealed")}
+                </p>
+                <p className="text-xs text-fg-muted leading-relaxed">
+                  {t("voting.sealedDesc")}
+                </p>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-10 h-10 text-fg-success mx-auto mb-3" />
+                <p className="text-fg font-semibold mb-1">
+                  {t("voting.voteRecorded")}
+                </p>
+                <p className="text-xs text-fg-muted leading-relaxed">
+                  {t("voting.fluidVoteDesc")}
+                </p>
+              </>
+            )}
+            {/* DE-13: Fluid voting — allow changing vote while active & not sealed */}
+            {isActive && !voteIsSealed && (
               <button
-                onClick={revokeVote}
+                onClick={() => {
+                  setHasVoted(false);
+                  setError(null);
+                }}
                 disabled={revoking}
                 className="w-full mt-4 btn-secondary flex items-center justify-center gap-2 py-2"
               >
-                {revoking ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RotateCcw className="w-4 h-4" />
-                )}
-                {revoking ? "Revoking..." : "Change vote"}
+                <RotateCcw className="w-4 h-4" />
+                {t("voting.changeVote")}
               </button>
             )}
           </div>
@@ -547,8 +580,17 @@ export default function VotingBooth({
           </div>
         )}
 
+        {/* DE-11: Cooldown timer for voting */}
+        {isActive && !hasVoted && !isGuest && (
+          <CooldownTimer
+            userId={userId}
+            actionType="proposal_vote"
+            onStatusChange={setCooldownReady}
+          />
+        )}
+
         {/* Can vote — Distributed sliders */}
-        {canVote && !isGuest && (
+        {canVote && !isGuest && cooldownReady && (
           <>
             <div className="flex items-center gap-2 mb-4">
               <Sliders className="w-4 h-4 text-fg-primary" />
@@ -632,7 +674,7 @@ export default function VotingBooth({
         )}
 
         {/* No options defined — Fallback to In Favor/Against/Abstain */}
-        {isActive && !hasVoted && options.length === 0 && !isGuest && (
+        {isActive && !hasVoted && options.length === 0 && !isGuest && cooldownReady && (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <ThumbsUp className="w-4 h-4 text-fg-primary" />
