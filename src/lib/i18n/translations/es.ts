@@ -812,6 +812,22 @@ const es: TranslationKeys = {
     actionBlockedExample: "Por ejemplo, un usuario de Nivel 2 (Ciudadano) espera ~60% menos que una cuenta no verificada. Verifica mediante SPID/CIE para participar más rápido.",
   },
 
+  staking: {
+    firstFree: "¡Primera propuesta gratis!",
+    firstFreeTitle: "Tu primera propuesta de ley es gratuita",
+    firstFreeDesc: "Como ciudadano verificado (Nivel 2+), tu primera propuesta de ley no tiene tiempo de espera. ¡Úsala sabiamente!",
+    firstFreeExample: "Por ejemplo, si tienes una idea para mejorar la gobernanza de la comunidad, proponla ahora — sin esperas. Las propuestas futuras tendrán un cooldown basado en tu historial.",
+    penaltyCompact: "{days}d de espera ({strikes} strikes)",
+    penaltyTitle: "Staking Cuadrático — Penalización Temporal",
+    days: "días",
+    strikeLevel: "Nivel de strikes",
+    cooldownExplain: "Debes esperar {days} días ({formatted}) antes de proponer una nueva ley.",
+    decayExplain: "Los strikes decaen con el tiempo: se elimina 1 strike cada 30 días de buen comportamiento.",
+    resetExplain: "Si tu próxima propuesta es aprobada, todos los strikes se reinician a cero.",
+    penaltyExample: "Por ejemplo, con 2 strikes tu cooldown es de 28 días (7 base × 2² = 28). Si esperas 30 días, un strike decae, reduciéndolo a 14 días (7 × 2¹).",
+    incubatorHint: "Consejo: envía tu propuesta como borrador en el Ágora. Si recibe 100+ votos positivos de ciudadanos verificados, obtienes un Pase Libre — sin strike si es rechazada.",
+  },
+
   voting: {
     fluidVoteTitle: "Voto Fluido",
     fluidVoteDesc: "Puedes cambiar tu voto en cualquier momento mientras la propuesta esté activa. Tu voto se vuelve definitivo cuando finaliza el período de votación.",
@@ -828,8 +844,6 @@ const es: TranslationKeys = {
     turnoutOnly: "Solo la participación es visible durante la votación activa",
     turnout: "Participación",
     votersParticipated: "{count} votantes participaron",
-    resultsHidden: "Results are hidden",
-    resultsHiddenDesc: "Vote breakdown is hidden while voting is open to prevent herding effects. Only turnout is visible. Full results will be revealed when voting closes.",
   },
 };
 

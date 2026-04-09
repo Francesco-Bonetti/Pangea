@@ -1130,6 +1130,22 @@ const en = {
     actionBlockedExample: "For example, a Tier 2 (Citizen) user waits ~60% less than an unverified account. Verify via SPID/CIE to unlock faster participation.",
   },
 
+  staking: {
+    firstFree: "First proposal free!",
+    firstFreeTitle: "Your First Law Proposal Is Free",
+    firstFreeDesc: "As a verified citizen (Tier 2+), your very first law proposal has zero cooldown. Use it wisely!",
+    firstFreeExample: "For example, if you have an idea to improve community governance, submit it now — no waiting required. Future proposals will have a cooldown based on your track record.",
+    penaltyCompact: "{days}d cooldown ({strikes} strikes)",
+    penaltyTitle: "Quadratic Staking — Time Penalty",
+    days: "days",
+    strikeLevel: "Strike level",
+    cooldownExplain: "You must wait {days} days ({formatted}) before submitting a new law proposal.",
+    decayExplain: "Strikes decay over time: 1 strike is removed every 30 days of good behavior.",
+    resetExplain: "If your next proposal is approved, all strikes are reset to zero.",
+    penaltyExample: "For example, with 2 strikes your cooldown is 28 days (7 base × 2² = 28). If you wait 30 days, one strike decays, reducing it to 14 days (7 × 2¹).",
+    incubatorHint: "Tip: submit your proposal as a draft in the Agorà first. If it gets 100+ upvotes from verified citizens, you earn a Free Pass — no strike if rejected.",
+  },
+
   voting: {
     fluidVoteTitle: "Fluid Voting",
     fluidVoteDesc: "You can change your vote at any time while the proposal is active. Your vote becomes final when the voting period ends.",
@@ -1146,8 +1162,6 @@ const en = {
     turnoutOnly: "Only turnout is visible during active voting",
     turnout: "Turnout",
     votersParticipated: "{count} voters participated",
-    resultsHidden: "Results are hidden",
-    resultsHiddenDesc: "Vote breakdown is hidden while voting is open to prevent herding effects. Only turnout is visible. Full results will be revealed when voting closes.",
   },
 
 };

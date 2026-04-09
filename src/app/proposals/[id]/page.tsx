@@ -209,6 +209,13 @@ export default async function ProposalDetailPage({ params }: Props) {
                 {tag.name}
               </span>
             ))}
+            {/* DE-21: Incubator badge */}
+            {proposal.incubator_passed && (
+              <span className="text-xs text-fg-success font-medium bg-success-tint px-2 py-1 rounded-full flex items-center gap-1 border border-green-800/30">
+                <Flame className="w-3 h-3" />
+                Free Pass
+              </span>
+            )}
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-fg leading-snug mb-6">

@@ -6,6 +6,7 @@ import { useIdentityTier } from "@/hooks/useIdentityTier";
 import type { CooldownActionType } from "@/lib/types";
 import { Timer, ShieldCheck, Clock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import StakingInfo from "@/components/StakingInfo";
 
 interface CooldownTimerProps {
   userId: string | null;
@@ -31,8 +32,11 @@ export default function CooldownTimer({
   compact = false,
 }: CooldownTimerProps) {
   const { t } = useLanguage();
-  const { canProceed, waitSeconds, loading } = useCooldown(userId, actionType);
+  const { canProceed, waitSeconds, loading, accessCheck } = useCooldown(userId, actionType);
   const { tier } = useIdentityTier(userId);
+
+  // Extract staking info from cooldown result
+  const stakingInfo = accessCheck?.cooldown?.staking_info;
 
   // Notify parent of status changes
   if (onStatusChange) {
@@ -126,6 +130,13 @@ export default function CooldownTimer({
           {t("cooldown.actionBlockedExample")}
         </p>
       </div>
+
+      {/* Staking info (DE-20) */}
+      {stakingInfo && stakingInfo.type !== "none" && (
+        <div className="mb-3">
+          <StakingInfo stakingInfo={stakingInfo} />
+        </div>
+      )}
 
       {/* Upgrade CTA for low-tier users */}
       {showUpgradeCTA && (

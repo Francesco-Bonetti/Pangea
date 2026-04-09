@@ -24,6 +24,9 @@ import {
   BookOpen,
 } from "lucide-react";
 import Link from "next/link";
+import CooldownTimer from "@/components/CooldownTimer";
+import StakingInfo from "@/components/StakingInfo";
+import { useCooldown } from "@/hooks/useCooldown";
 
 interface OptionDraft {
   title: string;
@@ -60,14 +63,20 @@ export default function NewProposalPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>("citizen");
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
+
+  // DE-18/20: Cooldown check for proposal creation
+  const { canProceed: cooldownOk, accessCheck, recordAction } = useCooldown(userId, "proposal_create");
+  const stakingInfo = accessCheck?.cooldown?.staking_info;
 
   // Load user info for Navbar
   useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        setUserId(user.id);
         setUserEmail(user.email ?? null);
         const { data: prof } = await supabase
           .from("profiles")
@@ -199,6 +208,9 @@ export default function NewProposalPage() {
         triggerMultiFieldTranslation(fields, locale);
       }
 
+      // DE-18/20: Record the action for cooldown tracking
+      await recordAction();
+
       if (status === "draft") {
         router.push("/dashboard");
       } else {
@@ -250,6 +262,16 @@ export default function NewProposalPage() {
             </p>
           </div>
         </div>
+
+        {/* DE-18/20: Staking info banner */}
+        {stakingInfo && stakingInfo.type !== "none" && (
+          <StakingInfo stakingInfo={stakingInfo} />
+        )}
+
+        {/* DE-18/20: Cooldown gate */}
+        {!cooldownOk && userId && (
+          <CooldownTimer userId={userId} actionType="proposal_create" />
+        )}
 
         <div className="space-y-6">
           {/* Proposal type */}
@@ -589,7 +611,7 @@ export default function NewProposalPage() {
 
             <button
               onClick={() => saveProposal("curation")}
-              disabled={!isPublishValid || saving || publishing}
+              disabled={!isPublishValid || saving || publishing || !cooldownOk}
               className="btn-primary flex items-center justify-center gap-2 sm:ml-auto overflow-hidden"
             >
               {publishing ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <Send className="w-4 h-4 shrink-0" />}

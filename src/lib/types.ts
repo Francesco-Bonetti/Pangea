@@ -90,18 +90,39 @@ export type CooldownActionType =
   | "delegation_create"
   | "group_create";
 
-// Response from get_pangea_cooldown RPC (DE-08)
+// Response from get_pangea_cooldown RPC (DE-08 v2)
 export interface CooldownResult {
   cooldown_seconds: number;
   tier: IdentityTier;
   multiplier: number;
+  gamma: number;
   is_first_action: boolean;
   dissent_d2?: number;
   quorum_met?: boolean;
+  quorum_threshold?: number;
   t2_votes?: number;
   action_count?: number;
   period_actions?: number;
+  // Anti-spam hardening (v2)
+  effective_strikes?: number;
+  strike_decay_applied?: number;
+  burst_active?: boolean;
+  burst_count?: number;
   error?: string;
+  // Quadratic Staking (v3 — DE-18/20)
+  is_first_law_free?: boolean;
+  staking_info?: StakingInfo;
+}
+
+// Staking info returned by get_pangea_cooldown v3
+export interface StakingInfo {
+  type: "none" | "first_free" | "quadratic_staking";
+  message?: string;
+  base_days?: number;
+  effective_strikes?: number;
+  raw_strikes?: number;
+  strike_multiplier?: number;
+  total_cooldown_days?: number;
 }
 
 // Response from check_pangea_access RPC (DE-09)
@@ -135,6 +156,10 @@ export interface Proposal {
   created_at: string;
   expires_at: string | null;
   category_id: string | null;
+  // Quadratic Staking (DE-21)
+  incubator_passed?: boolean;
+  incubator_t2_upvotes?: number;
+  signal_count?: number;
   // Join
   profiles?: Profile;
   categories?: Category;

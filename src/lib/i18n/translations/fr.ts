@@ -813,6 +813,22 @@ const fr: TranslationKeys = {
     actionBlockedExample: "Par exemple, un utilisateur de Niveau 2 (Citoyen) attend ~60% de moins qu'un compte non vérifié. Vérifiez via SPID/CIE pour participer plus rapidement.",
   },
 
+  staking: {
+    firstFree: "Première proposition gratuite !",
+    firstFreeTitle: "Votre première proposition de loi est gratuite",
+    firstFreeDesc: "En tant que citoyen vérifié (Niveau 2+), votre première proposition de loi n'a aucun temps d'attente. Utilisez-la judicieusement !",
+    firstFreeExample: "Par exemple, si vous avez une idée pour améliorer la gouvernance communautaire, soumettez-la maintenant — sans attente. Les propositions futures auront un cooldown basé sur votre historique.",
+    penaltyCompact: "{days}j d'attente ({strikes} strikes)",
+    penaltyTitle: "Staking Quadratique — Pénalité Temporelle",
+    days: "jours",
+    strikeLevel: "Niveau de strikes",
+    cooldownExplain: "Vous devez attendre {days} jours ({formatted}) avant de soumettre une nouvelle loi.",
+    decayExplain: "Les strikes diminuent avec le temps : 1 strike est supprimé tous les 30 jours de bon comportement.",
+    resetExplain: "Si votre prochaine proposition est approuvée, tous les strikes sont remis à zéro.",
+    penaltyExample: "Par exemple, avec 2 strikes votre cooldown est de 28 jours (7 base × 2² = 28). Si vous attendez 30 jours, un strike disparaît, le réduisant à 14 jours (7 × 2¹).",
+    incubatorHint: "Astuce : soumettez votre proposition en brouillon dans l'Agora. Si elle reçoit 100+ votes positifs de citoyens vérifiés, vous obtenez un Passe Libre — pas de strike si elle est rejetée.",
+  },
+
   voting: {
     fluidVoteTitle: "Vote Fluide",
     fluidVoteDesc: "Vous pouvez changer votre vote à tout moment tant que la proposition est active. Votre vote devient définitif à la fin de la période de vote.",
@@ -829,8 +845,6 @@ const fr: TranslationKeys = {
     turnoutOnly: "Seule la participation est visible pendant le vote actif",
     turnout: "Participation",
     votersParticipated: "{count} votants ont participé",
-    resultsHidden: "Results are hidden",
-    resultsHiddenDesc: "Vote breakdown is hidden while voting is open to prevent herding effects. Only turnout is visible. Full results will be revealed when voting closes.",
   },
 };
 
