@@ -157,6 +157,7 @@ export interface UpsertVoteResult {
   vote_id?: string;
   action?: "created" | "updated";
   is_final?: boolean;
+  hash_verified?: boolean;
   error?: string;
   message?: string;
 }
