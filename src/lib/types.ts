@@ -79,6 +79,39 @@ export interface VerifyIdentityResult {
   message?: string;
 }
 
+// --- Cooldown Action Types (Diamond Edition DE-06) ---
+export type CooldownActionType =
+  | "proposal_create"
+  | "proposal_vote"
+  | "law_create"
+  | "discussion_create"
+  | "comment_create"
+  | "election_vote"
+  | "delegation_create"
+  | "group_create";
+
+// Response from get_pangea_cooldown RPC (DE-08)
+export interface CooldownResult {
+  cooldown_seconds: number;
+  tier: IdentityTier;
+  multiplier: number;
+  is_first_action: boolean;
+  dissent_d2?: number;
+  quorum_met?: boolean;
+  t2_votes?: number;
+  action_count?: number;
+  period_actions?: number;
+  error?: string;
+}
+
+// Response from check_pangea_access RPC (DE-09)
+export interface AccessCheckResult {
+  can_proceed: boolean;
+  wait_seconds: number;
+  reason?: "COOLDOWN_ACTIVE" | "USER_NOT_FOUND" | string;
+  cooldown?: CooldownResult;
+}
+
 export interface Category {
   id: string;
   uid?: string | null;
