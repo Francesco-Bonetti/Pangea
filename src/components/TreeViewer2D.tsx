@@ -102,15 +102,11 @@ function TreeNodeCard({
       style={{
         position: "relative",
         zIndex: hovered ? 20 : 1,
-        opacity: visible ? (isDimmed ? 0.25 : 1) : 0,
-        transform: visible
-          ? isDimmed
-            ? "scale(0.96)"
-            : "translateX(0)"
-          : "translateX(-12px)",
+        opacity: visible ? (isDimmed ? 0.35 : 1) : 0,
+        transform: visible ? "translateX(0)" : "translateX(-12px)",
         transition: "opacity 0.6s ease, transform 0.6s ease, filter 0.4s ease",
-        filter: isDimmed ? "grayscale(0.35)" : "none",
-        pointerEvents: isDimmed ? ("none" as const) : ("auto" as const),
+        filter: isDimmed ? "grayscale(0.3)" : "none",
+        pointerEvents: "auto" as const,
       }}
     >
       <div
@@ -123,7 +119,9 @@ function TreeNodeCard({
           padding: "14px 14px 14px 18px",
           background: isExpanded
             ? `color-mix(in srgb, ${node.color} 7%, var(--card))`
-            : "var(--card)",
+            : hovered
+              ? `color-mix(in srgb, ${node.color} 4%, var(--card))`
+              : "var(--card)",
           border: `1px solid ${
             isExpanded
               ? node.color + "50"
@@ -136,7 +134,9 @@ function TreeNodeCard({
             : hovered
               ? `0 8px 30px rgba(0,0,0,0.12), 0 0 0 1px ${node.color}18`
               : "0 1px 4px rgba(0,0,0,0.03)",
-          transition: "border 0.7s ease, box-shadow 0.7s ease",
+          transform: hovered && !isDimmed ? "scale(1.06)" : "scale(1)",
+          transformOrigin: "center center",
+          transition: "border 0.7s ease, box-shadow 0.7s ease, transform 0.5s cubic-bezier(0.34,1.2,0.64,1), background 0.4s ease",
         }}
       >
         {/* Left accent bar */}
@@ -179,18 +179,22 @@ function TreeNodeCard({
           </p>
         </div>
 
-        {/* Expanded description tooltip — absolute, overlaps neighbors */}
-        {hovered && desc && (
+        {/* Expanded description — centered overlay on hover */}
+        {hovered && desc && desc.length > 30 && (
           <div
-            className="absolute left-0 right-0 rounded-b-2xl px-4 pb-3 pt-1"
+            className="absolute rounded-2xl px-4 py-3 pointer-events-none"
             style={{
-              top: "100%",
-              marginTop: -8,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 320,
+              minHeight: "110%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
               background: "var(--card)",
-              borderLeft: `1px solid ${node.color}30`,
-              borderRight: `1px solid ${node.color}30`,
-              borderBottom: `1px solid ${node.color}30`,
-              boxShadow: `0 12px 28px rgba(0,0,0,0.15)`,
+              border: `1px solid ${node.color}35`,
+              boxShadow: `0 12px 36px rgba(0,0,0,0.18), 0 0 0 1px ${node.color}10`,
               zIndex: 30,
               animation: "tvDescIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both",
             }}
