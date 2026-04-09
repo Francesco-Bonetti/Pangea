@@ -170,22 +170,39 @@ function TreeNodeCard({
           >
             {label}
           </span>
-          {/* Description — expands on hover, overlaps neighbors via z-index */}
+          {/* Short description — always visible, single line */}
+          <p
+            className="text-[12px] leading-snug mt-1 truncate"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            {desc}
+          </p>
+        </div>
+
+        {/* Expanded description tooltip — absolute, overlaps neighbors */}
+        {hovered && desc && (
           <div
+            className="absolute left-0 right-0 rounded-b-2xl px-4 pb-3 pt-1"
             style={{
-              maxHeight: hovered ? "120px" : "20px",
-              overflow: "hidden",
-              transition: "max-height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+              top: "100%",
+              marginTop: -8,
+              background: "var(--card)",
+              borderLeft: `1px solid ${node.color}30`,
+              borderRight: `1px solid ${node.color}30`,
+              borderBottom: `1px solid ${node.color}30`,
+              boxShadow: `0 12px 28px rgba(0,0,0,0.15)`,
+              zIndex: 30,
+              animation: "tvDescIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both",
             }}
           >
             <p
-              className="text-[12px] leading-relaxed mt-1"
+              className="text-[12px] leading-relaxed"
               style={{ color: "var(--muted-foreground)" }}
             >
               {desc}
             </p>
           </div>
-        </div>
+        )}
 
         {/* Expand button with child count */}
         {hasChildren && (
@@ -727,6 +744,16 @@ export default function TreeViewer2D({
           }
           to {
             opacity: 1;
+          }
+        }
+        @keyframes tvDescIn {
+          from {
+            opacity: 0;
+            transform: translateY(-4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
           }
         }
       `}</style>
