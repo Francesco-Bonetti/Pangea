@@ -100,13 +100,15 @@ function TreeNodeCard({
   return (
     <div
       style={{
+        position: "relative",
+        zIndex: hovered ? 20 : 1,
         opacity: visible ? (isDimmed ? 0.25 : 1) : 0,
         transform: visible
           ? isDimmed
             ? "scale(0.96)"
             : "translateX(0)"
           : "translateX(-12px)",
-        transition: "all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1)",
+        transition: "opacity 0.6s ease, transform 0.6s ease, filter 0.4s ease",
         filter: isDimmed ? "grayscale(0.35)" : "none",
         pointerEvents: isDimmed ? ("none" as const) : ("auto" as const),
       }}
@@ -126,17 +128,15 @@ function TreeNodeCard({
             isExpanded
               ? node.color + "50"
               : hovered
-                ? node.color + "25"
+                ? node.color + "30"
                 : "var(--border)"
           }`,
           boxShadow: isExpanded
             ? `0 6px 28px ${node.glow}, inset 0 1px 0 ${node.color}0a`
             : hovered
-              ? `0 6px 24px rgba(0,0,0,0.07), 0 0 0 1px ${node.color}10`
+              ? `0 8px 30px rgba(0,0,0,0.12), 0 0 0 1px ${node.color}18`
               : "0 1px 4px rgba(0,0,0,0.03)",
-          transform:
-            hovered && !isExpanded && !isDimmed ? "translateY(-1px)" : "none",
-          transition: "all 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "border 0.7s ease, box-shadow 0.7s ease",
         }}
       >
         {/* Left accent bar */}
@@ -170,12 +170,12 @@ function TreeNodeCard({
           >
             {label}
           </span>
-          {/* Description — expands on hover (slower, taller) */}
+          {/* Description — expands on hover, overlaps neighbors via z-index */}
           <div
             style={{
-              maxHeight: hovered ? "120px" : "22px",
+              maxHeight: hovered ? "120px" : "20px",
               overflow: "hidden",
-              transition: "max-height 0.55s cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "max-height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
             }}
           >
             <p

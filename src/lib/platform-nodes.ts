@@ -157,49 +157,49 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "groups", href: "/groups",
     labelKey: "nav.groups", iconKey: "compass",
-    color: "#2563eb", colorLight: "#3b82f6", glow: "rgba(37,99,235,0.25)",
+    color: "#3b82f6", colorLight: "#60a5fa", glow: "rgba(59,130,246,0.3)",
     descKey: "tree.groupsDesc", actionKey: "tree.explore",
     parent: null,
   },
   {
     id: "laws", href: "/laws",
     labelKey: "nav.laws", iconKey: "book",
-    color: "#d97706", colorLight: "#f59e0b", glow: "rgba(217,119,6,0.25)",
+    color: "#f59e0b", colorLight: "#fbbf24", glow: "rgba(245,158,11,0.3)",
     descKey: "tree.lawsDesc", actionKey: "tree.explore",
     parent: null,
   },
   {
     id: "proposals", href: "/proposals",
     labelKey: "nav.proposals", iconKey: "fileText",
-    color: "#c2410c", colorLight: "#fb923c", glow: "rgba(194,65,12,0.25)",
+    color: "#f97316", colorLight: "#fb923c", glow: "rgba(249,115,22,0.3)",
     descKey: "tree.proposalsDesc", actionKey: "tree.explore",
     parent: null,
   },
   {
     id: "elections", href: "/elections",
     labelKey: "nav.elections", iconKey: "vote",
-    color: "#059669", colorLight: "#10b981", glow: "rgba(5,150,105,0.25)",
+    color: "#10b981", colorLight: "#34d399", glow: "rgba(16,185,129,0.3)",
     descKey: "tree.electionsDesc", actionKey: "tree.explore",
     parent: null,
   },
   {
     id: "agora", href: "/social",
     labelKey: "nav.forum", treeLabelKey: "tree.agora", iconKey: "message",
-    color: "#db2777", colorLight: "#ec4899", glow: "rgba(219,39,119,0.25)",
+    color: "#ec4899", colorLight: "#f472b6", glow: "rgba(236,72,153,0.3)",
     descKey: "tree.agoraDesc", actionKey: "tree.explore",
     parent: null,
   },
   {
     id: "about", href: "/about",
     labelKey: "nav.about", iconKey: "info",
-    color: "#0891b2", colorLight: "#22d3ee", glow: "rgba(8,145,178,0.25)",
+    color: "#06b6d4", colorLight: "#22d3ee", glow: "rgba(6,182,212,0.3)",
     descKey: "tree.aboutDesc", actionKey: "tree.learn",
     parent: null,
   },
   {
     id: "verify", href: "/verify",
     labelKey: "integrity.navTitle", iconKey: "shieldCheck",
-    color: "#6b7280", colorLight: "#9ca3af", glow: "rgba(107,114,128,0.25)",
+    color: "#64748b", colorLight: "#94a3b8", glow: "rgba(100,116,139,0.25)",
     descKey: "tree.verifyDesc", actionKey: "tree.open",
     parent: null,
   },
@@ -208,7 +208,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "personal", href: "/settings",
     labelKey: "nav.yourSpace", treeLabelKey: "tree.personal", iconKey: "user",
-    color: "#7c3aed", colorLight: "#8b5cf6", glow: "rgba(124,58,237,0.25)",
+    color: "#8b5cf6", colorLight: "#a78bfa", glow: "rgba(139,92,246,0.3)",
     descKey: "tree.personalDesc", actionKey: "tree.open",
     parent: null,
   },
@@ -217,7 +217,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "jurisdictions", href: "/groups?type=jurisdiction",
     labelKey: "nav.jurisdictions", iconKey: "landmark",
-    color: "#1d4ed8", colorLight: "#3b82f6", glow: "rgba(29,78,216,0.25)",
+    color: "#2563eb", colorLight: "#60a5fa", glow: "rgba(37,99,235,0.3)",
     descKey: "tree.jurisdictionsDesc", actionKey: "tree.browse",
     parent: "groups",
     dynamicChildSource: {
@@ -230,7 +230,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "parties", href: "/groups?type=party",
     labelKey: "nav.movements", treeLabelKey: "tree.parties", iconKey: "flag",
-    color: "#dc2626", colorLight: "#ef4444", glow: "rgba(220,38,38,0.25)",
+    color: "#ef4444", colorLight: "#f87171", glow: "rgba(239,68,68,0.3)",
     descKey: "tree.partiesDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=party&create=1",
     parent: "groups",
@@ -244,7 +244,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "communities", href: "/groups?type=community",
     labelKey: "nav.communities", iconKey: "users",
-    color: "#7c3aed", colorLight: "#a78bfa", glow: "rgba(124,58,237,0.25)",
+    color: "#8b5cf6", colorLight: "#a78bfa", glow: "rgba(139,92,246,0.3)",
     descKey: "tree.communitiesDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=community&create=1",
     parent: "groups",
@@ -258,7 +258,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "workingGroups", href: "/groups?type=working_group",
     labelKey: "nav.workingGroups", treeLabelKey: "tree.workingGroups", iconKey: "wrench",
-    color: "#0d9488", colorLight: "#2dd4bf", glow: "rgba(13,148,136,0.25)",
+    color: "#14b8a6", colorLight: "#2dd4bf", glow: "rgba(20,184,166,0.3)",
     descKey: "tree.workingGroupsDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=working_group&create=1",
     parent: "groups",
@@ -272,7 +272,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "religions", href: "/groups?type=religion",
     labelKey: "nav.religions", iconKey: "heart",
-    color: "#0f766e", colorLight: "#5eead4", glow: "rgba(15,118,110,0.25)",
+    color: "#06b6d4", colorLight: "#67e8f9", glow: "rgba(6,182,212,0.3)",
     descKey: "tree.religionsDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=religion&create=1",
     parent: "groups",
@@ -288,7 +288,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "browseLaws", href: "/laws",
     labelKey: "tree.browseLaws", iconKey: "search",
-    color: "#b45309", colorLight: "#f59e0b", glow: "rgba(180,83,9,0.25)",
+    color: "#eab308", colorLight: "#facc15", glow: "rgba(234,179,8,0.3)",
     descKey: "tree.browseLawsDesc", actionKey: "tree.browse",
     parent: "laws",
     dynamicChildSource: {
@@ -301,7 +301,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "proposeLaw", href: "/laws?propose=1",
     labelKey: "tree.proposeLaw", iconKey: "fileText",
-    color: "#ea580c", colorLight: "#fb923c", glow: "rgba(234,88,12,0.25)",
+    color: "#d97706", colorLight: "#fbbf24", glow: "rgba(217,119,6,0.3)",
     descKey: "tree.proposeLawDesc", actionKey: "tree.create",
     parent: "laws",
   },
@@ -310,7 +310,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "activeProposals", href: "/proposals?status=active",
     labelKey: "tree.activeProposals", iconKey: "vote",
-    color: "#ea580c", colorLight: "#fdba74", glow: "rgba(234,88,12,0.25)",
+    color: "#fb923c", colorLight: "#fdba74", glow: "rgba(251,146,60,0.3)",
     descKey: "tree.activeProposalsDesc", actionKey: "tree.browse",
     parent: "proposals",
     dynamicChildSource: {
@@ -322,14 +322,14 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "curation", href: "/proposals?status=curation",
     labelKey: "tree.curation", iconKey: "search",
-    color: "#9a3412", colorLight: "#f97316", glow: "rgba(154,52,18,0.25)",
+    color: "#e27b30", colorLight: "#f59e0b", glow: "rgba(226,123,48,0.3)",
     descKey: "tree.curationDesc", actionKey: "tree.browse",
     parent: "proposals",
   },
   {
     id: "archiveProposals", href: "/proposals?status=closed",
     labelKey: "tree.archiveProposals", iconKey: "book",
-    color: "#78350f", colorLight: "#d97706", glow: "rgba(120,53,15,0.25)",
+    color: "#c2710c", colorLight: "#e89020", glow: "rgba(194,113,12,0.25)",
     descKey: "tree.archiveProposalsDesc", actionKey: "tree.browse",
     parent: "proposals",
   },
@@ -338,7 +338,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "discussions", href: "/social",
     labelKey: "tree.discussions", iconKey: "message",
-    color: "#be185d", colorLight: "#f472b6", glow: "rgba(190,24,93,0.25)",
+    color: "#ec4899", colorLight: "#f9a8d4", glow: "rgba(236,72,153,0.3)",
     descKey: "tree.discussionsDesc", actionKey: "tree.browse",
     parent: "agora",
     dynamicChildSource: {
@@ -351,7 +351,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "channels", href: "/social?tab=channels",
     labelKey: "tree.channels", iconKey: "message",
-    color: "#9d174d", colorLight: "#ec4899", glow: "rgba(157,23,77,0.25)",
+    color: "#db2777", colorLight: "#f472b6", glow: "rgba(219,39,119,0.3)",
     descKey: "tree.channelsDesc", actionKey: "tree.browse",
     parent: "agora",
   },
@@ -360,7 +360,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "activeElections", href: "/elections?status=active",
     labelKey: "tree.activeElections", iconKey: "vote",
-    color: "#047857", colorLight: "#34d399", glow: "rgba(4,120,87,0.25)",
+    color: "#10b981", colorLight: "#6ee7b7", glow: "rgba(16,185,129,0.3)",
     descKey: "tree.activeElectionsDesc", actionKey: "tree.browse",
     parent: "elections",
     dynamicChildSource: {
@@ -372,7 +372,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "pastResults", href: "/elections?status=completed",
     labelKey: "tree.pastResults", iconKey: "scale",
-    color: "#065f46", colorLight: "#6ee7b7", glow: "rgba(6,95,70,0.25)",
+    color: "#059669", colorLight: "#34d399", glow: "rgba(5,150,105,0.3)",
     descKey: "tree.pastResultsDesc", actionKey: "tree.browse",
     parent: "elections",
   },
@@ -381,14 +381,14 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "mission", href: "/about#mission",
     labelKey: "tree.mission", iconKey: "heart",
-    color: "#0e7490", colorLight: "#22d3ee", glow: "rgba(14,116,144,0.25)",
+    color: "#06b6d4", colorLight: "#67e8f9", glow: "rgba(6,182,212,0.3)",
     descKey: "tree.missionDesc", actionKey: "tree.learn",
     parent: "about",
   },
   {
     id: "charter", href: "/about#charter",
     labelKey: "tree.charter", iconKey: "fileText",
-    color: "#155e75", colorLight: "#67e8f9", glow: "rgba(21,94,117,0.25)",
+    color: "#0891b2", colorLight: "#22d3ee", glow: "rgba(8,145,178,0.3)",
     descKey: "tree.charterDesc", actionKey: "tree.learn",
     parent: "about",
   },
@@ -397,42 +397,42 @@ export const PLATFORM_NODES: PlatformNode[] = [
   {
     id: "citizenProfile", href: "/settings",
     labelKey: "nav.citizenProfile", treeLabelKey: "tree.profile", iconKey: "user",
-    color: "#6d28d9", colorLight: "#a78bfa", glow: "rgba(109,40,217,0.25)",
+    color: "#8b5cf6", colorLight: "#c4b5fd", glow: "rgba(139,92,246,0.3)",
     descKey: "tree.profileDesc", actionKey: "tree.open",
     parent: "personal",
   },
   {
     id: "messagesNode", href: "/messages",
     labelKey: "nav.messages", treeLabelKey: "tree.messages", iconKey: "mail",
-    color: "#7e22ce", colorLight: "#c084fc", glow: "rgba(126,34,206,0.25)",
+    color: "#a855f7", colorLight: "#c084fc", glow: "rgba(168,85,247,0.3)",
     descKey: "tree.messagesDesc", actionKey: "tree.open",
     parent: "personal",
   },
   {
     id: "feedNode", href: "/feed",
     labelKey: "nav.feed", treeLabelKey: "tree.feed", iconKey: "rss",
-    color: "#5b21b6", colorLight: "#a78bfa", glow: "rgba(91,33,182,0.25)",
+    color: "#7c3aed", colorLight: "#a78bfa", glow: "rgba(124,58,237,0.3)",
     descKey: "tree.feedDesc", actionKey: "tree.open",
     parent: "personal",
   },
   {
     id: "delegationsNode", href: "/dashboard/delegations",
     labelKey: "nav.delegations", treeLabelKey: "tree.delegations", iconKey: "users",
-    color: "#4c1d95", colorLight: "#8b5cf6", glow: "rgba(76,29,149,0.25)",
+    color: "#6d28d9", colorLight: "#a78bfa", glow: "rgba(109,40,217,0.3)",
     descKey: "tree.delegationsDesc", actionKey: "tree.open",
     parent: "personal",
   },
   {
     id: "positions", href: "/admin",
     labelKey: "nav.positions", treeLabelKey: "tree.positions", iconKey: "shield",
-    color: "#6d28d9", colorLight: "#c4b5fd", glow: "rgba(109,40,217,0.25)",
+    color: "#9333ea", colorLight: "#c084fc", glow: "rgba(147,51,234,0.3)",
     descKey: "tree.positionsDesc", actionKey: "tree.open",
     parent: "personal",
   },
   {
     id: "settingsNode", href: "/settings",
     labelKey: "nav.settings", treeLabelKey: "tree.settings", iconKey: "settings",
-    color: "#4b5563", colorLight: "#9ca3af", glow: "rgba(75,85,99,0.25)",
+    color: "#64748b", colorLight: "#94a3b8", glow: "rgba(100,116,139,0.25)",
     descKey: "tree.settingsDesc", actionKey: "tree.open",
     parent: "personal",
   },
