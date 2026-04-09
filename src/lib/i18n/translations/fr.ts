@@ -66,8 +66,6 @@ const fr: TranslationKeys = {
     showTechnical: "Afficher le texte technique", showSimplified: "Afficher l'explication simplifiée",
     simplifiedExplanation: "Explication Simplifiée",
     lastUpdated: "Dernière mise à jour :", versionHistory: "Historique des Versions",
-    view3D: "Vue 3D",
-    view3DDesc: "Explorez les lois de Pangea sous forme d'arbre 3D interactif. Faites glisser pour pivoter, faites défiler pour zoomer. Exemple : tournez le globe et cliquez sur le nœud Code Pénal pour l'ouvrir.",
     statusDraft: "Brouillon", statusCommunityReview: "Revue Communautaire",
     statusActiveVote: "Vote Actif", statusConcluded: "Conclu", statusRepealed: "Abrogé",
     amendmentBadge: "Amendement", repealBadge: "Abrogation", voted: "Voté",
@@ -743,6 +741,9 @@ const fr: TranslationKeys = {
     charterDesc: "Les règles fondamentales de la plateforme",
     forum: "Forum",
     forumDesc: "La place publique — débattez et discutez",
+    switch3D: "Vue 3D",
+    switch2D: "Vue 2D",
+    expandBranch: "Développer la branche",
   },
 };
 

@@ -129,8 +129,6 @@ const it: TranslationKeys = {
     simplifiedExplanation: "Spiegazione Semplificata",
     lastUpdated: "Ultimo aggiornamento:",
     versionHistory: "Storico Versioni",
-    view3D: "Vista 3D",
-    view3DDesc: "Esplora le leggi di Pangea come un albero 3D interattivo. Trascina per ruotare, scorri per lo zoom. Esempio: ruota il globo e clicca sul nodo Codice Penale per aprirlo.",
     statusDraft: "Bozza",
     statusCommunityReview: "Revisione della Comunità",
     statusActiveVote: "Voto Attivo",
@@ -1028,6 +1026,9 @@ const it: TranslationKeys = {
     charterDesc: "Le regole fondamentali della piattaforma",
     forum: "Forum",
     forumDesc: "La piazza pubblica — dibatti e discuti",
+    switch3D: "Vista 3D",
+    switch2D: "Vista 2D",
+    expandBranch: "Espandi ramo",
   },
 };
 

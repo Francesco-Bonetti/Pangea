@@ -65,8 +65,6 @@ const es: TranslationKeys = {
     showTechnical: "Mostrar texto técnico", showSimplified: "Mostrar explicación simplificada",
     simplifiedExplanation: "Explicación Simplificada",
     lastUpdated: "Última actualización:", versionHistory: "Historial de Versiones",
-    view3D: "Vista 3D",
-    view3DDesc: "Explora las leyes de Pangea como un árbol 3D interactivo. Arrastra para rotar, desplaza para hacer zoom. Ejemplo: gira el globo y haz clic en el nodo Código Penal para abrirlo.",
     statusDraft: "Borrador", statusCommunityReview: "Revisión Comunitaria",
     statusActiveVote: "Voto Activo", statusConcluded: "Concluido", statusRepealed: "Derogado",
     amendmentBadge: "Enmienda", repealBadge: "Derogación", voted: "Votado",
@@ -742,6 +740,9 @@ const es: TranslationKeys = {
     charterDesc: "Las reglas fundamentales de la plataforma",
     forum: "Foro",
     forumDesc: "La plaza pública — debate y discute",
+    switch3D: "Vista 3D",
+    switch2D: "Vista 2D",
+    expandBranch: "Expandir rama",
   },
 };
 
