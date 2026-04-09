@@ -1146,6 +1146,8 @@ const en = {
     turnoutOnly: "Only turnout is visible during active voting",
     turnout: "Turnout",
     votersParticipated: "{count} voters participated",
+    resultsHidden: "Results are hidden",
+    resultsHiddenDesc: "Vote breakdown is hidden while voting is open to prevent herding effects. Only turnout is visible. Full results will be revealed when voting closes.",
   },
 
 };

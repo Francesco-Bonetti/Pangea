@@ -52,6 +52,12 @@ export async function GET(request: Request) {
       console.error("Error close_expired_proposals:", closeError);
     }
 
+    // 0c. DE-16: Reveal phase — seal votes + verify hash integrity for newly closed proposals
+    const { data: revealData, error: revealError } = await supabase.rpc("reveal_all_pending");
+    if (revealError) {
+      console.error("Error reveal_all_pending:", revealError);
+    }
+
     // 1. Evaluate curation markets (promote proposals to active)
     const { data, error } = await supabase.rpc("evaluate_curation_markets");
 
@@ -73,6 +79,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       expired_closed: closedCount ?? 0,
+      revealed: revealData ?? { proposals_processed: 0 },
       promoted: data,
       laws_created: convertedCount ?? 0,
       timestamp: new Date().toISOString(),

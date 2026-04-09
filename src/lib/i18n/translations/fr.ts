@@ -829,6 +829,8 @@ const fr: TranslationKeys = {
     turnoutOnly: "Seule la participation est visible pendant le vote actif",
     turnout: "Participation",
     votersParticipated: "{count} votants ont participé",
+    resultsHidden: "Results are hidden",
+    resultsHiddenDesc: "Vote breakdown is hidden while voting is open to prevent herding effects. Only turnout is visible. Full results will be revealed when voting closes.",
   },
 };
 

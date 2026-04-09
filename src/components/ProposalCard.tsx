@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ProposalWithResults } from "@/lib/types";
 import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
-import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle } from "lucide-react";
+import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle, EyeOff } from "lucide-react";
 import TranslatedContent from "@/components/TranslatedContent";
 import IntegrityBadge from "@/components/IntegrityBadge";
 import UidBadge from "@/components/UidBadge";
@@ -154,8 +154,16 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
         </div>
       )}
 
-      {/* Stacked vote progress bar (for active/closed proposals with legacy system) */}
-      {(proposal.status === "active" || proposal.status === "closed") && total > 0 && (
+      {/* DE-15: Active = turnout only (no breakdown), Closed = full results */}
+      {proposal.status === "active" && total > 0 && (
+        <div className="mb-4 flex items-center gap-2 text-xs" style={{ color: "var(--muted-foreground)" }}>
+          <EyeOff className="w-4 h-4 shrink-0" />
+          <span>{t("proposals.resultsHidden")}</span>
+        </div>
+      )}
+
+      {/* Stacked vote progress bar (closed proposals only — legacy system) */}
+      {proposal.status === "closed" && total > 0 && (
         <div className="mb-4">
           {/* Stacked horizontal bar */}
           <div
@@ -199,8 +207,8 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
         </div>
       )}
 
-      {/* Distributed results (Plural Voting) */}
-      {(proposal.status === "active" || proposal.status === "closed") &&
+      {/* Distributed results (Plural Voting) — only when closed (DE-15) */}
+      {proposal.status === "closed" &&
         proposal.distributed_results &&
         proposal.distributed_results.length > 0 && (
           <div className="space-y-2 mb-4">
@@ -245,7 +253,7 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
           {proposal.status === "curation" ? (
             <>
               <Flame className="w-3 h-3 shrink-0" />
-              <span className="truncate">{proposal.signal_count ?? 0} {t("laws.signals").toLowerCase()}</span>
+              <span className="truncate">{proposal.signal_count ?? 0} {(proposal.signal_count ?? 0) === 1 ? t("laws.signal") : t("laws.signals").toLowerCase()}</span>
             </>
           ) : (
             <>
