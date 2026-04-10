@@ -59,7 +59,7 @@ export type GroupPermission =
 // ── Static permission matrix ──
 // true = always allowed, false = never, "conditional" handled in code
 const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
-  founder: new Set([
+  founder: new Set<GroupPermission>([
     "edit_settings",
     "assign_roles",
     "create_subgroups",
@@ -79,7 +79,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "manage_documents",
   ]),
 
-  co_founder: new Set([
+  co_founder: new Set<GroupPermission>([
     "edit_settings",
     "assign_roles",
     "create_subgroups",
@@ -99,7 +99,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "manage_documents",
   ]),
 
-  president: new Set([
+  president: new Set<GroupPermission>([
     "edit_settings",
     "assign_roles",
     "create_subgroups",
@@ -117,7 +117,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "manage_documents",
   ]),
 
-  vice_president: new Set([
+  vice_president: new Set<GroupPermission>([
     "moderate_content",
     "publish_announcements",
     "vote",
@@ -131,7 +131,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "manage_documents",
   ]),
 
-  admin: new Set([
+  admin: new Set<GroupPermission>([
     "edit_settings",
     "assign_roles",
     "create_subgroups",
@@ -149,7 +149,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "manage_documents",
   ]),
 
-  moderator: new Set([
+  moderator: new Set<GroupPermission>([
     "moderate_content",
     "publish_announcements",
     "vote",
@@ -161,7 +161,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "post_content",
   ]),
 
-  secretary: new Set([
+  secretary: new Set<GroupPermission>([
     "publish_announcements",
     "vote",
     "propose_laws",
@@ -171,7 +171,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "manage_documents",
   ]),
 
-  treasurer: new Set([
+  treasurer: new Set<GroupPermission>([
     "vote",
     "propose_laws",
     "manage_treasury",
@@ -179,14 +179,14 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "post_content",
   ]),
 
-  member: new Set([
+  member: new Set<GroupPermission>([
     "vote",
     "propose_laws",
     "view_content",
     "post_content",
   ]),
 
-  observer: new Set([
+  observer: new Set<GroupPermission>([
     "view_content",
   ]),
 };
