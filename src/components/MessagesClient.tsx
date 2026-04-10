@@ -175,21 +175,21 @@ export default function MessagesClient({
       <div className="flex items-center justify-between mb-6 overflow-hidden">
         <div className="flex items-center gap-3 min-w-0">
           <MessageSquare className="w-6 h-6 text-blue-400 shrink-0" />
-          <h1 className="text-2xl font-bold text-fg truncate">Messages</h1>
+          <h1 className="text-2xl font-bold text-fg truncate">{t("messages.messagesTitle")}</h1>
         </div>
         <button
           onClick={() => setShowNewConv(true)}
           className="btn-primary flex items-center gap-2 text-sm px-4 py-2 shrink-0"
         >
           <PenSquare className="w-4 h-4 shrink-0" />
-          New Message
+          {t("messages.newMessage")}
         </button>
       </div>
 
       {/* E2E badge */}
       <div className="flex items-center gap-2 mb-6 text-xs text-fg-muted overflow-hidden flex-wrap">
         <ShieldCheck className="w-4 h-4 text-fg-success shrink-0" />
-        <span>End-to-end encrypted. Only you and the recipient can read these messages.</span>
+        <span>{t("messages.encryptedMessages")}</span>
       </div>
 
       {/* Search */}
@@ -212,13 +212,13 @@ export default function MessagesClient({
           <MessageSquare className="empty-state-icon" />
           <h3 className="empty-state-title">
             {conversations.length === 0
-              ? "No messages yet"
-              : "No matching conversations"}
+              ? t("messages.noMessagesYet")
+              : t("messages.noMatchingConversations")}
           </h3>
           <p className="empty-state-text">
             {conversations.length === 0
-              ? "Start a conversation by clicking \"New Message\" or visiting a citizen's profile."
-              : "Try a different search term."}
+              ? t("messages.startConversation")
+              : t("messages.tryDifferentSearch")}
           </p>
         </div>
       ) : (

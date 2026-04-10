@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Clock, RotateCcw, ChevronDown, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/language-provider";
 
 interface HistoryEntry {
   id: string;
@@ -32,6 +33,7 @@ export default function LawHistoryClient({
   currentTitle,
   currentContent,
 }: Props) {
+  const { t } = useLanguage();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
   const [restoredVersion, setRestoredVersion] = useState<number | null>(null);
@@ -57,7 +59,7 @@ export default function LawHistoryClient({
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       console.error("Restore failed:", err);
-      alert("Failed to restore version. Only admins can perform this action.");
+      alert(t("lawHistory.restoreFailed"));
     } finally {
       setRestoring(false);
     }
@@ -137,7 +139,7 @@ export default function LawHistoryClient({
                   className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-600/10 border border-blue-500/20 text-blue-400 hover:bg-blue-600/20 text-xs font-medium transition-colors disabled:opacity-50"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  Restore
+                  {t("lawHistory.restoreButton")}
                 </button>
               )}
             </div>

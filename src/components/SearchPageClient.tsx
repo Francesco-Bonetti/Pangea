@@ -237,12 +237,12 @@ export default function SearchPageClient() {
   };
 
   const filters: { key: ResultCategory; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "proposals", label: "Proposals" },
-    { key: "laws", label: "Laws" },
-    { key: "citizens", label: "Citizens" },
-    { key: "groups", label: "Groups" },
-    { key: "elections", label: "Elections" },
+    { key: "all", label: t("search.allResults") },
+    { key: "proposals", label: t("search.proposalsFilter") },
+    { key: "laws", label: t("search.lawsFilter") },
+    { key: "citizens", label: t("search.citizensFilter") },
+    { key: "groups", label: t("search.groupsFilter") },
+    { key: "elections", label: t("search.electionsFilter") },
   ];
 
   return (
@@ -258,7 +258,7 @@ export default function SearchPageClient() {
           </Link>
           <h1 className="text-2xl font-bold text-fg flex items-center gap-2">
             <Search className="w-6 h-6 text-fg-primary" />
-            Search
+            {t("search.title")}
           </h1>
         </div>
 
@@ -279,7 +279,7 @@ export default function SearchPageClient() {
             )}
           </div>
           <p className="text-xs text-fg-muted mt-2">
-            Type at least 2 characters to search across the entire platform
+            {t("search.atLeast2Chars")}
           </p>
         </form>
 
@@ -316,10 +316,10 @@ export default function SearchPageClient() {
           <div className="card p-8 text-center">
             <Search className="w-12 h-12 text-fg-muted mx-auto mb-3" />
             <p className="text-fg-muted">
-              No results found for &quot;{query}&quot;
+              {t("search.noResults")}
             </p>
             <p className="text-xs text-fg-muted mt-1">
-              Try different keywords or check the spelling
+              {t("search.tryDifferentKeywords")}
             </p>
           </div>
         ) : (

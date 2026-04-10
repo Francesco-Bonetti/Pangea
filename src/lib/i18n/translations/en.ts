@@ -526,6 +526,12 @@ const en = {
     backToMessages: "Back to Messages",
     failedToSend: "Failed to send message.",
     searchConversations: "Search conversations...",
+    messagesTitle: "Messages",
+    noMessagesYet: "No messages yet",
+    noMatchingConversations: "No matching conversations",
+    startConversation: "Start a conversation by clicking \"New Message\" or visiting a citizen's profile.",
+    tryDifferentSearch: "Try a different search term.",
+    encryptedMessages: "End-to-end encrypted. Only you and the recipient can read these messages.",
   },
 
   // ── Settings ──
@@ -622,6 +628,8 @@ const en = {
     recording: "Recording...",
     goBack: "Go back",
     creating: "Creating...",
+    example: "Example",
+    citizen: "Citizen",
   },
 
   // ── About ──
@@ -791,6 +799,8 @@ const en = {
     maxHolders: "Max holders:",
     alreadyApplied: "You have already applied for this position.",
     candidacySubmitted: "Your candidacy has been submitted!",
+    unknownCitizen: "Unknown",
+    candidateStatementPlaceholder: "Why are you a good candidate? (optional)",
   },
 
   // ── Feed ──
@@ -968,6 +978,23 @@ const en = {
     enterPassword: "Please enter your encryption password.",
     noKeysFound: "No encryption keys found. Please create new keys.",
     wrongPassword: "Wrong password. Please try again.",
+    passwordMinLength: "Password must be at least 8 characters.",
+    passwordsMustMatch: "Passwords do not match.",
+    unlockTitle: "Unlock Your Messages",
+    unlockDesc: "Enter your encryption password to decrypt your messages. This password never leaves your device.",
+    setupTitle: "Set Up Encrypted Messaging",
+    setupDesc: "Create an encryption password to protect your private messages. Messages are encrypted on your device before being sent — no one, not even the server, can read them.",
+    endToEndEncrypted: "End-to-end encrypted",
+    encryptionInfo: "Your messages are encrypted with Curve25519-XSalsa20-Poly1305. Only you and the recipient can read them. For example, if you send \"Hello!\" to another citizen, the server only sees random encrypted data like \"a8f3x9...\".",
+    passwordLabel: "Encryption Password",
+    passwordPlaceholder: "Min. 8 characters",
+    confirmPasswordLabel: "Confirm Password",
+    confirmPasswordPlaceholder: "Repeat your password",
+    decryptingButton: "Decrypting...",
+    unlockMessagesButton: "Unlock Messages",
+    creatingKeysButton: "Creating keys...",
+    enableEncryptionButton: "Enable Encrypted Messaging",
+    passwordReminder: "Remember this password. If you forget it, you will need to create new keys and old messages will become unreadable.",
   },
 
   // ── Delegations ──
@@ -981,11 +1008,61 @@ const en = {
     categoryOptional: "Category (optional)",
     globalDelegation: "Global delegation (all categories)",
     categoryPriority: "A category-specific delegation takes priority over a global one",
+    yourDelegations: "Your delegations",
+    receivedDelegations: "Received delegations",
+    noDelegationsYet: "You haven't delegated your vote to anyone yet.",
+    noReceivedYet: "No citizen has delegated their vote to you yet.",
+    revokeDelegation: "Revoke delegation",
+    acceptDelegation: "Accept delegation",
+    rejectDelegation: "Reject delegation",
+    statusAccepted: "Accepted",
+    statusRejected: "Rejected",
+    statusPending: "Pending",
+    statusExpired: "Expired",
+    tooltipAccepted: "This citizen accepted your delegation — their vote counts for you when you don't vote directly",
+    tooltipRejected: "This citizen rejected your delegation — it won't take effect",
+    tooltipPending: "Waiting for this citizen to accept or reject your delegation request",
+    tooltipExpired: "This delegation expired because it was not confirmed in time. You can reactivate it.",
+    failedAccept: "Failed to accept delegation",
+    failedReject: "Failed to reject delegation",
+    cycleError: "Cannot create this delegation: it would form a cycle. The selected citizen has already delegated to you (directly or transitively) for this category.",
+    duplicateError: "You already have an active delegation for this category. It will be updated with the new delegate.",
+    errorCreating: "Error creating delegation",
+    // DE-27/28: Delegation decay
+    infoTitle: "Liquid Democracy",
+    infoDescription: "lets you delegate your vote to another citizen for all topics or for a specific category. Delegations are always",
+    infoRevocable: "revocable",
+    infoDirectVote: "direct vote",
+    infoPrecedence: "always takes precedence.",
+    infoHowItWorks: "How it works:",
+    infoHowDesc: "When you create a delegation, it starts as",
+    infoPendingLabel: "Pending",
+    infoAcceptDesc: "— the other citizen must accept it before it becomes active. If they accept, their vote will count for you on proposals where you don't vote directly. If they reject it, the delegation won't take effect. You can revoke a delegation at any time.",
+    infoExample: "You delegate your vote to Alice on \"Environment\" topics. When a proposal about carbon tax comes up and you don't vote, Alice's vote counts for both of you. If you do vote directly, your vote overrides the delegation.",
+    confirmNeeded: "Confirmation needed",
+    confirmNeededDesc: "This delegation needs your confirmation to stay active. It will expire if not confirmed.",
+    confirmButton: "Confirm delegation",
+    confirming: "Confirming...",
+    reactivate: "Reactivate",
+    reactivating: "Reactivating...",
+    expiresIn: "Expires in",
+    days: "days",
+    expiredNotice: "Expired — not confirmed within 30 days",
   },
 
   // ── Search ──
   search: {
     placeholder: "Search laws, proposals, citizens, groups...",
+    title: "Search",
+    allResults: "All",
+    proposalsFilter: "Proposals",
+    lawsFilter: "Laws",
+    citizensFilter: "Citizens",
+    groupsFilter: "Groups",
+    electionsFilter: "Elections",
+    noResults: "No results found",
+    tryDifferentKeywords: "Try different keywords or check the spelling",
+    atLeast2Chars: "Type at least 2 characters to search across the entire platform",
   },
 
   // ── Personal Posts (B5) ──
@@ -1162,6 +1239,22 @@ const en = {
     turnoutOnly: "Only turnout is visible during active voting",
     turnout: "Turnout",
     votersParticipated: "{count} voters participated",
+  },
+
+  // ── Law History ──
+  lawHistory: {
+    restoreButton: "Restore",
+    restoreFailed: "Failed to restore version. Only admins can perform this action.",
+  },
+
+  // ── Follow Button ──
+  follow: {
+    following: "Following",
+    follow: "Follow",
+    loading: "Loading...",
+    followers: "{count} {plural}",
+    follower: "follower",
+    followers_plural: "followers",
   },
 
   // ── Error Boundaries ──

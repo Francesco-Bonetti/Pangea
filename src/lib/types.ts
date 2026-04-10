@@ -7,7 +7,7 @@
 export type ProposalStatus = "draft" | "curation" | "active" | "closed" | "repealed";
 export type VoteType = "yea" | "nay" | "abstain";
 export type UserRole = "citizen" | "moderator" | "admin";
-export type DelegationStatus = "pending" | "accepted" | "rejected";
+export type DelegationStatus = "pending" | "accepted" | "rejected" | "expired";
 export type ProposalType = "new" | "amendment" | "repeal";
 
 // --- Identity Tiers (Diamond Edition DE-01) ---
@@ -210,6 +210,8 @@ export interface Delegation {
   category_id: string | null;
   status?: DelegationStatus;
   created_at: string;
+  last_pinged_at?: string | null;
+  confirmed_at?: string | null;
   // Join
   delegator?: Profile;
   delegate?: Profile;

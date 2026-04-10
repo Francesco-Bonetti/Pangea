@@ -69,7 +69,17 @@ export async function GET(request: Request) {
       );
     }
 
-    // 2. Convert approved closed proposals to laws
+    // 2. DE-27/28: Delegation decay — ping stale delegations + expire unconfirmed
+    const { data: pingedCount, error: pingError } = await supabase.rpc("ping_delegation_confirmations");
+    if (pingError) {
+      console.error("Error ping_delegation_confirmations:", pingError);
+    }
+    const { data: expiredDelegations, error: expireError } = await supabase.rpc("expire_stale_delegations");
+    if (expireError) {
+      console.error("Error expire_stale_delegations:", expireError);
+    }
+
+    // 3. Convert approved closed proposals to laws
     const { data: convertedCount, error: convertError } = await supabase.rpc("convert_closed_proposals_to_laws");
 
     if (convertError) {
@@ -82,6 +92,8 @@ export async function GET(request: Request) {
       revealed: revealData ?? { proposals_processed: 0 },
       promoted: data,
       laws_created: convertedCount ?? 0,
+      delegations_pinged: pingedCount ?? 0,
+      delegations_expired: expiredDelegations ?? 0,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useState, useEffect } from "react";
 import { UserPlus, UserMinus, Loader2 } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 import type { FollowTargetType } from "@/lib/types";
 
 interface FollowButtonProps {
@@ -22,6 +23,7 @@ export default function FollowButton({
   size = "md",
   showCount = true,
 }: FollowButtonProps) {
+  const { t } = useLanguage();
   const supabase = createClient();
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
@@ -101,7 +103,7 @@ export default function FollowButton({
     return (
       <button disabled className={`inline-flex items-center rounded-lg font-medium bg-theme-muted text-fg-muted ${sizeClasses}`}>
         <Loader2 className={`animate-spin ${size === "sm" ? "w-3 h-3" : "w-4 h-4"}`} />
-        Loading...
+        {t("follow.loading")}
       </button>
     );
   }
@@ -125,11 +127,11 @@ export default function FollowButton({
         ) : (
           <UserPlus className={size === "sm" ? "w-3 h-3" : "w-4 h-4"} />
         )}
-        {isFollowing ? "Following" : "Follow"}
+        {isFollowing ? t("follow.following") : t("follow.follow")}
       </button>
       {showCount && (
         <span className="text-xs text-fg-muted">
-          {followerCount} {followerCount === 1 ? "follower" : "followers"}
+          {followerCount} {followerCount === 1 ? t("follow.follower") : t("follow.followers_plural")}
         </span>
       )}
     </div>

@@ -114,7 +114,7 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
           .single();
         holdersList.push({
           ...h,
-          user_name: profile?.full_name || "Unknown",
+          user_name: profile?.full_name || t("lawPositions.unknownCitizen"),
           citizen_code: profile?.citizen_code || "",
         });
       }
@@ -135,7 +135,7 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
           .single();
         candidatesList.push({
           ...c,
-          user_name: profile?.full_name || "Unknown",
+          user_name: profile?.full_name || t("lawPositions.unknownCitizen"),
         });
       }
       candidatesMap[pos.id] = candidatesList;
@@ -355,7 +355,7 @@ export default function LawPositions({ lawId, isAdmin = false }: LawPositionsPro
                         {showApplyForm === pos.id ? (
                           <div className="space-y-2 pt-2">
                             <textarea
-                              placeholder="Why are you a good candidate? (optional)"
+                              placeholder={t("lawPositions.candidateStatementPlaceholder")}
                               value={statement}
                               onChange={(e) => setStatement(e.target.value)}
                               className="input-field text-sm"

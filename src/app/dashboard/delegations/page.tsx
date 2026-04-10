@@ -21,6 +21,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
+  ShieldAlert,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,6 +45,8 @@ export default function DelegationsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [reactivatingId, setReactivatingId] = useState<string | null>(null);
 
   const supabase = createClient();
   const router = useRouter();
@@ -60,7 +64,6 @@ export default function DelegationsPage() {
 
     setUser(authUser);
 
-    // Load profile, categories and delegations in parallel
     const [profileRes, catRes, delegGivenRes, delegReceivedRes] =
       await Promise.all([
         supabase.from("profiles").select("*").eq("id", authUser.id).single(),
@@ -130,14 +133,9 @@ export default function DelegationsPage() {
 
       if (insertError) {
         if (insertError.message?.includes("ciclo infinito")) {
-          setError(
-            "Cannot create this delegation: it would form a cycle. " +
-              "The selected citizen has already delegated to you (directly or transitively) for this category."
-          );
+          setError(t("delegations.cycleError"));
         } else if (insertError.code === "23505") {
-          setError(
-            "You already have an active delegation for this category. It will be updated with the new delegate."
-          );
+          setError(t("delegations.duplicateError"));
         } else {
           throw insertError;
         }
@@ -152,7 +150,7 @@ export default function DelegationsPage() {
       await loadData();
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Error creating delegation";
+        err instanceof Error ? err.message : t("delegations.errorCreating");
       setError(msg);
     } finally {
       setSaving(false);
@@ -164,10 +162,10 @@ export default function DelegationsPage() {
     setError(null);
     const { error: err } = await supabase
       .from("delegations")
-      .update({ status: "accepted" })
+      .update({ status: "accepted", confirmed_at: new Date().toISOString() })
       .eq("id", delegationId);
     if (err) {
-      setError("Failed to accept delegation: " + err.message);
+      setError(t("delegations.failedAccept") + ": " + err.message);
     } else {
       await loadData();
     }
@@ -181,7 +179,7 @@ export default function DelegationsPage() {
       .update({ status: "rejected" })
       .eq("id", delegationId);
     if (err) {
-      setError("Failed to reject delegation: " + err.message);
+      setError(t("delegations.failedReject") + ": " + err.message);
     } else {
       await loadData();
     }
@@ -197,6 +195,131 @@ export default function DelegationsPage() {
     if (!deleteError) {
       await loadData();
     }
+  }
+
+  // DE-27: Confirm delegation (reset ping timer)
+  async function confirmDelegation(delegationId: string) {
+    setConfirmingId(delegationId);
+    const { error: err } = await supabase.rpc("confirm_delegation", {
+      p_delegation_id: delegationId,
+    });
+    if (err) {
+      setError(err.message);
+    } else {
+      await loadData();
+    }
+    setConfirmingId(null);
+  }
+
+  // DE-28: Reactivate expired delegation
+  async function reactivateDelegation(delegationId: string) {
+    setReactivatingId(delegationId);
+    const { error: err } = await supabase.rpc("reactivate_delegation", {
+      p_delegation_id: delegationId,
+    });
+    if (err) {
+      setError(err.message);
+    } else {
+      await loadData();
+    }
+    setReactivatingId(null);
+  }
+
+  // Helper: calculate days until expiry for pinged delegations
+  function daysUntilExpiry(d: Delegation): number | null {
+    if (!d.last_pinged_at || d.status !== "accepted") return null;
+    const pingedAt = new Date(d.last_pinged_at).getTime();
+    const expiryAt = pingedAt + 30 * 24 * 60 * 60 * 1000; // 30 days
+    const remaining = Math.ceil((expiryAt - Date.now()) / (24 * 60 * 60 * 1000));
+    return remaining > 0 ? remaining : 0;
+  }
+
+  // Helper: status badge
+  function StatusBadge({ d }: { d: Delegation }) {
+    if (d.status === "accepted") {
+      const remaining = daysUntilExpiry(d);
+      if (remaining !== null) {
+        // Pinged — needs confirmation
+        return (
+          <div className="shrink-0 flex items-center gap-1.5">
+            <span
+              className="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap text-amber-300 bg-warning-tint border border-theme flex items-center gap-1"
+              title={t("delegations.confirmNeededDesc")}
+            >
+              <ShieldAlert className="w-3 h-3" />
+              {t("delegations.expiresIn")} {remaining} {t("delegations.days")}
+            </span>
+            <button
+              onClick={() => confirmDelegation(d.id)}
+              disabled={confirmingId === d.id}
+              className="text-xs px-2 py-1 rounded-full font-medium bg-pangea-700/30 text-fg-primary hover:bg-pangea-600/40 border border-pangea-600/30 transition-colors flex items-center gap-1"
+            >
+              {confirmingId === d.id ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-3 h-3" />
+              )}
+              {confirmingId === d.id ? t("delegations.confirming") : t("delegations.confirmButton")}
+            </button>
+          </div>
+        );
+      }
+      return (
+        <span
+          className="shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap text-fg-success bg-success-tint border border-theme"
+          title={t("delegations.tooltipAccepted")}
+        >
+          {t("delegations.statusAccepted")}
+        </span>
+      );
+    }
+
+    if (d.status === "expired") {
+      return (
+        <div className="shrink-0 flex items-center gap-1.5">
+          <span
+            className="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap text-fg-muted bg-theme-card border border-theme"
+            title={t("delegations.tooltipExpired")}
+          >
+            {t("delegations.statusExpired")}
+          </span>
+          <button
+            onClick={() => reactivateDelegation(d.id)}
+            disabled={reactivatingId === d.id}
+            className="text-xs px-2 py-1 rounded-full font-medium bg-pangea-700/30 text-fg-primary hover:bg-pangea-600/40 border border-pangea-600/30 transition-colors flex items-center gap-1"
+          >
+            {reactivatingId === d.id ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <RefreshCw className="w-3 h-3" />
+            )}
+            {reactivatingId === d.id ? t("delegations.reactivating") : t("delegations.reactivate")}
+          </button>
+        </div>
+      );
+    }
+
+    if (d.status === "rejected") {
+      return (
+        <span
+          className="shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap text-fg-danger bg-danger-tint border border-theme"
+          title={t("delegations.tooltipRejected")}
+        >
+          {t("delegations.statusRejected")}
+        </span>
+      );
+    }
+
+    // pending
+    return (
+      <span
+        className="shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap text-amber-300 bg-warning-tint border border-theme cursor-help"
+        title={t("delegations.tooltipPending")}
+      >
+        <Clock className="w-3 h-3 inline mr-1" />
+        {t("delegations.statusPending")}
+      </span>
+    );
   }
 
   if (loading) {
@@ -223,10 +346,10 @@ export default function DelegationsPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-fg flex items-center gap-2">
               <Users className="w-5 h-5 sm:w-6 sm:h-6 text-fg-primary shrink-0" />
-              <span className="truncate">Liquid Democracy</span>
+              <span className="truncate">{t("delegations.infoTitle")}</span>
             </h1>
             <p className="text-xs sm:text-sm text-fg-muted mt-0.5 truncate">
-              Manage your vote delegations — global or by topic
+              {t("delegations.subtitle")}
             </p>
           </div>
           <button
@@ -247,22 +370,22 @@ export default function DelegationsPage() {
           <Globe className="w-5 h-5 text-fg-primary shrink-0 mt-0.5" />
           <div className="text-sm text-fg-muted space-y-2">
             <p>
-              <strong className="text-fg">Liquid Democracy</strong>{" "}
-              lets you delegate your vote to another citizen for all topics
-              or for a specific category. Delegations are always{" "}
-              <strong className="text-fg">revocable</strong> and your{" "}
-              <strong className="text-fg">direct vote</strong> always
-              takes precedence.
+              <strong className="text-fg">{t("delegations.infoTitle")}</strong>{" "}
+              {t("delegations.infoDescription")}{" "}
+              <strong className="text-fg">{t("delegations.infoRevocable")}</strong>{" "}
+              {t("common.and")}{" "}
+              <strong className="text-fg">{t("delegations.infoDirectVote")}</strong>{" "}
+              {t("delegations.infoPrecedence")}
             </p>
             <p>
-              <strong className="text-amber-400">How it works:</strong>{" "}
-              When you create a delegation, it starts as{" "}
-              <strong className="text-amber-300">Pending</strong> — the other citizen must accept it before it becomes active.
-              If they accept, their vote will count for you on proposals where you don&apos;t vote directly.
-              If they reject it, the delegation won&apos;t take effect. You can revoke a delegation at any time.
+              <strong className="text-amber-400">{t("delegations.infoHowItWorks")}</strong>{" "}
+              {t("delegations.infoHowDesc")}{" "}
+              <strong className="text-amber-300">{t("delegations.infoPendingLabel")}</strong>{" "}
+              {t("delegations.infoAcceptDesc")}
             </p>
             <p className="text-xs">
-              <strong className="text-fg">Example:</strong> You delegate your vote to Alice on &quot;Environment&quot; topics. When a proposal about carbon tax comes up and you don&apos;t vote, Alice&apos;s vote counts for both of you. If you do vote directly, your vote overrides the delegation.
+              <strong className="text-fg">{t("common.example")}:</strong>{" "}
+              {t("delegations.infoExample")}
             </p>
           </div>
         </div>
@@ -271,18 +394,18 @@ export default function DelegationsPage() {
         {showForm && (
           <div className="card p-6 mb-6">
             <h2 className="text-lg font-semibold text-fg mb-4">
-              Create a new delegation
+              {t("delegations.createNew")}
             </h2>
 
             {/* User search */}
             <div className="mb-4">
-              <label className="label">Search for a citizen</label>
+              <label className="label">{t("delegations.searchCitizen")}</label>
               <div className="relative">
                 <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   className="input-field pl-10"
-                  placeholder="Search by name..."
+                  placeholder={t("delegations.searchByName")}
                   value={searchQuery}
                   onChange={(e) => searchUsers(e.target.value)}
                 />
@@ -308,7 +431,7 @@ export default function DelegationsPage() {
                         {(p.full_name ?? "?")[0].toUpperCase()}
                       </div>
                       <span className="text-sm text-fg">
-                        {p.full_name ?? "Citizen"}
+                        {p.full_name ?? t("common.citizen")}
                       </span>
                       <ChevronRight className="w-4 h-4 text-fg-muted ml-auto" />
                     </button>
@@ -342,7 +465,7 @@ export default function DelegationsPage() {
             <div className="mb-4">
               <label className="label flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5" />
-                Category (optional)
+                {t("delegations.categoryOptional")}
               </label>
               <select
                 className="input-field"
@@ -350,7 +473,7 @@ export default function DelegationsPage() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
                 <option value="">
-                  Global delegation (all categories)
+                  {t("delegations.globalDelegation")}
                 </option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -359,7 +482,7 @@ export default function DelegationsPage() {
                 ))}
               </select>
               <p className="text-xs text-fg-muted mt-1.5">
-                A category-specific delegation takes priority over a global one
+                {t("delegations.categoryPriority")}
               </p>
             </div>
 
@@ -402,7 +525,7 @@ export default function DelegationsPage() {
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
             <ChevronRight className="w-5 h-5 text-fg-primary" />
-            Your delegations
+            {t("delegations.yourDelegations")}
             <span className="text-xs text-fg-muted font-normal">
               ({delegations.length})
             </span>
@@ -412,7 +535,7 @@ export default function DelegationsPage() {
             <div className="card p-8 text-center">
               <Users className="w-12 h-12 text-fg-muted mx-auto mb-3" />
               <p className="text-fg-muted text-sm">
-                You haven&apos;t delegated your vote to anyone yet.
+                {t("delegations.noDelegationsYet")}
               </p>
             </div>
           ) : (
@@ -430,7 +553,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-fg font-medium truncate">
-                        {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
+                        {delegateProfile?.id ? <PrivacyName userId={delegateProfile.id} fullName={delegateProfile.full_name ?? null} currentUserId={user?.id} /> : t("common.citizen")}
                       </p>
                       <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (
@@ -441,35 +564,16 @@ export default function DelegationsPage() {
                         ) : (
                           <>
                             <Globe className="w-3 h-3 shrink-0" />
-                            Global delegation
+                            {t("delegations.globalDelegation")}
                           </>
                         )}
                       </p>
                     </div>
-                    <span
-                      className={`shrink-0 text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap cursor-help ${
-                        d.status === "accepted" ? "text-fg-success bg-success-tint border border-theme" :
-                        d.status === "rejected" ? "text-fg-danger bg-danger-tint border border-theme" :
-                        "text-amber-300 bg-warning-tint border border-theme"
-                      }`}
-                      title={
-                        d.status === "accepted" ? "This citizen accepted your delegation — their vote counts for you when you don't vote directly" :
-                        d.status === "rejected" ? "This citizen rejected your delegation — it won't take effect" :
-                        "Waiting for this citizen to accept or reject your delegation request"
-                      }
-                    >
-                      {d.status === "accepted" ? "Accepted" :
-                       d.status === "rejected" ? "Rejected" :
-                       <>
-                         <Clock className="w-3 h-3 inline mr-1" />
-                         Pending
-                       </>
-                      }
-                    </span>
+                    <StatusBadge d={d} />
                     <button
                       onClick={() => revokeDelegation(d.id)}
                       className="shrink-0 text-fg-muted hover:text-fg-danger transition-colors p-2"
-                      title="Revoke delegation"
+                      title={t("delegations.revokeDelegation")}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -484,7 +588,7 @@ export default function DelegationsPage() {
         <section>
           <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-amber-400" />
-            Received delegations
+            {t("delegations.receivedDelegations")}
             <span className="text-xs text-fg-muted font-normal">
               ({receivedDelegations.length})
             </span>
@@ -494,7 +598,7 @@ export default function DelegationsPage() {
             <div className="card p-8 text-center">
               <Users className="w-12 h-12 text-fg-muted mx-auto mb-3" />
               <p className="text-fg-muted text-sm">
-                No citizen has delegated their vote to you yet.
+                {t("delegations.noReceivedYet")}
               </p>
             </div>
           ) : (
@@ -512,7 +616,7 @@ export default function DelegationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-fg font-medium truncate">
-                        {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : "Citizen"}
+                        {delegatorProfile?.id ? <PrivacyName userId={delegatorProfile.id} fullName={delegatorProfile.full_name ?? null} currentUserId={user?.id} /> : t("common.citizen")}
                       </p>
                       <p className="text-xs text-fg-muted flex items-center gap-1 truncate">
                         {category ? (
@@ -523,7 +627,7 @@ export default function DelegationsPage() {
                         ) : (
                           <>
                             <Globe className="w-3 h-3 shrink-0" />
-                            Global delegation
+                            {t("delegations.globalDelegation")}
                           </>
                         )}
                       </p>
@@ -533,28 +637,32 @@ export default function DelegationsPage() {
                         <button
                           onClick={() => acceptDelegation(d.id)}
                           className="p-1.5 rounded-lg text-fg-success hover:bg-green-900/30 transition-colors"
-                          title="Accept delegation"
+                          title={t("delegations.acceptDelegation")}
                         >
                           <CheckCircle2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => rejectDelegation(d.id)}
                           className="p-1.5 rounded-lg text-fg-danger hover:bg-danger-tint transition-colors"
-                          title="Reject delegation"
+                          title={t("delegations.rejectDelegation")}
                         >
                           <XCircle className="w-4 h-4" />
                         </button>
                         <span className="text-xs text-amber-500/80 bg-warning-tint px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                          <Clock className="w-3 h-3" /> Pending
+                          <Clock className="w-3 h-3" /> {t("delegations.statusPending")}
                         </span>
                       </div>
                     ) : d.status === "accepted" ? (
                       <span className="text-xs text-fg-success bg-success-tint px-2 py-1 rounded-full">
-                        Accepted
+                        {t("delegations.statusAccepted")}
+                      </span>
+                    ) : d.status === "expired" ? (
+                      <span className="text-xs text-fg-muted bg-theme-card px-2 py-1 rounded-full">
+                        {t("delegations.statusExpired")}
                       </span>
                     ) : (
                       <span className="text-xs text-fg-danger bg-danger-tint px-2 py-1 rounded-full">
-                        Rejected
+                        {t("delegations.statusRejected")}
                       </span>
                     )}
                   </div>
