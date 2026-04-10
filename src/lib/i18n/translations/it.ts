@@ -1220,6 +1220,20 @@ const it: DeepPartial<TranslationKeys> = {
     votersParticipated: "{count} votanti hanno partecipato",
   },
 
+  // ── Vote Integrity (DE-16) ──
+  integrity: {
+    allVerified: "Tutti i voti verificati crittograficamente",
+    mismatchFound: "Rilevata discrepanza nell'hash — audit necessario",
+    pendingAudit: "Audit di integrità in attesa",
+    description: "Ogni voto viene hashato con SHA-256 al momento dell'invio. Alla chiusura del voto, ogni hash viene ri-verificato per garantire che nessun voto sia stato alterato.",
+    totalVotes: "Voti totali:",
+    sealed: "Tutti sigillati:",
+    verified: "Verificati:",
+    mismatches: "Discrepanze:",
+    legacyVotes: "Voti legacy (senza hash):",
+    example: "Esempio: quando voti, Pangea calcola SHA-256(la_tua_scelta + sale_casuale). Alla chiusura, il server ricalcola l'hash e confronta — se coincidono, il tuo voto non è mai stato manomesso.",
+  },
+
   // ── Law History ──
   lawHistory: {
     restoreButton: "Restore",

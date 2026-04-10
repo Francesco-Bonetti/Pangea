@@ -1252,6 +1252,20 @@ const en = {
     votersParticipated: "{count} voters participated",
   },
 
+  // ── Vote Integrity (DE-16) ──
+  integrity: {
+    allVerified: "All votes cryptographically verified",
+    mismatchFound: "Hash mismatch detected — audit required",
+    pendingAudit: "Integrity audit pending",
+    description: "Each vote is hashed with SHA-256 at submission. After the voting period ends, every hash is re-verified to ensure no vote was altered.",
+    totalVotes: "Total votes:",
+    sealed: "All sealed:",
+    verified: "Verified:",
+    mismatches: "Mismatches:",
+    legacyVotes: "Legacy votes (no hash):",
+    example: "Example: when you vote, Pangea computes SHA-256(your_choice + random_salt). At closure, the server re-computes the hash and compares — if they match, your vote was never tampered with.",
+  },
+
   // ── Law History ──
   lawHistory: {
     restoreButton: "Restore",

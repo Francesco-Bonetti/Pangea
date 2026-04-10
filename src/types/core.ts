@@ -345,6 +345,18 @@ export interface DistributedResultDTO {
   total_votes: number;
 }
 
+export interface ProposalIntegrityDTO {
+  status: string;
+  results_available: boolean;
+  total_votes: number;
+  all_sealed: boolean;
+  verified_count: number;
+  mismatch_count: number;
+  missing_hash_count: number;
+  integrity_ok: boolean;
+  audit_complete: boolean;
+}
+
 export interface ElectionResultEntryDTO {
   candidate_id: string;
   candidate_user_id: string;

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import VotingBooth from "@/components/VotingBooth";
+import VoteIntegrityBadge from "@/components/VoteIntegrityBadge";
 import SignalButton from "@/components/SignalButton";
 import DraftActions from "@/components/DraftActions";
 import CommentSection from "@/components/CommentSection";
@@ -362,16 +363,22 @@ export default async function ProposalDetailPage({ params }: Props) {
               </div>
             ) : (
               /* Voting Booth — with sliders */
-              <VotingBooth
-                proposal={proposal}
-                options={proposalOptions}
-                initialResults={distributedResults}
-                initialHasVoted={hasVoted}
-                userId={user?.id ?? "guest"}
-                hasActiveDelegation={hasActiveDelegation}
-                categoryName={categoryName}
-                isGuest={isGuest}
-              />
+              <>
+                {/* DE-16: Vote integrity badge for closed proposals */}
+                {proposal.status === "closed" && (
+                  <VoteIntegrityBadge proposalId={proposal.id} />
+                )}
+                <VotingBooth
+                  proposal={proposal}
+                  options={proposalOptions}
+                  initialResults={distributedResults}
+                  initialHasVoted={hasVoted}
+                  userId={user?.id ?? "guest"}
+                  hasActiveDelegation={hasActiveDelegation}
+                  categoryName={categoryName}
+                  isGuest={isGuest}
+                />
+              </>
             )}
           </div>
         </div>
