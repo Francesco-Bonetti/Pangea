@@ -1326,9 +1326,9 @@ const en = {
     // BootstrapLockBadge
     bootstrapLocked: "Bootstrap Protected",
     bootstrapUnlocked: "Protection Complete",
-    lockedUntilN: "Locked — {count} more T2 citizens needed",
+    lockedUntilN: "Locked — more T2 citizens needed:",
     verifiedCitizens: "Verified Citizens",
-    neededForUnlock: "{count} more verified citizens needed to unlock democratic amendment.",
+    neededForUnlock: "More verified citizens needed to unlock democratic amendment:",
     bootstrapPhaseComplete: "Bootstrap phase complete. This law can now be amended through normal democratic process.",
     lockDescription: "This law is protected during the bootstrap phase to prevent constitutional manipulation while the citizen base is small.",
   },

@@ -84,9 +84,7 @@ export function BootstrapLockBadge({
           <>
             <Lock className="w-3.5 h-3.5" />
             <span>
-              {t('guardian.lockedUntilN', {
-                count: remainingNeeded,
-              })}
+              {`${t('guardian.lockedUntilN')} ${remainingNeeded}`}
             </span>
           </>
         ) : (
@@ -156,9 +154,7 @@ export function BootstrapLockBadge({
       <div className={`text-sm ${colors.text}`}>
         {isLocked ? (
           <p>
-            {t('guardian.neededForUnlock', {
-              count: remainingNeeded,
-            })}
+            {`${t('guardian.neededForUnlock')} ${remainingNeeded}`}
           </p>
         ) : (
           <p className="text-fg-muted">
