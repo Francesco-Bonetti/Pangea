@@ -337,8 +337,15 @@ const en = {
     },
     role: {
       founder: "Founder",
+      co_founder: "Co-Founder",
+      president: "President",
+      vice_president: "Vice President",
       admin: "Admin",
+      moderator: "Moderator",
+      secretary: "Secretary",
+      treasurer: "Treasurer",
       member: "Member",
+      observer: "Observer",
     },
     tabs: {
       info: "Info",
@@ -377,10 +384,14 @@ const en = {
       post: "Post",
       empty: "No posts yet. Start the discussion!",
     },
+    manageRole: "Manage role",
+    changeRole: "Change role",
     errors: {
       nameRequired: "Group name is required",
       founderCantLeave: "The founder cannot leave. Transfer the role first.",
       failedToCreate: "Failed to create group",
+      cannotAssignRole: "You do not have permission to assign this role.",
+      cannotRemoveMember: "You do not have permission to remove this member.",
     },
   },
 

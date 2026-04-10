@@ -18,20 +18,29 @@ import {
   Briefcase,
   Layers,
   Crown,
+  Star,
   Shield,
+  ShieldCheck,
+  FileText,
+  Wallet,
+  Eye,
   UserPlus,
   UserMinus,
   ChevronRight,
+  ChevronDown,
   MessageSquare,
   Vote,
   Settings,
   Trash2,
   AlertCircle,
+  MoreVertical,
+  X,
 } from "lucide-react";
 import type {
   Profile,
   Group,
   GroupMember,
+  GroupMemberRole,
   GroupTreeNode,
   GroupVote,
   GroupForumPost,
@@ -40,15 +49,25 @@ import type {
 } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 import GroupDiscussions from "@/components/GroupDiscussions";
+import {
+  ROLE_META,
+  hasPermission,
+  getAssignableRoles,
+  canRemoveMember,
+  sortByRole,
+  outranks,
+} from "@/lib/group-permissions";
 
 type TabId = "info" | "members" | "votes" | "discussions" | "subgroups";
 
-const ROLE_ICONS = { founder: Crown, admin: Shield, member: Users };
-const ROLE_COLORS = {
-  founder: "text-amber-400 bg-amber-500/15",
-  admin: "text-blue-400 bg-blue-500/15",
-  member: "text-slate-400 bg-slate-500/15",
-};
+const LUCIDE_ICONS = { Crown, Star, Shield, ShieldCheck, FileText, Wallet, Users, Eye };
+function getRoleIcon(role: GroupMemberRole) {
+  const meta = ROLE_META[role];
+  return LUCIDE_ICONS[meta?.icon as keyof typeof LUCIDE_ICONS] || Users;
+}
+function getRoleColor(role: GroupMemberRole) {
+  return ROLE_META[role]?.colorClass || "text-slate-400 bg-slate-500/15";
+}
 
 export default function GroupDetailPage() {
   const supabase = createClient();
@@ -159,7 +178,7 @@ export default function GroupDetailPage() {
 
   async function handleLeave() {
     if (!user || !currentMember) return;
-    if (currentMember.role === "founder") {
+    if (currentMember.role === "founder" || currentMember.role === "co_founder") {
       setError(t("groups.errors.founderCantLeave"));
       return;
     }
@@ -170,15 +189,46 @@ export default function GroupDetailPage() {
     setJoining(false);
   }
 
-  // Promote/demote member
-  async function handleRoleChange(memberId: string, newRole: "admin" | "member") {
-    await supabase.from("group_members").update({ role: newRole }).eq("id", memberId);
+  // Role dropdown state
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState<string | null>(null);
+
+  // Change member role via RPC (server-side hierarchy enforcement)
+  async function handleRoleChange(memberId: string, targetCurrentRole: GroupMemberRole, newRole: GroupMemberRole) {
+    if (!myRole) return;
+    // Client-side pre-check for UX (server does the real check)
+    const assignable = getAssignableRoles(myRole, targetCurrentRole);
+    if (!assignable.includes(newRole)) {
+      setError(t("groups.errors.cannotAssignRole"));
+      return;
+    }
+    const { data, error: rpcError } = await supabase.rpc("change_group_member_role", {
+      p_group_id: groupId,
+      p_target_member_id: memberId,
+      p_new_role: newRole,
+    });
+    if (rpcError || !data?.success) {
+      setError(data?.error || rpcError?.message || t("groups.errors.cannotAssignRole"));
+      return;
+    }
+    setRoleDropdownOpen(null);
     loadData();
   }
 
-  // Remove member
-  async function handleRemoveMember(memberId: string) {
-    await supabase.from("group_members").delete().eq("id", memberId);
+  // Remove member via RPC (server-side hierarchy enforcement)
+  async function handleRemoveMember(memberId: string, targetRole: GroupMemberRole) {
+    if (!myRole) return;
+    if (!canRemoveMember(myRole, targetRole)) {
+      setError(t("groups.errors.cannotRemoveMember"));
+      return;
+    }
+    const { data, error: rpcError } = await supabase.rpc("remove_group_member", {
+      p_group_id: groupId,
+      p_target_member_id: memberId,
+    });
+    if (rpcError || !data?.success) {
+      setError(data?.error || rpcError?.message || t("groups.errors.cannotRemoveMember"));
+      return;
+    }
     loadData();
   }
 
@@ -192,7 +242,12 @@ export default function GroupDetailPage() {
     loadData();
   }
 
-  const isAdmin = currentMember?.role === "founder" || currentMember?.role === "admin";
+  const myRole = currentMember?.role as GroupMemberRole | undefined;
+  const canEditSettings = myRole ? hasPermission(myRole, "edit_settings") : false;
+  const canAssign = myRole ? hasPermission(myRole, "assign_roles") : false;
+  const canModerate = myRole ? hasPermission(myRole, "moderate_content") : false;
+  // Legacy alias used throughout UI
+  const isAdmin = canEditSettings;
 
   const tabs: { id: TabId; labelKey: string; icon: typeof Users; count?: number }[] = [
     { id: "info", labelKey: "groups.tabs.info", icon: Globe },
@@ -285,7 +340,7 @@ export default function GroupDetailPage() {
               {currentMember ? (
                 <button
                   onClick={handleLeave}
-                  disabled={joining || currentMember.role === "founder"}
+                  disabled={joining || currentMember.role === "founder" || currentMember.role === "co_founder"}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-50"
                   style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
                 >
@@ -377,11 +432,17 @@ export default function GroupDetailPage() {
           {/* MEMBERS TAB */}
           {activeTab === "members" && (
             <div className="divide-y" style={{ borderColor: "var(--border)" }}>
-              {members.map((m) => {
-                const RoleIcon = ROLE_ICONS[m.role as keyof typeof ROLE_ICONS] || Users;
-                const roleColor = ROLE_COLORS[m.role as keyof typeof ROLE_COLORS] || ROLE_COLORS.member;
+              {sortByRole(members).map((m) => {
+                const mRole = m.role as GroupMemberRole;
+                const RoleIcon = getRoleIcon(mRole);
+                const roleColor = getRoleColor(mRole);
+                const assignable = myRole ? getAssignableRoles(myRole, mRole) : [];
+                const canKick = myRole ? canRemoveMember(myRole, mRole) : false;
+                const showActions = canAssign && m.user_id !== user?.id && assignable.length > 0;
+                const isDropdownOpen = roleDropdownOpen === m.id;
+
                 return (
-                  <div key={m.id} className="flex items-center gap-4 px-5 py-3.5">
+                  <div key={m.id} className="flex items-center gap-4 px-5 py-3.5 relative">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-xs font-bold text-white shrink-0">
                       {(m.profiles?.full_name || "?")[0].toUpperCase()}
                     </div>
@@ -397,22 +458,57 @@ export default function GroupDetailPage() {
                         {m.vote_weight}x
                       </span>
                     )}
-                    {/* Admin actions */}
-                    {isAdmin && m.role !== "founder" && m.user_id !== user?.id && (
-                      <div className="flex items-center gap-1">
-                        {m.role === "member" && (
-                          <button onClick={() => handleRoleChange(m.id, "admin")} className="p-1.5 rounded hover:bg-blue-500/10" title={t("groups.promote")}>
-                            <Shield className="w-3.5 h-3.5 text-blue-400" />
-                          </button>
-                        )}
-                        {m.role === "admin" && currentMember?.role === "founder" && (
-                          <button onClick={() => handleRoleChange(m.id, "member")} className="p-1.5 rounded hover:bg-amber-500/10" title={t("groups.demote")}>
-                            <Users className="w-3.5 h-3.5 text-amber-400" />
-                          </button>
-                        )}
-                        <button onClick={() => handleRemoveMember(m.id)} className="p-1.5 rounded hover:bg-red-500/10" title={t("groups.removeMember")}>
-                          <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                    {/* Role management actions */}
+                    {(showActions || canKick) && (
+                      <div className="relative">
+                        <button
+                          onClick={() => setRoleDropdownOpen(isDropdownOpen ? null : m.id)}
+                          className="p-1.5 rounded hover:bg-[var(--muted)] transition-colors"
+                          title={t("groups.manageRole")}
+                        >
+                          <MoreVertical className="w-4 h-4" style={{ color: "var(--muted-foreground)" }} />
                         </button>
+                        {isDropdownOpen && (
+                          <div
+                            className="absolute right-0 top-full mt-1 w-56 rounded-lg border shadow-xl z-50 py-1"
+                            style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+                          >
+                            <div className="px-3 py-2 border-b" style={{ borderColor: "var(--border)" }}>
+                              <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
+                                {t("groups.changeRole")}
+                              </p>
+                            </div>
+                            {assignable.map((r) => {
+                              const RIcon = getRoleIcon(r);
+                              const rColor = getRoleColor(r);
+                              return (
+                                <button
+                                  key={r}
+                                  onClick={() => handleRoleChange(m.id, mRole, r)}
+                                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-[var(--muted)] transition-colors text-left"
+                                  style={{ color: "var(--foreground)" }}
+                                >
+                                  <span className={`flex items-center justify-center w-6 h-6 rounded-full ${rColor}`}>
+                                    <RIcon className="w-3 h-3" />
+                                  </span>
+                                  {t(`groups.role.${r}`)}
+                                </button>
+                              );
+                            })}
+                            {canKick && (
+                              <>
+                                <div className="border-t my-1" style={{ borderColor: "var(--border)" }} />
+                                <button
+                                  onClick={() => { handleRemoveMember(m.id, mRole); setRoleDropdownOpen(null); }}
+                                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-red-500/10 transition-colors text-left text-red-400"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  {t("groups.removeMember")}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
