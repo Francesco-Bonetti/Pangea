@@ -66,7 +66,7 @@ export function BootstrapLockBadge({
 
   // Category label
   const categoryLabel = lockCategory
-    ? t(`guardian.category.${lockCategory}`, lockCategory)
+    ? (t(`guardian.category.${lockCategory}`) || lockCategory)
     : '';
 
   if (compact) {
