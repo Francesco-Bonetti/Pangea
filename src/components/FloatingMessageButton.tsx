@@ -158,7 +158,7 @@ export default function FloatingMessageButton() {
   }
 
   return (
-    <div className="fixed bottom-[8.5rem] right-6 z-50" ref={panelRef}>
+    <div className={`fixed bottom-[8.5rem] right-6 ${open ? "z-[60]" : "z-50"}`} ref={panelRef}>
       {/* Quick-access panel */}
       {open && (
         <div

@@ -150,7 +150,7 @@ export default function AiAssistant() {
       {/* Chat panel */}
       {isOpen && (
         <div
-          className="fixed bottom-20 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-8rem)] rounded-2xl border shadow-2xl flex flex-col overflow-hidden"
+          className="fixed bottom-20 right-6 z-[60] w-[360px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-8rem)] rounded-2xl border shadow-2xl flex flex-col overflow-hidden"
           style={{
             backgroundColor: "var(--card)",
             borderColor: "var(--border)",

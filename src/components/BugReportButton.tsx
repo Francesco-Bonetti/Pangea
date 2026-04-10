@@ -91,7 +91,7 @@ export default function BugReportButton() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999]" ref={panelRef}>
+    <div className={`fixed bottom-6 right-6 ${open ? "z-[60]" : "z-50"}`} ref={panelRef}>
       {/* Report Panel */}
       {open && (
         <div
