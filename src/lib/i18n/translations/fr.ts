@@ -205,8 +205,15 @@ const fr: TranslationKeys = {
     },
     role: {
       founder: "Fondateur",
+      co_founder: "Co-Fondateur",
+      president: "Président",
+      vice_president: "Vice-Président",
       admin: "Admin",
+      moderator: "Modérateur",
+      secretary: "Secrétaire",
+      treasurer: "Trésorier",
       member: "Membre",
+      observer: "Observateur",
     },
     tabs: {
       info: "Info",
@@ -249,7 +256,11 @@ const fr: TranslationKeys = {
       nameRequired: "Le nom du groupe est obligatoire",
       founderCantLeave: "Le fondateur ne peut pas quitter. Transférez d'abord le rôle.",
       failedToCreate: "Échec de la création du groupe",
+      cannotAssignRole: "Vous n'avez pas la permission d'attribuer ce rôle.",
+      cannotRemoveMember: "Vous n'avez pas la permission de retirer ce membre.",
     },
+    manageRole: "Gérer le rôle",
+    changeRole: "Changer le rôle",
   },
   groupDiscussions: {
     title: "Discussions",

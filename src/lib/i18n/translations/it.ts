@@ -333,8 +333,15 @@ const it: TranslationKeys = {
     },
     role: {
       founder: "Fondatore",
+      co_founder: "Co-Fondatore",
+      president: "Presidente",
+      vice_president: "Vicepresidente",
       admin: "Admin",
+      moderator: "Moderatore",
+      secretary: "Segretario",
+      treasurer: "Tesoriere",
       member: "Membro",
+      observer: "Osservatore",
     },
     tabs: {
       info: "Info",
@@ -377,7 +384,11 @@ const it: TranslationKeys = {
       nameRequired: "Il nome del gruppo è obbligatorio",
       founderCantLeave: "Il fondatore non può uscire. Trasferisci prima il ruolo.",
       failedToCreate: "Creazione gruppo fallita",
+      cannotAssignRole: "Non hai i permessi per assegnare questo ruolo.",
+      cannotRemoveMember: "Non hai i permessi per rimuovere questo membro.",
     },
+    manageRole: "Gestisci ruolo",
+    changeRole: "Cambia ruolo",
   },
 
   // ── Discussioni di Gruppo (B4) ──
