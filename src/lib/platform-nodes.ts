@@ -99,6 +99,8 @@ export interface PlatformTreeNode
   extends Omit<PlatformNode, "parent" | "labelKey" | "treeLabelKey"> {
   labelKey: string; // resolved (treeLabelKey ?? labelKey)
   children?: PlatformTreeNode[];
+  /** HSL hue value (0-360) — used by children for analogic color derivation */
+  hue?: number;
   /** True while async children are being fetched */
   isLoading?: boolean;
   /** True once dynamic children have been loaded */
@@ -173,6 +175,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
     labelKey: "nav.proposals", iconKey: "fileText",
     color: "#f97316", colorLight: "#fb923c", glow: "rgba(249,115,22,0.3)",
     descKey: "tree.proposalsDesc", actionKey: "tree.explore",
+    canCreate: true, createHref: "/proposals/new",
     parent: null,
   },
   {
@@ -180,6 +183,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
     labelKey: "nav.elections", iconKey: "vote",
     color: "#10b981", colorLight: "#34d399", glow: "rgba(16,185,129,0.3)",
     descKey: "tree.electionsDesc", actionKey: "tree.explore",
+    canCreate: true, createHref: "/elections/new",
     parent: null,
   },
   {
@@ -340,6 +344,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
     labelKey: "tree.discussions", iconKey: "message",
     color: "#ec4899", colorLight: "#f9a8d4", glow: "rgba(236,72,153,0.3)",
     descKey: "tree.discussionsDesc", actionKey: "tree.browse",
+    canCreate: true, createHref: "/social?create=1",
     parent: "agora",
     dynamicChildSource: {
       table: "discussion_channels", filter: {},
@@ -471,25 +476,42 @@ export const USER_NAV_NODES: PlatformNode[] = [
    PangeaTree — buildPlatformTree()
    Builds the nested tree structure expected by PangeaTree,
    resolving treeLabelKey where present.
+   Colors are computed algorithmically via Golden Angle (L1)
+   and analogic fan (L2+) — see tree-colors.ts.
    ═══════════════════════════════════════════════════════════ */
 
-function toPlatformTreeNode(node: PlatformNode): PlatformTreeNode {
+import { generateNodeColors, BASE_HUE } from "@/lib/tree-colors";
+
+function toPlatformTreeNode(
+  node: PlatformNode,
+  level: number,
+  index: number,
+  totalSiblings: number,
+  parentHue: number,
+): PlatformTreeNode {
   const children = getChildren(node.id);
+  const colors = generateNodeColors(level, index, parentHue, totalSiblings);
+
   return {
     id: node.id,
     href: node.href,
     labelKey: node.treeLabelKey ?? node.labelKey,
     iconKey: node.iconKey,
-    color: node.color,
-    colorLight: node.colorLight,
-    glow: node.glow,
+    color: colors.color,
+    colorLight: colors.colorLight,
+    glow: colors.glow,
+    hue: colors.hue,
     descKey: node.descKey,
     actionKey: node.actionKey,
     actionHref: node.actionHref,
     canCreate: node.canCreate,
     createHref: node.createHref,
     dynamicChildSource: node.dynamicChildSource,
-    children: children.length > 0 ? children.map(toPlatformTreeNode) : undefined,
+    children: children.length > 0
+      ? children.map((child, i) =>
+          toPlatformTreeNode(child, level + 1, i, children.length, colors.hue),
+        )
+      : undefined,
   };
 }
 
@@ -499,5 +521,6 @@ const TREE_ROOT_IDS = [
 ];
 
 export const PLATFORM_TREE: PlatformTreeNode[] = TREE_ROOT_IDS.map(
-  (id) => toPlatformTreeNode(getNodeById(id)!),
+  (id, idx) =>
+    toPlatformTreeNode(getNodeById(id)!, 1, idx, TREE_ROOT_IDS.length, BASE_HUE),
 );

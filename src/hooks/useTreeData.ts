@@ -6,6 +6,7 @@ import type {
   PlatformTreeNode,
   DynamicChildSource,
 } from "@/lib/platform-nodes";
+import { generateNodeColors } from "@/lib/tree-colors";
 
 /* ═══════════════════════════════════════════════════════════
    useTreeData — Hydrates static platform tree with DB data
@@ -15,64 +16,7 @@ import type {
    • Caches loaded data to avoid refetching
    ═══════════════════════════════════════════════════════════ */
 
-/** Color palette for dynamic nodes — auto-assigned based on parent */
-function deriveChildColor(parentColor: string, index: number): {
-  color: string;
-  colorLight: string;
-  glow: string;
-} {
-  // Parse hex to HSL, shift hue slightly per child
-  const hex = parentColor.replace("#", "");
-  const r = parseInt(hex.substring(0, 2), 16) / 255;
-  const g = parseInt(hex.substring(2, 4), 16) / 255;
-  const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-  const max = Math.max(r, g, b),
-    min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  let h = 0,
-    s = 0;
-
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-    else if (max === g) h = ((b - r) / d + 2) / 6;
-    else h = ((r - g) / d + 4) / 6;
-  }
-
-  // Shift hue by ±8° per child, keep saturation, slightly vary lightness
-  const hueShift = ((index % 7) - 3) * 8;
-  const newH = ((h * 360 + hueShift + 360) % 360) / 360;
-  const newS = Math.min(1, s * (0.85 + (index % 3) * 0.08));
-  const newL = Math.max(0.25, Math.min(0.55, l + ((index % 2 === 0 ? 1 : -1) * 0.04)));
-  const lightL = Math.min(0.7, newL + 0.15);
-
-  const toHex = (hue: number, sat: number, lig: number) => {
-    const hue2rgb = (p: number, q: number, t: number) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-    const q2 = lig < 0.5 ? lig * (1 + sat) : lig + sat - lig * sat;
-    const p2 = 2 * lig - q2;
-    const rr = Math.round(hue2rgb(p2, q2, hue + 1 / 3) * 255);
-    const gg = Math.round(hue2rgb(p2, q2, hue) * 255);
-    const bb = Math.round(hue2rgb(p2, q2, hue - 1 / 3) * 255);
-    return `#${rr.toString(16).padStart(2, "0")}${gg.toString(16).padStart(2, "0")}${bb.toString(16).padStart(2, "0")}`;
-  };
-
-  const color = toHex(newH, newS, newL);
-  const colorLight = toHex(newH, newS, lightL);
-  return {
-    color,
-    colorLight,
-    glow: `rgba(${parseInt(color.slice(1, 3), 16)},${parseInt(color.slice(3, 5), 16)},${parseInt(color.slice(5, 7), 16)},0.25)`,
-  };
-}
+/* Color derivation now uses the shared tree-colors algorithm */
 
 /** Convert a DB row into a PlatformTreeNode */
 function dbRowToTreeNode(
@@ -81,12 +25,13 @@ function dbRowToTreeNode(
   parentNode: PlatformTreeNode,
   index: number,
   hasChildren: boolean,
+  totalRows: number,
 ): PlatformTreeNode {
   const id = String(row.id ?? row.uid ?? `dyn-${index}`);
   const name = String(row[source.nameField ?? "name"] ?? "Untitled");
   const description = row.description ? String(row.description) : "";
   const emoji = row.logo_emoji ? String(row.logo_emoji) : undefined;
-  const colors = deriveChildColor(parentNode.color, index);
+  const colors = generateNodeColors(2, index, parentNode.hue ?? 220, totalRows);
 
   return {
     id: `dyn-${source.table}-${id}`,
@@ -94,7 +39,10 @@ function dbRowToTreeNode(
     labelKey: emoji ? `${emoji} ${name}` : name,
     rawLabel: true,
     iconKey: source.childIconKey ?? parentNode.iconKey,
-    ...colors,
+    color: colors.color,
+    colorLight: colors.colorLight,
+    glow: colors.glow,
+    hue: colors.hue,
     descKey: description || name,
     rawDesc: true,
     actionKey: "tree.open",
@@ -246,7 +194,7 @@ export function useTreeData(initialTree: PlatformTreeNode[]) {
         }
 
         const childNodes = rows.map((row, i) =>
-          dbRowToTreeNode(row, source, node, i, withChildren.has(String(row.id))),
+          dbRowToTreeNode(row, source, node, i, withChildren.has(String(row.id)), rows.length),
         );
 
         setTree((prev) => injectChildren(prev, nodeId, childNodes, true));

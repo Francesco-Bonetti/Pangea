@@ -97,25 +97,53 @@ function TreeNodeCard({
     [router, node.actionHref, node.href],
   );
 
+  /* Fixed wrapper height so that card expansion overlaps without shifting siblings */
+  const CARD_H = 74;
+
   return (
     <div
       style={{
         position: "relative",
+        height: CARD_H,
+        width: 300,
         zIndex: hovered ? 20 : 1,
         opacity: visible ? (isDimmed ? 0.35 : 1) : 0,
         transform: visible ? "translateX(0)" : "translateX(-12px)",
-        transition: "opacity 0.6s ease, transform 0.6s ease, filter 0.4s ease",
+        transition: "opacity 0.6s ease, transform 0.6s ease, filter 0.4s ease, z-index 0s",
         filter: isDimmed ? "grayscale(0.3)" : "none",
         pointerEvents: "auto" as const,
       }}
     >
+      {/* Create badge — outside overflow:hidden card */}
+      {node.canCreate && !isGuest && node.createHref && (
+        <button
+          data-create-btn=""
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(node.createHref!);
+          }}
+          className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-md hover:scale-110 active:scale-95 transition-transform"
+          style={{
+            zIndex: 25,
+            background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
+            boxShadow: `0 2px 6px ${node.glow}`,
+          }}
+          title={node.rawLabel ? "Create" : t("tree.createNew")}
+        >
+          <Plus className="w-3 h-3" strokeWidth={2.5} />
+        </button>
+      )}
+
+      {/* Inner card — absolute, expands on hover via max-height */}
       <div
-        className="relative flex items-start gap-3 rounded-2xl cursor-pointer"
+        className="absolute top-0 left-0 flex items-start gap-3 rounded-2xl cursor-pointer"
         onClick={handleCardClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
           width: 300,
+          maxHeight: hovered ? 200 : CARD_H,
+          overflow: "hidden",
           padding: "14px 14px 14px 18px",
           background: isExpanded
             ? `color-mix(in srgb, ${node.color} 7%, var(--card))`
@@ -134,9 +162,10 @@ function TreeNodeCard({
             : hovered
               ? `0 8px 30px rgba(0,0,0,0.12), 0 0 0 1px ${node.color}18`
               : "0 1px 4px rgba(0,0,0,0.03)",
-          transform: hovered && !isDimmed ? "scale(1.06)" : "scale(1)",
-          transformOrigin: "center center",
-          transition: "border 0.7s ease, box-shadow 0.7s ease, transform 0.5s cubic-bezier(0.34,1.2,0.64,1), background 0.4s ease",
+          transform: hovered && !isDimmed ? "scale(1.03)" : "scale(1)",
+          transformOrigin: "top left",
+          transition:
+            "max-height 0.4s cubic-bezier(0.34,1.2,0.64,1), border 0.7s ease, box-shadow 0.7s ease, transform 0.5s cubic-bezier(0.34,1.2,0.64,1), background 0.4s ease",
         }}
       >
         {/* Left accent bar */}
@@ -162,7 +191,7 @@ function TreeNodeCard({
           <Icon className="w-[22px] h-[22px] text-white" strokeWidth={1.8} />
         </div>
 
-        {/* Text content */}
+        {/* Text content — description expands on hover */}
         <div className="min-w-0 flex-1">
           <span
             className="text-[15px] font-semibold leading-tight block"
@@ -170,43 +199,13 @@ function TreeNodeCard({
           >
             {label}
           </span>
-          {/* Short description — always visible, single line */}
           <p
-            className="text-[12px] leading-snug mt-1 truncate"
+            className={`text-[12px] leading-snug mt-1 ${hovered ? "" : "truncate"}`}
             style={{ color: "var(--muted-foreground)" }}
           >
             {desc}
           </p>
         </div>
-
-        {/* Expanded description — centered overlay on hover */}
-        {hovered && desc && desc.length > 30 && (
-          <div
-            className="absolute rounded-2xl px-4 py-3 pointer-events-none"
-            style={{
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 320,
-              minHeight: "110%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              background: "var(--card)",
-              border: `1px solid ${node.color}35`,
-              boxShadow: `0 12px 36px rgba(0,0,0,0.18), 0 0 0 1px ${node.color}10`,
-              zIndex: 30,
-              animation: "tvDescIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both",
-            }}
-          >
-            <p
-              className="text-[12px] leading-relaxed"
-              style={{ color: "var(--muted-foreground)" }}
-            >
-              {desc}
-            </p>
-          </div>
-        )}
 
         {/* Expand button with child count */}
         {hasChildren && (
@@ -266,25 +265,6 @@ function TreeNodeCard({
             }}
           />
         )}
-
-        {/* Create badge */}
-        {node.canCreate && !isGuest && node.createHref && (
-          <button
-            data-create-btn=""
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(node.createHref!);
-            }}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-md hover:scale-110 active:scale-95 z-10 transition-transform"
-            style={{
-              background: `linear-gradient(135deg, ${node.color}, ${node.colorLight})`,
-              boxShadow: `0 2px 6px ${node.glow}`,
-            }}
-            title={node.rawLabel ? "Create" : t("tree.createNew")}
-          >
-            <Plus className="w-3 h-3" strokeWidth={2.5} />
-          </button>
-        )}
       </div>
     </div>
   );
@@ -301,12 +281,10 @@ function TreeBreadcrumb({
   onNavigateToLevel: (level: number) => void;
   onReset: () => void;
 }) {
-  if (path.length === 0) return null;
-
   return (
     <nav
       className="flex items-center gap-0.5 mb-3 px-1 flex-wrap"
-      style={{ animation: "tvFadeIn 0.3s ease" }}
+      style={{ minHeight: 32 }}
     >
       <button
         onClick={onReset}
@@ -750,16 +728,7 @@ export default function TreeViewer2D({
             opacity: 1;
           }
         }
-        @keyframes tvDescIn {
-          from {
-            opacity: 0;
-            transform: translateY(-4px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+        /* tvDescIn removed — description now expands inline */
       `}</style>
     </div>
   );
