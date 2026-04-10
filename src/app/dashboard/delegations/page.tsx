@@ -201,7 +201,7 @@ export default function DelegationsPage() {
 
   if (loading) {
     return (
-      <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
+      <AppShell section="core" sectionName="delegations" userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
         <div className="flex items-center justify-center min-h-screen">
           <Loader2 className="w-8 h-8 text-fg-primary animate-spin" />
         </div>
@@ -210,7 +210,7 @@ export default function DelegationsPage() {
   }
 
   return (
-    <AppShell userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
+    <AppShell section="core" sectionName="delegations" userEmail={user?.email} userName={profile?.full_name} userRole={profile?.role}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8 overflow-hidden">

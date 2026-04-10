@@ -1164,6 +1164,15 @@ const en = {
     votersParticipated: "{count} voters participated",
   },
 
+  // ── Error Boundaries ──
+  errorBoundary: {
+    coreTitle: "Something went wrong",
+    coreDesc: "A critical section encountered an error. Your data is safe — please try again.",
+    edgeTitle: "This section is temporarily unavailable",
+    edgeDesc: "The rest of the platform continues to work normally.",
+    retry: "Try again",
+  },
+
 };
 
 export default en;

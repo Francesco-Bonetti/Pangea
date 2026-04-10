@@ -27,7 +27,7 @@ export default async function LawHistoryPage({ params }: PageProps) {
 
   if (!law) {
     return (
-      <AppShell userEmail={user?.email} isGuest={isGuest}>
+      <AppShell section="core" sectionName="laws" userEmail={user?.email} isGuest={isGuest}>
         <div className="max-w-3xl mx-auto px-4 py-16 text-center">
           <FileText className="w-16 h-16 text-fg-muted mx-auto mb-4" />
           <h2 className="text-xl text-fg mb-2">Law not found</h2>
@@ -59,7 +59,7 @@ export default async function LawHistoryPage({ params }: PageProps) {
   }
 
   return (
-    <AppShell userEmail={user?.email} isGuest={isGuest}>
+    <AppShell section="core" sectionName="laws" userEmail={user?.email} isGuest={isGuest}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/laws"

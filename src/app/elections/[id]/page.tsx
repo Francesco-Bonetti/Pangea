@@ -87,6 +87,8 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
 
   return (
     <AppShell
+      section="core"
+      sectionName="elections"
       userEmail={userEmail}
       userName={userName}
       userRole={userRole}

@@ -106,7 +106,7 @@ export default async function LawsPage() {
   const activeArticles = activeLaws.filter((l) => l.law_type === "article").length;
 
   return (
-    <AppShell userEmail={user?.email} isGuest={isGuest}>
+    <AppShell section="core" sectionName="laws" userEmail={user?.email} isGuest={isGuest}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <LawsPageHeader />
 

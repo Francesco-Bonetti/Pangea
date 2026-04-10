@@ -1131,6 +1131,15 @@ const it: TranslationKeys = {
     turnout: "Affluenza",
     votersParticipated: "{count} votanti hanno partecipato",
   },
+
+  // ── Error Boundaries ──
+  errorBoundary: {
+    coreTitle: "Qualcosa è andato storto",
+    coreDesc: "Una sezione critica ha riscontrato un errore. I tuoi dati sono al sicuro — riprova.",
+    edgeTitle: "Questa sezione è temporaneamente non disponibile",
+    edgeDesc: "Il resto della piattaforma continua a funzionare normalmente.",
+    retry: "Riprova",
+  },
 };
 
 export default it;

@@ -32,6 +32,8 @@ export default async function NewElectionPage() {
 
   return (
     <AppShell
+      section="core"
+      sectionName="elections"
       userEmail={user.email}
       userName={profile?.full_name}
       userRole={userRole}

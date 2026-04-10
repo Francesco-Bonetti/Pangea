@@ -139,7 +139,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <AppShell>
+    <AppShell section="core" sectionName="verify">
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {/* Header */}
         <div className="text-center space-y-3">

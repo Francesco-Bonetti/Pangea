@@ -44,6 +44,8 @@ export default async function ElectionsPage() {
 
   return (
     <AppShell
+      section="core"
+      sectionName="elections"
       userEmail={userEmail}
       userName={userName}
       userRole={userRole}

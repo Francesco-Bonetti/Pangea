@@ -846,6 +846,15 @@ const fr: TranslationKeys = {
     turnout: "Participation",
     votersParticipated: "{count} votants ont participé",
   },
+
+  // ── Error Boundaries ──
+  errorBoundary: {
+    coreTitle: "Quelque chose s'est mal passé",
+    coreDesc: "Une section critique a rencontré une erreur. Vos données sont en sécurité — veuillez réessayer.",
+    edgeTitle: "Cette section est temporairement indisponible",
+    edgeDesc: "Le reste de la plateforme continue de fonctionner normalement.",
+    retry: "Réessayer",
+  },
 };
 
 export default fr;

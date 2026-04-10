@@ -35,6 +35,8 @@ export default async function DashboardPage() {
 
   return (
     <AppShell
+      section="core"
+      sectionName="dashboard"
       userEmail={user?.email}
       userName={profile?.full_name}
       userRole={profile?.role}

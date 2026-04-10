@@ -845,6 +845,15 @@ const es: TranslationKeys = {
     turnout: "Participación",
     votersParticipated: "{count} votantes participaron",
   },
+
+  // ── Error Boundaries ──
+  errorBoundary: {
+    coreTitle: "Algo salió mal",
+    coreDesc: "Una sección crítica encontró un error. Tus datos están seguros — inténtalo de nuevo.",
+    edgeTitle: "Esta sección no está disponible temporalmente",
+    edgeDesc: "El resto de la plataforma sigue funcionando normalmente.",
+    retry: "Reintentar",
+  },
 };
 
 export default es;

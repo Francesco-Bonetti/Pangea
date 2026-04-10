@@ -231,7 +231,7 @@ export default function NewProposalPage() {
   const isPublishValid = isValid && validOptions.length >= 2;
 
   return (
-    <AppShell userEmail={userEmail} userName={userName} userRole={userRole}>
+    <AppShell section="core" sectionName="proposals" userEmail={userEmail} userName={userName} userRole={userRole}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8 overflow-hidden">

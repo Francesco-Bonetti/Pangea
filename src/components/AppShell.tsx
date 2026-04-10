@@ -4,7 +4,15 @@ import { SidebarProvider } from "@/components/sidebar-provider";
 import AppSidebar from "@/components/AppSidebar";
 import TopHeader from "@/components/TopHeader";
 import GuestBanner from "@/components/GuestBanner";
+import { CoreErrorBoundary, EdgeErrorBoundary } from "@/components/ErrorBoundary";
 import type { ReactNode } from "react";
+
+/**
+ * Section classification for error boundary isolation.
+ * Core = append-only (votes, laws, proposals, elections, delegations) → full error + retry
+ * Edge = CRUD (feed, messages, discussions, settings, about) → graceful degradation
+ */
+type SectionType = "core" | "edge";
 
 interface AppShellProps {
   children: ReactNode;
@@ -13,6 +21,10 @@ interface AppShellProps {
   userRole?: string;
   isGuest?: boolean;
   pendingDelegations?: number;
+  /** Section type for error boundary isolation (default: "edge") */
+  section?: SectionType;
+  /** Optional section name for error logging */
+  sectionName?: string;
 }
 
 export default function AppShell({
@@ -22,7 +34,20 @@ export default function AppShell({
   userRole,
   isGuest = false,
   pendingDelegations = 0,
+  section = "edge",
+  sectionName,
 }: AppShellProps) {
+  const wrappedContent =
+    section === "core" ? (
+      <CoreErrorBoundary section={sectionName}>
+        {children}
+      </CoreErrorBoundary>
+    ) : (
+      <EdgeErrorBoundary section={sectionName}>
+        {children}
+      </EdgeErrorBoundary>
+    );
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen" style={{ backgroundColor: "var(--background)" }}>
@@ -45,9 +70,9 @@ export default function AppShell({
 
           {isGuest && <GuestBanner />}
 
-          {/* Page content */}
+          {/* Page content — wrapped in section-appropriate error boundary */}
           <main className="flex-1 overflow-y-auto">
-            {children}
+            {wrappedContent}
           </main>
         </div>
       </div>

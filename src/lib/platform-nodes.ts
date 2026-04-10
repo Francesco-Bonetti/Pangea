@@ -44,6 +44,11 @@ export interface DynamicChildSource {
   filter?: Record<string, string>;
   /** Column that holds parent reference for recursive loading */
   parentField?: string;
+  /**
+   * Parent ID to use for the first-level query (instead of IS NULL).
+   * Needed when root-level items have a known parent (e.g. Pangea root group).
+   */
+  rootParentId?: string;
   /** Select columns */
   select?: string;
   /** Column for display name */
@@ -226,7 +231,8 @@ export const PLATFORM_NODES: PlatformNode[] = [
     parent: "groups",
     dynamicChildSource: {
       table: "groups", filter: { group_type: "jurisdiction" },
-      parentField: "parent_group_id", nameField: "name",
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
       select: "id,uid,name,description,logo_emoji,parent_group_id",
       hrefPrefix: "/groups/", childIconKey: "landmark", orderField: "name", limit: 50,
     },
@@ -240,7 +246,8 @@ export const PLATFORM_NODES: PlatformNode[] = [
     parent: "groups",
     dynamicChildSource: {
       table: "groups", filter: { group_type: "party" },
-      parentField: "parent_group_id", nameField: "name",
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
       select: "id,uid,name,description,logo_emoji,parent_group_id",
       hrefPrefix: "/groups/", childIconKey: "flag", orderField: "name", limit: 50,
     },
@@ -254,7 +261,8 @@ export const PLATFORM_NODES: PlatformNode[] = [
     parent: "groups",
     dynamicChildSource: {
       table: "groups", filter: { group_type: "community" },
-      parentField: "parent_group_id", nameField: "name",
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
       select: "id,uid,name,description,logo_emoji,parent_group_id",
       hrefPrefix: "/groups/", childIconKey: "users", orderField: "name", limit: 50,
     },
@@ -268,7 +276,8 @@ export const PLATFORM_NODES: PlatformNode[] = [
     parent: "groups",
     dynamicChildSource: {
       table: "groups", filter: { group_type: "working_group" },
-      parentField: "parent_group_id", nameField: "name",
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
       select: "id,uid,name,description,logo_emoji,parent_group_id",
       hrefPrefix: "/groups/", childIconKey: "wrench", orderField: "name", limit: 50,
     },
@@ -282,7 +291,8 @@ export const PLATFORM_NODES: PlatformNode[] = [
     parent: "groups",
     dynamicChildSource: {
       table: "groups", filter: { group_type: "religion" },
-      parentField: "parent_group_id", nameField: "name",
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
       select: "id,uid,name,description,logo_emoji,parent_group_id",
       hrefPrefix: "/groups/", childIconKey: "heart", orderField: "name", limit: 50,
     },

@@ -51,7 +51,9 @@ function dbRowToTreeNode(
       ? {
           dynamicChildSource: {
             ...source,
-            filter: {}, // children will be filtered by parentField
+            // Keep original filter (e.g. group_type) so sub-children stay in the same category
+            // rootParentId is not needed for sub-levels (parentDbId will be set)
+            rootParentId: undefined,
           },
           children: [], // empty = expandable, will be loaded on demand
         }
@@ -80,6 +82,9 @@ async function fetchDynamicChildren(
   if (source.parentField) {
     if (parentDbId) {
       query = query.eq(source.parentField, parentDbId);
+    } else if (source.rootParentId) {
+      // Use explicit root parent (e.g. Pangea root group) instead of IS NULL
+      query = query.eq(source.parentField, source.rootParentId);
     } else {
       query = query.is(source.parentField, null);
     }
@@ -109,10 +114,19 @@ async function fetchChildCounts(
 ): Promise<Set<string>> {
   if (!source.parentField || parentIds.length === 0) return new Set();
 
-  const { data } = await supabase
+  let query = supabase
     .from(source.table)
     .select(`${source.parentField}`)
     .in(source.parentField, parentIds);
+
+  // Apply same filters as parent (e.g. group_type) so we only count same-type children
+  if (source.filter) {
+    for (const [col, val] of Object.entries(source.filter)) {
+      if (val) query = query.eq(col, val);
+    }
+  }
+
+  const { data } = await query;
 
   const withChildren = new Set<string>();
   for (const row of data ?? []) {
