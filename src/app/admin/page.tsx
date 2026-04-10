@@ -27,6 +27,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/lib/utils";
+import GuardianDashboard from "@/components/GuardianDashboard";
 
 interface LawRow {
   id: string;
@@ -93,11 +94,11 @@ export default function AdminPage() {
   const [totalCounts, setTotalCounts] = useState({ users: 0, proposals: 0, laws: 0, openReports: 0 });
 
   // UI State
-  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity" | "forum">(() => {
+  const [activeTab, setActiveTab] = useState<"users" | "proposals" | "laws" | "reports" | "stats" | "integrity" | "forum" | "guardian">(() => {
     if (typeof window === "undefined") return "users";
     const params = new URLSearchParams(window.location.search);
     const tab = params.get("tab");
-    const validTabs = ["users", "proposals", "laws", "reports", "stats", "integrity", "forum"] as const;
+    const validTabs = ["users", "proposals", "laws", "reports", "stats", "integrity", "forum", "guardian"] as const;
     return (validTabs as readonly string[]).includes(tab ?? "") ? (tab as typeof validTabs[number]) : "users";
   });
   const [integrityStats, setIntegrityStats] = useState<Record<string, unknown> | null>(null);
@@ -430,6 +431,7 @@ export default function AdminPage() {
             { key: "forum", label: t("social.forum"), icon: MessageSquare },
             { key: "stats", label: t("admin.statistics"), icon: BarChart3 },
             { key: "integrity", label: t("integrity.navTitle"), icon: ShieldCheck },
+            { key: "guardian", label: t("guardian.tabTitle"), icon: Shield },
           ] as const).map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -852,6 +854,13 @@ export default function AdminPage() {
             setHashingAll={setHashingAll}
             setSuccess={setSuccess}
             setError={setError}
+          />
+        )}
+
+        {activeTab === "guardian" && (
+          <GuardianDashboard
+            isGuardian={profile?.is_guardian ?? false}
+            profile={profile ? { id: profile.id, role: profile.role ?? "citizen", is_guardian: profile.is_guardian ?? false } : null}
           />
         )}
       </div>

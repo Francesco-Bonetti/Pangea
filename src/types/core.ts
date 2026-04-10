@@ -14,6 +14,8 @@ export type ProposalStatus = "draft" | "curation" | "active" | "closed" | "repea
 export type ProposalType = "new" | "amendment" | "repeal";
 export type VoteType = "yea" | "nay" | "abstain";
 export type UserRole = "citizen" | "moderator" | "admin";
+export type GuardianActionType = "set_bootstrap_lock" | "remove_bootstrap_lock" | "degrade_admin" | "emergency_freeze";
+export type LawLockCategory = "reinforced" | "structural" | "ordinary";
 export type DelegationStatus = "pending" | "accepted" | "rejected" | "expired";
 
 export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "religion" | "custom";

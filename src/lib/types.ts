@@ -7,6 +7,24 @@
 export type ProposalStatus = "draft" | "curation" | "active" | "closed" | "repealed";
 export type VoteType = "yea" | "nay" | "abstain";
 export type UserRole = "citizen" | "moderator" | "admin";
+
+// --- Guardian System (T03) ---
+export interface GuardianStatus {
+  is_active: boolean;
+  guardian_name: string;
+  verified_citizens: number;
+  sunset_threshold: number;
+  progress_pct: number;
+  emergency_freeze: boolean;
+}
+
+export type GuardianActionType =
+  | "set_bootstrap_lock"
+  | "remove_bootstrap_lock"
+  | "degrade_admin"
+  | "emergency_freeze";
+
+export type LawLockCategory = "reinforced" | "structural" | "ordinary";
 export type DelegationStatus = "pending" | "accepted" | "rejected" | "expired";
 export type ProposalType = "new" | "amendment" | "repeal";
 
@@ -53,6 +71,7 @@ export interface Profile {
   user_code?: string | null;
   allow_delegations?: boolean;
   is_searchable?: boolean;
+  is_guardian?: boolean;
   identity_tier: IdentityTier;
   created_at: string;
 }
