@@ -1,6 +1,7 @@
+import type { DeepPartial } from "../types";
 import type { TranslationKeys } from "./en";
 
-const es: TranslationKeys = {
+const es: DeepPartial<TranslationKeys> = {
   nav: {
     dashboard: "Panel", laws: "Leyes", groups: "Grupos", elections: "Elecciones",
     forum: "Ágora", about: "Acerca de", feed: "Noticias",
