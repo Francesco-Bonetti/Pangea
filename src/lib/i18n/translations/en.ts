@@ -176,6 +176,7 @@ const en = {
     abstain: "Abstain",
     // New proposal page
     writeYourProposal: "Write your proposal and let citizens evaluate it",
+    forGroup: "This proposal is for group:",
     howItWorks: "How it works",
     howItWorksDesc: "Your proposal is first published for community review where citizens can support it with a click. When it receives enough support, it moves to the voting phase where everyone can express their preference among the options you defined.",
     proposalType: "Proposal type",
@@ -354,6 +355,9 @@ const en = {
       votes: "Votes",
       forum: "Agora",
       discussions: "Discussions",
+      laws: "Laws",
+      proposals: "Proposals",
+      elections: "Elections",
     },
     view: {
       tree: "Tree View",
@@ -392,6 +396,35 @@ const en = {
       failedToCreate: "Failed to create group",
       cannotAssignRole: "You do not have permission to assign this role.",
       cannotRemoveMember: "You do not have permission to remove this member.",
+    },
+    miniPangea: {
+      law: "law",
+      laws: "laws",
+      proposal: "proposal",
+      proposals: "proposals",
+      election: "election",
+      elections: "elections",
+      noLaws: "No laws enacted in this group yet.",
+      noProposals: "No proposals yet. Members can submit proposals for this group.",
+      noElections: "No elections scheduled for this group yet.",
+      newProposal: "New Proposal",
+      newElection: "New Election",
+      createFirst: "Create the first proposal",
+      viewAllLaws: "View all laws",
+      viewAllProposals: "View all proposals",
+      viewAllElections: "View all elections",
+      repealed: "Repealed",
+      expired: "Expired",
+      left: "left",
+      closingSoon: "Closing soon",
+      filter: {
+        all: "All",
+        active: "Active",
+        curation: "Review",
+        closed: "Closed",
+        repealed: "Repealed",
+        draft: "Draft",
+      },
     },
   },
 
@@ -1253,7 +1286,7 @@ const en = {
   },
 
   // ── Vote Integrity (DE-16) ──
-  integrity: {
+  voteIntegrity: {
     allVerified: "All votes cryptographically verified",
     mismatchFound: "Hash mismatch detected — audit required",
     pendingAudit: "Integrity audit pending",

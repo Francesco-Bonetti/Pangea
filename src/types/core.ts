@@ -160,6 +160,7 @@ export interface ProposalDTO {
   proposal_type: ProposalType;
   parent_proposal_id: string | null;
   jurisdiction_id: string | null;
+  group_id: string | null;
   category_id: string | null;
   expires_at: string | null;
   incubator_passed: boolean;

@@ -49,6 +49,9 @@ import type {
 } from "@/lib/types";
 import { useLanguage } from "@/components/language-provider";
 import GroupDiscussions from "@/components/GroupDiscussions";
+import GroupLaws from "@/components/GroupLaws";
+import GroupProposals from "@/components/GroupProposals";
+import GroupElections from "@/components/GroupElections";
 import {
   ROLE_META,
   hasPermission,
@@ -58,7 +61,7 @@ import {
   outranks,
 } from "@/lib/group-permissions";
 
-type TabId = "info" | "members" | "votes" | "discussions" | "subgroups";
+type TabId = "info" | "members" | "laws" | "proposals" | "elections" | "discussions" | "subgroups" | "votes";
 
 const LUCIDE_ICONS = { Crown, Star, Shield, ShieldCheck, FileText, Wallet, Users, Eye };
 function getRoleIcon(role: GroupMemberRole) {
@@ -252,9 +255,12 @@ export default function GroupDetailPage() {
   const tabs: { id: TabId; labelKey: string; icon: typeof Users; count?: number }[] = [
     { id: "info", labelKey: "groups.tabs.info", icon: Globe },
     { id: "members", labelKey: "groups.tabs.members", icon: Users, count: members.length },
-    { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
+    { id: "laws", labelKey: "groups.tabs.laws", icon: Layers },
+    { id: "proposals", labelKey: "groups.tabs.proposals", icon: FileText },
+    { id: "elections", labelKey: "groups.tabs.elections", icon: Vote },
     { id: "discussions", labelKey: "groups.tabs.discussions", icon: MessageSquare },
-    { id: "votes", labelKey: "groups.tabs.votes", icon: Vote },
+    { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
+    { id: "votes", labelKey: "groups.tabs.votes", icon: Flag },
   ];
 
   if (loading) {
@@ -520,6 +526,31 @@ export default function GroupDetailPage() {
                 </div>
               )}
             </div>
+          )}
+
+          {/* LAWS TAB (T09 — Mini-Pangea) */}
+          {activeTab === "laws" && (
+            <GroupLaws groupId={groupId} groupName={group.name} />
+          )}
+
+          {/* PROPOSALS TAB (T09 — Mini-Pangea) */}
+          {activeTab === "proposals" && (
+            <GroupProposals
+              groupId={groupId}
+              groupName={group.name}
+              isMember={!!currentMember}
+              isGuest={isGuest}
+            />
+          )}
+
+          {/* ELECTIONS TAB (T09 — Mini-Pangea) */}
+          {activeTab === "elections" && (
+            <GroupElections
+              groupId={groupId}
+              groupName={group.name}
+              isAdmin={isAdmin}
+              isGuest={isGuest}
+            />
           )}
 
           {/* SUBGROUPS TAB */}

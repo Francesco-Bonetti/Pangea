@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import TagInput from "@/components/TagInput";
 import LawTreeSelector from "@/components/LawTreeSelector";
@@ -22,6 +22,7 @@ import {
   Edit3,
   Trash2,
   BookOpen,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import CooldownTimer from "@/components/CooldownTimer";
@@ -64,7 +65,11 @@ export default function NewProposalPage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>("citizen");
   const [userId, setUserId] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // T09: Pre-select group context from ?groupId=
+  const groupIdParam = searchParams.get("groupId");
   const supabase = createClient();
 
   // DE-18/20: Cooldown check for proposal creation
@@ -85,6 +90,15 @@ export default function NewProposalPage() {
           .single();
         setUserName(prof?.full_name ?? null);
         setUserRole(prof?.role ?? "citizen");
+      }
+      // T09: Load group name if groupId param present
+      if (groupIdParam) {
+        const { data: grp } = await supabase
+          .from("groups")
+          .select("name")
+          .eq("id", groupIdParam)
+          .single();
+        if (grp) setGroupName(grp.name);
       }
     }
     loadUser();
@@ -159,6 +173,8 @@ export default function NewProposalPage() {
         expires_at: expiresAt,
         proposal_type: proposalType,
         parent_proposal_id: parentProposalId,
+        // T09: scope to group if present
+        group_id: groupIdParam || null,
       };
 
       const { data, error: insertError } = await supabase
@@ -251,6 +267,19 @@ export default function NewProposalPage() {
             </p>
           </div>
         </div>
+
+        {/* T09: Group context banner */}
+        {groupIdParam && groupName && (
+          <div className="flex items-center gap-2 px-4 py-3 mb-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+            <Users className="w-4 h-4 text-purple-400 shrink-0" />
+            <span className="text-sm" style={{ color: "var(--foreground)" }}>
+              {t("proposals.forGroup")}{" "}
+              <Link href={`/groups/${groupIdParam}`} className="font-semibold text-purple-400 hover:text-purple-300">
+                {groupName}
+              </Link>
+            </span>
+          </div>
+        )}
 
         {/* Guida */}
         <div className="card p-4 mb-6 bg-pangea-900/10 border-pangea-800/30 flex gap-3">

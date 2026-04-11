@@ -76,10 +76,10 @@ export default function VoteIntegrityBadge({ proposalId }: VoteIntegrityBadgePro
     : "bg-success-tint border-green-800/30";
 
   const statusText = hasMismatches
-    ? t("integrity.mismatchFound")
+    ? t("voteIntegrity.mismatchFound")
     : pendingAudit
-    ? t("integrity.pendingAudit")
-    : t("integrity.allVerified");
+    ? t("voteIntegrity.pendingAudit")
+    : t("voteIntegrity.allVerified");
 
   return (
     <div className={`card p-4 mb-4 border ${bgColor}`}>
@@ -110,19 +110,19 @@ export default function VoteIntegrityBadge({ proposalId }: VoteIntegrityBadgePro
       {expanded && (
         <div className="mt-3 pt-3 border-t border-theme space-y-2">
           <p className="text-xs text-fg-muted">
-            {t("integrity.description")}
+            {t("voteIntegrity.description")}
           </p>
 
           <div className="grid grid-cols-2 gap-2 mt-2">
             {/* Total votes */}
             <div className="text-xs">
-              <span className="text-fg-muted">{t("integrity.totalVotes")}</span>
+              <span className="text-fg-muted">{t("voteIntegrity.totalVotes")}</span>
               <span className="ml-1 font-medium text-fg">{data.total_votes}</span>
             </div>
 
             {/* Sealed */}
             <div className="text-xs">
-              <span className="text-fg-muted">{t("integrity.sealed")}</span>
+              <span className="text-fg-muted">{t("voteIntegrity.sealed")}</span>
               <span className="ml-1 font-medium text-fg">
                 {data.all_sealed ? t("common.yes") : t("common.no")}
               </span>
@@ -130,14 +130,14 @@ export default function VoteIntegrityBadge({ proposalId }: VoteIntegrityBadgePro
 
             {/* Verified */}
             <div className="text-xs">
-              <span className="text-fg-success">{t("integrity.verified")}</span>
+              <span className="text-fg-success">{t("voteIntegrity.verified")}</span>
               <span className="ml-1 font-medium text-fg">{data.verified_count}</span>
             </div>
 
             {/* Mismatches */}
             <div className="text-xs">
               <span className={data.mismatch_count > 0 ? "text-fg-danger" : "text-fg-muted"}>
-                {t("integrity.mismatches")}
+                {t("voteIntegrity.mismatches")}
               </span>
               <span className="ml-1 font-medium text-fg">{data.mismatch_count}</span>
             </div>
@@ -145,7 +145,7 @@ export default function VoteIntegrityBadge({ proposalId }: VoteIntegrityBadgePro
             {/* Missing hash (legacy votes) */}
             {data.missing_hash_count > 0 && (
               <div className="text-xs col-span-2">
-                <span className="text-fg-muted">{t("integrity.legacyVotes")}</span>
+                <span className="text-fg-muted">{t("voteIntegrity.legacyVotes")}</span>
                 <span className="ml-1 font-medium text-fg">{data.missing_hash_count}</span>
               </div>
             )}
@@ -153,7 +153,7 @@ export default function VoteIntegrityBadge({ proposalId }: VoteIntegrityBadgePro
 
           {/* Example explanation */}
           <div className="mt-2 p-2 bg-theme-base rounded text-xs text-fg-muted leading-relaxed">
-            {t("integrity.example")}
+            {t("voteIntegrity.example")}
           </div>
         </div>
       )}

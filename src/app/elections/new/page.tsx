@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import AppShell from "@/components/AppShell";
@@ -40,7 +41,9 @@ export default async function NewElectionPage() {
       pendingDelegations={count ?? 0}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <NewElectionForm />
+        <Suspense fallback={<div className="flex items-center justify-center py-24"><div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" /></div>}>
+          <NewElectionForm />
+        </Suspense>
       </div>
     </AppShell>
   );

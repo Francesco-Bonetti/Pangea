@@ -175,6 +175,8 @@ export interface Proposal {
   created_at: string;
   expires_at: string | null;
   category_id: string | null;
+  // T09: Group scope (nullable = global proposal)
+  group_id?: string | null;
   // Quadratic Staking (DE-21)
   incubator_passed?: boolean;
   incubator_t2_upvotes?: number;
@@ -182,6 +184,7 @@ export interface Proposal {
   // Join
   profiles?: Profile;
   categories?: Category;
+  groups?: { name: string; logo_emoji: string };
 }
 
 export interface Vote {

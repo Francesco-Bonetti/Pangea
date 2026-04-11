@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Vote, Calendar, Trophy, Info, MapPin, Flag } from "lucide-react";
 import { triggerTranslation } from "@/lib/translate";
 import { useLanguage } from "@/components/language-provider";
@@ -19,13 +19,16 @@ export default function NewElectionForm() {
   const { t } = useLanguage();
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // T09: Pre-select group from ?groupId= param
+  const groupIdParam = searchParams.get("groupId") || "";
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [electionType, setElectionType] = useState<ElectionType>("general");
+  const [electionType, setElectionType] = useState<ElectionType>(groupIdParam ? "group" : "general");
   const [positionName, setPositionName] = useState("");
   const [maxWinners, setMaxWinners] = useState(1);
-  const [groupId, setGroupId] = useState<string>("");
+  const [groupId, setGroupId] = useState<string>(groupIdParam);
   const [candidatureStart, setCandidatureStart] = useState("");
   const [candidatureEnd, setCandidatureEnd] = useState("");
   const [votingStart, setVotingStart] = useState("");

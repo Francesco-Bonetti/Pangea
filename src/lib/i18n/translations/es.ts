@@ -935,7 +935,7 @@ const es: DeepPartial<TranslationKeys> = {
   },
 
   // ── Vote Integrity (DE-16) ──
-  integrity: {
+  voteIntegrity: {
     allVerified: "Todos los votos verificados criptográficamente",
     mismatchFound: "Discrepancia de hash detectada — auditoría requerida",
     pendingAudit: "Auditoría de integridad pendiente",
