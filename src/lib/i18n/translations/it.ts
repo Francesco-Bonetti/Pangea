@@ -179,6 +179,7 @@ const it: DeepPartial<TranslationKeys> = {
     voteNo: "Vota No",
     abstain: "Astieniti",
     writeYourProposal: "Scrivi la tua proposta e lascia che i cittadini la valutino",
+    forGroup: "Questa proposta è per il gruppo:",
     howItWorks: "Come funziona",
     howItWorksDesc: "La tua proposta viene prima pubblicata per la revisione comunitaria dove i cittadini possono sostenerla con un click. Quando riceve abbastanza supporto, passa alla fase di votazione dove tutti possono esprimere la propria preferenza tra le opzioni che hai definito.",
     proposalType: "Tipo di proposta",
@@ -232,6 +233,8 @@ const it: DeepPartial<TranslationKeys> = {
     confirmMyVote: "Conferma il mio voto",
     errorWhileSaving: "Errore durante il salvataggio",
     allProposals: "Tutte le Proposte",
+    groupProposals: "Proposte di Gruppo",
+    showAll: "Mostra tutto",
     noProposalsFound: "Nessuna proposta trovata",
     tryDifferentFilter: "Prova un filtro diverso o crea una nuova proposta.",
     // Voting booth (DE-14/15/17)
@@ -302,6 +305,8 @@ const it: DeepPartial<TranslationKeys> = {
     youHaveVoted: "Hai votato in questa elezione",
     creatingElection: "Creazione elezione...",
     createElection: "Crea elezione",
+    groupElections: "Elezioni di Gruppo",
+    showAll: "Mostra tutto",
   },
 
   // ── Groups (Recursive Tree System) ──
@@ -355,6 +360,9 @@ const it: DeepPartial<TranslationKeys> = {
       votes: "Voti",
       forum: "Agorà",
       discussions: "Discussioni",
+      laws: "Leggi",
+      proposals: "Proposte",
+      elections: "Elezioni",
     },
     view: {
       tree: "Vista Albero",
@@ -394,6 +402,35 @@ const it: DeepPartial<TranslationKeys> = {
     },
     manageRole: "Gestisci ruolo",
     changeRole: "Cambia ruolo",
+    miniPangea: {
+      law: "legge",
+      laws: "leggi",
+      proposal: "proposta",
+      proposals: "proposte",
+      election: "elezione",
+      elections: "elezioni",
+      noLaws: "Nessuna legge ancora promulgata in questo gruppo.",
+      noProposals: "Nessuna proposta ancora. I membri possono inviare proposte per questo gruppo.",
+      noElections: "Nessuna elezione ancora programmata per questo gruppo.",
+      newProposal: "Nuova Proposta",
+      newElection: "Nuova Elezione",
+      createFirst: "Crea la prima proposta",
+      viewAllLaws: "Visualizza tutte le leggi",
+      viewAllProposals: "Visualizza tutte le proposte",
+      viewAllElections: "Visualizza tutte le elezioni",
+      repealed: "Abrogata",
+      expired: "Scaduta",
+      left: "rimasto",
+      closingSoon: "Chiusura imminente",
+      filter: {
+        all: "Tutte",
+        active: "Attive",
+        curation: "Revisione",
+        closed: "Chiuse",
+        repealed: "Abrogate",
+        draft: "Bozze",
+      },
+    },
   },
 
   // ── Discussioni di Gruppo (B4) ──
@@ -728,6 +765,15 @@ const it: DeepPartial<TranslationKeys> = {
     ],
     error: "Mi dispiace, non sono riuscito a elaborare la tua richiesta. Riprova.",
     disclaimer: "Le risposte dell'AI sono solo informative e non costituiscono consulenza legale.",
+    fallback: "Non sono sicuro di questo argomento specifico. Prova a chiedere di: proposte, voto, deleghe, gruppi, partiti, o come funziona la piattaforma.",
+    kb: {
+      proposals: "Per creare una proposta:\n1. Clicca 'Nuova Proposta' nella barra laterale\n2. Compila titolo, riepilogo e contenuto completo\n3. Aggiungi una spiegazione semplificata\n4. Scegli i tag e la durata della votazione\n5. Posizionala nell'albero delle leggi (opzionale)\n6. Salva come bozza o invia per deliberazione\n\nUna volta inviata, i cittadini possono discuterla e votarla. Se approvata, diventa legge!",
+      voting: "Il sistema di voto funziona così:\n• Ogni cittadino ha un voto per proposta\n• Puoi votare Sì, No o Astenerti\n• La durata del voto è impostata dall'autore (da 3 a 30 giorni, o senza scadenza)\n• Se più del 50% vota Sì, la proposta è approvata\n• Le proposte approvate diventano automaticamente leggi operative\n• Puoi anche delegare il tuo voto a qualcuno di fiducia",
+      delegations: "Le deleghe ti permettono di affidare il tuo potere di voto a un altro cittadino:\n• Vai a Deleghe nella barra laterale\n• Scegli a chi delegare\n• Puoi delegare per argomento o globalmente\n• Il delegato vota per te se non voti\n• Puoi revocare una delega in qualsiasi momento\n• Se voti direttamente, il tuo voto ha sempre la precedenza\n\nLe deleghe richiedono accettazione — l'altro cittadino deve accettare di rappresentarti.",
+      groups: "I gruppi sono organizzazioni unificate in Pangea:\n• Giurisdizioni: basate su temi (es. Ambiente, Tecnologia) o luoghi (es. Europa, Asia)\n• Partiti: organizzazioni politiche con manifesti e membri\n• Comunità: gruppi tematici per discussioni\n• Gruppi di lavoro: task force specializzate\n• Ogni gruppo può avere leggi, proposte e membri propri\n• Possono essere annidati\n• Il sistema rileva conflitti tra leggi di gruppi diversi\n• Puoi seguire i gruppi per ricevere aggiornamenti",
+      platform: "Pangea è una piattaforma democratica globale dove i cittadini possono:\n• Proporre nuove leggi e emendamenti\n• Votare le proposte con democrazia diretta o delegata\n• Unirsi a partiti politici e discutere nell'Agorà\n• Partecipare a elezioni per posizioni ufficiali\n• Seguire cittadini, partiti e giurisdizioni\n• Inviare messaggi privati crittografati\n\nOgni cittadino ha uguale potere di voto. Privacy by design e trasparenza totale.",
+      parties: "I partiti politici in Pangea:\n• Ogni cittadino può creare un partito\n• I partiti sono ora unificati nel sistema Gruppi\n• I cittadini si uniscono con un codice alfanumerico di 8 caratteri\n• Ogni partito ha un leader e dei membri con pesi di voto\n• I partiti possono avere canali messaggi propri\n• Le attività dei partiti appaiono nel feed dei follower",
+    },
   },
 
   // ── Segnalazione Bug ──
