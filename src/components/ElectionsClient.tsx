@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Vote, Plus, Users, Calendar, Trophy, Clock, ChevronRight, MapPin, Flag } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import TranslatedContent from "@/components/TranslatedContent";
@@ -53,16 +55,28 @@ interface ElectionsClientProps {
   isAdmin: boolean;
 }
 
-export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
+function ElectionsClientInner({ isAdmin }: ElectionsClientProps) {
   const { t } = useLanguage();
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const groupId = searchParams.get("group");
   const [elections, setElections] = useState<Election[]>([]);
+  const [groupInfo, setGroupInfo] = useState<{ name: string; emoji: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | ElectionStatus>("all");
 
   useEffect(() => {
     loadElections();
-  }, [filter]);
+  }, [filter, groupId]);
+
+  useEffect(() => {
+    if (groupId) {
+      supabase.from("groups").select("name, logo_emoji").eq("id", groupId).single()
+        .then(({ data }) => { if (data) setGroupInfo({ name: data.name, emoji: data.logo_emoji }); });
+    } else {
+      setGroupInfo(null);
+    }
+  }, [groupId]);
 
   async function loadElections() {
     setLoading(true);
@@ -70,6 +84,10 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
       .from("elections")
       .select("*, profiles:created_by(full_name), groups(name, logo_emoji, group_type)")
       .order("created_at", { ascending: false });
+
+    if (groupId) {
+      query = query.eq("group_id", groupId);
+    }
 
     if (filter !== "all") {
       query = query.eq("status", filter);
@@ -110,6 +128,20 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* Group filter banner */}
+      {groupId && groupInfo && (
+        <div className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-lg bg-purple-500/10 border border-purple-500/20">
+          <span className="text-lg">{groupInfo.emoji}</span>
+          <span className="text-sm font-medium text-fg">{groupInfo.name}</span>
+          <Link
+            href="/elections"
+            className="ml-auto text-xs text-purple-400 hover:text-purple-300 hover:underline"
+          >
+            {t("elections.showAll")}
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -117,7 +149,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-purple-700">
               <Vote className="w-6 h-6 text-fg" />
             </div>
-            {t("elections.title")}
+            {groupId ? t("elections.groupElections") : t("elections.title")}
           </h1>
           <p className="text-fg-muted mt-2">
             {t("elections.description")}
@@ -125,7 +157,7 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
         </div>
         {isAdmin && (
           <Link
-            href="/elections/new"
+            href={groupId ? `/elections/new?groupId=${groupId}` : "/elections/new"}
             className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-fg text-sm font-medium rounded-lg transition-all duration-150 hover:scale-105 active:scale-95 shadow-lg"
           >
             <Plus className="w-4 h-4" />
@@ -260,5 +292,13 @@ export default function ElectionsClient({ isAdmin }: ElectionsClientProps) {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ElectionsClient(props: ElectionsClientProps) {
+  return (
+    <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-8"><div className="skeleton-wave h-96 rounded-xl" /></div>}>
+      <ElectionsClientInner {...props} />
+    </Suspense>
   );
 }

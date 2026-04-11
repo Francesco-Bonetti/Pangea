@@ -90,6 +90,7 @@ export default function GroupDetailPage() {
   const [children, setChildren] = useState<GroupTreeNode[]>([]);
   const [groupVotes, setGroupVotes] = useState<(GroupVote & { proposals: Proposal })[]>([]);
   const [activeProposals, setActiveProposals] = useState<Proposal[]>([]);
+  const [contentCounts, setContentCounts] = useState<{ laws: number; proposals: number; elections: number }>({ laws: 0, proposals: 0, elections: 0 });
 
   const [currentMember, setCurrentMember] = useState<(Omit<GroupMember, 'profiles'> & { profiles: { full_name: string | null } }) | null>(null);
   const [loading, setLoading] = useState(true);
@@ -148,6 +149,18 @@ export default function GroupDetailPage() {
     // Children
     const { data: childData } = await supabase.rpc("get_group_tree", { p_root_id: groupId });
     if (childData) setChildren(childData as GroupTreeNode[]);
+
+    // T09: Content counts for tab badges
+    const [
+      { count: lawsCount },
+      { count: proposalsCount },
+      { count: electionsCount },
+    ] = await Promise.all([
+      supabase.from("laws").select("*", { count: "exact", head: true }).eq("group_id", groupId),
+      supabase.from("proposals").select("*", { count: "exact", head: true }).eq("group_id", groupId),
+      supabase.from("elections").select("*", { count: "exact", head: true }).eq("group_id", groupId),
+    ]);
+    setContentCounts({ laws: lawsCount ?? 0, proposals: proposalsCount ?? 0, elections: electionsCount ?? 0 });
 
     // Group votes
     const { data: votes } = await supabase
@@ -255,9 +268,9 @@ export default function GroupDetailPage() {
   const tabs: { id: TabId; labelKey: string; icon: typeof Users; count?: number }[] = [
     { id: "info", labelKey: "groups.tabs.info", icon: Globe },
     { id: "members", labelKey: "groups.tabs.members", icon: Users, count: members.length },
-    { id: "laws", labelKey: "groups.tabs.laws", icon: Layers },
-    { id: "proposals", labelKey: "groups.tabs.proposals", icon: FileText },
-    { id: "elections", labelKey: "groups.tabs.elections", icon: Vote },
+    { id: "laws", labelKey: "groups.tabs.laws", icon: Layers, count: contentCounts.laws },
+    { id: "proposals", labelKey: "groups.tabs.proposals", icon: FileText, count: contentCounts.proposals },
+    { id: "elections", labelKey: "groups.tabs.elections", icon: Vote, count: contentCounts.elections },
     { id: "discussions", labelKey: "groups.tabs.discussions", icon: MessageSquare },
     { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
     { id: "votes", labelKey: "groups.tabs.votes", icon: Flag },

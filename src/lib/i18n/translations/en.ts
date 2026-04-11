@@ -231,6 +231,8 @@ const en = {
     errorWhileSaving: "Error while saving",
     // Proposals list page
     allProposals: "All Proposals",
+    groupProposals: "Group Proposals",
+    showAll: "Show all",
     noProposalsFound: "No proposals found",
     tryDifferentFilter: "Try a different filter or create a new proposal.",
     // Voting booth (DE-14/15/17)
@@ -262,6 +264,8 @@ const en = {
   // ── Elections ──
   elections: {
     title: "Elections",
+    groupElections: "Group Elections",
+    showAll: "Show all",
     newElection: "New Election",
     candidates: "Candidates",
     applyAsCandidate: "Apply as Candidate",

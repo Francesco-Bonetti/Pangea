@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ProposalWithResults } from "@/lib/types";
 import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
-import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle, EyeOff } from "lucide-react";
+import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle, EyeOff, Flag } from "lucide-react";
 import TranslatedContent from "@/components/TranslatedContent";
 import IntegrityBadge from "@/components/IntegrityBadge";
 import UidBadge from "@/components/UidBadge";
@@ -98,6 +98,18 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
             )}
             <IntegrityBadge entityType="proposal" entityId={proposal.id} compact />
             {proposal.uid && <UidBadge uid={proposal.uid} size="xs" clickable={false} />}
+            {proposal.groups && (
+              <span
+                className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0"
+                style={{
+                  color: "var(--primary)",
+                  backgroundColor: "color-mix(in srgb, var(--primary) 12%, transparent)",
+                }}
+              >
+                <Flag className="w-3 h-3" />
+                {proposal.groups.logo_emoji} {proposal.groups.name}
+              </span>
+            )}
           </div>
           <h3
             className="font-bold text-lg leading-snug truncate"

@@ -6,12 +6,13 @@ import ProposalsListClient from "@/components/ProposalsListClient";
 import type { Proposal, ProposalWithResults, ProposalResults } from "@/lib/types";
 
 interface Props {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; group?: string }>;
 }
 
 export default async function ProposalsPage({ searchParams }: Props) {
   const params = await searchParams;
   const statusFilter = params.status || "all";
+  const groupFilter = params.group || null;
 
   const supabase = await createClient();
   const {
@@ -23,9 +24,14 @@ export default async function ProposalsPage({ searchParams }: Props) {
   // Build query based on status filter
   let query = supabase
     .from("proposals")
-    .select("*")
+    .select("*, groups(name, logo_emoji)")
     .order("created_at", { ascending: false })
     .limit(200);
+
+  // T09: filter by group
+  if (groupFilter) {
+    query = query.eq("group_id", groupFilter);
+  }
 
   if (statusFilter === "draft") {
     if (!user) redirect("/auth");
@@ -72,6 +78,13 @@ export default async function ProposalsPage({ searchParams }: Props) {
 
   const { data: curationThreshold } = await supabase.rpc("get_curation_threshold");
 
+  // T09: Resolve group info for filter banner
+  let groupInfo: { id: string; name: string; emoji: string } | null = null;
+  if (groupFilter) {
+    const { data: g } = await supabase.from("groups").select("id, name, logo_emoji").eq("id", groupFilter).single();
+    if (g) groupInfo = { id: g.id, name: g.name, emoji: g.logo_emoji };
+  }
+
   // Get profile for AppShell
   let profile = null;
   if (user) {
@@ -91,6 +104,7 @@ export default async function ProposalsPage({ searchParams }: Props) {
           currentFilter={statusFilter}
           curationThreshold={curationThreshold ?? 2}
           isGuest={isGuest}
+          groupFilter={groupInfo}
         />
       </Suspense>
     </AppShell>

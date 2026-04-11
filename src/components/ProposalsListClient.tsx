@@ -13,6 +13,7 @@ interface ProposalsListClientProps {
   currentFilter: string;
   curationThreshold: number;
   isGuest: boolean;
+  groupFilter?: { id: string; name: string; emoji: string } | null;
 }
 
 const STATUS_TABS = [
@@ -27,6 +28,7 @@ function ProposalsListInner({
   currentFilter,
   curationThreshold,
   isGuest,
+  groupFilter,
 }: ProposalsListClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,17 +41,33 @@ function ProposalsListInner({
     } else {
       params.set("status", status);
     }
+    // Preserve group filter
+    if (groupFilter) params.set("group", groupFilter.id);
     router.push(`/proposals?${params.toString()}`);
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Group filter banner */}
+      {groupFilter && (
+        <div className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-lg bg-purple-500/10 border border-purple-500/20">
+          <span className="text-lg">{groupFilter.emoji}</span>
+          <span className="text-sm font-medium text-fg">{groupFilter.name}</span>
+          <Link
+            href="/proposals"
+            className="ml-auto text-xs text-purple-400 hover:text-purple-300 hover:underline"
+          >
+            {t("proposals.showAll")}
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-fg flex items-center gap-2">
             <FileText className="w-6 h-6" style={{ color: "var(--primary)" }} />
-            {t("proposals.allProposals")}
+            {groupFilter ? t("proposals.groupProposals") : t("proposals.allProposals")}
           </h1>
           <p className="text-sm text-fg-muted mt-1">
             {proposals.length} {proposals.length === 1 ? "proposal" : "proposals"}
@@ -57,7 +75,7 @@ function ProposalsListInner({
         </div>
         {!isGuest && (
           <Link
-            href="/proposals/new"
+            href={groupFilter ? `/proposals/new?groupId=${groupFilter.id}` : "/proposals/new"}
             className="btn-primary inline-flex items-center gap-2 text-sm"
           >
             <Plus className="w-4 h-4" />
