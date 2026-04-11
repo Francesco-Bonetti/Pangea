@@ -55,6 +55,7 @@ import GroupDiscussions from "@/components/GroupDiscussions";
 import GroupLaws from "@/components/GroupLaws";
 import GroupProposals from "@/components/GroupProposals";
 import GroupElections from "@/components/GroupElections";
+import GroupSettingsPanel from "@/components/GroupSettings";
 import {
   ROLE_META,
   hasPermission,
@@ -64,7 +65,7 @@ import {
   outranks,
 } from "@/lib/group-permissions";
 
-type TabId = "info" | "members" | "laws" | "proposals" | "elections" | "discussions" | "subgroups" | "votes";
+type TabId = "info" | "members" | "laws" | "proposals" | "elections" | "discussions" | "subgroups" | "votes" | "settings";
 
 const LUCIDE_ICONS = { Crown, Star, Shield, ShieldCheck, FileText, Wallet, Users, Eye };
 function getRoleIcon(role: GroupMemberRole) {
@@ -336,6 +337,7 @@ export default function GroupDetailPage() {
     { id: "discussions", labelKey: "groups.tabs.discussions", icon: MessageSquare },
     { id: "subgroups", labelKey: "groups.tabs.subgroups", icon: FolderTree, count: children.length },
     { id: "votes", labelKey: "groups.tabs.votes", icon: Flag },
+    { id: "settings", labelKey: "groups.tabs.settings", icon: Settings },
   ];
 
   if (loading) {
@@ -800,6 +802,18 @@ export default function GroupDetailPage() {
               isMember={!!currentMember}
               isAdmin={isAdmin}
               groupName={group.name}
+            />
+          )}
+
+          {/* SETTINGS TAB (T10 — Hierarchical Settings) */}
+          {activeTab === "settings" && (
+            <GroupSettingsPanel
+              groupId={groupId}
+              settings={group.settings}
+              lockedSettings={group.locked_settings || {}}
+              userRole={myRole}
+              hasChildren={children.length > 0}
+              parentGroupId={group.parent_group_id}
             />
           )}
         </div>

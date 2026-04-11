@@ -342,6 +342,19 @@ export interface GroupSettings {
   join_policy: "open" | "approval" | "invite_only";
 }
 
+// T10: A single locked setting inherited from an ancestor
+export interface LockedSetting {
+  value: string;
+  locked_by_id: string;
+  locked_by_name: string;
+}
+
+// T10: Map of setting keys to their lock info (from get_effective_locks RPC)
+export type EffectiveLocks = Record<string, LockedSetting>;
+
+// T10: Map of setting keys to boolean (stored on the group itself)
+export type GroupLockedSettings = Record<string, boolean>;
+
 export interface Group {
   id: string;
   uid?: string | null;
@@ -352,6 +365,7 @@ export interface Group {
   founder_id: string;
   parent_group_id: string | null;
   settings: GroupSettings;
+  locked_settings: GroupLockedSettings;
   is_active: boolean;
   created_at: string;
   // Jurisdiction-specific
