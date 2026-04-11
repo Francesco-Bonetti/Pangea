@@ -35,6 +35,9 @@ import {
   AlertCircle,
   MoreVertical,
   X,
+  Search,
+  Check,
+  Loader2,
 } from "lucide-react";
 import type {
   Profile,
@@ -207,6 +210,65 @@ export default function GroupDetailPage() {
 
   // Role dropdown state
   const [roleDropdownOpen, setRoleDropdownOpen] = useState<string | null>(null);
+
+  // T06: Co-founder invite state
+  const [coFounderOpen, setCoFounderOpen] = useState(false);
+  const [coFounderSearch, setCoFounderSearch] = useState("");
+  const [coFounderResults, setCoFounderResults] = useState<{ id: string; full_name: string | null }[]>([]);
+  const [coFounderSearching, setCoFounderSearching] = useState(false);
+  const [coFounderInviting, setCoFounderInviting] = useState(false);
+  const [coFounderSuccess, setCoFounderSuccess] = useState<string | null>(null);
+
+  // T06: Search users for co-founder invite
+  async function searchUsersForCoFounder(query: string) {
+    setCoFounderSearch(query);
+    if (query.length < 2) { setCoFounderResults([]); return; }
+    setCoFounderSearching(true);
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .ilike("full_name", `%${query}%`)
+      .limit(8);
+    // Filter out current founders/co-founders and self
+    const founderIds = new Set(
+      members.filter((m) => m.role === "founder" || m.role === "co_founder").map((m) => m.user_id)
+    );
+    if (user) founderIds.add(user.id);
+    setCoFounderResults((data || []).filter((u) => !founderIds.has(u.id)));
+    setCoFounderSearching(false);
+  }
+
+  // T06: Invite co-founder via RPC
+  async function handleInviteCoFounder(targetUserId: string) {
+    setCoFounderInviting(true);
+    setError(null);
+    const { data, error: rpcError } = await supabase.rpc("invite_co_founder", {
+      p_group_id: groupId,
+      p_target_user_id: targetUserId,
+    });
+    if (rpcError || !data?.success) {
+      const errCode = data?.error || rpcError?.message || "";
+      const errMap: Record<string, string> = {
+        ALREADY_CO_FOUNDER: t("groups.errors.alreadyCoFounder"),
+        USER_NOT_FOUND: t("groups.errors.userNotFound"),
+        CANNOT_INVITE_SELF: t("groups.errors.cannotInviteSelf"),
+      };
+      setError(errMap[errCode] || t("groups.errors.inviteFailed"));
+      setCoFounderInviting(false);
+      return;
+    }
+    setCoFounderSuccess(
+      data.action === "promoted"
+        ? t("groups.coFounder.successPromoted")
+        : t("groups.coFounder.successInvited")
+    );
+    setCoFounderSearch("");
+    setCoFounderResults([]);
+    setCoFounderInviting(false);
+    loadData();
+    // Auto-dismiss success after 3s
+    setTimeout(() => setCoFounderSuccess(null), 3000);
+  }
 
   // Change member role via RPC (server-side hierarchy enforcement)
   async function handleRoleChange(memberId: string, targetCurrentRole: GroupMemberRole, newRole: GroupMemberRole) {
@@ -451,6 +513,94 @@ export default function GroupDetailPage() {
           {/* MEMBERS TAB */}
           {activeTab === "members" && (
             <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+              {/* T06: Co-Founder Invite (founder only) */}
+              {myRole === "founder" && (
+                <div className="px-5 py-4 space-y-3" style={{ borderBottom: "1px solid var(--border)" }}>
+                  {!coFounderOpen ? (
+                    <button
+                      onClick={() => setCoFounderOpen(true)}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-sm font-medium rounded-lg transition-all"
+                    >
+                      <Crown className="w-4 h-4" />
+                      {t("groups.coFounder.invite")}
+                    </button>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+                            {t("groups.coFounder.invite")}
+                          </h4>
+                          <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+                            {t("groups.coFounder.description")}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => { setCoFounderOpen(false); setCoFounderSearch(""); setCoFounderResults([]); setCoFounderSuccess(null); }}
+                          className="p-1.5 rounded hover:bg-[var(--muted)] transition-colors"
+                        >
+                          <X className="w-4 h-4" style={{ color: "var(--muted-foreground)" }} />
+                        </button>
+                      </div>
+
+                      {coFounderSuccess && (
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm">
+                          <Check className="w-4 h-4 shrink-0" /> {coFounderSuccess}
+                        </div>
+                      )}
+
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--muted-foreground)" }} />
+                        <input
+                          type="text"
+                          value={coFounderSearch}
+                          onChange={(e) => searchUsersForCoFounder(e.target.value)}
+                          placeholder={t("groups.coFounder.searchPlaceholder")}
+                          className="w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm bg-transparent outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-colors"
+                          style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                        />
+                        {coFounderSearching && (
+                          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin" style={{ color: "var(--muted-foreground)" }} />
+                        )}
+                      </div>
+
+                      {coFounderSearch.length >= 2 && coFounderResults.length === 0 && !coFounderSearching && (
+                        <p className="text-xs px-1" style={{ color: "var(--muted-foreground)" }}>
+                          {t("groups.coFounder.noResults")}
+                        </p>
+                      )}
+
+                      {coFounderResults.length > 0 && (
+                        <div className="rounded-lg border overflow-hidden" style={{ borderColor: "var(--border)" }}>
+                          {coFounderResults.map((u) => (
+                            <div
+                              key={u.id}
+                              className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--muted)] transition-colors"
+                              style={{ borderBottom: "1px solid var(--border)" }}
+                            >
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                                {(u.full_name || "?")[0].toUpperCase()}
+                              </div>
+                              <span className="flex-1 text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>
+                                {u.full_name || "Anonymous"}
+                              </span>
+                              <button
+                                onClick={() => handleInviteCoFounder(u.id)}
+                                disabled={coFounderInviting}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium transition-colors disabled:opacity-50"
+                              >
+                                {coFounderInviting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Crown className="w-3 h-3" />}
+                                {t("groups.coFounder.confirm")}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {sortByRole(members).map((m) => {
                 const mRole = m.role as GroupMemberRole;
                 const RoleIcon = getRoleIcon(mRole);
