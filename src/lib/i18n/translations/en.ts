@@ -30,6 +30,7 @@ const en = {
     proposals: "Proposals",
     citizenProfile: "Citizen Profile",
     positions: "Positions",
+    allGroups: "All Groups",
   },
 
   // ── Dashboard ──
@@ -1142,6 +1143,7 @@ const en = {
     learn: "Learn",
     groups: "Groups",
     groupsDesc: "All communities, parties, and jurisdictions",
+    allGroupsDesc: "Browse all groups regardless of type",
     laws: "Laws",
     lawsDesc: "Living codes that evolve with the people",
     agora: "Agora",

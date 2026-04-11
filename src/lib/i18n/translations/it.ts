@@ -33,6 +33,7 @@ const it: DeepPartial<TranslationKeys> = {
     proposals: "Proposte",
     citizenProfile: "Profilo Cittadino",
     positions: "Cariche",
+    allGroups: "Tutti i Gruppi",
   },
 
   // ── Pannello ──
@@ -1078,6 +1079,7 @@ const it: DeepPartial<TranslationKeys> = {
     learn: "Scopri",
     groups: "Gruppi",
     groupsDesc: "Tutte le comunità, partiti e giurisdizioni",
+    allGroupsDesc: "Sfoglia tutti i gruppi indipendentemente dal tipo",
     laws: "Leggi",
     lawsDesc: "Codici viventi che evolvono con il popolo",
     agora: "Agorà",

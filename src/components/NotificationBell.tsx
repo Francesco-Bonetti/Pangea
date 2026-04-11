@@ -208,7 +208,7 @@ export default function NotificationBell() {
       {/* Dropdown Panel */}
       {isOpen && (
         <div
-          className="absolute top-12 right-0 w-80 rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-50"
+          className="absolute top-12 left-1/2 -translate-x-1/2 w-[min(20rem,calc(100vw-2rem))] rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-50"
           style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)" }}
         >
           {/* Header with Mark All as Read */}

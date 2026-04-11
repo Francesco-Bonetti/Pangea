@@ -14,6 +14,7 @@ const fr: DeepPartial<TranslationKeys> = {
     communities: "Communautés", workingGroups: "Groupes de Travail",
     religions: "Religions", proposals: "Propositions",
     citizenProfile: "Profil Citoyen", positions: "Fonctions",
+    allGroups: "Tous les Groupes",
   },
   dashboard: {
     title: "Tableau de bord", welcome: "Bienvenue",
@@ -793,6 +794,7 @@ const fr: DeepPartial<TranslationKeys> = {
     learn: "Découvrir",
     groups: "Groupes",
     groupsDesc: "Toutes les communautés, partis et juridictions",
+    allGroupsDesc: "Parcourir tous les groupes quel que soit le type",
     laws: "Lois",
     lawsDesc: "Des codes vivants qui évoluent avec le peuple",
     agora: "Agora",

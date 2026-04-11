@@ -224,6 +224,13 @@ export const PLATFORM_NODES: PlatformNode[] = [
 
   /* ── Groups children ───────────────────────────────────── */
   {
+    id: "allGroups", href: "/groups",
+    labelKey: "nav.allGroups", iconKey: "compass",
+    color: "#3b82f6", colorLight: "#60a5fa", glow: "rgba(59,130,246,0.3)",
+    descKey: "tree.allGroupsDesc", actionKey: "tree.browse",
+    parent: "groups",
+  },
+  {
     id: "jurisdictions", href: "/groups?type=jurisdiction",
     labelKey: "nav.jurisdictions", iconKey: "landmark",
     color: "#2563eb", colorLight: "#60a5fa", glow: "rgba(37,99,235,0.3)",

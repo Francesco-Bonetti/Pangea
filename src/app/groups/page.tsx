@@ -74,6 +74,14 @@ function GroupsPageInner() {
       : "all"
   );
 
+  // Sync filterType with URL ?type= param on navigation
+  useEffect(() => {
+    const newType = urlType && ["jurisdiction", "party", "community", "working_group", "custom"].includes(urlType)
+      ? urlType
+      : "all";
+    setFilterType(newType);
+  }, [urlType]);
+
   // Create group modal
   const [showCreate, setShowCreate] = useState(false);
   const [newGroup, setNewGroup] = useState({
