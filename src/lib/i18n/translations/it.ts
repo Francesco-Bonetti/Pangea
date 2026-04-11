@@ -34,6 +34,7 @@ const it: DeepPartial<TranslationKeys> = {
     citizenProfile: "Profilo Cittadino",
     positions: "Cariche",
     allGroups: "Tutti i Gruppi",
+    custom: "Personalizzati",
   },
 
   // ── Pannello ──
@@ -1102,6 +1103,7 @@ const it: DeepPartial<TranslationKeys> = {
     workingGroupsDesc: "Team collaborativi orientati ai compiti",
     religions: "Religioni",
     religionsDesc: "Comunità e tradizioni di fede",
+    customDesc: "Gruppi personalizzati creati dai cittadini",
     browseLaws: "Sfoglia Leggi",
     browseLawsDesc: "Esplora la legislazione esistente",
     proposeLaw: "Proponi Nuova",

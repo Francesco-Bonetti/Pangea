@@ -15,6 +15,7 @@ const es: DeepPartial<TranslationKeys> = {
     religions: "Religiones", proposals: "Propuestas",
     citizenProfile: "Perfil Ciudadano", positions: "Cargos",
     allGroups: "Todos los Grupos",
+    custom: "Personalizados",
   },
   dashboard: {
     title: "Panel", welcome: "Bienvenido de vuelta",
@@ -816,6 +817,7 @@ const es: DeepPartial<TranslationKeys> = {
     workingGroupsDesc: "Equipos colaborativos enfocados en tareas",
     religions: "Religiones",
     religionsDesc: "Comunidades y tradiciones de fe",
+    customDesc: "Grupos personalizados creados por los ciudadanos",
     browseLaws: "Explorar Leyes",
     browseLawsDesc: "Explora la legislación existente",
     proposeLaw: "Proponer Nueva",

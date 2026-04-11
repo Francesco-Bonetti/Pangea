@@ -31,6 +31,7 @@ const en = {
     citizenProfile: "Citizen Profile",
     positions: "Positions",
     allGroups: "All Groups",
+    custom: "Custom",
   },
 
   // ── Dashboard ──
@@ -1166,6 +1167,7 @@ const en = {
     workingGroupsDesc: "Task-focused collaborative teams",
     religions: "Religions",
     religionsDesc: "Faith-based communities and traditions",
+    customDesc: "Custom groups created by citizens",
     browseLaws: "Browse Laws",
     browseLawsDesc: "Explore existing legislation",
     proposeLaw: "Propose New",

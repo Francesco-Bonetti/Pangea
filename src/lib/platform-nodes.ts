@@ -30,6 +30,7 @@ import {
   LayoutDashboard,
   Rss,
   Mail,
+  Sparkles,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════
@@ -144,6 +145,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   dashboard: LayoutDashboard,
   rss: Rss,
   mail: Mail,
+  sparkles: Sparkles,
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -302,6 +304,22 @@ export const PLATFORM_NODES: PlatformNode[] = [
       nameField: "name",
       select: "id,uid,name,description,logo_emoji,parent_group_id",
       hrefPrefix: "/groups/", childIconKey: "heart", orderField: "name", limit: 50,
+    },
+  },
+
+  {
+    id: "customGroups", href: "/groups?type=custom",
+    labelKey: "nav.custom", iconKey: "sparkles",
+    color: "#a855f7", colorLight: "#c084fc", glow: "rgba(168,85,247,0.3)",
+    descKey: "tree.customDesc", actionKey: "tree.browse",
+    canCreate: true, createHref: "/groups?type=custom&create=1",
+    parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "custom" },
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "sparkles", orderField: "name", limit: 50,
     },
   },
 
