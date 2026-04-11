@@ -115,6 +115,8 @@ const it: DeepPartial<TranslationKeys> = {
     operativeDesc: "Solo le leggi attualmente in vigore. Quando una legge inattiva nei Codici Viventi diventa attiva, appare automaticamente qui. Queste sono le leggi che governano il Commonwealth oggi.",
     noOperativeLaws: "Nessuna legge operativa ancora",
     operativeWillAppear: "Le leggi operative appariranno qui man mano che il progetto Pangea avanza.",
+    showAll: "Mostra tutte",
+    groupLaws: "Leggi del Gruppo",
     typeCode: "Codice",
     typeBook: "Libro",
     typeTitle: "Titolo",

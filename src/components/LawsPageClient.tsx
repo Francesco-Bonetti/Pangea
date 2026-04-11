@@ -3,6 +3,7 @@
 import { useState } from "react";
 import LawTree from "@/components/LawTree";
 import LawsTree3D from "@/components/LawsTree3D";
+import Link from "next/link";
 import { BookOpen, Boxes, Scale, Shield, Eye } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import type { LawNode } from "@/app/laws/page";
@@ -16,6 +17,7 @@ interface LawsPageClientProps {
   activeArticles: number;
   isAdmin?: boolean;
   isGuest?: boolean;
+  groupFilter?: { id: string; name: string; emoji: string } | null;
 }
 
 export default function LawsPageClient({
@@ -27,12 +29,27 @@ export default function LawsPageClient({
   activeArticles,
   isAdmin,
   isGuest = false,
+  groupFilter,
 }: LawsPageClientProps) {
   const [activeTab, setActiveTab] = useState<"living" | "operative" | "3d">("living");
   const { t } = useLanguage();
 
   return (
     <>
+      {/* T09: Group filter banner */}
+      {groupFilter && (
+        <div className="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-lg bg-purple-500/10 border border-purple-500/20">
+          <span className="text-lg">{groupFilter.emoji}</span>
+          <span className="text-sm font-medium text-fg">{groupFilter.name}</span>
+          <Link
+            href="/laws"
+            className="ml-auto text-xs text-purple-400 hover:text-purple-300 hover:underline"
+          >
+            {t("laws.showAll")}
+          </Link>
+        </div>
+      )}
+
       {/* Tab Navigation */}
       <div className="mb-8">
         <div className="flex gap-1 bg-theme-card rounded-lg p-1">

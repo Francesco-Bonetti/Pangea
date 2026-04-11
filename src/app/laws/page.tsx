@@ -27,7 +27,13 @@ export interface LawNode {
   children?: LawNode[];
 }
 
-export default async function LawsPage() {
+interface Props {
+  searchParams: Promise<{ group?: string }>;
+}
+
+export default async function LawsPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const groupFilter = params.group || null;
   const supabase = await createClient();
 
   const {
@@ -47,13 +53,19 @@ export default async function LawsPage() {
     isAdmin = profile?.role === "admin" || profile?.role === "moderator";
   }
 
-  // Load ALL laws (active status = published, is_active = operative)
-  const { data: allLaws, error } = await supabase
+  // T09: Load laws, optionally filtered by group
+  let lawsQuery = supabase
     .from("laws")
     .select("*")
     .eq("status", "active")
     .order("order_index")
     .order("created_at");
+
+  if (groupFilter) {
+    lawsQuery = lawsQuery.or(`group_id.eq.${groupFilter},jurisdiction_id.eq.${groupFilter}`);
+  }
+
+  const { data: allLaws, error } = await lawsQuery;
 
   if (error) {
     console.error("Error loading laws:", error);
@@ -105,6 +117,13 @@ export default async function LawsPage() {
   const activeCodes = activeLaws.filter((l) => l.law_type === "code").length;
   const activeArticles = activeLaws.filter((l) => l.law_type === "article").length;
 
+  // T09: Resolve group info for filter banner
+  let groupInfo: { id: string; name: string; emoji: string } | null = null;
+  if (groupFilter) {
+    const { data: g } = await supabase.from("groups").select("id, name, logo_emoji").eq("id", groupFilter).single();
+    if (g) groupInfo = { id: g.id, name: g.name, emoji: g.logo_emoji };
+  }
+
   return (
     <AppShell section="core" sectionName="laws" userEmail={user?.email} isGuest={isGuest}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -119,6 +138,7 @@ export default async function LawsPage() {
           activeArticles={activeArticles}
           isAdmin={isAdmin}
           isGuest={isGuest}
+          groupFilter={groupInfo}
         />
       </div>
     </AppShell>

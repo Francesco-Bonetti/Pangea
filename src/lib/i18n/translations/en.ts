@@ -113,6 +113,8 @@ const en = {
     operativeDesc: "Only the laws currently in force. When an inactive law in the Living Codes becomes active, it automatically appears here. These are the laws that govern the Commonwealth today.",
     noOperativeLaws: "No operative laws yet",
     operativeWillAppear: "Operative laws will appear here as the Pangea project advances.",
+    showAll: "Show all",
+    groupLaws: "Group Laws",
     // LawTree types
     typeCode: "Code",
     typeBook: "Book",

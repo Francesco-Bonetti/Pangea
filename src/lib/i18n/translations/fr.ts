@@ -60,6 +60,8 @@ const fr: DeepPartial<TranslationKeys> = {
     operativeDesc: "Uniquement les lois actuellement en vigueur. Quand une loi inactive dans les Codes Vivants devient active, elle apparaît automatiquement ici. Ce sont les lois qui gouvernent le Commonwealth aujourd'hui.",
     noOperativeLaws: "Pas encore de lois opératives",
     operativeWillAppear: "Les lois opératives apparaîtront ici à mesure que le projet Pangea avance.",
+    showAll: "Tout afficher",
+    groupLaws: "Lois du Groupe",
     typeCode: "Code", typeBook: "Livre", typeTitle: "Titre", typeChapter: "Chapitre",
     typeSection: "Section", typeArticle: "Article",
     element: "élément", elements: "éléments", errorLoading: "Erreur lors du chargement des lois",
