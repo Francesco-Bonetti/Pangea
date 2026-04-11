@@ -7,6 +7,7 @@ import ReportModal from "./ReportModal";
 import PrivacyName from "./PrivacyName";
 import TranslatedContent from "./TranslatedContent";
 import { triggerTranslation } from "@/lib/translate";
+import { formatTimeAgo } from "@/lib/formatTimeAgo";
 
 interface DiscussionReply {
   id: string;
@@ -33,18 +34,6 @@ interface DiscussionThreadClientProps {
   userVotes?: Record<string, "up" | "down">;
 }
 
-// Helper to format time ago
-function formatTimeAgo(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (seconds < 60) return "now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-  return date.toLocaleDateString();
-}
 
 // Nested reply component
 interface NestedReplyProps {

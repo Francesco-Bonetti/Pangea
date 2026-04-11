@@ -10,6 +10,7 @@ import TranslatedContent from "@/components/TranslatedContent";
 import UidBadge from "@/components/UidBadge";
 import { stripMentions } from "@/components/MentionInput";
 import { useLanguage } from "@/components/language-provider";
+import { formatTimeAgo } from "@/lib/formatTimeAgo";
 
 interface GroupDiscussionCardProps {
   post: GroupForumPost;
@@ -19,16 +20,6 @@ interface GroupDiscussionCardProps {
   showGroupBadge?: boolean;
 }
 
-function formatTimeAgo(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (seconds < 60) return "now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-  return date.toLocaleDateString();
-}
 
 export default function GroupDiscussionCard({
   post,

@@ -6,6 +6,7 @@ import { ArrowLeft, MessageCircle, Eye } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import TranslatedContent from "@/components/TranslatedContent";
+import { formatTimeAgo } from "@/lib/formatTimeAgo";
 
 // Server-side privacy name resolver
 function resolvePrivacyName(
@@ -147,17 +148,6 @@ export default async function DiscussionPage({
 
   const isModOrAdmin = profile?.role === "admin" || profile?.role === "moderator";
 
-  function formatTimeAgo(dateString: string): string {
-    const now = new Date();
-    const date = new Date(dateString);
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    if (seconds < 60) return "now";
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-    return date.toLocaleDateString();
-  }
 
   const authorProfile = profilesMap[discussion.author_id] || { full_name: null, bio: null };
 

@@ -481,7 +481,7 @@ function NewProposalContent() {
             </p>
             <textarea
               className="input-field min-h-[180px] resize-y"
-              placeholder="Explain the problem you want to solve and why you think it matters to the community..."
+              placeholder={t("proposals.whyNeededPlaceholder")}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required

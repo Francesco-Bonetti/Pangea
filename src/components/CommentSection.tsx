@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import PrivacyName from "@/components/PrivacyName";
 import { triggerTranslation } from "@/lib/translate";
 import TranslatedContent from "@/components/TranslatedContent";
+import { formatTimeAgo as timeAgo } from "@/lib/formatTimeAgo";
 
 interface Comment {
   id: string;
@@ -43,29 +44,6 @@ interface CommentSectionProps {
   userId?: string;
 }
 
-// Helper function for relative time
-function timeAgo(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (seconds < 60) return "now";
-  if (seconds < 3600) {
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes}m ago`;
-  }
-  if (seconds < 86400) {
-    const hours = Math.floor(seconds / 3600);
-    return `${hours}h ago`;
-  }
-  if (seconds < 2592000) {
-    const days = Math.floor(seconds / 86400);
-    return `${days}d ago`;
-  }
-
-  const months = Math.floor(seconds / 2592000);
-  return `${months}mo ago`;
-}
 
 function CommentCard({
   comment,

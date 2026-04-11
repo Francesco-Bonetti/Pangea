@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { Scale, BookOpen, FileText, ChevronRight } from "lucide-react";
+import { Scale, BookOpen, FileText, ChevronRight, Plus } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import UidBadge from "@/components/UidBadge";
 import TranslatedContent from "@/components/TranslatedContent";
@@ -25,9 +25,11 @@ interface LawItem {
 interface GroupLawsProps {
   groupId: string;
   groupName: string;
+  isMember: boolean;
+  isGuest: boolean;
 }
 
-export default function GroupLaws({ groupId, groupName }: GroupLawsProps) {
+export default function GroupLaws({ groupId, groupName, isMember, isGuest }: GroupLawsProps) {
   const { t } = useLanguage();
   const supabase = createClient();
   const [laws, setLaws] = useState<LawItem[]>([]);
@@ -79,21 +81,33 @@ export default function GroupLaws({ groupId, groupName }: GroupLawsProps) {
             {laws.length} {laws.length === 1 ? t("groups.miniPangea.law") : t("groups.miniPangea.laws")}
           </span>
         </div>
-        <div className="flex gap-1">
-          {(["all", "active", "repealed"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                filter === f
-                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                  : "hover:bg-[var(--muted)]"
-              }`}
-              style={filter !== f ? { color: "var(--muted-foreground)" } : undefined}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            {(["all", "active", "repealed"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  filter === f
+                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                    : "hover:bg-[var(--muted)]"
+                }`}
+                style={filter !== f ? { color: "var(--muted-foreground)" } : undefined}
+              >
+                {t(`groups.miniPangea.filter.${f}`)}
+              </button>
+            ))}
+          </div>
+          {/* T09 Step 3: New law proposal button */}
+          {isMember && !isGuest && (
+            <Link
+              href={`/proposals/new?groupId=${groupId}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 text-xs font-medium rounded-md border border-purple-500/30 transition-colors"
             >
-              {t(`groups.miniPangea.filter.${f}`)}
-            </button>
-          ))}
+              <Plus className="w-3.5 h-3.5" />
+              {t("groups.miniPangea.newProposal")}
+            </Link>
+          )}
         </div>
       </div>
 
@@ -104,6 +118,15 @@ export default function GroupLaws({ groupId, groupName }: GroupLawsProps) {
           <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
             {t("groups.miniPangea.noLaws")}
           </p>
+          {isMember && !isGuest && (
+            <Link
+              href={`/proposals/new?groupId=${groupId}`}
+              className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {t("groups.miniPangea.createFirst")}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-1.5">

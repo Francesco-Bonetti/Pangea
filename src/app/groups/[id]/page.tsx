@@ -543,7 +543,7 @@ export default function GroupDetailPage() {
 
           {/* LAWS TAB (T09 — Mini-Pangea) */}
           {activeTab === "laws" && (
-            <GroupLaws groupId={groupId} groupName={group.name} />
+            <GroupLaws groupId={groupId} groupName={group.name} isMember={!!currentMember} isGuest={isGuest} />
           )}
 
           {/* PROPOSALS TAB (T09 — Mini-Pangea) */}
