@@ -246,7 +246,7 @@ export const PLATFORM_NODES: PlatformNode[] = [
   },
   {
     id: "parties", href: "/groups?type=party",
-    labelKey: "nav.movements", treeLabelKey: "tree.parties", iconKey: "flag",
+    labelKey: "nav.parties", iconKey: "flag",
     color: "#ef4444", colorLight: "#f87171", glow: "rgba(239,68,68,0.3)",
     descKey: "tree.partiesDesc", actionKey: "tree.browse",
     canCreate: true, createHref: "/groups?type=party&create=1",
