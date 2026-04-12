@@ -35,10 +35,10 @@ function GeographyPageInner() {
       if (u) {
         supabase
           .from("profiles")
-          .select("id,full_name,role")
+          .select("*")
           .eq("id", u.id)
           .maybeSingle()
-          .then(({ data }) => setProfile(data));
+          .then(({ data }) => setProfile(data as Profile | null));
       }
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
