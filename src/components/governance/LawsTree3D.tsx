@@ -15,7 +15,7 @@ import { useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import { useLanguage } from "@/components/core/language-provider";
 import type { PlatformTreeNode } from "@/lib/platform-nodes";
-import TreeViewer3D from "./TreeViewer3D";
+import TreeViewer3D from "@/components/governance/TreeViewer3D";
 import type { LawNode } from "@/app/laws/page";
 
 /* ═══════════════════════════════════════════════════════

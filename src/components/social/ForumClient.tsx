@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Loader, PenSquare, ChevronUp } from "lucide-react";
-import DiscussionCard from "./DiscussionCard";
-import ReportModal from "./ReportModal";
-import NewDiscussionForm from "./NewDiscussionForm";
+import DiscussionCard from "@/components/social/DiscussionCard";
+import ReportModal from "@/components/social/ReportModal";
+import NewDiscussionForm from "@/components/social/NewDiscussionForm";
 import { useLanguage } from "@/components/core/language-provider";
 import type { Discussion, DiscussionChannel } from "@/lib/types";
 

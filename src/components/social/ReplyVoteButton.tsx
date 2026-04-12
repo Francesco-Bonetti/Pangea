@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { ArrowBigUp, ArrowBigDown, Flag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import ReportModal from "./ReportModal";
+import ReportModal from "@/components/social/ReportModal";
 
 interface ReplyVoteButtonProps {
   replyId: string;

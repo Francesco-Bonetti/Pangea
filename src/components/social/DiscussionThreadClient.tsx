@@ -3,9 +3,9 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { ArrowBigUp, ArrowBigDown, Flag, Reply, ChevronDown, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import ReportModal from "./ReportModal";
-import PrivacyName from "./PrivacyName";
-import TranslatedContent from "./TranslatedContent";
+import ReportModal from "@/components/social/ReportModal";
+import PrivacyName from "@/components/ui/PrivacyName";
+import TranslatedContent from "@/components/ui/TranslatedContent";
 import { triggerTranslation } from "@/lib/translate";
 import { formatTimeAgo } from "@/lib/formatTimeAgo";
 
