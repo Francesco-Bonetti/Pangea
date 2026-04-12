@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
   // Skip API routes and cron to avoid noise. Throttled to 1x/hour in the RPC.
   const pathname = request.nextUrl.pathname;
   if (user && !pathname.startsWith("/api/")) {
-    supabase.rpc("update_last_active").then().catch(() => {});
+    void supabase.rpc("update_last_active");
   }
 
   // Protected routes: require authentication (content creation only)
