@@ -482,6 +482,8 @@ const en = {
       catPrivacyDesc: "Group visibility and discoverability",
       catStructure: "Structure",
       catStructureDesc: "Subgroup creation and hierarchy",
+      catDelegation: "Delegations",
+      catDelegationDesc: "Accept delegated votes from citizens",
       // Field labels (field.{key})
       field: {
         voting_duration_days: "Voting Duration",
@@ -540,6 +542,16 @@ const en = {
       lockForChildren: "Lock for subgroups",
       unlockForChildren: "Unlock for subgroups",
       lockConfirm: "This will enforce your current value on all subgroups.",
+      // Delegation config (group settings)
+      delegation: {
+        acceptToggle: "Accept delegations",
+        acceptDesc: "Allow citizens to delegate their vote to this group. Authorized members will vote on their behalf.",
+        authorizedMembers: "Authorized delegates",
+        authorizedDesc: "Select which members can cast votes on behalf of delegators. If none selected, only the founder can.",
+        searchMembers: "Search members...",
+        publicWarning: "All votes cast with delegated power are always public (Art. 4.5). This ensures transparency and accountability.",
+        save: "Save delegation config",
+      },
       // Actions
       saved: "Settings saved",
       save: "Save Changes",
@@ -1242,8 +1254,14 @@ const en = {
     newDelegation: "New Delegation",
     confirmDelegation: "Confirm delegation",
     createNew: "Create a new delegation",
+    delegateType: "Delegate to",
+    typeCitizen: "Citizen",
+    typeGroup: "Group",
     searchCitizen: "Search for a citizen",
+    searchGroup: "Search for a group",
     searchByName: "Search by name...",
+    searchGroupByName: "Search group by name...",
+    groupNotAccepting: "This group is not currently accepting delegations. Group founders can enable this in group settings.",
     categoryOptional: "Category (optional)",
     globalDelegation: "Global delegation (all categories)",
     categoryPriority: "A category-specific delegation takes priority over a global one",

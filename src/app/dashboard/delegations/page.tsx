@@ -80,10 +80,13 @@ export default function DelegationsPage() {
 
   // Form state
   const [showForm, setShowForm] = useState(false);
+  const [delegateType, setDelegateType] = useState<"citizen" | "group">("citizen");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Pick<Profile, "id" | "full_name">[]>([]);
+  const [groupSearchResults, setGroupSearchResults] = useState<{ id: string; name: string; logo_emoji: string }[]>([]);
   const [searching, setSearching] = useState(false);
   const [selectedDelegate, setSelectedDelegate] = useState<Pick<Profile, "id" | "full_name"> | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<{ id: string; name: string; logo_emoji: string } | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isTransitive, setIsTransitive] = useState<boolean>(true);
   const [saving, setSaving] = useState(false);
@@ -126,7 +129,7 @@ export default function DelegationsPage() {
 
   async function searchCitizens(query: string) {
     setSearchQuery(query);
-    if (query.trim().length < 2) { setSearchResults([]); return; }
+    if (query.trim().length < 2) { setSearchResults([]); setGroupSearchResults([]); return; }
     setSearching(true);
     const { data } = await supabase
       .from("profiles")
@@ -139,16 +142,44 @@ export default function DelegationsPage() {
     setSearching(false);
   }
 
+  // ── Search groups (accepting delegations) ───────────────────────────────────
+
+  async function searchGroups(query: string) {
+    setSearchQuery(query);
+    if (query.trim().length < 2) { setGroupSearchResults([]); setSearchResults([]); return; }
+    setSearching(true);
+    const { data } = await supabase
+      .from("groups")
+      .select("id, name, logo_emoji, group_delegation_config!inner(accept_delegations)")
+      .ilike("name", `%${query.trim()}%`)
+      .eq("group_delegation_config.accept_delegations", true)
+      .eq("is_active", true)
+      .limit(10);
+    setGroupSearchResults(
+      (data ?? []).map((g) => ({ id: g.id, name: g.name, logo_emoji: g.logo_emoji }))
+    );
+    setSearching(false);
+  }
+
+  // ── Unified search handler ──────────────────────────────────────────────────
+
+  function handleSearch(query: string) {
+    if (delegateType === "citizen") searchCitizens(query);
+    else searchGroups(query);
+  }
+
   // ── Create delegation (via RPC) ──────────────────────────────────────────────
 
   async function createDelegation() {
-    if (!selectedDelegate || !user) return;
+    const hasCitizenTarget = delegateType === "citizen" && selectedDelegate;
+    const hasGroupTarget = delegateType === "group" && selectedGroup;
+    if ((!hasCitizenTarget && !hasGroupTarget) || !user) return;
     setSaving(true);
     setError(null);
     try {
       const { error: rpcError } = await supabase.rpc("create_delegation", {
-        p_delegate_id: selectedDelegate.id,
-        p_delegate_group_id: null,
+        p_delegate_id: delegateType === "citizen" ? selectedDelegate!.id : null,
+        p_delegate_group_id: delegateType === "group" ? selectedGroup!.id : null,
         p_category_id: selectedCategory || null,
         p_is_transitive: isTransitive,
       });
@@ -157,16 +188,20 @@ export default function DelegationsPage() {
         if (msg.includes("cycle_detected")) setError(t("delegations.cycleError"));
         else if (msg.includes("delegation_already_exists")) setError(t("delegations.duplicateError"));
         else if (msg.includes("delegate_not_accepting")) setError(t("delegations.delegateNotAccepting"));
+        else if (msg.includes("group_not_accepting")) setError(t("delegations.groupNotAccepting"));
         else if (msg.includes("no_self_delegation")) setError(t("delegations.noSelfDelegation"));
         else setError(msg || t("delegations.errorCreating"));
         return;
       }
       setShowForm(false);
       setSelectedDelegate(null);
+      setSelectedGroup(null);
       setSelectedCategory("");
       setIsTransitive(true);
       setSearchQuery("");
       setSearchResults([]);
+      setGroupSearchResults([]);
+      setDelegateType("citizen");
       await loadData();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t("delegations.errorCreating"));
@@ -390,21 +425,53 @@ export default function DelegationsPage() {
               <div className="card p-6 mb-6">
                 <h2 className="text-lg font-semibold text-fg mb-4">{t("delegations.createNew")}</h2>
 
-                {/* Citizen search */}
+                {/* Delegate type toggle: Citizen / Group */}
                 <div className="mb-4">
-                  <label className="label">{t("delegations.searchCitizen")}</label>
+                  <label className="label mb-2">{t("delegations.delegateType")}</label>
+                  <div className="flex gap-1 p-1 bg-theme-card rounded-xl border border-theme">
+                    {(["citizen", "group"] as const).map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => {
+                          setDelegateType(type);
+                          setSearchQuery("");
+                          setSearchResults([]);
+                          setGroupSearchResults([]);
+                          setSelectedDelegate(null);
+                          setSelectedGroup(null);
+                        }}
+                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                          delegateType === type
+                            ? "bg-pangea-700/40 text-fg border border-pangea-600/30"
+                            : "text-fg-muted hover:text-fg hover:bg-theme-muted"
+                        }`}
+                      >
+                        {type === "citizen" ? <Users className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5" />}
+                        {type === "citizen" ? t("delegations.typeCitizen") : t("delegations.typeGroup")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Search */}
+                <div className="mb-4">
+                  <label className="label">
+                    {delegateType === "citizen" ? t("delegations.searchCitizen") : t("delegations.searchGroup")}
+                  </label>
                   <div className="relative">
                     <Search className="w-4 h-4 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
                       className="input-field pl-10"
-                      placeholder={t("delegations.searchByName")}
+                      placeholder={delegateType === "citizen" ? t("delegations.searchByName") : t("delegations.searchGroupByName")}
                       value={searchQuery}
-                      onChange={(e) => searchCitizens(e.target.value)}
+                      onChange={(e) => handleSearch(e.target.value)}
                     />
                     {searching && <Loader2 className="w-4 h-4 text-fg-muted absolute right-3 top-1/2 -translate-y-1/2 animate-spin" />}
                   </div>
-                  {searchResults.length > 0 && !selectedDelegate && (
+
+                  {/* Citizen search results */}
+                  {delegateType === "citizen" && searchResults.length > 0 && !selectedDelegate && (
                     <div className="mt-2 border border-theme rounded-lg overflow-hidden">
                       {searchResults.map((p) => (
                         <button
@@ -421,13 +488,47 @@ export default function DelegationsPage() {
                       ))}
                     </div>
                   )}
-                  {selectedDelegate && (
+
+                  {/* Group search results */}
+                  {delegateType === "group" && groupSearchResults.length > 0 && !selectedGroup && (
+                    <div className="mt-2 border border-theme rounded-lg overflow-hidden">
+                      {groupSearchResults.map((g) => (
+                        <button
+                          key={g.id}
+                          onClick={() => { setSelectedGroup(g); setSearchQuery(g.name); setGroupSearchResults([]); }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-theme-card transition-colors border-b border-theme last:border-b-0"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-base">
+                            {g.logo_emoji}
+                          </div>
+                          <span className="text-sm text-fg">{g.name}</span>
+                          <ChevronRight className="w-4 h-4 text-fg-muted ml-auto" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Selected citizen */}
+                  {delegateType === "citizen" && selectedDelegate && (
                     <div className="mt-2 flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3">
                       <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xs text-fg-primary font-bold">
                         {(selectedDelegate.full_name ?? "?")[0].toUpperCase()}
                       </div>
                       <span className="text-sm text-fg font-medium">{selectedDelegate.full_name}</span>
                       <button onClick={() => { setSelectedDelegate(null); setSearchQuery(""); }} className="ml-auto text-fg-muted hover:text-fg-danger">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Selected group */}
+                  {delegateType === "group" && selectedGroup && (
+                    <div className="mt-2 flex items-center gap-3 bg-pangea-900/20 border border-pangea-700/30 rounded-lg px-4 py-3">
+                      <div className="w-8 h-8 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-base">
+                        {selectedGroup.logo_emoji}
+                      </div>
+                      <span className="text-sm text-fg font-medium">{selectedGroup.name}</span>
+                      <button onClick={() => { setSelectedGroup(null); setSearchQuery(""); }} className="ml-auto text-fg-muted hover:text-fg-danger">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -477,7 +578,9 @@ export default function DelegationsPage() {
 
                 <button
                   onClick={createDelegation}
-                  disabled={!selectedDelegate || saving}
+                  disabled={
+                    (delegateType === "citizen" ? !selectedDelegate : !selectedGroup) || saving
+                  }
                   className="btn-primary w-full flex items-center justify-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}

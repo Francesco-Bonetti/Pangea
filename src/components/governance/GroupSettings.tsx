@@ -14,6 +14,11 @@ import {
   Users,
   Eye,
   FolderTree,
+  GitBranch,
+  AlertTriangle,
+  X,
+  Check,
+  Search,
 } from "lucide-react";
 import { CollapsibleSection, Toggle, SettingRow } from "@/components/ui/SettingsCollapsible";
 import type {
@@ -571,6 +576,318 @@ export default function GroupSettings({
 
         {error && <span className="text-sm text-red-400 font-medium">{error}</span>}
       </div>
+
+      {/* Delegation Config — separate section with own save */}
+      <GroupDelegationConfig groupId={groupId} canEdit={canEdit} />
     </div>
+  );
+}
+
+// ─── Group Delegation Config (self-contained) ───────────────────
+interface MemberOption {
+  id: string;
+  full_name: string | null;
+}
+
+function GroupDelegationConfig({ groupId, canEdit }: { groupId: string; canEdit: boolean }) {
+  const supabase = createClient();
+  const { t } = useLanguage();
+
+  const [loading, setLoading] = useState(true);
+  const [acceptDelegations, setAcceptDelegations] = useState(false);
+  const [authorizedIds, setAuthorizedIds] = useState<string[]>([]);
+  const [members, setMembers] = useState<MemberOption[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [hasExistingRow, setHasExistingRow] = useState(false);
+
+  // Original values for dirty check
+  const [origAccept, setOrigAccept] = useState(false);
+  const [origAuthorized, setOrigAuthorized] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      const [configRes, membersRes] = await Promise.all([
+        supabase
+          .from("group_delegation_config")
+          .select("*")
+          .eq("group_id", groupId)
+          .maybeSingle(),
+        supabase
+          .from("group_members")
+          .select("user_id, profiles(full_name)")
+          .eq("group_id", groupId)
+          .order("joined_at"),
+      ]);
+
+      if (configRes.data) {
+        setAcceptDelegations(configRes.data.accept_delegations);
+        setAuthorizedIds(configRes.data.authorized_member_ids || []);
+        setOrigAccept(configRes.data.accept_delegations);
+        setOrigAuthorized(configRes.data.authorized_member_ids || []);
+        setHasExistingRow(true);
+      }
+
+      const memberList: MemberOption[] = (membersRes.data || []).map((m) => ({
+        id: m.user_id,
+        full_name: (m.profiles as unknown as { full_name: string | null })?.full_name ?? null,
+      }));
+      setMembers(memberList);
+      setLoading(false);
+    }
+    load();
+  }, [groupId, supabase]);
+
+  const hasChanges = acceptDelegations !== origAccept ||
+    JSON.stringify([...authorizedIds].sort()) !== JSON.stringify([...origAuthorized].sort());
+
+  function toggleMember(userId: string) {
+    setAuthorizedIds((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+    );
+    setSuccess(false);
+    setError(null);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    setSuccess(false);
+
+    if (hasExistingRow) {
+      const { error: updateErr } = await supabase
+        .from("group_delegation_config")
+        .update({
+          accept_delegations: acceptDelegations,
+          authorized_member_ids: authorizedIds,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("group_id", groupId);
+
+      if (updateErr) {
+        setError(updateErr.message);
+        setSaving(false);
+        return;
+      }
+    } else {
+      const { error: insertErr } = await supabase
+        .from("group_delegation_config")
+        .insert({
+          group_id: groupId,
+          accept_delegations: acceptDelegations,
+          authorized_member_ids: authorizedIds,
+        });
+
+      if (insertErr) {
+        setError(insertErr.message);
+        setSaving(false);
+        return;
+      }
+      setHasExistingRow(true);
+    }
+
+    setOrigAccept(acceptDelegations);
+    setOrigAuthorized([...authorizedIds]);
+    setSaving(false);
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 3000);
+  }
+
+  const filteredMembers = searchQuery.trim()
+    ? members.filter((m) =>
+        (m.full_name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : members;
+
+  if (loading) return null;
+
+  // Read-only view for non-editors
+  if (!canEdit) {
+    return (
+      <CollapsibleSection
+        id="delegations"
+        title={t("groups.settings.catDelegation")}
+        description={t("groups.settings.catDelegationDesc")}
+        icon={GitBranch}
+        isOpen={isOpen}
+        onToggle={() => setIsOpen(!isOpen)}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+              {t("groups.settings.delegation.acceptToggle")}
+            </span>
+            <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+              {acceptDelegations ? t("groups.settings.enabled") : t("groups.settings.disabled")}
+            </span>
+          </div>
+          {acceptDelegations && authorizedIds.length > 0 && (
+            <div className="py-2">
+              <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+                {t("groups.settings.delegation.authorizedMembers")}
+              </span>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {authorizedIds.map((uid) => {
+                  const member = members.find((m) => m.id === uid);
+                  return (
+                    <span key={uid} className="text-xs px-2 py-1 rounded-full bg-pangea-900/20 border border-pangea-700/30 text-fg">
+                      {member?.full_name ?? t("common.citizen")}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </CollapsibleSection>
+    );
+  }
+
+  // Editable view
+  return (
+    <CollapsibleSection
+      id="delegations"
+      title={t("groups.settings.catDelegation")}
+      description={t("groups.settings.catDelegationDesc")}
+      icon={GitBranch}
+      isOpen={isOpen}
+      onToggle={() => setIsOpen(!isOpen)}
+    >
+      <div className="space-y-4">
+        {/* Accept delegations toggle */}
+        <div className="flex items-center justify-between pb-3 border-b border-theme">
+          <div className="flex-1">
+            <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("groups.settings.delegation.acceptToggle")}
+            </span>
+            <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+              {t("groups.settings.delegation.acceptDesc")}
+            </p>
+          </div>
+          <Toggle
+            enabled={acceptDelegations}
+            onChange={(v) => { setAcceptDelegations(v); setSuccess(false); setError(null); }}
+          />
+        </div>
+
+        {/* Public vote warning */}
+        {acceptDelegations && (
+          <div className="flex items-start gap-2 px-3 py-2 rounded-md bg-amber-500/10 border border-amber-500/20">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
+            <p className="text-xs text-amber-400/90">
+              {t("groups.settings.delegation.publicWarning")}
+            </p>
+          </div>
+        )}
+
+        {/* Authorized members multi-select */}
+        {acceptDelegations && (
+          <div className="pb-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+                {t("groups.settings.delegation.authorizedMembers")}
+              </span>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-pangea-900/20 text-fg-muted">
+                {authorizedIds.length}
+              </span>
+            </div>
+            <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>
+              {t("groups.settings.delegation.authorizedDesc")}
+            </p>
+
+            {/* Selected members chips */}
+            {authorizedIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {authorizedIds.map((uid) => {
+                  const member = members.find((m) => m.id === uid);
+                  return (
+                    <span
+                      key={uid}
+                      className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full bg-pangea-900/20 border border-pangea-700/30 text-fg"
+                    >
+                      {member?.full_name ?? t("common.citizen")}
+                      <button
+                        onClick={() => toggleMember(uid)}
+                        className="text-fg-muted hover:text-fg-danger transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Search + member list */}
+            {members.length > 5 && (
+              <div className="relative mb-2">
+                <Search className="w-3.5 h-3.5 text-fg-muted absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-theme bg-theme-card text-fg placeholder:text-fg-muted focus:outline-none focus:border-pangea-500"
+                  placeholder={t("groups.settings.delegation.searchMembers")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            )}
+
+            <div className="max-h-48 overflow-y-auto border border-theme rounded-lg divide-y divide-theme">
+              {filteredMembers.map((m) => {
+                const selected = authorizedIds.includes(m.id);
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => toggleMember(m.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors ${
+                      selected
+                        ? "bg-pangea-900/20 text-fg"
+                        : "text-fg-muted hover:bg-theme-card hover:text-fg"
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                      selected
+                        ? "border-pangea-500 bg-pangea-500"
+                        : "border-theme"
+                    }`}>
+                      {selected && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <span className="truncate">{m.full_name ?? t("common.citizen")}</span>
+                  </button>
+                );
+              })}
+              {filteredMembers.length === 0 && (
+                <p className="px-3 py-4 text-center text-xs text-fg-muted">
+                  {t("common.noResults")}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Save button */}
+        {hasChanges && (
+          <div className="flex items-center gap-3 pt-3 border-t border-theme">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {t("groups.settings.delegation.save")}
+            </button>
+            {success && (
+              <span className="text-sm text-green-400 font-medium">
+                ✓ {t("groups.settings.saved")}
+              </span>
+            )}
+            {error && <span className="text-sm text-red-400 font-medium">{error}</span>}
+          </div>
+        )}
+      </div>
+    </CollapsibleSection>
   );
 }
