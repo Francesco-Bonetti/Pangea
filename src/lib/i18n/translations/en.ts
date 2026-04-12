@@ -32,6 +32,7 @@ const en = {
     positions: "Positions",
     allGroups: "All Groups",
     custom: "Custom",
+    treasury: "Treasury",
   },
 
   // ── Dashboard ──
@@ -745,6 +746,27 @@ const en = {
   },
 
   // ── About ──
+  treasury: {
+    title: "Treasury",
+    subtitle: "Pangea's transparent, voluntary Bitcoin treasury.",
+    description: "Pangea is funded entirely by voluntary donations. There are no fees, no ads, and no hidden costs. Every satoshi received is publicly trackable on the Bitcoin blockchain.",
+    donateTitle: "Donate to Pangea",
+    donateDescription: "Send any amount of Bitcoin to support the development and maintenance of the platform. All donations are voluntary — Pangea will never require payment for participation (Art. 11).",
+    btcAddress: "BTC Address",
+    copied: "Copied!",
+    copyAddress: "Copy address",
+    scanQr: "Or scan the QR code with your Bitcoin wallet",
+    transparencyTitle: "Full Transparency",
+    transparencyDescription: "Every transaction to and from this address is publicly verifiable on the Bitcoin blockchain. No funds are spent without community oversight.",
+    verifyOnChain: "Verify on blockchain",
+    howFundsUsed: "How funds are used",
+    fundsDevelopment: "Platform development and hosting",
+    fundsSecurity: "Security audits and infrastructure",
+    fundsCommunity: "Community initiatives approved by vote",
+    voluntaryNote: "Donations are entirely voluntary. No economic condition may be a prerequisite for participation in Pangea's governance.",
+    example: "For example: you can send as little as 1,000 satoshis (≈ a few cents) to show your support, or larger amounts to fund specific community initiatives.",
+  },
+
   about: {
     subtitle: "The digital democracy platform of the Global Democratic Commonwealth of Pangea.",
     proposeDesc: "Propose laws, debate and vote on legislative proposals in a transparent and secure environment.",
@@ -1226,6 +1248,8 @@ const en = {
     settingsDesc: "Account and platform preferences",
     about: "About",
     aboutDesc: "Mission, charter, and how Pangea works",
+    treasury: "Treasury",
+    treasuryDesc: "Pangea's transparent BTC treasury and voluntary donations",
     jurisdictions: "Jurisdictions",
     jurisdictionsDesc: "Geographic and virtual governance spaces",
     parties: "Parties",

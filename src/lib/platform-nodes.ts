@@ -31,6 +31,7 @@ import {
   Rss,
   Mail,
   Sparkles,
+  Wallet,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════
@@ -146,6 +147,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   rss: Rss,
   mail: Mail,
   sparkles: Sparkles,
+  wallet: Wallet,
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -212,6 +214,13 @@ export const PLATFORM_NODES: PlatformNode[] = [
     labelKey: "integrity.navTitle", iconKey: "shieldCheck",
     color: "#64748b", colorLight: "#94a3b8", glow: "rgba(100,116,139,0.25)",
     descKey: "tree.verifyDesc", actionKey: "tree.open",
+    parent: null,
+  },
+  {
+    id: "treasury", href: "/treasury",
+    labelKey: "nav.treasury", iconKey: "wallet",
+    color: "#f59e0b", colorLight: "#fbbf24", glow: "rgba(245,158,11,0.3)",
+    descKey: "tree.treasuryDesc", actionKey: "tree.open",
     parent: null,
   },
 
@@ -499,7 +508,7 @@ export const GROUP_NODES = getChildren("groups");
 
 /** Main sidebar nav items (below Groups accordion) */
 export const SIDEBAR_MAIN_NODES: PlatformNode[] = [
-  "laws", "proposals", "elections", "agora", "about", "verify",
+  "laws", "proposals", "elections", "agora", "treasury", "about", "verify",
 ].map((id) => getNodeById(id)!);
 
 /** User personal-space nav items (sidebar + navbar dropdown) */
