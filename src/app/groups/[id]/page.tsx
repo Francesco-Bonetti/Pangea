@@ -556,7 +556,7 @@ export default function GroupDetailPage() {
                 <div className="px-5 py-4">
                   <GroupJoinRequests
                     groupId={groupId}
-                    canReview={hasPermission(myRole, "approve_members")}
+                    canReview={!!myRole && hasPermission(myRole, "approve_members")}
                   />
                 </div>
               )}
