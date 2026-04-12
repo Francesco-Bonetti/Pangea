@@ -1339,6 +1339,16 @@ const en = {
     tabGiven: "My Delegates",
     tabReceived: "Delegated to Me",
     tabStats: "Stats",
+    tabGroups: "Delegated Groups",
+    // Groups tab
+    groupsTitle: "Groups where you act as delegate",
+    groupsEmpty: "You are not an authorized delegate in any group yet.",
+    groupsEmptyHint: "Group founders can add you as an authorized delegate in their group settings.",
+    groupsSplitWeight: "Your split weight",
+    groupsTotalDelegators: "Total delegators",
+    groupsAuthorizedCount: "Authorized delegates",
+    groupsPublicWarning: "Votes cast on behalf of delegators are always public (Art. 4.5).",
+    groupsSplitExample: "Example: if a group has 6 delegators and 2 authorized delegates, each delegate votes with weight +3.",
     // Proxy badge
     proxyTitle: "You are a Public Proxy",
     proxyDescSuffix: "citizens trust you with their vote. Their votes follow yours unless they vote directly.",

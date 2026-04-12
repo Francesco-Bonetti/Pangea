@@ -63,7 +63,16 @@ type ReceivedDelegationRow = {
   voting_weight: number;
 };
 
-type Tab = "given" | "received" | "stats";
+type GroupDelegationRow = {
+  group_id: string;
+  group_name: string;
+  group_emoji: string;
+  num_authorized: number;
+  total_delegators: number;
+  my_split_weight: number;
+};
+
+type Tab = "given" | "received" | "stats" | "groups";
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
@@ -74,6 +83,7 @@ export default function DelegationsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [myDelegations, setMyDelegations] = useState<MyDelegationRow[]>([]);
   const [receivedDelegations, setReceivedDelegations] = useState<ReceivedDelegationRow[]>([]);
+  const [groupDelegations, setGroupDelegations] = useState<GroupDelegationRow[]>([]);
   const [totalWeight, setTotalWeight] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("given");
@@ -103,7 +113,7 @@ export default function DelegationsPage() {
     if (!authUser) { router.push("/auth"); return; }
     setUser(authUser);
 
-    const [profileRes, catRes, givenRes, receivedRes, weightRes] = await Promise.all([
+    const [profileRes, catRes, givenRes, receivedRes, weightRes, groupsRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", authUser.id).single(),
       supabase.from("categories").select("*").order("name").limit(100),
       supabase.rpc("get_my_delegations"),
@@ -113,6 +123,7 @@ export default function DelegationsPage() {
         p_proposal_id: null,
         p_category_id: null,
       }),
+      supabase.rpc("get_my_group_delegations"),
     ]);
 
     setProfile(profileRes.data);
@@ -120,6 +131,7 @@ export default function DelegationsPage() {
     setMyDelegations((givenRes.data as MyDelegationRow[]) ?? []);
     setReceivedDelegations((receivedRes.data as ReceivedDelegationRow[]) ?? []);
     setTotalWeight((weightRes.data as number) ?? 1);
+    setGroupDelegations((groupsRes.data as GroupDelegationRow[]) ?? []);
     setLoading(false);
   }, [supabase, router]);
 
@@ -377,7 +389,7 @@ export default function DelegationsPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 mb-6 p-1 bg-theme-card rounded-xl border border-theme">
-          {(["given", "received", "stats"] as Tab[]).map((tab) => (
+          {(["given", "received", "stats", "groups"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -399,10 +411,21 @@ export default function DelegationsPage() {
                 </>
               )}
               {tab === "stats" && <BarChart3 className="w-3.5 h-3.5 shrink-0" />}
+              {tab === "groups" && (
+                <>
+                  <Shield className="w-3.5 h-3.5 shrink-0" />
+                  {groupDelegations.length > 0 && (
+                    <span className="bg-pangea-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold shrink-0">
+                      {groupDelegations.length}
+                    </span>
+                  )}
+                </>
+              )}
               <span className="hidden sm:inline">
                 {tab === "given" && t("delegations.tabGiven")}
                 {tab === "received" && t("delegations.tabReceived")}
                 {tab === "stats" && t("delegations.tabStats")}
+                {tab === "groups" && t("delegations.tabGroups")}
               </span>
             </button>
           ))}
@@ -777,6 +800,67 @@ export default function DelegationsPage() {
                 <BarChart3 className="w-12 h-12 text-fg-muted mx-auto mb-3" />
                 <p className="text-fg-muted text-sm">{t("delegations.statsEmpty")}</p>
                 <p className="text-xs text-fg-muted mt-1">{t("delegations.statsEmptyDesc")}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB: DELEGATED GROUPS ─────────────────────────────────────────── */}
+        {activeTab === "groups" && (
+          <div className="space-y-4">
+            {/* Public warning — Art. 4.5 */}
+            <div className="card p-4 bg-amber-900/10 border-amber-700/30 flex gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-sm text-fg-muted space-y-1">
+                <p className="text-amber-300 font-medium">{t("delegations.groupsPublicWarning")}</p>
+                <p className="text-xs">{t("delegations.groupsSplitExample")}</p>
+              </div>
+            </div>
+
+            {groupDelegations.length === 0 ? (
+              <div className="card p-8 text-center">
+                <Shield className="w-12 h-12 text-fg-muted mx-auto mb-3" />
+                <p className="text-fg font-medium mb-1">{t("delegations.groupsEmpty")}</p>
+                <p className="text-xs text-fg-muted">{t("delegations.groupsEmptyHint")}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-fg-muted">{t("delegations.groupsTitle")}</p>
+                {groupDelegations.map((g) => (
+                  <div key={g.group_id} className="card p-4">
+                    {/* Group header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-pangea-800 border border-pangea-600 flex items-center justify-center text-xl shrink-0">
+                        {g.group_emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-fg truncate">{g.group_name}</p>
+                        <p className="text-xs text-fg-muted">{g.num_authorized} {t("delegations.groupsAuthorizedCount")}</p>
+                      </div>
+                      {/* Split weight badge */}
+                      <div className="shrink-0 text-right">
+                        <p className="text-2xl font-bold text-pangea-400">+{g.my_split_weight}</p>
+                        <p className="text-xs text-fg-muted">{t("delegations.groupsSplitWeight")}</p>
+                      </div>
+                    </div>
+
+                    {/* Stats row */}
+                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-theme">
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-fg">{g.total_delegators}</p>
+                        <p className="text-xs text-fg-muted">{t("delegations.groupsTotalDelegators")}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-fg">{g.num_authorized}</p>
+                        <p className="text-xs text-fg-muted">{t("delegations.groupsAuthorizedCount")}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-pangea-400">+{g.my_split_weight}</p>
+                        <p className="text-xs text-fg-muted">{t("delegations.groupsSplitWeight")}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
