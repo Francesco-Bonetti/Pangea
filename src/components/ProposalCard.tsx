@@ -18,8 +18,8 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
   const { t } = useLanguage();
   const results = proposal.results ?? { yea_count: 0, nay_count: 0, abstain_count: 0 };
   // V3: For active proposals, use total_votes from turnout (breakdown is zeroed)
-  const total = (proposal as Record<string, unknown>).total_votes != null
-    ? Number((proposal as Record<string, unknown>).total_votes)
+  const total = proposal.total_votes != null
+    ? proposal.total_votes
     : getTotalVotes(results);
   const yeaPercent = calcPercentage(results.yea_count, total);
   const nayPercent = calcPercentage(results.nay_count, total);

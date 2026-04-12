@@ -554,6 +554,7 @@ export interface ProposalWithResults extends Proposal {
   has_voted?: boolean;
   options?: ProposalOption[];
   signal_count?: number;
+  total_votes?: number; // V3: blind voting — turnout count for active proposals
 }
 
 // --- Discussion Forum ---
