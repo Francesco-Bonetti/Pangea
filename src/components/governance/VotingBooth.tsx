@@ -90,6 +90,13 @@ export default function VotingBooth({
 
   // Delegation weight (resolve_voting_weight)
   const [voteWeight, setVoteWeight] = useState<number>(1);
+
+  const isActive = proposal.status === "active";
+  const isClosed = proposal.status === "closed";
+  const isCuration = proposal.status === "curation";
+  const canVote = isActive && !hasVoted && options.length > 0;
+
+  // Load delegation weight — must be AFTER isActive declaration
   useEffect(() => {
     if (!userId || isGuest || !isActive) return;
     supabase
@@ -100,11 +107,6 @@ export default function VotingBooth({
       })
       .then(({ data }) => { if (data && (data as number) > 1) setVoteWeight(data as number); });
   }, [userId, proposal.id, isGuest, isActive, supabase]);
-
-  const isActive = proposal.status === "active";
-  const isClosed = proposal.status === "closed";
-  const isCuration = proposal.status === "curation";
-  const canVote = isActive && !hasVoted && options.length > 0;
 
   // DE-13: Load existing vote for fluid voting
   useEffect(() => {
