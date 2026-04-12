@@ -27,6 +27,7 @@ export interface LawNode {
   updated_at: string | null;
   bootstrap_lock_threshold?: number | null;
   lock_category?: string | null;
+  tier?: "constitutional" | "core" | "platform" | "ordinary";
   children?: LawNode[];
 }
 

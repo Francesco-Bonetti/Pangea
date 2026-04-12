@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/core/AppShell";
 import { useLanguage } from "@/components/core/language-provider";
-import { Globe, BookOpen, Users, Vote, FileText, Shield } from "lucide-react";
+import { Globe, BookOpen, Users, Vote, FileText, Shield, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 interface PlatformStats {
@@ -26,6 +26,9 @@ export default function AboutPage() {
     active_proposals: 0,
     closed_proposals: 0,
   });
+  const [guardianPhase, setGuardianPhase] = useState<number>(0);
+  const [guardianCitizens, setGuardianCitizens] = useState<number>(0);
+  const [guardianThreshold, setGuardianThreshold] = useState<number>(1000);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,6 +48,14 @@ export default function AboutPage() {
             .eq("id", authUser.id)
             .maybeSingle();
           setProfile(profileData);
+        }
+
+        // Guardian sunset status
+        const { data: guardianData } = await supabase.rpc("get_guardian_status");
+        if (guardianData) {
+          setGuardianPhase(guardianData.phase ?? 0);
+          setGuardianCitizens(guardianData.verified_citizens ?? 0);
+          setGuardianThreshold(guardianData.sunset_threshold ?? 1000);
         }
 
         const { data: statsData, error: statsError } = await supabase.rpc("get_platform_stats");
@@ -110,6 +121,35 @@ export default function AboutPage() {
               <p className="text-xs text-fg-muted mt-1">{label}</p>
             </div>
           ))}
+        </div>
+
+        {/* Guardian Sunset Status (Art. 10) */}
+        <div className="card p-6 bg-pangea-900/20 border border-pangea-700/30 mb-16">
+          <div className="flex items-center gap-3 mb-4">
+            <Shield className="w-6 h-6 text-pangea-400" />
+            <h3 className="text-lg font-bold text-fg">{t("guardian.title")}</h3>
+            <span className={`ml-auto px-2 py-0.5 rounded text-xs font-medium ${
+              guardianPhase === 0 ? "bg-green-900/30 text-green-400" :
+              guardianPhase === 1 ? "bg-yellow-900/30 text-yellow-400" :
+              guardianPhase === 2 ? "bg-orange-900/30 text-orange-400" :
+              "bg-red-900/30 text-red-400"
+            }`}>
+              {t(`guardian.phase${guardianPhase}`)}
+            </span>
+          </div>
+          {/* 4-segment bar */}
+          <div className="flex gap-1 mb-1.5">
+            {[0, 1, 2, 3].map((seg) => (
+              <div key={seg} className="flex-1 h-2 rounded-full overflow-hidden bg-gray-800">
+                <div className={`h-full rounded-full transition-all duration-500 ${
+                  seg < guardianPhase ? "bg-pangea-400" : seg === guardianPhase ? "bg-gradient-to-r from-pangea-600 to-pangea-400" : ""
+                }`} style={{ width: seg < guardianPhase ? "100%" : seg === guardianPhase ? "50%" : "0%" }} />
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-fg-muted mt-2">
+            {t(`guardian.phase${guardianPhase}Desc`)} — {guardianCitizens} / {guardianThreshold} T2 {t("guardian.t2Citizens").toLowerCase()}
+          </p>
         </div>
 
         {/* Guide Sections */}

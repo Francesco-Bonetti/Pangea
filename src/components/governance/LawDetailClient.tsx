@@ -19,6 +19,7 @@ import {
 import { useLanguage } from "@/components/core/language-provider";
 import LawPositions from "@/components/governance/LawPositions";
 import IntegrityBadge from "@/components/governance/IntegrityBadge";
+import TierBadge from "@/components/governance/TierBadge";
 import UidBadge from "@/components/ui/UidBadge";
 import type { LawNode } from "@/app/laws/page";
 
@@ -140,6 +141,9 @@ export default function LawDetailClient({
                     <Lock className="w-3 h-3" />
                     {t("laws.bootstrapLocked")}
                   </span>
+                )}
+                {law.tier && (
+                  <TierBadge tier={law.tier} />
                 )}
                 {law.law_type === "article" && (
                   <IntegrityBadge entityType="law" entityId={law.id} compact />

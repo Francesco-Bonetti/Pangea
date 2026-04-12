@@ -187,6 +187,8 @@ function NewProposalContent() {
         parent_proposal_id: parentProposalId,
         // T09: scope to group if present
         group_id: groupIdParam || null,
+        // Art. 8.3: Legislative tier (ordinary = default for citizen proposals)
+        tier: "ordinary",
       };
 
       const { data, error: insertError } = await supabase

@@ -13,6 +13,7 @@ import {
   Activity,
   Shield,
   ShieldOff,
+  CheckCircle2,
 } from "lucide-react";
 
 interface GuardianDashboardProps {
@@ -27,6 +28,9 @@ interface GuardianStatus {
   sunset_threshold: number;
   progress_pct: number;
   emergency_freeze: boolean;
+  phase: 0 | 1 | 2 | 3;
+  phase1_threshold: number;
+  phase2_threshold: number;
 }
 
 interface GuardianAction {
@@ -211,21 +215,62 @@ export default function GuardianDashboard({ isGuardian, profile }: GuardianDashb
           </div>
         </div>
 
-        {/* Sunset progress bar */}
+        {/* 4-Phase Sunset Progress (Art. 10) */}
         <div className="mb-2">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-fg-muted">{t("guardian.sunsetProgress")}</p>
-            <p className="text-xs text-fg">{status?.verified_citizens ?? 0} / {status?.sunset_threshold ?? 1000}</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-fg-muted">{t("guardian.phaseProgress")}</p>
+            <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+              (status?.phase ?? 0) === 0 ? "bg-green-900/30 text-green-400" :
+              (status?.phase ?? 0) === 1 ? "bg-yellow-900/30 text-yellow-400" :
+              (status?.phase ?? 0) === 2 ? "bg-orange-900/30 text-orange-400" :
+              "bg-red-900/30 text-red-400"
+            }`}>
+              {t(`guardian.phase${status?.phase ?? 0}`)}
+            </span>
           </div>
-          <div className="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-pangea-600 to-pangea-400 h-full transition-all duration-500 rounded-full"
-              style={{ width: `${Math.min(progressPct, 100)}%` }}
-            />
+          {/* Segmented progress bar */}
+          <div className="flex gap-1 mb-1.5">
+            {[0, 1, 2, 3].map((seg) => (
+              <div key={seg} className="flex-1 h-2.5 rounded-full overflow-hidden bg-gray-800">
+                <div className={`h-full transition-all duration-500 rounded-full ${
+                  seg < (status?.phase ?? 0) ? "bg-pangea-400 w-full" :
+                  seg === (status?.phase ?? 0) ? "bg-gradient-to-r from-pangea-600 to-pangea-400 w-1/2" :
+                  "w-0"
+                }`} style={seg <= (status?.phase ?? 0) ? { width: seg < (status?.phase ?? 0) ? "100%" : "50%" } : { width: "0%" }} />
+              </div>
+            ))}
           </div>
-          <p className="text-xs text-fg-muted mt-1">
-            {t("guardian.sunsetExplanation")}
+          <div className="flex justify-between text-[10px] text-fg-muted px-0.5">
+            <span>0</span>
+            <span>{status?.phase1_threshold ?? 10}</span>
+            <span>{status?.phase2_threshold ?? 100}</span>
+            <span>{status?.sunset_threshold ?? 1000}</span>
+          </div>
+          <p className="text-xs text-fg-muted mt-2">
+            {t(`guardian.phase${status?.phase ?? 0}Desc`)}
           </p>
+
+          {/* Powers table */}
+          <div className="mt-4 space-y-1.5">
+            <p className="text-xs text-fg-muted font-medium mb-2">{t("guardian.powersActive")}</p>
+            {[
+              { key: "powerLockLaws", revokedAt: 1 },
+              { key: "powerFreeze", revokedAt: 2 },
+              { key: "powerDegradeAdmin", revokedAt: 3 },
+              { key: "powerSeedData", revokedAt: 3 },
+            ].map(({ key, revokedAt }) => {
+              const isRevoked = (status?.phase ?? 0) >= revokedAt;
+              return (
+                <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-pangea-800/20">
+                  <span className="text-fg">{t(`guardian.${key}`)}</span>
+                  <span className={`flex items-center gap-1 ${isRevoked ? "text-red-400" : "text-green-400"}`}>
+                    {isRevoked ? <ShieldOff className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                    {isRevoked ? t("guardian.powerRevoked") : t("guardian.powerActive")}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Emergency freeze indicator */}

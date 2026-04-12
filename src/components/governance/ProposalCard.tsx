@@ -6,6 +6,7 @@ import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
 import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle, EyeOff, Flag } from "lucide-react";
 import TranslatedContent from "@/components/ui/TranslatedContent";
 import IntegrityBadge from "@/components/governance/IntegrityBadge";
+import TierBadge from "@/components/governance/TierBadge";
 import UidBadge from "@/components/ui/UidBadge";
 import { useLanguage } from "@/components/core/language-provider";
 
@@ -98,6 +99,9 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
               >
                 ✓ {t("laws.voted")}
               </span>
+            )}
+            {proposal.tier && proposal.tier !== "ordinary" && (
+              <TierBadge tier={proposal.tier} />
             )}
             <IntegrityBadge entityType="proposal" entityId={proposal.id} compact />
             {proposal.uid && <UidBadge uid={proposal.uid} size="xs" clickable={false} />}

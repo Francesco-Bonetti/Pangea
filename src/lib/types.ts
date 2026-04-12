@@ -16,6 +16,10 @@ export interface GuardianStatus {
   sunset_threshold: number;
   progress_pct: number;
   emergency_freeze: boolean;
+  // Art. 10: 4-phase sunset
+  phase: 0 | 1 | 2 | 3;
+  phase1_threshold: number;
+  phase2_threshold: number;
 }
 
 export type GuardianActionType =
@@ -177,6 +181,8 @@ export interface Proposal {
   category_id: string | null;
   // T09: Group scope (nullable = global proposal)
   group_id?: string | null;
+  // Art. 8.3: Legislative tier
+  tier?: "constitutional" | "core" | "platform" | "ordinary";
   // Quadratic Staking (DE-21)
   incubator_passed?: boolean;
   incubator_t2_upvotes?: number;
