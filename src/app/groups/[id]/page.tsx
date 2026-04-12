@@ -4,10 +4,10 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import AppShell from "@/components/AppShell";
-import GroupTree from "@/components/GroupTree";
-import PrivacyName from "@/components/PrivacyName";
-import UidBadge from "@/components/UidBadge";
+import AppShell from "@/components/core/AppShell";
+import GroupTree from "@/components/governance/GroupTree";
+import PrivacyName from "@/components/ui/PrivacyName";
+import UidBadge from "@/components/ui/UidBadge";
 import {
   ArrowLeft,
   Users,
@@ -50,13 +50,13 @@ import type {
   GroupAncestor,
   Proposal,
 } from "@/lib/types";
-import { useLanguage } from "@/components/language-provider";
-import GroupDiscussions from "@/components/GroupDiscussions";
-import GroupLaws from "@/components/GroupLaws";
-import GroupProposals from "@/components/GroupProposals";
-import GroupElections from "@/components/GroupElections";
-import GroupPositions from "@/components/GroupPositions";
-import GroupSettingsPanel from "@/components/GroupSettings";
+import { useLanguage } from "@/components/core/language-provider";
+import GroupDiscussions from "@/components/social/GroupDiscussions";
+import GroupLaws from "@/components/governance/GroupLaws";
+import GroupProposals from "@/components/governance/GroupProposals";
+import GroupElections from "@/components/governance/GroupElections";
+import GroupPositions from "@/components/governance/GroupPositions";
+import GroupSettingsPanel from "@/components/governance/GroupSettings";
 import {
   ROLE_META,
   hasPermission,

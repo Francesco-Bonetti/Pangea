@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import ProposalsListClient from "@/components/ProposalsListClient";
+import AppShell from "@/components/core/AppShell";
+import ProposalsListClient from "@/components/governance/ProposalsListClient";
 import type { Proposal, ProposalWithResults, ProposalResults } from "@/lib/types";
 
 interface Props {

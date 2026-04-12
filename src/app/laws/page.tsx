@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { canModerate } from "@/lib/permissions";
-import AppShell from "@/components/AppShell";
-import LawsPageClient from "@/components/LawsPageClient";
-import LawsPageHeader from "@/components/LawsPageHeader";
+import AppShell from "@/components/core/AppShell";
+import LawsPageClient from "@/components/governance/LawsPageClient";
+import LawsPageHeader from "@/components/governance/LawsPageHeader";
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
 

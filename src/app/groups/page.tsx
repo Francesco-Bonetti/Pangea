@@ -3,8 +3,8 @@
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import GroupTree from "@/components/GroupTree";
+import AppShell from "@/components/core/AppShell";
+import GroupTree from "@/components/governance/GroupTree";
 import {
   FolderTree,
   Plus,
@@ -20,7 +20,7 @@ import {
   TreePine,
 } from "lucide-react";
 import type { Profile, GroupTreeNode, GroupType } from "@/lib/types";
-import { useLanguage } from "@/components/language-provider";
+import { useLanguage } from "@/components/core/language-provider";
 import { triggerTranslation } from "@/lib/translate";
 
 const PANGEA_ROOT_ID = "00000000-0000-0000-0000-000000000001";

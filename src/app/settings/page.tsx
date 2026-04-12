@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import AppShell from "@/components/AppShell";
-import MultiEmailManager from "@/components/MultiEmailManager";
+import AppShell from "@/components/core/AppShell";
+import MultiEmailManager from "@/components/ui/MultiEmailManager";
 import type { Profile, PrivacySettings, ProfileVisibility, DmPolicy, ActivityVisibility } from "@/lib/types";
 import {
   Settings,

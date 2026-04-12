@@ -1,13 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin as isAdminPlatform } from "@/lib/permissions";
 import { notFound } from "next/navigation";
-import AppShell from "@/components/AppShell";
+import AppShell from "@/components/core/AppShell";
 import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff, MessageSquare, Rss } from "lucide-react";
-import SendMessageButton from "@/components/SendMessageButton";
-import FollowButton from "@/components/FollowButton";
+import SendMessageButton from "@/components/social/SendMessageButton";
+import FollowButton from "@/components/social/FollowButton";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import TranslatedContent from "@/components/TranslatedContent";
+import TranslatedContent from "@/components/ui/TranslatedContent";
 
 interface Props {
   params: Promise<{ id: string }>;

@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import FeedClient from "@/components/FeedClient";
-import PostComposerWrapper from "@/components/PostComposerWrapper";
+import AppShell from "@/components/core/AppShell";
+import FeedClient from "@/components/social/FeedClient";
+import PostComposerWrapper from "@/components/social/PostComposerWrapper";
 import { Rss } from "lucide-react";
 
-import FeedPageHeader from "@/components/FeedPageHeader";
+import FeedPageHeader from "@/components/social/FeedPageHeader";
 
 export default async function FeedPage() {
   const supabase = await createClient();

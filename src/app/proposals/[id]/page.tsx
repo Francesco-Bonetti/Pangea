@@ -1,16 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import VotingBooth from "@/components/VotingBooth";
-import VoteIntegrityBadge from "@/components/VoteIntegrityBadge";
-import SignalButton from "@/components/SignalButton";
-import DraftActions from "@/components/DraftActions";
-import CommentSection from "@/components/CommentSection";
+import AppShell from "@/components/core/AppShell";
+import VotingBooth from "@/components/governance/VotingBooth";
+import VoteIntegrityBadge from "@/components/governance/VoteIntegrityBadge";
+import SignalButton from "@/components/social/SignalButton";
+import DraftActions from "@/components/governance/DraftActions";
+import CommentSection from "@/components/social/CommentSection";
 import type { DistributedResult, ProposalOption } from "@/lib/types";
 import { ArrowLeft, Calendar, Clock, User, FileText, Hash, Flame, BarChart3, Users, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { formatDateTime } from "@/lib/utils";
-import TranslatedContent from "@/components/TranslatedContent";
+import TranslatedContent from "@/components/ui/TranslatedContent";
 
 interface Props {
   params: Promise<{ id: string }>;

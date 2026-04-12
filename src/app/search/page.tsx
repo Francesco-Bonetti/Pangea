@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import SearchPageClient from "@/components/SearchPageClient";
+import SearchPageClient from "@/components/social/SearchPageClient";
 import { Loader2 } from "lucide-react";
 
 export default function SearchPage() {

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { canModerate } from "@/lib/permissions";
-import AppShell from "@/components/AppShell";
-import LawDetailClient from "@/components/LawDetailClient";
+import AppShell from "@/components/core/AppShell";
+import LawDetailClient from "@/components/governance/LawDetailClient";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import type { LawNode } from "@/app/laws/page";

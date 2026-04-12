@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Inter, Merriweather } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ToastProvider } from "@/components/Toast";
-import { LanguageProvider } from "@/components/language-provider";
+import { ThemeProvider } from "@/components/core/theme-provider";
+import { ToastProvider } from "@/components/ui/Toast";
+import { LanguageProvider } from "@/components/core/language-provider";
 import dynamic from "next/dynamic";
 import "./globals.css";
 
 // Lazy load heavy floating components — not needed for initial render
-const AiAssistant = dynamic(() => import("@/components/AiAssistant"), { ssr: false });
-const BugReportButton = dynamic(() => import("@/components/BugReportButton"), { ssr: false });
+const AiAssistant = dynamic(() => import("@/components/ui/AiAssistant"), { ssr: false });
+const BugReportButton = dynamic(() => import("@/components/ui/BugReportButton"), { ssr: false });
 
 const inter = Inter({
   subsets: ["latin"],

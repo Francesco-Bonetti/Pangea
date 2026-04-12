@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import AppShell from "@/components/AppShell";
-import { useLanguage } from "@/components/language-provider";
+import AppShell from "@/components/core/AppShell";
+import { useLanguage } from "@/components/core/language-provider";
 import type { Profile, Proposal, UserRole } from "@/lib/types";
 import {
   Shield,
@@ -27,7 +27,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/lib/utils";
-import GuardianDashboard from "@/components/GuardianDashboard";
+import GuardianDashboard from "@/components/governance/GuardianDashboard";
 
 interface LawRow {
   id: string;

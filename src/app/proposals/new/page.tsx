@@ -3,11 +3,11 @@
 import { useState, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import TagInput from "@/components/TagInput";
-import LawTreeSelector from "@/components/LawTreeSelector";
+import AppShell from "@/components/core/AppShell";
+import TagInput from "@/components/ui/TagInput";
+import LawTreeSelector from "@/components/governance/LawTreeSelector";
 import { useEffect } from "react";
-import { useLanguage } from "@/components/language-provider";
+import { useLanguage } from "@/components/core/language-provider";
 import { triggerMultiFieldTranslation } from "@/lib/translate";
 import {
   ArrowLeft,
@@ -25,8 +25,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import CooldownTimer from "@/components/CooldownTimer";
-import StakingInfo from "@/components/StakingInfo";
+import CooldownTimer from "@/components/ui/CooldownTimer";
+import StakingInfo from "@/components/governance/StakingInfo";
 import { useCooldown } from "@/hooks/useCooldown";
 
 interface OptionDraft {

@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import ChatThread from "@/components/ChatThread";
-import ConversationNotFoundClient from "@/components/ConversationNotFoundClient";
+import AppShell from "@/components/core/AppShell";
+import ChatThread from "@/components/social/ChatThread";
+import ConversationNotFoundClient from "@/components/social/ConversationNotFoundClient";
 
 export const dynamic = "force-dynamic";
 

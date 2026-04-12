@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import AppShell from "@/components/AppShell";
-import { useLanguage } from "@/components/language-provider";
+import AppShell from "@/components/core/AppShell";
+import { useLanguage } from "@/components/core/language-provider";
 import type { Category, Delegation, Profile } from "@/lib/types";
-import PrivacyName from "@/components/PrivacyName";
+import PrivacyName from "@/components/ui/PrivacyName";
 import {
   ArrowLeft,
   Users,

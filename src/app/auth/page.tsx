@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Globe, Shield, Users, Vote, Eye, EyeOff, Loader2, Languages } from "lucide-react";
 import { SUPPORTED_LOCALES, type Locale } from "@/lib/i18n";
-import { useLanguage } from "@/components/language-provider";
+import { useLanguage } from "@/components/core/language-provider";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");

@@ -2,8 +2,8 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
-import AppShell from "@/components/AppShell";
-import { useLanguage } from "@/components/language-provider";
+import AppShell from "@/components/core/AppShell";
+import { useLanguage } from "@/components/core/language-provider";
 import { Globe, BookOpen, Users, Vote, FileText, Shield } from "lucide-react";
 import Link from "next/link";
 

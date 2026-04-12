@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import AppShell from "@/components/AppShell";
-import DashboardClient from "@/components/DashboardClient";
+import AppShell from "@/components/core/AppShell";
+import DashboardClient from "@/components/core/DashboardClient";
 
 export default async function DashboardPage() {
   const supabase = await createClient();

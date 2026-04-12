@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import NewElectionForm from "@/components/NewElectionForm";
+import AppShell from "@/components/core/AppShell";
+import NewElectionForm from "@/components/governance/NewElectionForm";
 
 export const metadata = {
   title: "Create Election — Pangea",

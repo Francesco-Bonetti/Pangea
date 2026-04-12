@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin as isAdminPlatform } from "@/lib/permissions";
-import AppShell from "@/components/AppShell";
+import AppShell from "@/components/core/AppShell";
 import Link from "next/link";
 import { History, ArrowLeft, Clock, RotateCcw, FileText } from "lucide-react";
-import LawHistoryClient from "@/components/LawHistoryClient";
+import LawHistoryClient from "@/components/governance/LawHistoryClient";
 
 interface PageProps {
   params: Promise<{ id: string }>;

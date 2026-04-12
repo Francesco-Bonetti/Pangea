@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import ElectionVotingBooth from "@/components/ElectionVotingBooth";
+import AppShell from "@/components/core/AppShell";
+import ElectionVotingBooth from "@/components/governance/ElectionVotingBooth";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Trophy, MapPin, Flag, User, Clock } from "lucide-react";
 import type { Election, ElectionStatus } from "@/lib/types";
-import TranslatedContent from "@/components/TranslatedContent";
+import TranslatedContent from "@/components/ui/TranslatedContent";
 
 const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {
   upcoming: { label: "Upcoming", color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },

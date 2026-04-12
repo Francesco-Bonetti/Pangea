@@ -2,8 +2,8 @@
 
 import { useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import AppShell from "@/components/AppShell";
-import { useLanguage } from "@/components/language-provider";
+import AppShell from "@/components/core/AppShell";
+import { useLanguage } from "@/components/core/language-provider";
 import {
   Shield,
   Search,

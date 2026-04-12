@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AppShell from "@/components/AppShell";
-import MessagesClient from "@/components/MessagesClient";
+import AppShell from "@/components/core/AppShell";
+import MessagesClient from "@/components/social/MessagesClient";
 
 export const dynamic = "force-dynamic";
 

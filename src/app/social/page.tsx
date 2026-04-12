@@ -1,16 +1,16 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import AppShell from "@/components/AppShell";
-import NewChannelForm from "@/components/NewChannelForm";
-import ForumClient from "@/components/ForumClient";
-import ForumControls from "@/components/ForumControls";
+import AppShell from "@/components/core/AppShell";
+import NewChannelForm from "@/components/social/NewChannelForm";
+import ForumClient from "@/components/social/ForumClient";
+import ForumControls from "@/components/social/ForumControls";
 import {
   SocialHeader,
   NewDiscussionCTA,
   ChannelsSidebar,
   TagsSidebar,
   DiscussionSectionHeader,
-} from "@/components/SocialPageContent";
+} from "@/components/social/SocialPageContent";
 import type { DiscussionChannel, Discussion, Tag } from "@/lib/types";
 
 export const dynamic = "force-dynamic";

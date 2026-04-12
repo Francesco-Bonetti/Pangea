@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { canModerate } from "@/lib/permissions";
-import AppShell from "@/components/AppShell";
-import DiscussionThreadClient from "@/components/DiscussionThreadClient";
-import DiscussionModTools from "@/components/DiscussionModTools";
+import AppShell from "@/components/core/AppShell";
+import DiscussionThreadClient from "@/components/social/DiscussionThreadClient";
+import DiscussionModTools from "@/components/social/DiscussionModTools";
 import { ArrowLeft, MessageCircle, Eye } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import TranslatedContent from "@/components/TranslatedContent";
+import TranslatedContent from "@/components/ui/TranslatedContent";
 import { formatTimeAgo } from "@/lib/formatTimeAgo";
 
 // Server-side privacy name resolver

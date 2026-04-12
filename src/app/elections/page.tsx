@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import AppShell from "@/components/AppShell";
-import ElectionsClient from "@/components/ElectionsClient";
+import AppShell from "@/components/core/AppShell";
+import ElectionsClient from "@/components/governance/ElectionsClient";
 
 export const metadata = {
   title: "Elections — Pangea",
