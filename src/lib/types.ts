@@ -336,10 +336,18 @@ export type GroupMemberRole =
 export type JurisdictionType = "virtual" | "geographic";
 
 export interface GroupSettings {
+  // Privacy & Access
   visibility: "public" | "private" | "members_only";
-  can_create_subgroups: "anyone" | "members" | "admins";
+  // Membership
   can_post: "anyone" | "members" | "admins";
   join_policy: "open" | "approval" | "invite_only";
+  // Structure
+  can_create_subgroups: "anyone" | "members" | "admins";
+  // Governance (T11)
+  voting_duration_days?: number;
+  approval_threshold_pct?: number;
+  min_quorum_pct?: number;
+  allow_anonymous_proposals?: boolean;
 }
 
 // T10: A single locked setting inherited from an ancestor

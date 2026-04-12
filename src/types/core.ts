@@ -99,10 +99,18 @@ export interface GroupDTO {
 }
 
 export interface GroupSettingsDTO {
+  // Privacy & Access
   visibility: "public" | "private" | "members_only";
-  can_create_subgroups: "anyone" | "members" | "admins";
+  // Membership
   can_post: "anyone" | "members" | "admins";
   join_policy: "open" | "approval" | "invite_only";
+  // Structure
+  can_create_subgroups: "anyone" | "members" | "admins";
+  // Governance (T11 — optional, defaults applied server-side)
+  voting_duration_days?: number;        // 1-30, default 7
+  approval_threshold_pct?: number;      // 1-100, default 50
+  min_quorum_pct?: number;              // 0-100, default 0 (no quorum)
+  allow_anonymous_proposals?: boolean;  // default false
 }
 
 export interface GroupMemberDTO {
