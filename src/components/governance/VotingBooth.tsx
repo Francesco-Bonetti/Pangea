@@ -88,6 +88,19 @@ export default function VotingBooth({
   // Cooldown state (DE-11)
   const [cooldownReady, setCooldownReady] = useState(true);
 
+  // Delegation weight (resolve_voting_weight)
+  const [voteWeight, setVoteWeight] = useState<number>(1);
+  useEffect(() => {
+    if (!userId || isGuest || !isActive) return;
+    supabase
+      .rpc("resolve_voting_weight", {
+        p_voter_id: userId,
+        p_proposal_id: proposal.id,
+        p_category_id: null,
+      })
+      .then(({ data }) => { if (data && (data as number) > 1) setVoteWeight(data as number); });
+  }, [userId, proposal.id, isGuest, isActive, supabase]);
+
   const isActive = proposal.status === "active";
   const isClosed = proposal.status === "closed";
   const isCuration = proposal.status === "curation";
@@ -648,6 +661,21 @@ export default function VotingBooth({
               <LogIn className="w-4 h-4" />
               {t("proposals.signUpToVote")}
             </Link>
+          </div>
+        )}
+
+        {/* Vote weight indicator */}
+        {isActive && !hasVoted && !isGuest && voteWeight > 1 && (
+          <div className="card p-3 mb-4 bg-pangea-900/20 border-pangea-700/40 flex items-center gap-3">
+            <Users className="w-4 h-4 text-amber-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-fg">
+                {t("voting.voteWeightLabel")}: <span className="text-amber-400">×{voteWeight}</span>
+              </p>
+              <p className="text-xs text-fg-muted leading-tight">
+                {voteWeight - 1} {t("voting.voteWeightDescSuffix")}
+              </p>
+            </div>
           </div>
         )}
 

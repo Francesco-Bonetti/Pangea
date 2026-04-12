@@ -1287,6 +1287,32 @@ const en = {
     expiresIn: "Expires in",
     days: "days",
     expiredNotice: "Expired — not confirmed within 30 days",
+    // Step 2 — new keys
+    failedRevoke: "Failed to revoke delegation",
+    delegateNotAccepting: "This citizen is not currently accepting delegations. They can enable this in their privacy settings.",
+    noSelfDelegation: "You cannot delegate to yourself.",
+    notTransitive: "Non-transitive",
+    transitiveLabel: "Transitive delegation",
+    transitiveDesc: "If enabled, your delegate can further delegate your vote along the chain. Disable to restrict to direct delegation only.",
+    // Tabs
+    tabGiven: "My Delegates",
+    tabReceived: "Delegated to Me",
+    tabStats: "Stats",
+    // Proxy badge
+    proxyTitle: "You are a Public Proxy",
+    proxyDescSuffix: "citizens trust you with their vote. Their votes follow yours unless they vote directly.",
+    // Stats
+    statsTotalWeight: "Your vote weight",
+    statsNoProxy: "You are voting with your own vote only",
+    statsProxyingSuffix: "delegated votes — vote carefully",
+    statsWeightDesc: "Your weight applies to all proposals where your delegators have not voted directly.",
+    statsGivenActive: "Active delegations given",
+    statsReceivedActive: "Active delegations received",
+    statsByCategory: "Weight by category",
+    statsDelegator: "citizen",
+    statsDelegators: "citizens",
+    statsEmpty: "No active delegations received yet",
+    statsEmptyDesc: "When citizens delegate their vote to you, you will see a breakdown here.",
   },
 
   // ── Search ──
@@ -1486,6 +1512,8 @@ const en = {
     turnoutOnly: "Only turnout is visible during active voting",
     turnout: "Turnout",
     votersParticipated: "{count} voters participated",
+    voteWeightLabel: "Your vote weight",
+    voteWeightDescSuffix: "delegated votes follow your decision. Vote carefully.",
   },
 
   // ── Vote Integrity (DE-16) ──

@@ -235,16 +235,29 @@ export interface Delegation {
   id: string;
   uid?: string | null;
   delegator_id: string;
-  delegate_id: string;
+  delegate_id: string | null;            // NULL when delegate is a group
+  delegate_group_id?: string | null;     // NULL when delegate is a citizen
   category_id: string | null;
   status?: DelegationStatus;
+  is_transitive: boolean;                // Art. 7.4: delegator can restrict transitivity
   created_at: string;
   last_pinged_at?: string | null;
-  confirmed_at?: string | null;
+  confirmed_at?: string | null;          // = accepted_at
+  revoked_at?: string | null;
+  expired_at?: string | null;
   // Join
   delegator?: Profile;
   delegate?: Profile;
   categories?: Category;
+}
+
+export interface DelegationConfig {
+  id: string;
+  group_id: string;
+  accept_delegations: boolean;
+  authorized_member_ids: string[];
+  created_at: string;
+  updated_at: string;
 }
 
 // --- Community Review ---
