@@ -134,6 +134,13 @@ const en = {
     simplifiedExplanation: "Simplified Explanation",
     lastUpdated: "Last updated:",
     versionHistory: "Version History",
+    // T14: Law detail page
+    backToLaws: "Back to Living Codes",
+    bootstrapLocked: "Guardian Lock",
+    contents: "Contents",
+    previous: "Previous",
+    next: "Next",
+    viewDetails: "View details",
     // ProposalCard
     statusDraft: "Draft",
     statusCommunityReview: "Community Review",

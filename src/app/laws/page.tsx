@@ -25,6 +25,8 @@ export interface LawNode {
   is_active: boolean;
   order_index: number;
   updated_at: string | null;
+  bootstrap_lock_threshold?: number | null;
+  lock_category?: string | null;
   children?: LawNode[];
 }
 

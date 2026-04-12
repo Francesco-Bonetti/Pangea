@@ -11,6 +11,8 @@ import {
   Lightbulb,
   Clock,
   History,
+  Lock,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import type { LawNode } from "@/app/laws/page";
@@ -88,7 +90,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
     <div className={depth === 0 ? "" : "ml-4 sm:ml-6"}>
       {/* Node header */}
       <div
-        className={`card border ${bgClass} transition-all duration-200 ${
+        className={`card border ${bgClass} transition-all duration-200 group ${
           isExpandable ? "cursor-pointer hover:border-theme" : ""
         } ${expanded && (hasChildren || hasContent) ? "rounded-b-none border-b-0" : ""} ${
           isInactive && showActiveStatus ? "opacity-70" : ""
@@ -149,11 +151,29 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
                 </span>
               )}
 
+              {/* Bootstrap lock badge */}
+              {node.bootstrap_lock_threshold != null && node.bootstrap_lock_threshold > 0 && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-900/30 text-amber-400 inline-flex items-center gap-1">
+                  <Lock className="w-3 h-3" />
+                  {t("laws.bootstrapLocked")}
+                </span>
+              )}
+
               {/* Integrity badge */}
               {node.law_type === "article" && (
                 <IntegrityBadge entityType="law" entityId={node.id} compact />
               )}
               {node.uid && <UidBadge uid={node.uid} size="xs" clickable={false} />}
+
+              {/* Detail link */}
+              <Link
+                href={`/laws/${node.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="ml-auto text-xs text-fg-muted hover:text-blue-400 transition-colors shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100"
+                title={t("laws.viewDetails")}
+              >
+                <ExternalLink className="w-3 h-3" />
+              </Link>
             </div>
 
             {/* Summary */}
