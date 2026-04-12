@@ -10,30 +10,12 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
-
-// Build breadcrumb path from a law up to the root
-async function buildBreadcrumb(
-  supabase: SupabaseClient,
-  lawId: string
-): Promise<{ id: string; title: string; article_number: string | null; law_type: string }[]> {
-  const path: { id: string; title: string; article_number: string | null; law_type: string }[] = [];
-  let currentId: string | null = lawId;
-  const visited = new Set<string>();
-
-  while (currentId && !visited.has(currentId)) {
-    visited.add(currentId);
-    const { data } = await supabase
-      .from("laws")
-      .select("id, title, article_number, law_type, parent_id")
-      .eq("id", currentId)
-      .single();
-    if (!data) break;
-    path.unshift({ id: data.id, title: data.title, article_number: data.article_number, law_type: data.law_type });
-    currentId = data.parent_id;
-  }
-
-  return path;
+interface BreadcrumbRow {
+  id: string;
+  title: string;
+  article_number: string | null;
+  law_type: string;
+  parent_id: string | null;
 }
 
 export default async function LawDetailPage({ params }: PageProps) {
@@ -67,8 +49,24 @@ export default async function LawDetailPage({ params }: PageProps) {
     );
   }
 
-  // Build breadcrumb
-  const breadcrumb = await buildBreadcrumb(supabase, id);
+  // Build breadcrumb by walking up the parent chain
+  const breadcrumb: BreadcrumbRow[] = [];
+  {
+    let currentId: string | null = id;
+    const visited = new Set<string>();
+    while (currentId && !visited.has(currentId)) {
+      visited.add(currentId);
+      const { data: row } = await supabase
+        .from("laws")
+        .select("id, title, article_number, law_type, parent_id")
+        .eq("id", currentId)
+        .single();
+      if (!row) break;
+      const typed = row as BreadcrumbRow;
+      breadcrumb.unshift(typed);
+      currentId = typed.parent_id;
+    }
+  }
 
   // Fetch children (select * to match LawNode type)
   const { data: rawChildren } = await supabase
