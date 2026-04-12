@@ -27,6 +27,8 @@ const GROUP_TYPE_CONFIG: Record<
   working_group: { icon: Briefcase, color: "text-amber-400", bgColor: "bg-amber-500/15" },
   religion: { icon: Globe, color: "text-teal-400", bgColor: "bg-teal-500/15" },
   custom: { icon: Layers, color: "text-slate-400", bgColor: "bg-slate-500/15" },
+  igo: { icon: Globe, color: "text-cyan-400", bgColor: "bg-cyan-500/15" },
+  ngo: { icon: Globe, color: "text-rose-400", bgColor: "bg-rose-500/15" },
 };
 
 /* ── Build nested tree from flat list ── */
