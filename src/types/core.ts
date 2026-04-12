@@ -217,6 +217,7 @@ export interface ElectionDTO {
   election_type: ElectionType;
   group_id: string | null;
   position_name: string;
+  position_id: string | null;
   max_winners: number;
   status: ElectionStatus;
   candidature_start: string;

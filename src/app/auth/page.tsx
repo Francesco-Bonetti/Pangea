@@ -17,6 +17,7 @@ export default function AuthPage() {
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
+  const [honeypot, setHoneypot] = useState("");  // AS-03: anti-bot honeypot
   const router = useRouter();
   const supabase = createClient();
   const { setLocale, t } = useLanguage();
@@ -32,6 +33,13 @@ export default function AuthPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
+
+    // AS-03: honeypot check — bots fill hidden fields, humans don't
+    if (honeypot) {
+      // Fake success to not tip off the bot
+      setMessage({ type: "success", text: t("auth.registrationComplete") });
+      return;
+    }
 
     // GDPR validation: consent required for registration
     if (mode === "register" && !consent) {
@@ -277,6 +285,20 @@ export default function AuthPage() {
                 </label>
               </div>
             )}
+
+            {/* AS-03: Honeypot field — hidden from humans, visible to bots */}
+            <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px", opacity: 0, height: 0, overflow: "hidden" }}>
+              <label htmlFor="website">Website</label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                autoComplete="off"
+                tabIndex={-1}
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
+            </div>
 
             {/* Feedback message */}
             {message && (

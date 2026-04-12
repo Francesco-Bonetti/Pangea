@@ -311,6 +311,16 @@ const en = {
     createElection: "Create Election",
   },
 
+  // ── Positions (T13) ──
+  positions: {
+    title: "Elected Positions",
+    startElection: "Start Election",
+    electionInProgress: "Election in progress",
+    vacant: "Vacant",
+    electedOn: "Elected on",
+    holder: "Current holder",
+  },
+
   // ── Parties ──
   // ── Groups (Recursive Tree System) ──
   groups: {

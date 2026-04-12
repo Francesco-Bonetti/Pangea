@@ -764,6 +764,7 @@ export interface Election {
   jurisdiction_id?: string | null;
   party_id?: string | null;
   position_name: string;
+  position_id?: string | null;  // T13: links to group_positions
   max_winners: number;
   status: ElectionStatus;
   candidature_start: string;

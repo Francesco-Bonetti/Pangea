@@ -55,6 +55,7 @@ import GroupDiscussions from "@/components/GroupDiscussions";
 import GroupLaws from "@/components/GroupLaws";
 import GroupProposals from "@/components/GroupProposals";
 import GroupElections from "@/components/GroupElections";
+import GroupPositions from "@/components/GroupPositions";
 import GroupSettingsPanel from "@/components/GroupSettings";
 import {
   ROLE_META,
@@ -710,12 +711,20 @@ export default function GroupDetailPage() {
 
           {/* ELECTIONS TAB (T09 — Mini-Pangea) */}
           {activeTab === "elections" && (
-            <GroupElections
-              groupId={groupId}
-              groupName={group.name}
-              isAdmin={isAdmin}
-              isGuest={isGuest}
-            />
+            <div className="space-y-6">
+              <div className="px-5 pt-5">
+                <GroupPositions
+                  groupId={groupId}
+                  canManageElections={isAdmin && !isGuest}
+                />
+              </div>
+              <GroupElections
+                groupId={groupId}
+                groupName={group.name}
+                isAdmin={isAdmin}
+                isGuest={isGuest}
+              />
+            </div>
           )}
 
           {/* SUBGROUPS TAB */}
