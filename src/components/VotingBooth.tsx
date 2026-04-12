@@ -511,6 +511,23 @@ export default function VotingBooth({
         </div>
       )}
 
+      {/* V3: Blind voting — turnout only for legacy active proposals */}
+      {isActive && options.length === 0 && !legacyResults && (
+        <div className="card p-5 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-fg">
+              {t("voting.turnout")}
+            </h3>
+          </div>
+          <div className="flex items-center gap-2 p-3 bg-theme-muted rounded-lg">
+            <EyeOff className="w-4 h-4 text-fg-muted shrink-0" />
+            <p className="text-xs text-fg-muted">
+              {t("voting.showResultsAfter")}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Legacy results (yea/nay/abstain) for proposals without distributed options */}
       {legacyResults && options.length === 0 && (legacyResults.yea > 0 || legacyResults.nay > 0 || legacyResults.abstain > 0) && (
         <div className="card p-5 mb-4">

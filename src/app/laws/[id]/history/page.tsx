@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin as isAdminPlatform } from "@/lib/permissions";
 import AppShell from "@/components/AppShell";
 import Link from "next/link";
 import { History, ArrowLeft, Clock, RotateCcw, FileText } from "lucide-react";
@@ -55,7 +56,7 @@ export default async function LawHistoryPage({ params }: PageProps) {
       .select("role")
       .eq("id", user.id)
       .single();
-    isAdmin = profile?.role === "admin";
+    isAdmin = isAdminPlatform(profile?.role);
   }
 
   return (

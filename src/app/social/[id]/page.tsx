@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { canModerate } from "@/lib/permissions";
 import AppShell from "@/components/AppShell";
 import DiscussionThreadClient from "@/components/DiscussionThreadClient";
 import DiscussionModTools from "@/components/DiscussionModTools";
@@ -146,7 +147,7 @@ export default async function DiscussionPage({
     }
   }
 
-  const isModOrAdmin = profile?.role === "admin" || profile?.role === "moderator";
+  const isModOrAdmin = canModerate(profile?.role);
 
 
   const authorProfile = profilesMap[discussion.author_id] || { full_name: null, bio: null };

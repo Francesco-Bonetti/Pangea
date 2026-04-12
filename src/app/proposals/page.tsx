@@ -58,11 +58,31 @@ export default async function ProposalsPage({ searchParams }: Props) {
       const resultsRes = await supabase.rpc("get_proposal_results", {
         p_proposal_id: proposal.id,
       });
-      const results: ProposalResults = resultsRes.data?.[0] ?? {
+      let results: ProposalResults = resultsRes.data?.[0] ?? {
         yea_count: 0,
         nay_count: 0,
         abstain_count: 0,
       };
+
+      // V3: Blind voting — server-side defense: strip breakdown for active proposals
+      // The RPC already returns zeros, but this is defense-in-depth
+      if (proposal.status === "active") {
+        const total = Number(results.yea_count) + Number(results.nay_count) + Number(results.abstain_count);
+        results = { yea_count: 0, nay_count: 0, abstain_count: 0 };
+        // Fetch turnout separately for the card footer
+        const { data: turnout } = await supabase.rpc("get_proposal_turnout", {
+          p_proposal_id: proposal.id,
+        });
+        const totalVotes = turnout?.total_votes ?? total;
+        let hasVoted = false;
+        if (user) {
+          const votedRes = await supabase.rpc("has_user_voted", {
+            p_proposal_id: proposal.id,
+          });
+          hasVoted = votedRes.data ?? false;
+        }
+        return { ...proposal, results, has_voted: hasVoted, total_votes: totalVotes };
+      }
 
       let hasVoted = false;
       if (user) {

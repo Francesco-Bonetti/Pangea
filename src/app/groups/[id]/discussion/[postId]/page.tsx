@@ -11,6 +11,8 @@ import MentionInput, { extractMentions } from "@/components/MentionInput";
 import MentionText from "@/components/MentionText";
 import { useLanguage } from "@/components/language-provider";
 import { triggerTranslation } from "@/lib/translate";
+import { hasPermission } from "@/lib/group-permissions";
+import type { GroupMemberRole } from "@/lib/types";
 import {
   ArrowLeft,
   ArrowBigUp,
@@ -399,7 +401,7 @@ export default function GroupDiscussionThreadPage() {
     window.location.href = `/groups/${groupId}`;
   };
 
-  const isAdmin = currentMember?.role === "founder" || currentMember?.role === "admin";
+  const isAdmin = currentMember?.role ? hasPermission(currentMember.role as GroupMemberRole, "moderate_content") : false;
   const isMember = !!currentMember;
   const netScore = upvotes - downvotes;
   const topLevelReplies = replies.filter(r => r.parent_id === postId);

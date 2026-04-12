@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { canModerate } from "@/lib/permissions";
 import AppShell from "@/components/AppShell";
 import LawsPageClient from "@/components/LawsPageClient";
 import LawsPageHeader from "@/components/LawsPageHeader";
@@ -50,7 +51,7 @@ export default async function LawsPage({ searchParams }: Props) {
       .select("role")
       .eq("id", user.id)
       .single();
-    isAdmin = profile?.role === "admin" || profile?.role === "moderator";
+    isAdmin = canModerate(profile?.role);
   }
 
   // T09: Load laws, optionally filtered by group

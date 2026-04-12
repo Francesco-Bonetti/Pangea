@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin as isAdminPlatform } from "@/lib/permissions";
 import { notFound } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { User, Calendar, FileText, Users, Vote, BookOpen, Shield, Hash, Lock, EyeOff, MessageSquare, Rss } from "lucide-react";
@@ -30,7 +31,7 @@ export default async function CitizenProfilePage({ params }: Props) {
       .select("role, full_name")
       .eq("id", user.id)
       .single();
-    viewerIsAdmin = viewerProfile?.role === "admin";
+    viewerIsAdmin = isAdminPlatform(viewerProfile?.role);
     viewerName = viewerProfile?.full_name ?? null;
     viewerRole = viewerProfile?.role ?? "citizen";
   }
