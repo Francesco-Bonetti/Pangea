@@ -41,6 +41,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
   const [registering, setRegistering] = useState(false);
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [platform, setPlatform] = useState("");
+  const [votingWeight, setVotingWeight] = useState<number>(1);
 
   const isVotingPhase = election.status === "voting";
   const isCandidaturePhase = election.status === "candidature";
@@ -87,6 +88,15 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
         .in("status", ["registered", "approved"])
         .maybeSingle();
       setIsCandidate(!!candidateData);
+
+      // Resolve voting weight using the full delegation algorithm (recursive CTE)
+      if (isVotingPhase && !voted) {
+        const { data: weight } = await supabase.rpc("resolve_election_voting_weight", {
+          p_voter_id: userId,
+          p_election_id: election.id,
+        });
+        setVotingWeight(Number(weight) || 1);
+      }
     }
 
     setLoading(false);
@@ -98,10 +108,10 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
     setError(null);
 
     try {
-      // Calculate voting weight
-      const { data: weight } = await supabase.rpc("calculate_election_voting_weight", {
-        p_election_id: election.id,
+      // Use the full delegation algorithm (transitive, group-aware, prunes already-voted)
+      const { data: weight } = await supabase.rpc("resolve_election_voting_weight", {
         p_voter_id: userId,
+        p_election_id: election.id,
       });
 
       const { error: insertError } = await supabase.from("election_votes").insert({
@@ -113,7 +123,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
 
       if (insertError) {
         if (insertError.code === "23505") {
-          setError("You have already voted in this election.");
+          setError(t("elections.alreadyVotedError"));
         } else {
           setError(insertError.message);
         }
@@ -123,7 +133,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
         await loadData();
       }
     } catch (err) {
-      setError("An error occurred while voting.");
+      setError(t("elections.voteError"));
     }
 
     setVoting(false);
@@ -162,7 +172,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
 
     if (insertError) {
       if (insertError.code === "23505") {
-        setError("You are already registered as a candidate.");
+        setError(t("elections.alreadyCandidateError"));
       } else {
         setError(insertError.message);
       }
@@ -217,32 +227,32 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
           <h3 className="text-lg font-semibold text-amber-400 flex items-center gap-2 mb-3">
             <User className="w-5 h-5" />
-            Candidate Registration Open
+            {t("elections.candidateRegistrationOpen")}
           </h3>
 
           {isGuest ? (
             <div className="flex items-center gap-3">
-              <p className="text-sm text-fg">Sign in to register as a candidate.</p>
+              <p className="text-sm text-fg">{t("elections.signInToRegisterCandidate")}</p>
               <Link
                 href="/auth"
                 className="flex items-center gap-2 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-fg text-sm rounded-lg transition-colors"
               >
                 <LogIn className="w-4 h-4" />
-                Sign In
+                {t("elections.signIn")}
               </Link>
             </div>
           ) : isCandidate ? (
             <div className="flex items-center justify-between">
               <p className="text-sm text-fg-success flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                You are registered as a candidate!
+                {t("elections.youAreRegisteredCandidate")}
               </p>
               <button
                 onClick={handleWithdrawCandidacy}
                 disabled={registering}
                 className="px-3 py-1.5 text-sm text-fg-danger border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
               >
-                Withdraw
+                {t("elections.withdraw")}
               </button>
             </div>
           ) : showRegisterForm ? (
@@ -250,7 +260,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
               <textarea
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
-                placeholder="Describe your platform and why citizens should vote for you... (optional)"
+                placeholder={t("elections.platformPlaceholder")}
                 className="w-full px-4 py-3 bg-theme-base border border-theme rounded-lg text-fg text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
                 rows={4}
               />
@@ -291,6 +301,16 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
           <p className="text-sm text-fg-muted mb-4">
             {t("elections.selectCandidateDesc")}
           </p>
+
+          {/* Voting weight badge */}
+          {votingWeight > 1 && (
+            <div className="mb-4 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center gap-2 text-sm">
+              <span className="font-semibold text-amber-400">×{votingWeight}</span>
+              <span className="text-fg-muted">
+                {t("elections.yourVotingWeight")} · {votingWeight - 1} {t("elections.delegationsSuffix")}
+              </span>
+            </div>
+          )}
 
           {error && (
             <div className="mb-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-fg-danger flex items-center gap-2">
@@ -354,7 +374,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
               disabled={voting}
               className="px-3 py-1.5 text-sm text-fg-danger border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
             >
-              {voting ? "Revoking..." : "Change Vote"}
+              {voting ? t("elections.revoking") : t("elections.changeVote")}
             </button>
           </div>
         </div>
@@ -363,13 +383,13 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
       {/* Guest CTA */}
       {isVotingPhase && isGuest && (
         <div className="bg-theme-card border border-theme rounded-xl p-5 text-center">
-          <p className="text-fg mb-3">Sign in to vote in this election.</p>
+          <p className="text-fg mb-3">{t("elections.signInToVote")}</p>
           <Link
             href="/auth"
             className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-fg text-sm font-medium rounded-lg transition-colors"
           >
             <LogIn className="w-4 h-4" />
-            Sign In to Vote
+            {t("elections.signInToVoteBtn")}
           </Link>
         </div>
       )}
@@ -381,25 +401,25 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
             {isClosed ? (
               <>
                 <Trophy className="w-5 h-5 text-amber-500" />
-                Results
+                {t("elections.results")}
               </>
             ) : (
               <>
                 <Users className="w-5 h-5 text-purple-400" />
-                Candidates ({results.length})
+                {t("elections.candidatesCount")} ({results.length})
               </>
             )}
           </h3>
           {voterCount > 0 && (
             <span className="text-sm text-fg-muted">
-              {voterCount} vote{voterCount !== 1 ? "s" : ""} cast
+              {voterCount} {t("elections.votesCast")}
             </span>
           )}
         </div>
 
         {results.length === 0 ? (
           <p className="text-sm text-fg-muted text-center py-8">
-            No candidates have registered yet.
+            {t("elections.noCandidatesYet")}
           </p>
         ) : (
           <div className="space-y-3">
@@ -437,12 +457,12 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                           </Link>
                           {isWinner && (
                             <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500 text-black rounded-full uppercase">
-                              Elected
+                              {t("elections.elected")}
                             </span>
                           )}
                           {isMyVote && (
                             <span className="px-2 py-0.5 text-[10px] font-bold bg-green-500/20 text-fg-success rounded-full border border-green-500/30">
-                              Your Vote
+                              {t("elections.yourVote")}
                             </span>
                           )}
                         </div>
@@ -460,7 +480,7 @@ export default function ElectionVotingBooth({ election, userId, isGuest }: Elect
                         <p className="text-sm font-semibold text-fg">
                           {Number(candidate.total_weighted_votes).toFixed(1)}
                         </p>
-                        <p className="text-[10px] text-fg-muted">weighted votes</p>
+                        <p className="text-[10px] text-fg-muted">{t("elections.weightedVotes")}</p>
                       </div>
                     )}
                   </div>
