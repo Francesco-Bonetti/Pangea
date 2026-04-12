@@ -28,10 +28,24 @@ export const metadata: Metadata = {
   description:
     "The digital democracy platform of the Global Democratic Commonwealth of Pangea. Propose, debate, deliberate.",
   keywords: ["democracy", "vote", "proposals", "Pangea", "pangea.vote", "digital"],
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Pangea",
+  },
   openGraph: {
     title: "Pangea — Global Democracy",
     description: "Propose laws, vote, build global democracy.",
     type: "website",
+    images: [{ url: "/icon-512.png", width: 512, height: 512 }],
   },
 };
 

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check:deps": "npx ts-node --skip-project scripts/check-deps.ts",
+    "check:deps:strict": "npx ts-node --skip-project scripts/check-deps.ts --strict"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
