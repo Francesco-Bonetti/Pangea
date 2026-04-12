@@ -121,7 +121,7 @@ function getSettingDesc(t: (k: string) => string, key: SettingKey): string {
 
 // Get setting value with defaults for new governance fields
 function getSettingValue(settings: GroupSettingsType, key: SettingKey): string | number | boolean {
-  const val = (settings as Record<string, unknown>)[key];
+  const val = (settings as unknown as Record<string, unknown>)[key];
   if (val !== undefined && val !== null) return val as string | number | boolean;
   // defaults for governance fields
   const numMeta = NUMERIC_META[key];
