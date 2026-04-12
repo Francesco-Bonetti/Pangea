@@ -317,6 +317,14 @@ export const PLATFORM_NODES: PlatformNode[] = [
   },
 
   {
+    id: "geography", href: "/explore/geography",
+    labelKey: "tree.geography", iconKey: "globe",
+    color: "#0ea5e9", colorLight: "#38bdf8", glow: "rgba(14,165,233,0.3)",
+    descKey: "tree.geographyDesc", actionKey: "tree.browse",
+    parent: "groups",
+  },
+
+  {
     id: "customGroups", href: "/groups?type=custom",
     labelKey: "nav.custom", iconKey: "sparkles",
     color: "#a855f7", colorLight: "#c084fc", glow: "rgba(168,85,247,0.3)",

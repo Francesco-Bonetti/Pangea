@@ -74,9 +74,15 @@ export async function GET(request: Request) {
     if (pingError) {
       console.error("Error ping_delegation_confirmations:", pingError);
     }
-    const { data: expiredDelegations, error: expireError } = await supabase.rpc("expire_stale_delegations");
-    if (expireError) {
-      console.error("Error expire_stale_delegations:", expireError);
+    const { data: expiredPinged, error: expirePingedError } = await supabase.rpc("expire_stale_delegations");
+    if (expirePingedError) {
+      console.error("Error expire_stale_delegations:", expirePingedError);
+    }
+
+    // 2b. Art. 7: Expire delegations by 180-day delegator inactivity
+    const { data: expiredInactive, error: expireInactiveError } = await supabase.rpc("expire_inactive_delegations");
+    if (expireInactiveError) {
+      console.error("Error expire_inactive_delegations:", expireInactiveError);
     }
 
     // 3. Convert approved closed proposals to laws
@@ -93,7 +99,8 @@ export async function GET(request: Request) {
       promoted: data,
       laws_created: convertedCount ?? 0,
       delegations_pinged: pingedCount ?? 0,
-      delegations_expired: expiredDelegations ?? 0,
+      delegations_expired_stale: expiredPinged ?? 0,
+      delegations_expired_inactive: expiredInactive ?? 0,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

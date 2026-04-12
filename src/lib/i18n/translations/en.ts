@@ -35,6 +35,7 @@ const en = {
     igos: "IGOs",
     ngos: "NGOs",
     treasury: "Treasury",
+    geography: "Geography",
   },
 
   // ── Dashboard ──
@@ -1470,6 +1471,40 @@ const en = {
     switch3D: "3D View",
     switch2D: "2D View",
     expandBranch: "Expand branch",
+    geography: "Geography",
+    geographyDesc: "Browse the world by continent, region, and country",
+  },
+
+  geography: {
+    title: "Geography",
+    subtitle: "Browse the world — World → Continents → Regions → Countries",
+    worldOverview: "World Overview",
+    continents: "Continents",
+    subRegions: "Sub-regions",
+    countries: "Countries",
+    territories: "Territories",
+    linkedGroups: "Groups in this area",
+    noLinkedGroups: "No groups linked to this area yet.",
+    backToWorld: "Back to World",
+    backTo: "Back to {name}",
+    groups: "{count} group",
+    groups_plural: "{count} groups",
+    level: {
+      world: "World",
+      continent: "Continent",
+      sub_region: "Sub-region",
+      country: "Country",
+      territory: "Territory",
+      region: "Region",
+      city: "City",
+    },
+    exploreGroups: "Explore groups",
+    browseChildren: "Browse {name}",
+    searchPlaceholder: "Search areas...",
+    noResults: "No areas match your search.",
+    // Practical example for the info box
+    exampleTitle: "Example: Browsing Europe",
+    exampleDesc: "Click Europe → Western Europe → France to see all Pangea groups (parties, IGOs, NGOs) linked to France.",
   },
 
   identity: {

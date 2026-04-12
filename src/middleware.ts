@@ -33,6 +33,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Update last_active_at for authenticated users on page navigations.
+  // Skip API routes and cron to avoid noise. Throttled to 1x/hour in the RPC.
+  const pathname = request.nextUrl.pathname;
+  if (user && !pathname.startsWith("/api/")) {
+    supabase.rpc("update_last_active").then().catch(() => {});
+  }
+
   // Protected routes: require authentication (content creation only)
   const protectedPaths = ["/proposals/new", "/dashboard/delegations", "/admin", "/settings", "/messages", "/feed"];
   const isProtected = protectedPaths.some((path) =>
