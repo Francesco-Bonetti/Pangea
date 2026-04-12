@@ -332,6 +332,36 @@ export const PLATFORM_NODES: PlatformNode[] = [
     },
   },
 
+  {
+    id: "igos", href: "/groups?type=igo",
+    labelKey: "tree.igos", iconKey: "globe",
+    color: "#06b6d4", colorLight: "#67e8f9", glow: "rgba(6,182,212,0.3)",
+    descKey: "tree.igosDesc", actionKey: "tree.browse",
+    parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "igo" },
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "globe", orderField: "name", limit: 50,
+    },
+  },
+
+  {
+    id: "ngos", href: "/groups?type=ngo",
+    labelKey: "tree.ngos", iconKey: "heart",
+    color: "#f43f5e", colorLight: "#fb7185", glow: "rgba(244,63,94,0.3)",
+    descKey: "tree.ngosDesc", actionKey: "tree.browse",
+    parent: "groups",
+    dynamicChildSource: {
+      table: "groups", filter: { group_type: "ngo" },
+      parentField: "parent_group_id", rootParentId: "00000000-0000-0000-0000-000000000001",
+      nameField: "name",
+      select: "id,uid,name,description,logo_emoji,parent_group_id",
+      hrefPrefix: "/groups/", childIconKey: "heart", orderField: "name", limit: 50,
+    },
+  },
+
   /* ── Laws children ──────────────────────────────────────── */
   {
     id: "browseLaws", href: "/laws",

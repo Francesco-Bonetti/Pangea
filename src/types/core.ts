@@ -18,7 +18,26 @@ export type GuardianActionType = "set_bootstrap_lock" | "remove_bootstrap_lock" 
 export type LawLockCategory = "reinforced" | "structural" | "ordinary";
 export type DelegationStatus = "pending" | "accepted" | "rejected" | "expired";
 
-export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "religion" | "custom";
+export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "religion" | "custom" | "igo" | "ngo";
+
+export type GeographicAreaLevel = "world" | "continent" | "sub_region" | "country" | "territory" | "region" | "city";
+export type SovereigntyStatus = "sovereign" | "territory" | "disputed" | "special" | "antarctic";
+
+/** Geographic area (reference tree — separate from groups) */
+export interface GeographicAreaDTO {
+  id: string;
+  name: string;
+  description: string | null;
+  parent_id: string | null;
+  level: GeographicAreaLevel;
+  iso_alpha2: string | null;
+  iso_alpha3: string | null;
+  iso_numeric: string | null;
+  emoji_flag: string | null;
+  sovereignty_status: SovereigntyStatus;
+  administering_country_id: string | null;
+  created_at: string;
+}
 export type GroupMemberRole =
   | "founder"
   | "co_founder"
@@ -87,8 +106,9 @@ export interface GroupDTO {
   description: string | null;
   group_type: GroupType;
   logo_emoji: string;
-  founder_id: string;
+  founder_id: string | null;
   parent_group_id: string | null;
+  geographic_area_id: string | null;
   settings: GroupSettingsDTO;
   is_active: boolean;
   created_at: string;

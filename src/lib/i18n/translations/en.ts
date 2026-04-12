@@ -32,6 +32,8 @@ const en = {
     positions: "Positions",
     allGroups: "All Groups",
     custom: "Custom",
+    igos: "IGOs",
+    ngos: "NGOs",
     treasury: "Treasury",
   },
 
@@ -361,6 +363,8 @@ const en = {
       working_group: "Working Group",
       religion: "Religion",
       custom: "Custom",
+      igo: "Intergovernmental Org",
+      ngo: "Non-Governmental Org",
     },
     role: {
       founder: "Founder",
@@ -1311,6 +1315,10 @@ const en = {
     religions: "Religions",
     religionsDesc: "Faith-based communities and traditions",
     customDesc: "Custom groups created by citizens",
+    igos: "Intergovernmental Organizations",
+    igosDesc: "International governmental bodies and alliances",
+    ngos: "Non-Governmental Organizations",
+    ngosDesc: "Independent organizations working for global causes",
     browseLaws: "Browse Laws",
     browseLawsDesc: "Explore existing legislation",
     proposeLaw: "Propose New",

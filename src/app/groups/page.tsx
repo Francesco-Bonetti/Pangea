@@ -41,6 +41,8 @@ const GROUP_TYPES: { value: GroupType; emoji: string; labelKey: string }[] = [
   { value: "working_group", emoji: "💼", labelKey: "groups.type.working_group" },
   { value: "religion", emoji: "🕊️", labelKey: "groups.type.religion" },
   { value: "custom", emoji: "✨", labelKey: "groups.type.custom" },
+  { value: "igo", emoji: "🌐", labelKey: "groups.type.igo" },
+  { value: "ngo", emoji: "🤝", labelKey: "groups.type.ngo" },
 ];
 
 const EMOJI_OPTIONS = [
@@ -69,14 +71,14 @@ function GroupsPageInner() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "list">("tree");
   const [filterType, setFilterType] = useState<GroupType | "all">(
-    urlType && ["jurisdiction", "party", "community", "working_group", "custom"].includes(urlType)
+    urlType && ["jurisdiction", "party", "community", "working_group", "custom", "religion", "igo", "ngo"].includes(urlType)
       ? urlType
       : "all"
   );
 
   // Sync filterType with URL ?type= param on navigation
   useEffect(() => {
-    const newType = urlType && ["jurisdiction", "party", "community", "working_group", "custom"].includes(urlType)
+    const newType = urlType && ["jurisdiction", "party", "community", "working_group", "custom", "religion", "igo", "ngo"].includes(urlType)
       ? urlType
       : "all";
     setFilterType(newType);
@@ -137,7 +139,7 @@ function GroupsPageInner() {
     if (urlCreate && !isGuest && !loading) {
       setShowCreate(true);
       // Pre-select the type from URL if provided
-      if (urlType && ["jurisdiction", "party", "community", "working_group", "custom"].includes(urlType)) {
+      if (urlType && ["jurisdiction", "party", "community", "working_group", "custom", "religion", "igo", "ngo"].includes(urlType)) {
         setNewGroup((p) => ({ ...p, group_type: urlType }));
       }
     }
@@ -320,6 +322,8 @@ function GroupsPageInner() {
                     community: { icon: Globe, color: "text-blue-400", bg: "bg-blue-500/15" },
                     working_group: { icon: Briefcase, color: "text-amber-400", bg: "bg-amber-500/15" },
                     custom: { icon: Layers, color: "text-slate-400", bg: "bg-slate-500/15" },
+                    igo: { icon: Globe, color: "text-cyan-400", bg: "bg-cyan-500/15" },
+                    ngo: { icon: Globe, color: "text-rose-400", bg: "bg-rose-500/15" },
                   };
                   const cfg = typeConfig[node.group_type] || typeConfig.custom;
 

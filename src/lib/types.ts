@@ -321,7 +321,7 @@ export interface CommentReaction {
 }
 
 // --- Recursive Tree Group System (Phase 5 — A2) ---
-export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "religion" | "custom";
+export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "religion" | "custom" | "igo" | "ngo";
 export type GroupMemberRole =
   | "founder"
   | "co_founder"
@@ -370,8 +370,9 @@ export interface Group {
   description: string | null;
   group_type: GroupType;
   logo_emoji: string;
-  founder_id: string;
+  founder_id: string | null;
   parent_group_id: string | null;
+  geographic_area_id?: string | null;
   settings: GroupSettings;
   locked_settings: GroupLockedSettings;
   is_active: boolean;
