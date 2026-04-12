@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { FileText, Clock, Flame, CheckCircle2, Plus, ChevronRight, ArrowUpCircle } from "lucide-react";
+import { FileText, Clock, Flame, CheckCircle2, Plus, ChevronRight, ArrowUpCircle, FlaskConical, Vote } from "lucide-react";
 import { useLanguage } from "@/components/core/language-provider";
 import UidBadge from "@/components/ui/UidBadge";
 import type { Proposal, ProposalStatus } from "@/lib/types";
@@ -19,6 +19,8 @@ const STATUS_CONFIG: Record<ProposalStatus, { icon: typeof FileText; colorClass:
   draft: { icon: FileText, colorClass: "text-slate-400 bg-slate-500/15" },
   curation: { icon: Flame, colorClass: "text-amber-400 bg-amber-500/15" },
   active: { icon: Clock, colorClass: "text-blue-400 bg-blue-500/15" },
+  trial: { icon: FlaskConical, colorClass: "text-purple-400 bg-purple-500/15" },
+  second_vote: { icon: Vote, colorClass: "text-blue-400 bg-blue-500/15" },
   closed: { icon: CheckCircle2, colorClass: "text-green-400 bg-green-500/15" },
   repealed: { icon: FileText, colorClass: "text-red-400 bg-red-500/15" },
 };

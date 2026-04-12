@@ -3,10 +3,11 @@
 import Link from "next/link";
 import type { ProposalWithResults } from "@/lib/types";
 import { calcPercentage, getTotalVotes, formatDate } from "@/lib/utils";
-import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle, EyeOff, Flag } from "lucide-react";
+import { Clock, CheckCircle2, FileText, Users, ChevronRight, Flame, Edit3, Trash2, XCircle, EyeOff, Flag, FlaskConical, Vote } from "lucide-react";
 import TranslatedContent from "@/components/ui/TranslatedContent";
 import IntegrityBadge from "@/components/governance/IntegrityBadge";
 import TierBadge from "@/components/governance/TierBadge";
+import ProposalPhaseBadge from "@/components/governance/ProposalPhaseBadge";
 import UidBadge from "@/components/ui/UidBadge";
 import { useLanguage } from "@/components/core/language-provider";
 
@@ -40,6 +41,16 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
     active: {
       icon: Clock,
       labelKey: "laws.statusActiveVote",
+      className: "status-active",
+    },
+    trial: {
+      icon: FlaskConical,
+      labelKey: "laws.statusTrial",
+      className: "status-trial",
+    },
+    second_vote: {
+      icon: Vote,
+      labelKey: "laws.statusSecondVote",
       className: "status-active",
     },
     closed: {
@@ -103,6 +114,11 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
             {proposal.tier && proposal.tier !== "ordinary" && (
               <TierBadge tier={proposal.tier} />
             )}
+            <ProposalPhaseBadge
+              status={proposal.status}
+              tier={proposal.tier}
+              trialEndsAt={proposal.trial_ends_at}
+            />
             <IntegrityBadge entityType="proposal" entityId={proposal.id} compact />
             {proposal.uid && <UidBadge uid={proposal.uid} size="xs" clickable={false} />}
             {proposal.groups && (
@@ -173,8 +189,38 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
         </div>
       )}
 
+      {/* T23: Trial countdown banner */}
+      {proposal.status === "trial" && proposal.trial_ends_at && (
+        <div
+          className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+          style={{
+            backgroundColor: "color-mix(in srgb, #8b5cf6 12%, transparent)",
+            color: "#a78bfa",
+          }}
+        >
+          <FlaskConical className="w-4 h-4 shrink-0" />
+          <span>
+            {t("proposals.trialInProgress")} — {t("proposals.trialEnds")} {formatDate(proposal.trial_ends_at)}
+          </span>
+        </div>
+      )}
+
+      {/* T23: Second vote indicator */}
+      {proposal.status === "second_vote" && (
+        <div
+          className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+          style={{
+            backgroundColor: "color-mix(in srgb, #3b82f6 12%, transparent)",
+            color: "#60a5fa",
+          }}
+        >
+          <Vote className="w-4 h-4 shrink-0" />
+          <span>{t("proposals.secondVoteDesc")}</span>
+        </div>
+      )}
+
       {/* DE-15: Active = turnout only (no breakdown), Closed = full results */}
-      {proposal.status === "active" && total > 0 && (
+      {(proposal.status === "active" || proposal.status === "second_vote") && total > 0 && (
         <div className="mb-4 flex items-center gap-2 text-xs" style={{ color: "var(--muted-foreground)" }}>
           <EyeOff className="w-4 h-4 shrink-0" />
           <span>{t("proposals.resultsHidden")}</span>

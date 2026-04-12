@@ -269,6 +269,13 @@
     border: 1px solid color-mix(in srgb, var(--destructive) 30%, transparent);
   }
 
+  .status-trial {
+    @apply text-xs font-semibold px-2.5 py-1 rounded-full transition-colors duration-200;
+    background-color: color-mix(in srgb, #8b5cf6 15%, transparent);
+    color: #a78bfa;
+    border: 1px solid color-mix(in srgb, #8b5cf6 30%, transparent);
+  }
+
   /* ============================================
      TEXT UTILITIES — WCAG AA on both themes
      ============================================ */

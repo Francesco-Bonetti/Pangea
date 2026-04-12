@@ -10,12 +10,15 @@
 export type IdentityTier = 0 | 1 | 2 | 3;
 export type IdentityProvider = "email" | "phone" | "spid" | "cie" | "eidas";
 
-export type ProposalStatus = "draft" | "curation" | "active" | "closed" | "repealed";
+export type ProposalStatus = "draft" | "curation" | "active" | "trial" | "second_vote" | "closed" | "repealed";
 export type ProposalType = "new" | "amendment" | "repeal";
 export type VoteType = "yea" | "nay" | "abstain";
 export type UserRole = "citizen" | "moderator" | "admin";
 export type GuardianActionType = "set_bootstrap_lock" | "remove_bootstrap_lock" | "degrade_admin" | "emergency_freeze";
 export type LawLockCategory = "reinforced" | "structural" | "ordinary";
+export type LegislativeTier = "constitutional" | "core" | "platform" | "ordinary";
+export type PollStatus = "inactive" | "collecting" | "polling" | "voting" | "resolved";
+export type ProposalPhase = "draft" | "curation" | "first_vote" | "voting" | "trial" | "second_vote" | "closed";
 export type DelegationStatus = "pending" | "accepted" | "rejected" | "expired";
 
 export type GroupType = "jurisdiction" | "party" | "community" | "working_group" | "religion" | "custom" | "igo" | "ngo";
@@ -177,7 +180,7 @@ export interface CategoryDTO {
   created_at: string;
 }
 
-/** Proposal (lifecycle: draft→curation→active→closed) */
+/** Proposal (lifecycle: draft→curation→active→[trial→second_vote]→closed) */
 export interface ProposalDTO {
   id: string;
   uid: string | null;
@@ -191,6 +194,13 @@ export interface ProposalDTO {
   jurisdiction_id: string | null;
   group_id: string | null;
   category_id: string | null;
+  tier: LegislativeTier | null;
+  target_law_id: string | null;
+  trial_duration_days: number | null;
+  first_vote_passed: boolean | null;
+  first_vote_closed_at: string | null;
+  trial_started_at: string | null;
+  trial_ends_at: string | null;
   expires_at: string | null;
   incubator_passed: boolean;
   incubator_t2_upvotes: number;
@@ -274,6 +284,66 @@ export interface ElectionVoteDTO {
   candidate_id: string;
   voting_weight: number;
   created_at: string;
+}
+
+// --- Law Node Polls & Contention ---
+
+/** Poll attached to a law tree node for contention resolution */
+export interface LawNodePollDTO {
+  id: string;
+  law_id: string;
+  status: PollStatus;
+  poll_start: string | null;
+  poll_end: string | null;
+  current_proposal_id: string | null;
+  resolved_at: string | null;
+  created_at: string;
+}
+
+/** Approval vote in a contention poll */
+export interface PollVoteDTO {
+  id: string;
+  law_id: string;
+  voter_id: string;
+  proposal_id: string;
+  is_broadcast: boolean;
+  created_at: string;
+}
+
+/** Proposal entry within a poll (from get_law_node_poll RPC) */
+export interface PollProposalEntry {
+  id: string;
+  title: string;
+  status: ProposalStatus;
+  author_id: string;
+  created_at: string;
+  tier: LegislativeTier | null;
+  trial_duration_days: number | null;
+  vote_count: number;
+  user_has_voted: boolean;
+}
+
+/** Response from get_law_node_poll RPC */
+export interface LawNodePollResponse {
+  poll_status: PollStatus;
+  poll_start: string | null;
+  poll_end: string | null;
+  current_proposal_id: string | null;
+  proposals: PollProposalEntry[];
+}
+
+/** Response from get_proposal_phase_info RPC */
+export interface ProposalPhaseInfo {
+  phase: ProposalPhase;
+  tier: LegislativeTier;
+  is_double_vote: boolean;
+  first_vote_passed: boolean | null;
+  first_vote_closed_at: string | null;
+  trial_started_at: string | null;
+  trial_ends_at: string | null;
+  trial_duration_days: number | null;
+  target_law_id: string | null;
+  expires_at: string | null;
 }
 
 // --- Integrity & Audit ---

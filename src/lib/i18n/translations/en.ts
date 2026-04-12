@@ -162,6 +162,8 @@ const en = {
     statusActiveVote: "Active Vote",
     statusConcluded: "Concluded",
     statusRepealed: "Repealed",
+    statusTrial: "Trial Period",
+    statusSecondVote: "2nd Vote",
     amendmentBadge: "Amendment",
     repealBadge: "Repeal",
     voted: "Voted",
@@ -286,6 +288,41 @@ const en = {
     abstainLabel: "Abstain",
     yourAllocation: "your allocation",
     privacyByDesign: "Voting preferences are never accessible to third parties. Privacy by Design — GDPR Art. 9.",
+    // T23: Double vote + trial
+    trialInProgress: "Trial in progress",
+    trialEnds: "Trial ends",
+    secondVoteDesc: "This proposal passed the first vote and completed the trial period. Second vote in progress to confirm.",
+    resultsHidden: "Vote breakdown is hidden during active voting to prevent herding. Only turnout is visible.",
+    phase: {
+      firstVote: "1st Vote",
+      trial: "Trial",
+      secondVote: "2nd Vote",
+    },
+    // T23: Proposal form helpers
+    targetLaw: "Target law node",
+    targetLawDesc: "Which article or section does this proposal modify? Leave empty for a new standalone law.",
+    targetLawHint: "Tip: target the most specific node possible. Targeting a parent node also affects all its children.",
+    trialDuration: "Trial duration (days)",
+    trialDurationDesc: "How many days should the trial period last between the first and second vote? Citizens will evaluate the proposal during this time.",
+    trialDurationHint: "For example, a 14-day trial gives the community two weeks to assess the impact before the final vote.",
+    doubleVoteExplainer: "This is a {tier} law. It requires two votes with a trial period in between. First vote: \"Should we start the trial?\" Second vote: \"Do we confirm?\"",
+  },
+
+  // ── Contention ──
+  contention: {
+    oneProposal: "1 proposal targeting this article",
+    multipleProposals: "{count} proposals competing for this article",
+    pollActive: "Poll active",
+    votingInProgress: "Voting in progress",
+    singleProposalHint: "This proposal will proceed to vote automatically since there is no competition.",
+    pollEnds: "Poll ends:",
+    approvalVotingExplainer: "Multiple proposals want to change this article. Vote for all the ones you support — the most popular will be voted on first.",
+    approvals: "approvals",
+    currentlyVoting: "Voting now",
+    voteHere: "Vote in this poll only",
+    voteHereShort: "Here",
+    voteEverywhere: "Vote in all polls where this proposal appears",
+    voteEverywhereShort: "Everywhere",
   },
 
   // ── Elections ──

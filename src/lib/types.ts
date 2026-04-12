@@ -4,7 +4,7 @@
 // ============================================
 
 // --- Status & Enums ---
-export type ProposalStatus = "draft" | "curation" | "active" | "closed" | "repealed";
+export type ProposalStatus = "draft" | "curation" | "active" | "trial" | "second_vote" | "closed" | "repealed";
 export type VoteType = "yea" | "nay" | "abstain";
 export type UserRole = "citizen" | "moderator" | "admin";
 
@@ -184,6 +184,13 @@ export interface Proposal {
   group_id?: string | null;
   // Art. 8.3: Legislative tier
   tier?: "constitutional" | "core" | "platform" | "ordinary";
+  // T23: Double vote + trial
+  target_law_id?: string | null;
+  trial_duration_days?: number | null;
+  first_vote_passed?: boolean | null;
+  first_vote_closed_at?: string | null;
+  trial_started_at?: string | null;
+  trial_ends_at?: string | null;
   // Quadratic Staking (DE-21)
   incubator_passed?: boolean;
   incubator_t2_upvotes?: number;

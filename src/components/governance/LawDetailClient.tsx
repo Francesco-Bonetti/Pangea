@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/components/core/language-provider";
 import LawPositions from "@/components/governance/LawPositions";
+import ContentionPanel from "@/components/governance/ContentionPanel";
 import IntegrityBadge from "@/components/governance/IntegrityBadge";
 import TierBadge from "@/components/governance/TierBadge";
 import UidBadge from "@/components/ui/UidBadge";
@@ -39,6 +40,7 @@ interface LawDetailClientProps {
   isAdmin?: boolean;
   isGuest?: boolean;
   hasBootstrapLock?: boolean;
+  userId?: string | null;
 }
 
 const typeConfig: Record<string, { icon: typeof BookOpen; color: string; bg: string; labelKey: string }> = {
@@ -59,6 +61,7 @@ export default function LawDetailClient({
   isAdmin,
   isGuest,
   hasBootstrapLock,
+  userId,
 }: LawDetailClientProps) {
   const [showSimplified, setShowSimplified] = useState(false);
   const { t } = useLanguage();
@@ -238,6 +241,9 @@ export default function LawDetailClient({
           )}
         </div>
       </div>
+
+      {/* T23: Contention panel — proposals targeting this node */}
+      <ContentionPanel lawId={law.id} lawTitle={law.title} userId={userId} />
 
       {/* Children */}
       {children.length > 0 && (
