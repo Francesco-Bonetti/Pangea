@@ -49,6 +49,7 @@ export type GroupPermission =
   | "temp_ban_members"     // Temporary ban (≤30 days)
   | "kick_members"         // Remove a member (they can rejoin)
   | "invite_members"       // Send invitations to join
+  | "approve_members"      // Approve/reject join requests (Art. 4.4)
   | "manage_elections"     // Create/manage elections within the group
   | "manage_treasury"      // (Phase 2) Manage group funds
   | "delete_group"         // Permanently delete the group
@@ -71,6 +72,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "temp_ban_members",
     "kick_members",
     "invite_members",
+    "approve_members",
     "manage_elections",
     "manage_treasury",
     "delete_group",
@@ -91,6 +93,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "temp_ban_members",
     "kick_members",
     "invite_members",
+    "approve_members",
     "manage_elections",
     "manage_treasury",
     // co_founder cannot delete group — only founder
@@ -111,6 +114,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "temp_ban_members",
     "kick_members",
     "invite_members",
+    "approve_members",
     "manage_elections",
     "view_content",
     "post_content",
@@ -125,6 +129,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "temp_ban_members",
     "kick_members",
     "invite_members",
+    "approve_members",
     "manage_elections",
     "view_content",
     "post_content",
@@ -143,6 +148,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "temp_ban_members",
     "kick_members",
     "invite_members",
+    "approve_members",
     "manage_elections",
     "view_content",
     "post_content",
@@ -157,6 +163,7 @@ const PERMISSION_MATRIX: Record<GroupMemberRole, Set<GroupPermission>> = {
     "temp_ban_members",
     "kick_members",
     "invite_members",
+    "approve_members",
     "view_content",
     "post_content",
   ]),

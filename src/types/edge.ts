@@ -285,6 +285,13 @@ export interface PrivacySettingsDTO {
   notify_delegations: boolean;
   notify_proposals: boolean;
   notify_dm: boolean;
+  // Dual profile (Art. 2.4)
+  public_display_name: string | null;
+  public_show_bio: boolean;
+  public_show_email: boolean;
+  public_show_activity: boolean;
+  public_show_delegations: boolean;
+  public_show_group_membership: boolean;
 }
 
 /** Privacy-safe display profile (returned by get_display_profile RPC) */
@@ -301,8 +308,23 @@ export interface DisplayProfileDTO {
   show_group_membership: boolean;
   dm_policy: DmPolicy;
   allow_mentions: boolean;
+  public_profile_active: boolean;
   is_private: boolean;
   is_restricted: boolean;
+}
+
+// --- Group Join Requests (Art. 4.4) ---
+
+export interface GroupJoinRequestDTO {
+  id: string;
+  group_id: string;
+  user_id: string;
+  message: string | null;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+  full_name?: string | null;
+  user_code?: string | null;
+  display_name?: string | null;
 }
 
 // --- Notifications ---

@@ -77,6 +77,7 @@ export interface Profile {
   is_searchable?: boolean;
   is_guardian?: boolean;
   identity_tier: IdentityTier;
+  public_profile_active: boolean;
   created_at: string;
 }
 
@@ -537,6 +538,14 @@ export interface PrivacySettings {
   notify_proposals: boolean;
   notify_dm: boolean;
 
+  // Public profile settings (Art. 2.4 dual profile)
+  public_display_name: string | null;
+  public_show_bio: boolean;
+  public_show_email: boolean;
+  public_show_activity: boolean;
+  public_show_delegations: boolean;
+  public_show_group_membership: boolean;
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -551,6 +560,7 @@ export interface DisplayProfile {
   role: UserRole;
   user_code: string | null;
   created_at: string | null;
+  public_profile_active?: boolean;
   show_activity?: boolean;
   show_delegations?: boolean;
   show_group_membership?: boolean;
@@ -560,6 +570,24 @@ export interface DisplayProfile {
   allow_mentions?: boolean;
   is_private?: boolean;
   is_restricted?: boolean;
+}
+
+// --- Group Join Requests (Art. 4.4 private groups) ---
+export type JoinRequestStatus = "pending" | "approved" | "rejected";
+
+export interface GroupJoinRequest {
+  id: string;
+  group_id: string;
+  user_id: string;
+  message: string | null;
+  status: JoinRequestStatus;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  // Joined fields from RPC
+  full_name?: string | null;
+  user_code?: string | null;
+  display_name?: string | null;
 }
 
 // --- Compositi ---

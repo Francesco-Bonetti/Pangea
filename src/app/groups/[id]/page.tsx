@@ -38,6 +38,7 @@ import {
   Search,
   Check,
   Loader2,
+  Lock,
 } from "lucide-react";
 import type {
   Profile,
@@ -57,6 +58,7 @@ import GroupProposals from "@/components/governance/GroupProposals";
 import GroupElections from "@/components/governance/GroupElections";
 import GroupPositions from "@/components/governance/GroupPositions";
 import GroupSettingsPanel from "@/components/governance/GroupSettings";
+import GroupJoinRequests, { JoinRequestButton } from "@/components/governance/GroupJoinRequests";
 import {
   ROLE_META,
   hasPermission,
@@ -400,6 +402,18 @@ export default function GroupDetailPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>{group.name}</h1>
+              {group.settings?.visibility === "private" && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-900/30 text-amber-400 border border-amber-500/30">
+                  <Lock className="w-3 h-3" />
+                  Private
+                </span>
+              )}
+              {group.settings?.visibility === "members_only" && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-900/30 text-blue-400 border border-blue-500/30">
+                  <Eye className="w-3 h-3" />
+                  Members Only
+                </span>
+              )}
               {group.uid && <UidBadge uid={group.uid} />}
             </div>
             {group.description && (
@@ -435,6 +449,8 @@ export default function GroupDetailPage() {
                   <UserMinus className="w-4 h-4" />
                   {t("groups.leave")}
                 </button>
+              ) : group?.settings?.join_policy === "approval" || group?.settings?.join_policy === "invite_only" ? (
+                <JoinRequestButton groupId={groupId} />
               ) : (
                 <button
                   onClick={handleJoin}
@@ -455,7 +471,22 @@ export default function GroupDetailPage() {
           </div>
         )}
 
+        {/* Art. 4.4: Private group gate — non-members see restricted view */}
+        {group.settings?.visibility === "private" && !currentMember && (
+          <div className="card p-6 text-center mb-6">
+            <Lock className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+            <h3 className="text-base font-semibold text-fg mb-1">{t("groups.joinRequests.privateGroup")}</h3>
+            <p className="text-sm text-fg-muted mb-4">{t("groups.joinRequests.approvalRequired")}</p>
+            {!isGuest && (
+              <div className="flex justify-center">
+                <JoinRequestButton groupId={groupId} />
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ── Tabs ── */}
+        {(group.settings?.visibility !== "private" || !!currentMember) && (<>
         <div className="flex gap-1 mb-6 overflow-x-auto pb-1" style={{ borderBottom: "1px solid var(--border)" }}>
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -520,6 +551,15 @@ export default function GroupDetailPage() {
           {/* MEMBERS TAB */}
           {activeTab === "members" && (
             <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+              {/* Art. 4.4: Join requests for private/approval groups */}
+              {(group?.settings?.join_policy === "approval" || group?.settings?.join_policy === "invite_only") && (
+                <div className="px-5 py-4">
+                  <GroupJoinRequests
+                    groupId={groupId}
+                    canReview={hasPermission(myRole, "approve_members")}
+                  />
+                </div>
+              )}
               {/* T06: Co-Founder Invite (founder only) */}
               {myRole === "founder" && (
                 <div className="px-5 py-4 space-y-3" style={{ borderBottom: "1px solid var(--border)" }}>
@@ -830,6 +870,7 @@ export default function GroupDetailPage() {
             />
           )}
         </div>
+        </>)}
       </div>
     </AppShell>
   );

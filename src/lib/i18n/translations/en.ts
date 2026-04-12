@@ -455,6 +455,20 @@ const en = {
       cannotInviteSelf: "You cannot invite yourself.",
       inviteFailed: "Failed to invite co-founder.",
     },
+    // Art. 4.4: Private groups join requests
+    joinRequests: {
+      title: "Join Requests",
+      approve: "Approve",
+      reject: "Reject",
+      pending: "Your request to join is pending approval.",
+      sent: "Request sent! An admin will review it shortly.",
+      requestJoin: "Request to Join",
+      submit: "Send Request",
+      messagePlaceholder: "Introduce yourself (optional)...",
+      alreadyMember: "You are already a member of this group.",
+      privateGroup: "This is a private group. Content is only visible to members.",
+      approvalRequired: "This group requires approval to join.",
+    },
     // T10+T11: Group Settings organized by category
     settings: {
       title: "Settings",
@@ -734,6 +748,21 @@ const en = {
     saved: "Changes Saved",
     language: "Language",
     changeLanguage: "Change language",
+    // Dual Profile (Art. 2.4)
+    dualProfile: {
+      title: "Dual Profile",
+      description: "Every citizen has two profiles: a private one (default) and a public one. The public profile activates automatically when you accept delegations or become a group leader.",
+      active: "Public profile active",
+      activeDesc: "Your public profile is visible when you act as a delegate or group leader.",
+      inactive: "Public profile inactive",
+      inactiveDesc: "Your public profile will activate when you accept a delegation or become a group leader.",
+      deactivate: "Deactivate",
+      cannotDeactivate: "Cannot deactivate public profile while you have active delegations. Revoke all delegations first.",
+      publicSettings: "Configure what is visible on your public profile. These settings only apply when you act as a delegate or group leader.",
+      publicDisplayName: "Public display name",
+      publicDisplayNamePlaceholder: "Name shown on your public profile (e.g. your real name)",
+      publicDisplayNameHint: "If empty, your standard display name or full name will be used.",
+    },
   },
 
   // ── Auth ──

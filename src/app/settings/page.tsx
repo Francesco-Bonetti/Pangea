@@ -144,6 +144,15 @@ export default function SettingsPage() {
   const [savingWeights, setSavingWeights] = useState(false);
   const [weightsSuccess, setWeightsSuccess] = useState(false);
 
+  // Dual profile (Art. 2.4)
+  const [publicProfileActive, setPublicProfileActive] = useState(false);
+  const [publicDisplayName, setPublicDisplayName] = useState("");
+  const [publicShowBio, setPublicShowBio] = useState(true);
+  const [publicShowEmail, setPublicShowEmail] = useState(false);
+  const [publicShowActivity, setPublicShowActivity] = useState(true);
+  const [publicShowDelegations, setPublicShowDelegations] = useState(true);
+  const [publicShowGroupMembership, setPublicShowGroupMembership] = useState(true);
+
   // Password
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -172,6 +181,7 @@ export default function SettingsPage() {
       setBio(prof.bio ?? "");
       setAllowDelegations(prof.allow_delegations ?? true);
       setIsSearchable(prof.is_searchable ?? true);
+      setPublicProfileActive(prof.public_profile_active ?? false);
     }
 
     // Load privacy settings
@@ -202,6 +212,13 @@ export default function SettingsPage() {
       setNotifyDelegations(privData.notify_delegations ?? true);
       setNotifyProposals(privData.notify_proposals ?? true);
       setNotifyDm(privData.notify_dm ?? true);
+      // Dual profile settings
+      setPublicDisplayName(privData.public_display_name || "");
+      setPublicShowBio(privData.public_show_bio ?? true);
+      setPublicShowEmail(privData.public_show_email ?? false);
+      setPublicShowActivity(privData.public_show_activity ?? true);
+      setPublicShowDelegations(privData.public_show_delegations ?? true);
+      setPublicShowGroupMembership(privData.public_show_group_membership ?? true);
     }
 
     // Load group memberships
@@ -284,6 +301,13 @@ export default function SettingsPage() {
         notify_delegations: notifyDelegations,
         notify_proposals: notifyProposals,
         notify_dm: notifyDm,
+        // Dual profile (Art. 2.4)
+        public_display_name: publicDisplayName.trim() || null,
+        public_show_bio: publicShowBio,
+        public_show_email: publicShowEmail,
+        public_show_activity: publicShowActivity,
+        public_show_delegations: publicShowDelegations,
+        public_show_group_membership: publicShowGroupMembership,
       })
       .eq("user_id", user.id);
 
@@ -479,6 +503,99 @@ export default function SettingsPage() {
                 <Toggle enabled={isSearchable} onChange={setIsSearchable} />
               </SettingRow>
             </div>
+          </div>
+
+          {/* ──── Dual Profile (Art. 2.4) ──── */}
+          <div className="card p-6">
+            <h2 className="text-lg font-semibold text-fg mb-2 flex items-center gap-2">
+              <Users className="w-5 h-5 text-fg-primary" />
+              Dual Profile
+            </h2>
+            <p className="text-xs text-fg-muted mb-4">
+              Every citizen has two profiles: a private one (default) and a public one. The public profile activates automatically when you accept delegations or become a group leader. Actions performed as a delegate are always visible through your public profile.
+            </p>
+
+            {/* Status badge */}
+            <div className={`flex items-center gap-3 p-3 rounded-lg border mb-4 ${
+              publicProfileActive
+                ? "border-pangea-500/50 bg-pangea-900/20"
+                : "border-theme bg-theme-card/30"
+            }`}>
+              <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                publicProfileActive ? "bg-pangea-400" : "bg-fg-muted"
+              }`} />
+              <div className="flex-1">
+                <p className="text-sm text-fg font-medium">
+                  {publicProfileActive ? "Public profile active" : "Public profile inactive"}
+                </p>
+                <p className="text-xs text-fg-muted">
+                  {publicProfileActive
+                    ? "Your public profile is visible when you act as a delegate or group leader."
+                    : "Your public profile will activate when you accept a delegation or become a group leader."
+                  }
+                </p>
+              </div>
+              {publicProfileActive && (
+                <button
+                  onClick={async () => {
+                    if (!user) return;
+                    const { error: err } = await supabase.rpc("deactivate_public_profile", { p_user_id: user.id });
+                    if (err) {
+                      if (err.message.includes("CANNOT_DEACTIVATE_WITH_DELEGATIONS")) {
+                        setError("Cannot deactivate public profile while you have active delegations. Revoke all delegations first.");
+                      } else {
+                        setError(err.message);
+                      }
+                    } else {
+                      setPublicProfileActive(false);
+                    }
+                  }}
+                  className="text-xs text-fg-muted hover:text-fg-danger transition-colors shrink-0"
+                >
+                  Deactivate
+                </button>
+              )}
+            </div>
+
+            {/* Public profile settings (only shown when active) */}
+            {publicProfileActive && (
+              <div className="space-y-4 pt-2 border-t border-theme">
+                <p className="text-xs text-fg-muted pt-3">
+                  Configure what is visible on your public profile. These settings only apply when you act as a delegate or group leader.
+                </p>
+                <div>
+                  <label className="label">Public display name</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="Name shown on your public profile (e.g. your real name)"
+                    value={publicDisplayName}
+                    onChange={(e) => setPublicDisplayName(e.target.value)}
+                    maxLength={50}
+                  />
+                  <p className="text-xs text-fg-muted mt-1">
+                    If empty, your standard display name or full name will be used.
+                  </p>
+                </div>
+                <div className="space-y-3 divide-y divide-slate-700/30">
+                  <SettingRow icon={Info} label="Show bio publicly" description="Display your biography on your public profile">
+                    <Toggle enabled={publicShowBio} onChange={setPublicShowBio} />
+                  </SettingRow>
+                  <SettingRow icon={Mail} label="Show email publicly" description="Display your email on your public profile">
+                    <Toggle enabled={publicShowEmail} onChange={setPublicShowEmail} />
+                  </SettingRow>
+                  <SettingRow icon={Activity} label="Show activity publicly" description="Display your proposals and votes on your public profile">
+                    <Toggle enabled={publicShowActivity} onChange={setPublicShowActivity} />
+                  </SettingRow>
+                  <SettingRow icon={Users} label="Show delegations publicly" description="Display your delegation relationships on your public profile">
+                    <Toggle enabled={publicShowDelegations} onChange={setPublicShowDelegations} />
+                  </SettingRow>
+                  <SettingRow icon={Building2} label="Show group memberships publicly" description="Display which groups you belong to on your public profile">
+                    <Toggle enabled={publicShowGroupMembership} onChange={setPublicShowGroupMembership} />
+                  </SettingRow>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Save profile button */}

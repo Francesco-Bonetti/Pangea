@@ -83,6 +83,7 @@ export interface ProfileDTO {
   identity_tier: IdentityTier;
   allow_delegations: boolean;
   is_searchable: boolean;
+  public_profile_active: boolean;
   created_at: string;
 }
 
