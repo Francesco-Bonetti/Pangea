@@ -230,6 +230,9 @@ export function canAssignRole(
   // Cannot assign founder role
   if (targetNewRole === "founder") return false;
 
+  // Art. 5.4 LUX v2: moderator can only be elected, never manually assigned
+  if (targetNewRole === "moderator") return false;
+
   // Co-founder can only be assigned by founder
   if (targetNewRole === "co_founder" && actorRole !== "founder") return false;
 

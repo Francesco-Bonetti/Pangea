@@ -436,6 +436,7 @@ const en = {
       founderCantLeave: "The founder cannot leave. Transfer the role first.",
       failedToCreate: "Failed to create group",
       cannotAssignRole: "You do not have permission to assign this role.",
+      moderatorMustBeElected: "Moderators can only be appointed through elections (Art. 5.4 LUX).",
       cannotRemoveMember: "You do not have permission to remove this member.",
       alreadyCoFounder: "This user is already a founder or co-founder.",
       userNotFound: "User not found.",

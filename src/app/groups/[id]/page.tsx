@@ -287,7 +287,11 @@ export default function GroupDetailPage() {
       p_new_role: newRole,
     });
     if (rpcError || !data?.success) {
-      setError(data?.error || rpcError?.message || t("groups.errors.cannotAssignRole"));
+      const errCode = data?.error;
+      const msg = errCode === "MODERATOR_MUST_BE_ELECTED"
+        ? t("groups.errors.moderatorMustBeElected")
+        : errCode || rpcError?.message || t("groups.errors.cannotAssignRole");
+      setError(msg);
       return;
     }
     setRoleDropdownOpen(null);
