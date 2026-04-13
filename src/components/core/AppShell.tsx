@@ -5,6 +5,7 @@ import AppSidebar from "@/components/core/AppSidebar";
 import TopHeader from "@/components/core/TopHeader";
 import GuestBanner from "@/components/ui/GuestBanner";
 import { CoreErrorBoundary, EdgeErrorBoundary } from "@/components/core/ErrorBoundary";
+import FloatingMessageButton from "@/components/social/FloatingMessageButton";
 import type { ReactNode } from "react";
 
 /**
@@ -75,6 +76,9 @@ export default function AppShell({
             {wrappedContent}
           </main>
         </div>
+
+        {/* Floating DM button — only for authenticated users */}
+        {!isGuest && <FloatingMessageButton />}
       </div>
     </SidebarProvider>
   );
