@@ -1210,6 +1210,7 @@ const en = {
     faq3A: "It depends on the proposal's deadline. Each proposal shows the remaining time clearly in the voting section.",
     faq4Q: "Is my data safe?",
     faq4A: "Yes. We use Supabase with PostgreSQL Row-Level Security. Your voting preferences are private and your data is GDPR protected.",
+    more: "More",
     readyToParticipate: "Ready to Participate?",
     joinCitizens: "Join the citizens of Pangea and shape the future of global digital democracy.",
     proposeALaw: "Propose a Law",

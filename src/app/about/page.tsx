@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import AppShell from "@/components/core/AppShell";
 import { useLanguage } from "@/components/core/language-provider";
-import { Globe, BookOpen, Users, Vote, FileText, Shield, CheckCircle2 } from "lucide-react";
+import { Globe, BookOpen, Users, Vote, FileText, Shield, CheckCircle2, Landmark, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 interface PlatformStats {
@@ -247,6 +247,27 @@ export default function AboutPage() {
                   <p className="text-fg-muted text-sm">{item.a}</p>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* More — secondary tools */}
+          <section>
+            <h2 className="text-2xl font-semibold text-fg mb-6">{t("about.more")}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Link href="/treasury" className="card p-6 bg-theme-base border border-theme/30 hover:border-pangea-600/60 transition-colors group">
+                <div className="flex items-center gap-3 mb-3">
+                  <Landmark className="w-6 h-6 text-pangea-400 group-hover:text-pangea-300 transition-colors" />
+                  <h3 className="text-lg font-semibold text-fg">{t("nav.treasury")}</h3>
+                </div>
+                <p className="text-fg-muted text-sm">{t("nav.treasuryDesc")}</p>
+              </Link>
+              <Link href="/verify" className="card p-6 bg-theme-base border border-theme/30 hover:border-pangea-600/60 transition-colors group">
+                <div className="flex items-center gap-3 mb-3">
+                  <ShieldCheck className="w-6 h-6 text-pangea-400 group-hover:text-pangea-300 transition-colors" />
+                  <h3 className="text-lg font-semibold text-fg">{t("integrity.navTitle")}</h3>
+                </div>
+                <p className="text-fg-muted text-sm">{t("integrity.description")}</p>
+              </Link>
             </div>
           </section>
 
