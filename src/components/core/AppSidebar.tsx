@@ -23,6 +23,7 @@ import {
   ICON_MAP,
   GROUP_NODES,
   SIDEBAR_MAIN_NODES,
+  SIDEBAR_SECONDARY_NODES,
   USER_NAV_NODES,
   getNodeById,
 } from "@/lib/platform-nodes";
@@ -310,6 +311,29 @@ export default function AppSidebar({
               </Link>
             );
           })}
+
+          {/* ── Secondary links (Treasury, Verify) ── */}
+          <div className="mt-2 pt-2" style={{ borderTop: "1px solid var(--border)" }}>
+            {SIDEBAR_SECONDARY_NODES.map((item) => {
+              const active = isActive(item.href);
+              const Icon = ICON_MAP[item.iconKey];
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={handleNavClick}
+                  className={`
+                    sidebar-nav-item flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs
+                    transition-all duration-150
+                    ${active ? "sidebar-nav-active" : "sidebar-nav-inactive opacity-70 hover:opacity-100"}
+                  `}
+                >
+                  <Icon className="w-[14px] h-[14px] shrink-0" />
+                  {t(item.labelKey)}
+                </Link>
+              );
+            })}
+          </div>
 
           {/* ── User section (authenticated only) ── */}
           {!isGuest && (

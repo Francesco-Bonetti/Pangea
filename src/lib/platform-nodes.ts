@@ -546,7 +546,12 @@ export const GROUP_NODES = getChildren("groups");
 
 /** Main sidebar nav items (below Groups accordion) */
 export const SIDEBAR_MAIN_NODES: PlatformNode[] = [
-  "laws", "proposals", "elections", "agora", "treasury", "about", "verify",
+  "laws", "proposals", "elections", "agora", "about",
+].map((id) => getNodeById(id)!);
+
+/** Secondary sidebar nav items — shown as small footer links (not primary nav) */
+export const SIDEBAR_SECONDARY_NODES: PlatformNode[] = [
+  "treasury", "verify",
 ].map((id) => getNodeById(id)!);
 
 /** User personal-space nav items (sidebar + navbar dropdown) */
