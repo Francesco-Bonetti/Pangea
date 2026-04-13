@@ -36,7 +36,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import { triggerTranslation } from "@/lib/translate";
-import { useLanguage } from "@/components/language-provider";
+import { useLanguage } from "@/components/core/language-provider";
 
 // Reusable toggle component
 function Toggle({
