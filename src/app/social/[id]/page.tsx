@@ -8,16 +8,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TranslatedContent from "@/components/ui/TranslatedContent";
 import { formatTimeAgo } from "@/lib/formatTimeAgo";
+import { t as tl, getTranslations, DEFAULT_LOCALE } from "@/lib/i18n";
+
+const tr = getTranslations(DEFAULT_LOCALE);
 
 // Server-side privacy name resolver
 function resolvePrivacyName(
   fullName: string | null,
   privacy: { show_full_name?: boolean; display_name?: string | null; profile_visibility?: string } | null
 ): string {
-  if (!privacy) return fullName || "Anonymous Citizen";
-  if (privacy.profile_visibility === "private") return privacy.display_name || "Private Citizen";
-  if (privacy.show_full_name === false) return privacy.display_name || "Anonymous Citizen";
-  return fullName || "Anonymous Citizen";
+  if (!privacy) return fullName || tl(tr, "forum.anonymousCitizen");
+  if (privacy.profile_visibility === "private") return privacy.display_name || tl(tr, "forum.privateCitizen");
+  if (privacy.show_full_name === false) return privacy.display_name || tl(tr, "forum.anonymousCitizen");
+  return fullName || tl(tr, "forum.anonymousCitizen");
 }
 
 export const metadata = {

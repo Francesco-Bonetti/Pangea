@@ -14,6 +14,9 @@ import { ArrowLeft, Calendar, Clock, User, FileText, Hash, Flame, BarChart3, Use
 import Link from "next/link";
 import { formatDateTime } from "@/lib/utils";
 import TranslatedContent from "@/components/ui/TranslatedContent";
+import { t as tl, getTranslations, DEFAULT_LOCALE } from "@/lib/i18n";
+
+const tr = getTranslations(DEFAULT_LOCALE);
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -187,18 +190,18 @@ export default async function ProposalDetailPage({ params }: Props) {
               }
             >
               {proposal.status === "active"
-                ? "Active Vote"
+                ? tl(tr, "laws.statusActiveVote")
                 : proposal.status === "curation"
-                ? "Community Review"
+                ? tl(tr, "laws.statusCommunityReview")
                 : proposal.status === "trial"
-                ? "Trial Period"
+                ? tl(tr, "laws.statusTrial")
                 : proposal.status === "second_vote"
-                ? "Second Vote"
+                ? tl(tr, "laws.statusSecondVote")
                 : proposal.status === "closed"
-                ? "Concluded"
+                ? tl(tr, "laws.statusConcluded")
                 : proposal.status === "repealed"
-                ? "Repealed"
-                : "Draft"}
+                ? tl(tr, "laws.statusRepealed")
+                : tl(tr, "laws.statusDraft")}
             </span>
             {proposal.proposal_type === "amendment" && (
               <span className="text-xs text-purple-400 font-medium bg-purple-tint px-2 py-1 rounded-full border border-purple-800/30">
@@ -254,10 +257,10 @@ export default async function ProposalDetailPage({ params }: Props) {
               <User className="w-4 h-4 shrink-0" />
               <span className="truncate">
                 {authorPrivacy && authorPrivacy.profile_visibility === "private"
-                  ? (authorPrivacy.display_name || "Private Citizen")
+                  ? (authorPrivacy.display_name || tl(tr, "proposals.privateCitizen"))
                   : authorPrivacy && authorPrivacy.show_full_name === false
-                    ? (authorPrivacy.display_name || "Anonymous Citizen")
-                    : (authorProfile?.full_name ?? "Citizen")}
+                    ? (authorPrivacy.display_name || tl(tr, "proposals.anonymousCitizen"))
+                    : (authorProfile?.full_name ?? tl(tr, "proposals.citizen"))}
               </span>
             </Link>
             <div className="flex items-center gap-1.5 overflow-hidden min-w-0">

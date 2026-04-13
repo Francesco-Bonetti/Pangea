@@ -6,6 +6,9 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Trophy, MapPin, Flag, User, Clock } from "lucide-react";
 import type { Election, ElectionStatus } from "@/lib/types";
 import TranslatedContent from "@/components/ui/TranslatedContent";
+import { t as tl, getTranslations, DEFAULT_LOCALE } from "@/lib/i18n";
+
+const tr = getTranslations(DEFAULT_LOCALE);
 
 const STATUS_CONFIG: Record<ElectionStatus, { label: string; color: string; bg: string }> = {
   upcoming: { label: "Upcoming", color: "text-blue-400", bg: "bg-blue-500/20 border-blue-500/30" },
@@ -41,7 +44,7 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
   if (!election) notFound();
 
   // Fetch creator name separately
-  let creatorName = "Admin";
+  let creatorName = tl(tr, "elections.defaultCreatorName");
   if (election.created_by) {
     const { data: creatorProfile } = await supabase
       .from("profiles")
@@ -79,10 +82,10 @@ export default async function ElectionDetailPage({ params }: { params: Promise<{
 
   // Timeline phases
   const phases = [
-    { label: "Candidature Opens", date: election.candidature_start, active: election.status === "candidature" },
-    { label: "Candidature Closes", date: election.candidature_end, active: false },
-    { label: "Voting Opens", date: election.voting_start, active: election.status === "voting" },
-    { label: "Voting Closes", date: election.voting_end, active: false },
+    { label: tl(tr, "elections.candidatureOpens"), date: election.candidature_start, active: election.status === "candidature" },
+    { label: tl(tr, "elections.candidatureCloses"), date: election.candidature_end, active: false },
+    { label: tl(tr, "elections.votingOpens"), date: election.voting_start, active: election.status === "voting" },
+    { label: tl(tr, "elections.votingCloses"), date: election.voting_end, active: false },
   ];
 
   return (

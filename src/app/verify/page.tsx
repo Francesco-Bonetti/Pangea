@@ -88,7 +88,7 @@ export default function VerifyPage() {
         if (chain) setHashChain(chain as ContentHash[]);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Verification failed");
+      setError(err instanceof Error ? err.message : t("verify.verificationFailed"));
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function VerifyPage() {
         .order("version", { ascending: true });
       if (chain) setHashChain(chain as ContentHash[]);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Verification failed");
+      setError(err instanceof Error ? err.message : t("verify.verificationFailed"));
     } finally {
       setLoading(false);
     }

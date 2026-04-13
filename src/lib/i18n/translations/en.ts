@@ -324,6 +324,10 @@ const en = {
     trialDurationDesc: "How many days should the trial period last between the first and second vote? Citizens will evaluate the proposal during this time.",
     trialDurationHint: "For example, a 14-day trial gives the community two weeks to assess the impact before the final vote.",
     doubleVoteExplainer: "This is a {tier} law. It requires two votes with a trial period in between. First vote: \"Should we start the trial?\" Second vote: \"Do we confirm?\"",
+    // Privacy display names
+    privateCitizen: "Private Citizen",
+    anonymousCitizen: "Anonymous Citizen",
+    citizen: "Citizen",
   },
 
   // ── Trial Environment (T24) ──
@@ -398,6 +402,11 @@ const en = {
     tryDifferentFilter: "Try a different filter",
     electionsWillAppear: "Elections will appear here when created by administrators",
     openForCandidates: "Open for Candidates",
+    defaultCreatorName: "Admin",
+    candidatureOpens: "Candidature Opens",
+    candidatureCloses: "Candidature Closes",
+    votingOpens: "Voting Opens",
+    votingCloses: "Voting Closes",
     day: "day",
     daysLeft: "days",
     leftToRegister: "left to register",
@@ -845,6 +854,9 @@ const en = {
     searching: "Searching...",
     failedToCreateChannel: "Failed to create channel. Please try again.",
     newChannelTitle: "New Channel",
+    // Privacy display names
+    privateCitizen: "Private Citizen",
+    anonymousCitizen: "Anonymous Citizen",
   },
 
   // ── Messages ──
@@ -1103,6 +1115,9 @@ const en = {
     usersByRole: "Users by role",
     citizen: "Citizen",
     moderator: "Moderator",
+    discussionDeleted: "Discussion deleted",
+    hashing: "Hashing...",
+    hashAllUnhashed: "Hash All Unhashed Records",
   },
 
   // ── AI Assistant ──

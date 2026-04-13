@@ -326,7 +326,7 @@ export default function AdminPage() {
     const { error: err } = await supabase.from("discussions").delete().eq("id", discussionId);
     if (err) setError(err.message);
     else {
-      setSuccess("Discussion deleted");
+      setSuccess(t("admin.discussionDeleted"));
       setDiscussions(prev => prev.filter(d => d.id !== discussionId));
     }
     setActionLoading(null);
@@ -756,7 +756,7 @@ export default function AdminPage() {
                             : "bg-theme-muted text-fg-muted hover:bg-theme-card"
                         } disabled:opacity-50`}
                       >
-                        {d.is_pinned ? "Unpin" : "Pin"}
+                        {d.is_pinned ? t("groupDiscussions.unpin") : t("groupDiscussions.pin")}
                       </button>
                       <button
                         onClick={() => toggleDiscussionLock(d.id, d.is_locked)}
@@ -767,7 +767,7 @@ export default function AdminPage() {
                             : "bg-theme-muted text-fg-muted hover:bg-theme-card"
                         } disabled:opacity-50`}
                       >
-                        {d.is_locked ? "Unlock" : "Lock"}
+                        {d.is_locked ? t("groupDiscussions.unlock") : t("groupDiscussions.lock")}
                       </button>
                       <button
                         onClick={() => deleteDiscussion(d.id)}
@@ -1012,7 +1012,7 @@ function IntegrityTab({
             ) : (
               <Hash className="w-4 h-4" />
             )}
-            {hashingAll ? "Hashing..." : "Hash All Unhashed Records"}
+            {hashingAll ? t("admin.hashing") : t("admin.hashAllUnhashed")}
           </button>
           <Link
             href="/verify"
