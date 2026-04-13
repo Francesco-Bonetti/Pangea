@@ -36,6 +36,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import { triggerTranslation } from "@/lib/translate";
+import { useLanguage } from "@/components/language-provider";
 
 // Reusable toggle component
 function Toggle({
@@ -162,6 +163,7 @@ export default function SettingsPage() {
 
   const supabase = createClient();
   const router = useRouter();
+  const { t } = useLanguage();
 
   const loadProfile = useCallback(async () => {
     const {
@@ -343,11 +345,11 @@ export default function SettingsPage() {
     setPasswordError(null);
     setPasswordSuccess(false);
     if (newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters.");
+      setPasswordError(t("settings.passwordTooShort"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("Passwords do not match.");
+      setPasswordError(t("settings.passwordMismatch"));
       return;
     }
     setChangingPassword(true);
@@ -386,9 +388,9 @@ export default function SettingsPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-fg flex items-center gap-2">
               <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-fg-primary shrink-0" />
-              <span className="truncate">Account Settings</span>
+              <span className="truncate">{t("settings.pageTitle")}</span>
             </h1>
-            <p className="text-xs sm:text-sm text-fg-muted mt-0.5 truncate">Manage your profile, privacy, and preferences</p>
+            <p className="text-xs sm:text-sm text-fg-muted mt-0.5 truncate">{t("settings.pageDesc")}</p>
           </div>
         </div>
 
@@ -397,27 +399,27 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
               <Shield className="w-5 h-5 text-fg-primary" />
-              Account Information
+              {t("settings.accountInfo")}
             </h2>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-fg-muted">Email</p>
+                  <p className="text-xs text-fg-muted">{t("settings.emailField")}</p>
                   <p className="text-sm text-fg">{user?.email}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Shield className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-fg-muted">Role</p>
+                  <p className="text-xs text-fg-muted">{t("settings.roleField")}</p>
                   <p className="text-sm text-fg capitalize">{profile?.role || "citizen"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Hash className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-fg-muted">Citizen Code</p>
+                  <p className="text-xs text-fg-muted">{t("settings.citizenCode")}</p>
                   <p className="text-sm text-fg-primary font-mono font-semibold tracking-wider">
                     {profile?.user_code || "—"}
                   </p>
@@ -426,7 +428,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <Calendar className="w-4 h-4 text-fg-muted" />
                 <div>
-                  <p className="text-xs text-fg-muted">Member since</p>
+                  <p className="text-xs text-fg-muted">{t("settings.memberSince")}</p>
                   <p className="text-sm text-fg">
                     {profile?.created_at ? formatDate(profile.created_at) : "—"}
                   </p>
@@ -439,43 +441,43 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
               <User className="w-5 h-5 text-fg-primary" />
-              Public Profile
+              {t("settings.publicProfileSection")}
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="label">Full name</label>
+                <label className="label">{t("settings.fullNameLabel")}</label>
                 <input
                   type="text"
                   className="input-field"
-                  placeholder="Your real name"
+                  placeholder={t("settings.fullNamePlaceholder")}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   maxLength={100}
                 />
               </div>
               <div>
-                <label className="label">Bio</label>
+                <label className="label">{t("settings.bioLabel")}</label>
                 <textarea
                   className="input-field min-h-[100px] resize-y"
-                  placeholder="Tell fellow citizens something about yourself..."
+                  placeholder={t("settings.bioPlaceholder")}
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={500}
                 />
-                <p className="text-xs text-fg-muted mt-1">{bio.length}/500 characters</p>
+                <p className="text-xs text-fg-muted mt-1">{bio.length}/500 {t("settings.bioCharCount")}</p>
               </div>
               <div>
-                <label className="label">Display name (optional)</label>
+                <label className="label">{t("settings.displayNameLabel")}</label>
                 <input
                   type="text"
                   className="input-field"
-                  placeholder="Alternative name shown when your real name is hidden"
+                  placeholder={t("settings.displayNamePlaceholder")}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   maxLength={50}
                 />
                 <p className="text-xs text-fg-muted mt-1">
-                  If you hide your real name, this will be shown instead. For example: &quot;EcoVoter42&quot; or &quot;Citizen X&quot;.
+                  {t("settings.displayNameHint")}
                 </p>
               </div>
             </div>
@@ -485,20 +487,20 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
               <Vote className="w-5 h-5 text-fg-primary" />
-              Delegations
+              {t("settings.delegationsSection")}
             </h2>
             <div className="space-y-3">
               <SettingRow
                 icon={Users}
-                label="Accept delegations"
-                description="Allow other citizens to delegate their vote to you"
+                label={t("settings.acceptDelegations")}
+                description={t("settings.acceptDelegationsDesc")}
               >
                 <Toggle enabled={allowDelegations} onChange={setAllowDelegations} />
               </SettingRow>
               <SettingRow
                 icon={Eye}
-                label="Searchable profile"
-                description="Appear in search results when citizens look for delegates"
+                label={t("settings.searchableProfile")}
+                description={t("settings.searchableProfileDesc")}
               >
                 <Toggle enabled={isSearchable} onChange={setIsSearchable} />
               </SettingRow>
@@ -509,7 +511,7 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-fg mb-2 flex items-center gap-2">
               <Users className="w-5 h-5 text-fg-primary" />
-              Dual Profile
+              {t("settings.dualProfile.title")}
             </h2>
             <p className="text-xs text-fg-muted mb-4">
               Every citizen has two profiles: a private one (default) and a public one. The public profile activates automatically when you accept delegations or become a group leader. Actions performed as a delegate are always visible through your public profile.
@@ -526,12 +528,12 @@ export default function SettingsPage() {
               }`} />
               <div className="flex-1">
                 <p className="text-sm text-fg font-medium">
-                  {publicProfileActive ? "Public profile active" : "Public profile inactive"}
+                  {publicProfileActive ? t("settings.dualProfile.active") : t("settings.dualProfile.inactive")}
                 </p>
                 <p className="text-xs text-fg-muted">
                   {publicProfileActive
-                    ? "Your public profile is visible when you act as a delegate or group leader."
-                    : "Your public profile will activate when you accept a delegation or become a group leader."
+                    ? t("settings.dualProfile.activeDesc")
+                    : t("settings.dualProfile.inactiveDesc")
                   }
                 </p>
               </div>
@@ -542,7 +544,7 @@ export default function SettingsPage() {
                     const { error: err } = await supabase.rpc("deactivate_public_profile", { p_user_id: user.id });
                     if (err) {
                       if (err.message.includes("CANNOT_DEACTIVATE_WITH_DELEGATIONS")) {
-                        setError("Cannot deactivate public profile while you have active delegations. Revoke all delegations first.");
+                        setError(t("settings.dualProfile.cannotDeactivate"));
                       } else {
                         setError(err.message);
                       }
@@ -552,7 +554,7 @@ export default function SettingsPage() {
                   }}
                   className="text-xs text-fg-muted hover:text-fg-danger transition-colors shrink-0"
                 >
-                  Deactivate
+                  {t("settings.dualProfile.deactivate")}
                 </button>
               )}
             </div>
@@ -561,36 +563,36 @@ export default function SettingsPage() {
             {publicProfileActive && (
               <div className="space-y-4 pt-2 border-t border-theme">
                 <p className="text-xs text-fg-muted pt-3">
-                  Configure what is visible on your public profile. These settings only apply when you act as a delegate or group leader.
+                  {t("settings.dualProfile.publicSettings")}
                 </p>
                 <div>
-                  <label className="label">Public display name</label>
+                  <label className="label">{t("settings.dualProfile.publicDisplayName")}</label>
                   <input
                     type="text"
                     className="input-field"
-                    placeholder="Name shown on your public profile (e.g. your real name)"
+                    placeholder={t("settings.dualProfile.publicDisplayNamePlaceholder")}
                     value={publicDisplayName}
                     onChange={(e) => setPublicDisplayName(e.target.value)}
                     maxLength={50}
                   />
                   <p className="text-xs text-fg-muted mt-1">
-                    If empty, your standard display name or full name will be used.
+                    {t("settings.dualProfile.publicDisplayNameHint")}
                   </p>
                 </div>
                 <div className="space-y-3 divide-y divide-slate-700/30">
-                  <SettingRow icon={Info} label="Show bio publicly" description="Display your biography on your public profile">
+                  <SettingRow icon={Info} label={t("settings.dualProfile.showBioPublicly")} description={t("settings.dualProfile.showBioPubliclyDesc")}>
                     <Toggle enabled={publicShowBio} onChange={setPublicShowBio} />
                   </SettingRow>
-                  <SettingRow icon={Mail} label="Show email publicly" description="Display your email on your public profile">
+                  <SettingRow icon={Mail} label={t("settings.dualProfile.showEmailPublicly")} description={t("settings.dualProfile.showEmailPubliclyDesc")}>
                     <Toggle enabled={publicShowEmail} onChange={setPublicShowEmail} />
                   </SettingRow>
-                  <SettingRow icon={Activity} label="Show activity publicly" description="Display your proposals and votes on your public profile">
+                  <SettingRow icon={Activity} label={t("settings.dualProfile.showActivityPublicly")} description={t("settings.dualProfile.showActivityPubliclyDesc")}>
                     <Toggle enabled={publicShowActivity} onChange={setPublicShowActivity} />
                   </SettingRow>
-                  <SettingRow icon={Users} label="Show delegations publicly" description="Display your delegation relationships on your public profile">
+                  <SettingRow icon={Users} label={t("settings.dualProfile.showDelegationsPublicly")} description={t("settings.dualProfile.showDelegationsPubliclyDesc")}>
                     <Toggle enabled={publicShowDelegations} onChange={setPublicShowDelegations} />
                   </SettingRow>
-                  <SettingRow icon={Building2} label="Show group memberships publicly" description="Display which groups you belong to on your public profile">
+                  <SettingRow icon={Building2} label={t("settings.dualProfile.showGroupMembershipsPublicly")} description={t("settings.dualProfile.showGroupMembershipsPubliclyDesc")}>
                     <Toggle enabled={publicShowGroupMembership} onChange={setPublicShowGroupMembership} />
                   </SettingRow>
                 </div>
@@ -606,7 +608,7 @@ export default function SettingsPage() {
           )}
           {success && (
             <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-sm flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" /> Profile updated successfully!
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> {t("settings.profileSaved")}
             </div>
           )}
           <button
@@ -615,7 +617,7 @@ export default function SettingsPage() {
             className="btn-primary w-full flex items-center justify-center gap-2 py-3"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {saving ? "Saving..." : "Save profile"}
+            {saving ? t("settings.savingProfile") : t("settings.saveProfile")}
           </button>
 
           {/* ═══════════════════════════════════════════ */}
@@ -630,10 +632,10 @@ export default function SettingsPage() {
           <div className="border-t border-theme pt-6">
             <h2 className="text-xl font-bold text-fg mb-1 flex items-center gap-2">
               <Lock className="w-5 h-5 text-amber-400" />
-              Privacy & Visibility
+              {t("settings.privacyTitle")}
             </h2>
             <p className="text-sm text-fg-muted mb-6">
-              Control what other citizens can see about you. These settings apply across the entire platform.
+              {t("settings.privacyDesc")}
             </p>
           </div>
 
@@ -641,33 +643,33 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
               <Globe className="w-4 h-4 text-fg-primary" />
-              Profile Visibility
+              {t("settings.profileVisibilitySection")}
             </h3>
             <p className="text-xs text-fg-muted mb-4">
-              Choose who can see your profile page. For example, if you select &quot;Private&quot;, only your display name or citizen code will be visible.
+              {t("settings.profileVisibilityDesc")}
             </p>
             <div className="space-y-2">
               {(
                 [
                   {
-                    value: "public",
-                    label: "Public",
-                    desc: "Anyone can see your profile, including visitors who are not logged in",
+                    value: "public" as const,
+                    label: t("settings.visibilityPublic"),
+                    desc: t("settings.visibilityPublicDesc"),
                     icon: Globe,
                   },
                   {
-                    value: "registered_only",
-                    label: "Registered citizens only",
-                    desc: "Only logged-in citizens can see your profile details",
+                    value: "registered_only" as const,
+                    label: t("settings.visibilityRegistered"),
+                    desc: t("settings.visibilityRegisteredDesc"),
                     icon: Users,
                   },
                   {
-                    value: "private",
-                    label: "Private",
-                    desc: "Your profile is hidden. Only your display name or citizen code is visible",
+                    value: "private" as const,
+                    label: t("settings.visibilityPrivate"),
+                    desc: t("settings.visibilityPrivateDesc"),
                     icon: Lock,
                   },
-                ] as const
+                ]
               ).map((opt) => (
                 <label
                   key={opt.value}
@@ -701,26 +703,26 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
               <EyeOff className="w-4 h-4 text-fg-primary" />
-              Visible Information
+              {t("settings.visibleInfo")}
             </h3>
             <p className="text-xs text-fg-muted mb-4">
-              Choose which details are visible to other citizens. For example, you can hide your real name and show only your display name.
+              {t("settings.visibleInfoDesc")}
             </p>
 
             <div className="space-y-3 divide-y divide-slate-700/30">
-              <SettingRow icon={User} label="Show real name" description="Display your full name on your profile and in posts">
+              <SettingRow icon={User} label={t("settings.showRealName")} description={t("settings.showRealNameDesc")}>
                 <Toggle enabled={showFullName} onChange={setShowFullName} disabled={isPrivate} />
               </SettingRow>
-              <SettingRow icon={Info} label="Show bio" description="Display your biography on your profile page">
+              <SettingRow icon={Info} label={t("settings.showBio")} description={t("settings.showBioDesc")}>
                 <Toggle enabled={showBio} onChange={setShowBio} disabled={isPrivate} />
               </SettingRow>
-              <SettingRow icon={Mail} label="Show email" description="Display your email address (hidden by default for safety)">
+              <SettingRow icon={Mail} label={t("settings.showEmail")} description={t("settings.showEmailDesc")}>
                 <Toggle enabled={showEmail} onChange={setShowEmail} disabled={isPrivate} />
               </SettingRow>
-              <SettingRow icon={Calendar} label="Show join date" description="Show when you joined the platform">
+              <SettingRow icon={Calendar} label={t("settings.showJoinDate")} description={t("settings.showJoinDateDesc")}>
                 <Toggle enabled={showJoinDate} onChange={setShowJoinDate} disabled={isPrivate} />
               </SettingRow>
-              <SettingRow icon={Hash} label="Show citizen code" description="Display your unique citizen identifier">
+              <SettingRow icon={Hash} label={t("settings.showCitizenCode")} description={t("settings.showCitizenCodeDesc")}>
                 <Toggle enabled={showUserCode} onChange={setShowUserCode} />
               </SettingRow>
             </div>
@@ -728,9 +730,7 @@ export default function SettingsPage() {
             {isPrivate && (
               <div className="mt-4 p-3 bg-warning-tint border border-theme rounded-lg text-amber-300/80 text-xs flex items-start gap-2">
                 <Lock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                <span>
-                  Your profile is set to Private. Most fields are automatically hidden. Only your citizen code visibility can be toggled.
-                </span>
+                <span>{t("settings.profilePrivateNote")}</span>
               </div>
             )}
           </div>
@@ -739,19 +739,19 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
               <Activity className="w-4 h-4 text-fg-primary" />
-              Activity Visibility
+              {t("settings.activityVisibilitySection")}
             </h3>
             <p className="text-xs text-fg-muted mb-4">
-              Control who can see your activity on the platform. For example, you can hide your proposals and votes from other citizens.
+              {t("settings.activityVisibilityDesc")}
             </p>
 
             <div className="space-y-2 mb-4">
               {(
                 [
-                  { value: "public", label: "Public", desc: "Anyone can see your activity" },
-                  { value: "registered_only", label: "Registered citizens only", desc: "Only logged-in citizens" },
-                  { value: "private", label: "Private", desc: "Nobody can see your activity" },
-                ] as const
+                  { value: "public" as const, label: t("settings.activityPublic"), desc: t("settings.activityPublicDesc") },
+                  { value: "registered_only" as const, label: t("settings.activityRegistered"), desc: t("settings.activityRegisteredDesc") },
+                  { value: "private" as const, label: t("settings.activityPrivate"), desc: t("settings.activityPrivateDesc") },
+                ]
               ).map((opt) => (
                 <label
                   key={opt.value}
@@ -778,13 +778,13 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-3 divide-y divide-slate-700/30">
-              <SettingRow icon={Activity} label="Show proposals & votes" description="Display your voting and proposal activity">
+              <SettingRow icon={Activity} label={t("settings.showProposalsVotes")} description={t("settings.showProposalsVotesDesc")}>
                 <Toggle enabled={showActivity} onChange={setShowActivity} />
               </SettingRow>
-              <SettingRow icon={Users} label="Show delegations" description="Display your delegation relationships">
+              <SettingRow icon={Users} label={t("settings.showDelegations")} description={t("settings.showDelegationsDesc")}>
                 <Toggle enabled={showDelegations} onChange={setShowDelegations} />
               </SettingRow>
-              <SettingRow icon={Flag} label="Show group memberships" description="Display which groups you belong to">
+              <SettingRow icon={Flag} label={t("settings.showGroupMemberships")} description={t("settings.showGroupMembershipsDesc")}>
                 <Toggle enabled={showPartyMembership} onChange={setShowPartyMembership} />
               </SettingRow>
             </div>
@@ -794,26 +794,26 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
               <MessageCircle className="w-4 h-4 text-fg-primary" />
-              Messaging & Social
+              {t("settings.messagingSocial")}
             </h3>
             <p className="text-xs text-fg-muted mb-4">
-              Control how other citizens can interact with you. These settings will apply to direct messages and social features.
+              {t("settings.messagingSocialDesc")}
             </p>
 
             {/* DM Policy */}
             <div className="mb-4">
-              <p className="text-sm text-fg mb-2">Who can send you direct messages?</p>
+              <p className="text-sm text-fg mb-2">{t("settings.whoCanDm")}</p>
               <div className="space-y-2">
                 {(
                   [
-                    { value: "everyone", label: "Everyone", desc: "Any citizen can message you" },
+                    { value: "everyone" as const, label: t("settings.dmEveryone"), desc: t("settings.dmEveryoneDesc") },
                     {
-                      value: "followed_only",
-                      label: "People you follow",
-                      desc: "Only citizens you follow can message you",
+                      value: "followed_only" as const,
+                      label: t("settings.dmFollowedOnly"),
+                      desc: t("settings.dmFollowedOnlyDesc"),
                     },
-                    { value: "nobody", label: "Nobody", desc: "Direct messages are disabled" },
-                  ] as const
+                    { value: "nobody" as const, label: t("settings.dmNobody"), desc: t("settings.dmNobodyDesc") },
+                  ]
                 ).map((opt) => (
                   <label
                     key={opt.value}
@@ -841,16 +841,16 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-3 divide-y divide-slate-700/30">
-              <SettingRow icon={UserX} label="Allow friend requests" description="Let other citizens send you connection requests">
+              <SettingRow icon={UserX} label={t("settings.allowFriendRequests")} description={t("settings.allowFriendRequestsDesc")}>
                 <Toggle enabled={allowFriendRequests} onChange={setAllowFriendRequests} />
               </SettingRow>
-              <SettingRow icon={AtSign} label="Allow mentions" description="Let other citizens @mention you in discussions">
+              <SettingRow icon={AtSign} label={t("settings.allowMentions")} description={t("settings.allowMentionsDesc")}>
                 <Toggle enabled={allowMentions} onChange={setAllowMentions} />
               </SettingRow>
               <SettingRow
                 icon={Eye}
-                label="Show online status"
-                description="Let others see when you are active on the platform"
+                label={t("settings.showOnlineStatus")}
+                description={t("settings.showOnlineStatusDesc")}
               >
                 <Toggle enabled={showOnlineStatus} onChange={setShowOnlineStatus} />
               </SettingRow>
@@ -861,26 +861,26 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h3 className="text-base font-semibold text-fg mb-3 flex items-center gap-2">
               <Bell className="w-4 h-4 text-fg-primary" />
-              Notification Preferences
+              {t("settings.notificationPrefs")}
             </h3>
             <p className="text-xs text-fg-muted mb-4">
-              Choose which notifications you want to receive. These will apply when the notification system is activated.
+              {t("settings.notificationPrefsDesc")}
             </p>
 
             <div className="space-y-3 divide-y divide-slate-700/30">
-              <SettingRow icon={AtSign} label="Mentions" description="When someone @mentions you">
+              <SettingRow icon={AtSign} label={t("settings.notifyMentions")} description={t("settings.notifyMentionsDesc")}>
                 <Toggle enabled={notifyMentions} onChange={setNotifyMentions} />
               </SettingRow>
-              <SettingRow icon={MessageCircle} label="Replies" description="When someone replies to your posts or comments">
+              <SettingRow icon={MessageCircle} label={t("settings.notifyReplies")} description={t("settings.notifyRepliesDesc")}>
                 <Toggle enabled={notifyReplies} onChange={setNotifyReplies} />
               </SettingRow>
-              <SettingRow icon={Users} label="Delegations" description="When someone delegates their vote to you or changes delegation">
+              <SettingRow icon={Users} label={t("settings.notifyDelegationsLabel")} description={t("settings.notifyDelegationsDesc")}>
                 <Toggle enabled={notifyDelegations} onChange={setNotifyDelegations} />
               </SettingRow>
-              <SettingRow icon={Flag} label="Proposals" description="Updates on proposals you voted on or authored">
+              <SettingRow icon={Flag} label={t("settings.notifyProposals")} description={t("settings.notifyProposalsDesc")}>
                 <Toggle enabled={notifyProposals} onChange={setNotifyProposals} />
               </SettingRow>
-              <SettingRow icon={MessageCircle} label="Direct messages" description="When you receive a new direct message">
+              <SettingRow icon={MessageCircle} label={t("settings.notifyDm")} description={t("settings.notifyDmDesc")}>
                 <Toggle enabled={notifyDm} onChange={setNotifyDm} />
               </SettingRow>
             </div>
@@ -889,7 +889,7 @@ export default function SettingsPage() {
           {/* Save privacy button */}
           {privacySuccess && (
             <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-sm flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" /> Privacy settings saved!
+              <CheckCircle2 className="w-4 h-4 shrink-0" /> {t("settings.privacySaved")}
             </div>
           )}
           <button
@@ -898,7 +898,7 @@ export default function SettingsPage() {
             className="btn-primary w-full flex items-center justify-center gap-2 py-3"
           >
             {savingPrivacy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-            {savingPrivacy ? "Saving..." : "Save privacy settings"}
+            {savingPrivacy ? t("settings.savingPrivacy") : t("settings.savePrivacy")}
           </button>
 
           {/* ──── Group vote weights ──── */}
@@ -906,11 +906,10 @@ export default function SettingsPage() {
             <div className="card p-6">
               <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
                 <Flag className="w-5 h-5 text-fg-primary" />
-                Group Vote Weights
+                {t("settings.groupVoteWeights")}
               </h2>
               <p className="text-xs text-fg-muted mb-4">
-                If you are a member of multiple groups, your vote is split based on these weights. For example, if Group A has
-                weight 2 and Group B has weight 1, Group A gets ~67% of your vote.
+                {t("settings.groupVoteWeightsDesc")}
               </p>
               <div className="space-y-3">
                 {partyMemberships.map((pm) => {
@@ -926,7 +925,7 @@ export default function SettingsPage() {
                         >
                           {pm.party_name}
                         </Link>
-                        <p className="text-[10px] text-fg-muted">{percentage}% of your vote</p>
+                        <p className="text-[10px] text-fg-muted">{percentage}{t("settings.ofYourVote")}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -958,7 +957,7 @@ export default function SettingsPage() {
               </div>
               {weightsSuccess && (
                 <div className="mt-3 p-2 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Weights updated!
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {t("settings.weightsUpdated")}
                 </div>
               )}
               <button
@@ -967,7 +966,7 @@ export default function SettingsPage() {
                 className="mt-3 btn-secondary w-full flex items-center justify-center gap-2 text-sm"
               >
                 {savingWeights ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {savingWeights ? "Saving..." : "Save group weights"}
+                {savingWeights ? t("settings.savingProfile") : t("settings.saveGroupWeights")}
               </button>
             </div>
           )}
@@ -976,25 +975,25 @@ export default function SettingsPage() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
               <Shield className="w-5 h-5 text-amber-400" />
-              Change Password
+              {t("settings.changePassword")}
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="label">New password</label>
+                <label className="label">{t("settings.newPasswordLabel")}</label>
                 <input
                   type="password"
                   className="input-field"
-                  placeholder="Minimum 8 characters"
+                  placeholder={t("settings.newPasswordPlaceholder")}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div>
-                <label className="label">Confirm password</label>
+                <label className="label">{t("settings.confirmPasswordLabel")}</label>
                 <input
                   type="password"
                   className="input-field"
-                  placeholder="Repeat the password"
+                  placeholder={t("settings.confirmPasswordPlaceholder")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -1006,7 +1005,7 @@ export default function SettingsPage() {
               )}
               {passwordSuccess && (
                 <div className="p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-fg-success text-sm flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated!
+                  <CheckCircle2 className="w-4 h-4 shrink-0" /> {t("settings.passwordUpdated")}
                 </div>
               )}
               <button
@@ -1015,7 +1014,7 @@ export default function SettingsPage() {
                 className="btn-secondary w-full flex items-center justify-center gap-2"
               >
                 {changingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
-                {changingPassword ? "Updating..." : "Update password"}
+                {changingPassword ? t("settings.updatingPassword") : t("settings.updatePassword")}
               </button>
             </div>
           </div>
