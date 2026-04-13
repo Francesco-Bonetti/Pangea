@@ -26,6 +26,8 @@ interface LawTreeProps {
   depth: number;
   showActiveStatus?: boolean;
   isAdmin?: boolean;
+  isGuest?: boolean;
+  activeProposalCounts?: Record<string, number>;
 }
 
 const typeKeys: Record<string, { icon: typeof BookOpen; color: string; bg: string; inactiveBg: string; labelKey: string }> = {
@@ -73,7 +75,7 @@ const typeKeys: Record<string, { icon: typeof BookOpen; color: string; bg: strin
   },
 };
 
-export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawTreeProps) {
+export default function LawTree({ node, depth, showActiveStatus, isAdmin, isGuest, activeProposalCounts = {} }: LawTreeProps) {
   const [expanded, setExpanded] = useState(depth === 0);
   const [showSimplified, setShowSimplified] = useState(false);
   const { t } = useLanguage();
@@ -156,6 +158,14 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
                 <span className="text-xs px-2 py-0.5 rounded-full bg-amber-900/30 text-amber-400 inline-flex items-center gap-1">
                   <Lock className="w-3 h-3" />
                   {t("laws.bootstrapLocked")}
+                </span>
+              )}
+
+              {/* Active proposals badge */}
+              {activeProposalCounts[node.id] > 0 && (
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                  {activeProposalCounts[node.id]}
                 </span>
               )}
 
@@ -280,7 +290,7 @@ export default function LawTree({ node, depth, showActiveStatus, isAdmin }: LawT
         <div className={`card border ${bgClass} rounded-t-none border-t border-theme/20 pb-2 pt-1`}>
           <div className="space-y-2 px-2">
             {node.children!.map((child) => (
-              <LawTree key={child.id} node={child} depth={depth + 1} showActiveStatus={showActiveStatus} isAdmin={isAdmin} />
+              <LawTree key={child.id} node={child} depth={depth + 1} showActiveStatus={showActiveStatus} isAdmin={isAdmin} isGuest={isGuest} activeProposalCounts={activeProposalCounts} />
             ))}
           </div>
         </div>

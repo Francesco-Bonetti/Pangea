@@ -36,6 +36,7 @@ const en = {
     ngos: "NGOs",
     treasury: "Treasury",
     geography: "Geography",
+    other: "Other",
   },
 
   // ── Dashboard ──

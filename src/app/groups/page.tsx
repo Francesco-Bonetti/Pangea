@@ -63,7 +63,7 @@ function GroupsPageInner() {
   // Auth state
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isGuest, setIsGuest] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   // Tree data
   const [treeNodes, setTreeNodes] = useState<GroupTreeNode[]>([]);
@@ -263,9 +263,10 @@ function GroupsPageInner() {
             onChange={(e) => setFilterType(e.target.value as GroupType | "all")}
             className="px-3 py-2.5 rounded-lg border text-sm"
             style={{
-              backgroundColor: "var(--input-bg)",
+              backgroundColor: "var(--card)",
               borderColor: "var(--border)",
               color: "var(--foreground)",
+              colorScheme: "dark",
             }}
           >
             <option value="all">{t("groups.filter.allTypes")}</option>

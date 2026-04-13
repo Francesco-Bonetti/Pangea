@@ -17,7 +17,7 @@ function GeographyPageInner() {
 
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isGuest, setIsGuest] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [currentArea, setCurrentArea] = useState<GeoArea | null>(null);

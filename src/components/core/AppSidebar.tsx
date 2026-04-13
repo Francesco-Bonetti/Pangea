@@ -17,7 +17,7 @@ import { useSidebar } from "@/components/core/sidebar-provider";
 import { useLanguage } from "@/components/core/language-provider";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NotificationBell from "@/components/social/NotificationBell";
 import {
   ICON_MAP,
@@ -41,6 +41,12 @@ const delegationsNode = getNodeById("delegationsNode")!;
 const positionsNode = getNodeById("positions")!;
 const settingsNode = getNodeById("settingsNode")!;
 
+/* ── Group node partitions: main vs "Other" (no geography) ── */
+const MAIN_GROUP_IDS = ["allGroups", "jurisdictions", "parties", "communities", "workingGroups"];
+const OTHER_GROUP_IDS = ["religions", "customGroups", "igos", "ngos"];
+const MAIN_GROUP_NODES = GROUP_NODES.filter((n) => MAIN_GROUP_IDS.includes(n.id));
+const OTHER_GROUP_NODES = GROUP_NODES.filter((n) => OTHER_GROUP_IDS.includes(n.id));
+
 export default function AppSidebar({
   userName,
   userEmail,
@@ -57,6 +63,16 @@ export default function AppSidebar({
   const [exploreOpen, setExploreOpen] = useState(
     pathname.startsWith("/groups")
   );
+  const [otherGroupsOpen, setOtherGroupsOpen] = useState(false);
+  // Fetch current user's ID for profile link
+  const [myUserId, setMyUserId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isGuest) {
+      createClient().auth.getUser().then(({ data: { user } }) => {
+        if (user) setMyUserId(user.id);
+      });
+    }
+  }, [isGuest]);
 
   const isAdmin = userRole === "admin" || userRole === "moderator";
 
@@ -207,8 +223,11 @@ export default function AppSidebar({
             </button>
             {exploreOpen && (
               <div className="ml-3 mt-1 space-y-0.5 border-l-2 pl-3" style={{ borderColor: "var(--border)" }}>
-                {GROUP_NODES.map((item) => {
-                  const active = pathname === item.href || (pathname.startsWith(item.href.split("?")[0]) && new URLSearchParams(item.href.split("?")[1]).get("type") === new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("type"));
+                {/* Main group types */}
+                {MAIN_GROUP_NODES.map((item) => {
+                  const qType = new URLSearchParams(item.href.split("?")[1] ?? "").get("type");
+                  const curType = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("type") : null;
+                  const active = pathname === item.href || (qType ? curType === qType : pathname === item.href);
                   const Icon = ICON_MAP[item.iconKey];
                   return (
                     <Link
@@ -226,6 +245,47 @@ export default function AppSidebar({
                     </Link>
                   );
                 })}
+
+                {/* Other group types — collapsible, starts closed */}
+                <div>
+                  <button
+                    onClick={() => setOtherGroupsOpen(!otherGroupsOpen)}
+                    className="w-full sidebar-nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 sidebar-nav-inactive"
+                  >
+                    <span className="text-[13px]">···</span>
+                    <span className="flex-1 text-left">{t("nav.other")}</span>
+                    <ChevronDown
+                      className={`w-3 h-3 shrink-0 transition-transform duration-200 ${
+                        otherGroupsOpen ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                  </button>
+                  {otherGroupsOpen && (
+                    <div className="ml-3 mt-0.5 space-y-0.5 border-l pl-3" style={{ borderColor: "var(--border)" }}>
+                      {OTHER_GROUP_NODES.map((item) => {
+                        const qType = new URLSearchParams(item.href.split("?")[1] ?? "").get("type");
+                        const curType = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("type") : null;
+                        const active = qType ? curType === qType : pathname === item.href;
+                        const Icon = ICON_MAP[item.iconKey];
+                        return (
+                          <Link
+                            key={item.id}
+                            href={item.href}
+                            onClick={handleNavClick}
+                            className={`
+                              sidebar-nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                              transition-all duration-150
+                              ${active ? "sidebar-nav-active" : "sidebar-nav-inactive"}
+                            `}
+                          >
+                            <Icon className="w-[14px] h-[14px] shrink-0" />
+                            {t(item.labelKey)}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -259,12 +319,16 @@ export default function AppSidebar({
                 {t("nav.yourSpace")}
               </p>
               {USER_NAV_NODES.map((item) => {
-                const active = isActive(item.href);
+                // citizenProfile → /citizens/[myUserId] (public profile view)
+                const href = item.id === "citizenProfile" && myUserId
+                  ? `/citizens/${myUserId}`
+                  : item.href;
+                const active = isActive(href);
                 const Icon = ICON_MAP[item.iconKey];
                 return (
                   <Link
                     key={item.id}
-                    href={item.href}
+                    href={href}
                     onClick={handleNavClick}
                     className={`
                       sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium

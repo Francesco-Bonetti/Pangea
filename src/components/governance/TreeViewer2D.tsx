@@ -354,6 +354,9 @@ export default function TreeViewer2D({
   /* ── Build visible columns ─────────────────────────── */
 
   const columns = useMemo(() => {
+    // Build a fresh lookup from current nodes to avoid stale lookupRef during render
+    const freshLookup = buildLookup(nodes);
+
     const cols: {
       nodes: PlatformTreeNode[];
       level: number;
@@ -362,7 +365,7 @@ export default function TreeViewer2D({
 
     let lvl = 0;
     while (expandedAtLevel[lvl] !== undefined) {
-      const parent = lookupRef.current.get(expandedAtLevel[lvl]);
+      const parent = freshLookup.get(expandedAtLevel[lvl]);
       if (parent?.children?.length) {
         cols.push({
           nodes: parent.children,

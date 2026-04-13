@@ -121,6 +121,20 @@ export default async function LawsPage({ searchParams }: Props) {
   const activeCodes = activeLaws.filter((l) => l.law_type === "code").length;
   const activeArticles = activeLaws.filter((l) => l.law_type === "article").length;
 
+  // Active proposal counts per law_id (for tree badges)
+  const { data: proposalRows } = await supabase
+    .from("proposals")
+    .select("law_id")
+    .eq("status", "active")
+    .not("law_id", "is", null);
+
+  const activeProposalCounts: Record<string, number> = {};
+  (proposalRows ?? []).forEach((row) => {
+    if (row.law_id) {
+      activeProposalCounts[row.law_id] = (activeProposalCounts[row.law_id] ?? 0) + 1;
+    }
+  });
+
   // T09: Resolve group info for filter banner
   let groupInfo: { id: string; name: string; emoji: string } | null = null;
   if (groupFilter) {
@@ -143,6 +157,7 @@ export default async function LawsPage({ searchParams }: Props) {
           isAdmin={isAdmin}
           isGuest={isGuest}
           groupFilter={groupInfo}
+          activeProposalCounts={activeProposalCounts}
         />
       </div>
     </AppShell>

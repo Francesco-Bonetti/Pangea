@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import LawTree from "@/components/governance/LawTree";
-import LawsTree3D from "@/components/governance/LawsTree3D";
 import Link from "next/link";
-import { BookOpen, Boxes, Scale, Shield, Eye } from "lucide-react";
+import { BookOpen, Scale, Shield } from "lucide-react";
 import { useLanguage } from "@/components/core/language-provider";
 import type { LawNode } from "@/app/laws/page";
 
@@ -18,20 +16,19 @@ interface LawsPageClientProps {
   isAdmin?: boolean;
   isGuest?: boolean;
   groupFilter?: { id: string; name: string; emoji: string } | null;
+  activeProposalCounts?: Record<string, number>;
 }
 
 export default function LawsPageClient({
   fullTree,
-  activeTree,
   totalCodes,
   totalArticles,
   activeCodes,
-  activeArticles,
   isAdmin,
   isGuest = false,
   groupFilter,
+  activeProposalCounts = {},
 }: LawsPageClientProps) {
-  const [activeTab, setActiveTab] = useState<"living" | "operative" | "3d">("living");
   const { t } = useLanguage();
 
   return (
@@ -50,194 +47,45 @@ export default function LawsPageClient({
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <div className="mb-8">
-        <div className="flex gap-1 bg-theme-card rounded-lg p-1">
-          <button
-            onClick={() => setActiveTab("living")}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium text-sm transition-all ${
-              activeTab === "living"
-                ? "bg-blue-600/20 border border-blue-500/30 text-blue-300"
-                : "hover:bg-theme-muted text-fg-muted hover:text-fg border border-transparent"
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            {t("laws.livingCodes")}
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full ${
-                activeTab === "living" ? "bg-blue-500/20" : "bg-theme-muted"
-              }`}
-            >
-              {totalCodes} {t("laws.codes").toLowerCase()} &middot;{" "}
-              {totalArticles} {t("laws.articles").toLowerCase()}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("operative")}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium text-sm transition-all ${
-              activeTab === "operative"
-                ? "bg-green-600/20 border border-green-500/30 text-fg-success"
-                : "hover:bg-theme-muted text-fg-muted hover:text-fg border border-transparent"
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            {t("laws.operativeLaws")}
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full ${
-                activeTab === "operative" ? "bg-green-500/20" : "bg-theme-muted"
-              }`}
-            >
-              {activeCodes} {t("laws.codes").toLowerCase()} &middot;{" "}
-              {activeArticles} {t("laws.articles").toLowerCase()}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("3d")}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium text-sm transition-all ${
-              activeTab === "3d"
-                ? "bg-amber-600/20 border border-amber-500/30 text-amber-300"
-                : "hover:bg-theme-muted text-fg-muted hover:text-fg border border-transparent"
-            }`}
-          >
-            <Boxes className="w-4 h-4" />
-            {t("laws.view3D")}
-          </button>
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="card p-4 bg-blue-900/10 border border-blue-800/20">
+          <Scale className="w-5 h-5 text-blue-400 mb-2" />
+          <p className="text-2xl font-bold text-fg">{totalCodes}</p>
+          <p className="text-xs text-fg-muted">{t("laws.codes")}</p>
+        </div>
+        <div className="card p-4 bg-pangea-900/10 border border-pangea-800/20">
+          <BookOpen className="w-5 h-5 text-fg-primary mb-2" />
+          <p className="text-2xl font-bold text-fg">{totalArticles}</p>
+          <p className="text-xs text-fg-muted">{t("laws.articles")}</p>
+        </div>
+        <div className="card p-4 bg-green-900/10 border border-green-800/20">
+          <Shield className="w-5 h-5 text-fg-success mb-2" />
+          <p className="text-2xl font-bold text-fg">{activeCodes}/{totalCodes}</p>
+          <p className="text-xs text-fg-muted">{t("laws.activeCodes")}</p>
         </div>
       </div>
 
-      {/* Living Codes Tab */}
-      {activeTab === "living" && (
-        <section>
-          <div className="flex items-center gap-3 mb-4">
-            <BookOpen className="w-6 h-6 text-blue-400" />
-            <h2 className="text-xl font-bold text-fg">{t("laws.livingCodes")}</h2>
-            <span className="text-xs text-fg-muted bg-theme-card px-2 py-1 rounded">
-              {t("laws.completeCollection")}
-            </span>
-          </div>
-          <div className="card border border-blue-800/20 bg-blue-900/5 p-4 mb-6">
-            <p className="text-sm text-fg-muted leading-relaxed">
-              <Eye className="w-4 h-4 inline mr-1 text-blue-400" />
-              {t("laws.livingCodesDesc")}
-            </p>
-          </div>
+      {/* Law tree — single unified view */}
+      <div className="space-y-4">
+        {fullTree.map((code) => (
+          <LawTree
+            key={code.id}
+            node={code}
+            depth={0}
+            showActiveStatus
+            isAdmin={isAdmin}
+            isGuest={isGuest}
+            activeProposalCounts={activeProposalCounts}
+          />
+        ))}
+      </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="card p-4 bg-blue-900/10">
-              <Scale className="w-5 h-5 text-blue-400 mb-2" />
-              <p className="text-2xl font-bold text-fg">{totalCodes}</p>
-              <p className="text-xs text-fg-muted">{t("laws.codes")}</p>
-            </div>
-            <div className="card p-4 bg-pangea-900/10">
-              <BookOpen className="w-5 h-5 text-fg-primary mb-2" />
-              <p className="text-2xl font-bold text-fg">{totalArticles}</p>
-              <p className="text-xs text-fg-muted">{t("laws.articles")}</p>
-            </div>
-            <div className="card p-4 bg-green-900/10">
-              <Shield className="w-5 h-5 text-fg-success mb-2" />
-              <p className="text-2xl font-bold text-fg">
-                {activeCodes}/{totalCodes}
-              </p>
-              <p className="text-xs text-fg-muted">{t("laws.activeCodes")}</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {fullTree.map((code) => (
-              <LawTree
-                key={code.id}
-                node={code}
-                depth={0}
-                showActiveStatus
-                isAdmin={isAdmin}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Operative Laws Tab */}
-      {activeTab === "operative" && (
-        <section>
-          <div className="flex items-center gap-3 mb-4">
-            <Shield className="w-6 h-6 text-fg-success" />
-            <h2 className="text-xl font-bold text-fg">
-              {t("laws.operativeLaws")}
-            </h2>
-            <span className="text-xs text-fg-success bg-green-900/30 px-2 py-1 rounded">
-              {t("laws.currentlyInForce")}
-            </span>
-          </div>
-          <div className="card border border-green-800/20 bg-green-900/5 p-4 mb-6">
-            <p className="text-sm text-fg-muted leading-relaxed">
-              <Shield className="w-4 h-4 inline mr-1 text-fg-success" />
-              {t("laws.operativeDesc")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="card p-4 bg-green-900/10">
-              <Scale className="w-5 h-5 text-fg-success mb-2" />
-              <p className="text-2xl font-bold text-fg">{activeCodes}</p>
-              <p className="text-xs text-fg-muted">{t("laws.activeCodes")}</p>
-            </div>
-            <div className="card p-4 bg-green-900/10">
-              <BookOpen className="w-5 h-5 text-fg-success mb-2" />
-              <p className="text-2xl font-bold text-fg">{activeArticles}</p>
-              <p className="text-xs text-fg-muted">
-                {t("laws.activeArticles")}
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {activeTree.map((code) => (
-              <LawTree
-                key={code.id}
-                node={code}
-                depth={0}
-                showActiveStatus
-                isAdmin={isAdmin}
-              />
-            ))}
-          </div>
-
-          {activeTree.length === 0 && (
-            <div className="text-center py-20 card">
-              <Shield
-                className="w-16 h-16 text-fg-muted mx-auto mb-4"
-                strokeWidth={1}
-              />
-              <h3 className="text-xl font-semibold text-fg mb-2">
-                {t("laws.noOperativeLaws")}
-              </h3>
-              <p className="text-fg-muted">{t("laws.operativeWillAppear")}</p>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* 3D View Tab */}
-      {activeTab === "3d" && (
-        <section>
-          <div className="flex items-center gap-3 mb-4">
-            <Boxes className="w-6 h-6 text-amber-400" />
-            <h2 className="text-xl font-bold text-fg">{t("laws.view3D")}</h2>
-            <span className="text-xs text-amber-400 bg-amber-900/20 px-2 py-1 rounded">
-              {totalCodes} {t("laws.codes").toLowerCase()}
-            </span>
-          </div>
-          <div className="card border border-amber-800/20 bg-amber-900/5 p-4 mb-6">
-            <p className="text-sm text-fg-muted leading-relaxed">
-              <Boxes className="w-4 h-4 inline mr-1 text-amber-400" />
-              {t("laws.view3DDesc")}
-            </p>
-          </div>
-
-          <LawsTree3D laws={fullTree} isGuest={isGuest} />
-        </section>
+      {fullTree.length === 0 && (
+        <div className="text-center py-20 card">
+          <BookOpen className="w-16 h-16 text-fg-muted mx-auto mb-4" strokeWidth={1} />
+          <h3 className="text-xl font-semibold text-fg mb-2">{t("laws.noLaws")}</h3>
+        </div>
       )}
     </>
   );
