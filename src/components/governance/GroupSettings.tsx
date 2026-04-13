@@ -25,12 +25,16 @@ import type {
   GroupSettings as GroupSettingsType,
   EffectiveLocks,
   GroupMemberRole,
+  GovernanceConfig,
+  EffectiveGovernance,
+  GovernanceSource,
 } from "@/lib/types";
 import { hasPermission } from "@/lib/group-permissions";
 
 interface Props {
   groupId: string;
   settings: GroupSettingsType;
+  governanceConfig: GovernanceConfig;
   lockedSettings: Record<string, boolean>;
   userRole: GroupMemberRole | undefined;
   hasChildren: boolean;
@@ -239,6 +243,7 @@ function ReadOnlySettings({
 export default function GroupSettings({
   groupId,
   settings,
+  governanceConfig,
   lockedSettings,
   userRole,
   hasChildren,
@@ -255,7 +260,14 @@ export default function GroupSettings({
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ governance: true, membership: true });
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ governance: true, membership: true, advancedGovernance: false });
+
+  // T21: Effective governance (resolved from parent chain)
+  const [effectiveGov, setEffectiveGov] = useState<EffectiveGovernance | null>(null);
+  const [localGovConfig, setLocalGovConfig] = useState<GovernanceConfig>({ ...governanceConfig });
+  const [govSaving, setGovSaving] = useState(false);
+  const [govSuccess, setGovSuccess] = useState(false);
+  const [govError, setGovError] = useState<string | null>(null);
 
   // Load effective locks from parent chain
   useEffect(() => {
@@ -264,6 +276,13 @@ export default function GroupSettings({
       if (data) setEffectiveLocks(data as EffectiveLocks);
     });
   }, [groupId, parentGroupId]);
+
+  // T21: Load effective governance
+  useEffect(() => {
+    supabase.rpc("get_effective_governance", { p_group_id: groupId }).then(({ data }) => {
+      if (data) setEffectiveGov(data as unknown as EffectiveGovernance);
+    });
+  }, [groupId]);
 
   const toggleSection = (id: string) =>
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -557,6 +576,19 @@ export default function GroupSettings({
         );
       })}
 
+      {/* T21: Advanced Governance Config */}
+      <GovernanceConfigSection
+        groupId={groupId}
+        localGovConfig={localGovConfig}
+        setLocalGovConfig={setLocalGovConfig}
+        effectiveGov={effectiveGov}
+        canEdit={canEdit}
+        isOpen={!!openSections.advancedGovernance}
+        onToggle={() => toggleSection("advancedGovernance")}
+        supabase={supabase}
+        t={t}
+      />
+
       {/* Save bar */}
       <div className="mt-6 flex items-center gap-3 pt-3 border-t border-theme">
         <button
@@ -580,6 +612,296 @@ export default function GroupSettings({
       {/* Delegation Config — separate section with own save */}
       <GroupDelegationConfig groupId={groupId} canEdit={canEdit} />
     </div>
+  );
+}
+
+// ─── T21: Governance Config Section ─────────────────────────────
+const GOV_VOTING_METHODS = ["simple_majority", "supermajority", "consensus"] as const;
+const GOV_TIER_OPTIONS = ["ordinary", "platform", "core", "constitutional"] as const;
+
+interface GovSectionProps {
+  groupId: string;
+  localGovConfig: GovernanceConfig;
+  setLocalGovConfig: (fn: (prev: GovernanceConfig) => GovernanceConfig) => void;
+  effectiveGov: EffectiveGovernance | null;
+  canEdit: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+  supabase: ReturnType<typeof createClient>;
+  t: (k: string) => string;
+}
+
+function InheritedBadge({ source, t }: { source?: GovernanceSource; t: (k: string) => string }) {
+  if (!source || !source.inherited) return null;
+  return (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+      <GitBranch className="w-2.5 h-2.5" />
+      {t("groups.governance.inheritedFrom")} {source.from_group_name}
+    </span>
+  );
+}
+
+function GovernanceConfigSection({
+  groupId,
+  localGovConfig,
+  setLocalGovConfig,
+  effectiveGov,
+  canEdit,
+  isOpen,
+  onToggle,
+  supabase,
+  t,
+}: GovSectionProps) {
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const resolved = effectiveGov?.resolved;
+  const sources = effectiveGov?.sources;
+
+  function getVal<K extends keyof GovernanceConfig>(key: K): GovernanceConfig[K] {
+    return localGovConfig[key] ?? resolved?.[key];
+  }
+
+  function handleChange<K extends keyof GovernanceConfig>(key: K, value: GovernanceConfig[K]) {
+    setLocalGovConfig((prev: GovernanceConfig) => ({ ...prev, [key]: value }));
+    setSuccess(false);
+    setError(null);
+  }
+
+  async function handleSaveGov() {
+    setSaving(true);
+    setError(null);
+    const { data } = await supabase.rpc("update_governance_config", {
+      p_group_id: groupId,
+      p_config: localGovConfig,
+    });
+    setSaving(false);
+    if (data && !data.success) {
+      setError(data.error || "Failed to save governance config");
+    } else {
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    }
+  }
+
+  return (
+    <CollapsibleSection
+      id="advancedGovernance"
+      title={t("groups.governance.title")}
+      description={t("groups.governance.description")}
+      icon={ShieldCheck}
+      isOpen={isOpen}
+      onToggle={() => onToggle()}
+    >
+      <div className="space-y-4">
+        {/* Voting Method */}
+        <div className="pb-3 border-b border-theme">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("groups.governance.votingMethod")}
+            </span>
+            <InheritedBadge source={sources?.voting_method} t={t} />
+          </div>
+          <p className="text-xs mb-2" style={{ color: "var(--muted-foreground)" }}>
+            {t("groups.governance.votingMethodDesc")}
+          </p>
+          <div className="space-y-1">
+            {GOV_VOTING_METHODS.map((method) => (
+              <label
+                key={method}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  !canEdit ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-[var(--card)]"
+                } ${getVal("voting_method") === method ? "bg-purple-500/10 border border-purple-500/30" : "border border-transparent"}`}
+              >
+                <input
+                  type="radio"
+                  name="voting_method"
+                  value={method}
+                  checked={getVal("voting_method") === method}
+                  disabled={!canEdit}
+                  onChange={() => handleChange("voting_method", method)}
+                  className="accent-purple-500"
+                />
+                <span className="text-sm" style={{ color: "var(--foreground)" }}>
+                  {t(`groups.governance.method.${method}`)}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Tier Ceiling */}
+        <div className="pb-3 border-b border-theme">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("groups.governance.tierCeiling")}
+            </span>
+            <InheritedBadge source={sources?.tier_ceiling} t={t} />
+          </div>
+          <p className="text-xs mb-2" style={{ color: "var(--muted-foreground)" }}>
+            {t("groups.governance.tierCeilingDesc")}
+          </p>
+          <div className="space-y-1">
+            {GOV_TIER_OPTIONS.map((tier) => (
+              <label
+                key={tier}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  !canEdit ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-[var(--card)]"
+                } ${getVal("tier_ceiling") === tier ? "bg-purple-500/10 border border-purple-500/30" : "border border-transparent"}`}
+              >
+                <input
+                  type="radio"
+                  name="tier_ceiling"
+                  value={tier}
+                  checked={getVal("tier_ceiling") === tier}
+                  disabled={!canEdit}
+                  onChange={() => handleChange("tier_ceiling", tier as GovernanceConfig["tier_ceiling"])}
+                  className="accent-purple-500"
+                />
+                <span className="text-sm" style={{ color: "var(--foreground)" }}>
+                  {t(`groups.governance.tier.${tier}`)}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Proposal Review Days */}
+        <div className="pb-3 border-b border-theme">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("groups.governance.proposalReviewDays")}
+            </span>
+            <InheritedBadge source={sources?.proposal_review_days} t={t} />
+          </div>
+          <p className="text-xs mb-2" style={{ color: "var(--muted-foreground)" }}>
+            {t("groups.governance.proposalReviewDaysDesc")}
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={1}
+              max={30}
+              step={1}
+              value={getVal("proposal_review_days") ?? 7}
+              disabled={!canEdit}
+              onChange={(e) => handleChange("proposal_review_days", Number(e.target.value))}
+              className="flex-1 h-2 rounded-lg appearance-none cursor-pointer accent-purple-500 bg-[var(--muted)] disabled:opacity-50"
+            />
+            <span className="text-sm min-w-[40px] text-right" style={{ color: "var(--foreground)" }}>
+              {getVal("proposal_review_days") ?? 7} {t("groups.settings.unitDays")}
+            </span>
+          </div>
+        </div>
+
+        {/* Min Members to Propose */}
+        <div className="pb-3 border-b border-theme">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("groups.governance.minMembersToPropose")}
+            </span>
+            <InheritedBadge source={sources?.min_members_to_propose} t={t} />
+          </div>
+          <p className="text-xs mb-2" style={{ color: "var(--muted-foreground)" }}>
+            {t("groups.governance.minMembersToProposeDesc")}
+          </p>
+          <input
+            type="number"
+            min={1}
+            max={1000}
+            value={getVal("min_members_to_propose") ?? 1}
+            disabled={!canEdit}
+            onChange={(e) => handleChange("min_members_to_propose", Math.max(1, Number(e.target.value)))}
+            className="w-24 px-3 py-1.5 text-sm rounded border border-[var(--border)] bg-[var(--card)] disabled:opacity-50"
+            style={{ color: "var(--foreground)" }}
+          />
+        </div>
+
+        {/* Max Proposal Duration Days */}
+        <div className="pb-3 border-b border-theme">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+              {t("groups.governance.maxProposalDuration")}
+            </span>
+            <InheritedBadge source={sources?.max_proposal_duration_days} t={t} />
+          </div>
+          <p className="text-xs mb-2" style={{ color: "var(--muted-foreground)" }}>
+            {t("groups.governance.maxProposalDurationDesc")}
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={1}
+              max={90}
+              step={1}
+              value={getVal("max_proposal_duration_days") ?? 30}
+              disabled={!canEdit}
+              onChange={(e) => handleChange("max_proposal_duration_days", Number(e.target.value))}
+              className="flex-1 h-2 rounded-lg appearance-none cursor-pointer accent-purple-500 bg-[var(--muted)] disabled:opacity-50"
+            />
+            <span className="text-sm min-w-[40px] text-right" style={{ color: "var(--foreground)" }}>
+              {getVal("max_proposal_duration_days") ?? 30} {t("groups.settings.unitDays")}
+            </span>
+          </div>
+        </div>
+
+        {/* Boolean toggles */}
+        <div className="flex items-center justify-between pb-3 border-b border-theme">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+                {t("groups.governance.allowDelegatedVoting")}
+              </span>
+              <InheritedBadge source={sources?.allow_delegated_voting} t={t} />
+            </div>
+            <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+              {t("groups.governance.allowDelegatedVotingDesc")}
+            </p>
+          </div>
+          <Toggle
+            enabled={getVal("allow_delegated_voting") ?? true}
+            onChange={(v) => handleChange("allow_delegated_voting", v)}
+            disabled={!canEdit}
+          />
+        </div>
+
+        <div className="flex items-center justify-between pb-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+                {t("groups.governance.requireQuorum")}
+              </span>
+              <InheritedBadge source={sources?.require_quorum} t={t} />
+            </div>
+            <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+              {t("groups.governance.requireQuorumDesc")}
+            </p>
+          </div>
+          <Toggle
+            enabled={getVal("require_quorum") ?? true}
+            onChange={(v) => handleChange("require_quorum", v)}
+            disabled={!canEdit}
+          />
+        </div>
+
+        {/* Save governance config */}
+        {canEdit && (
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              onClick={handleSaveGov}
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white text-sm font-medium rounded-lg transition-all disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {t("groups.governance.save")}
+            </button>
+            {success && <span className="text-sm text-green-400 font-medium">✓ {t("groups.settings.saved")}</span>}
+            {error && <span className="text-sm text-red-400 font-medium">{error}</span>}
+          </div>
+        )}
+      </div>
+    </CollapsibleSection>
   );
 }
 

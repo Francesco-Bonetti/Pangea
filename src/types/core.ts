@@ -17,6 +17,7 @@ export type UserRole = "citizen" | "moderator" | "admin";
 export type GuardianActionType = "set_bootstrap_lock" | "remove_bootstrap_lock" | "degrade_admin" | "emergency_freeze";
 export type LawLockCategory = "reinforced" | "structural" | "ordinary";
 export type LegislativeTier = "constitutional" | "core" | "platform" | "ordinary";
+export type VotingMethod = "simple_majority" | "supermajority" | "consensus";
 export type PollStatus = "inactive" | "collecting" | "polling" | "voting" | "resolved";
 export type ProposalPhase = "draft" | "curation" | "first_vote" | "voting" | "trial" | "second_vote" | "closed";
 export type DelegationStatus = "pending" | "accepted" | "rejected" | "expired";
@@ -102,6 +103,36 @@ export interface IdentityProofDTO {
   created_at: string;
 }
 
+/** T21: Governance config — decision-making process parameters (separate from operational settings) */
+export interface GovernanceConfigDTO {
+  voting_method?: VotingMethod;           // default: simple_majority
+  proposal_review_days?: number;          // curation period, default: 7
+  min_members_to_propose?: number;        // minimum group members, default: 1
+  allow_delegated_voting?: boolean;       // delegated votes count, default: true
+  max_proposal_duration_days?: number;    // cap on voting duration, default: 30
+  require_quorum?: boolean;               // quorum enforced, default: true
+  tier_ceiling?: LegislativeTier;         // max tier for proposals, default: ordinary
+}
+
+/** T21: Resolved governance with source tracking */
+export interface EffectiveGovernanceDTO {
+  resolved: Required<GovernanceConfigDTO>;
+  sources: Record<string, {
+    value: unknown;
+    from_group_id: string | null;
+    from_group_name: string;
+    inherited: boolean;
+  }>;
+}
+
+/** T22: Proposal validation result */
+export interface ProposalValidationDTO {
+  valid: boolean;
+  reason: string | null;
+  tier_ceiling: LegislativeTier;
+  chain_depth: number;
+}
+
 /** Group (recursive entity: jurisdiction, party, community, etc.) */
 export interface GroupDTO {
   id: string;
@@ -114,6 +145,7 @@ export interface GroupDTO {
   parent_group_id: string | null;
   geographic_area_id: string | null;
   settings: GroupSettingsDTO;
+  governance_config: GovernanceConfigDTO;
   is_active: boolean;
   created_at: string;
   // Type-specific optional fields

@@ -78,6 +78,10 @@ function NewProposalContent() {
   const [userRole, setUserRole] = useState<string>("citizen");
   const [userId, setUserId] = useState<string | null>(null);
   const [groupName, setGroupName] = useState<string | null>(null);
+  // T21/T22: Tier selection + ceiling
+  const [selectedTier, setSelectedTier] = useState<string>("ordinary");
+  const [tierCeiling, setTierCeiling] = useState<string>("constitutional");
+  const [tierValidation, setTierValidation] = useState<{ valid: boolean; reason: string | null } | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   // T09: Pre-select group context from ?groupId=
@@ -104,6 +108,7 @@ function NewProposalContent() {
         setUserRole(prof?.role ?? "citizen");
       }
       // T09: Load group name if groupId param present
+      // T21: Load tier ceiling from effective governance
       if (groupIdParam) {
         const { data: grp } = await supabase
           .from("groups")
@@ -111,6 +116,13 @@ function NewProposalContent() {
           .eq("id", groupIdParam)
           .single();
         if (grp) setGroupName(grp.name);
+
+        const { data: govData } = await supabase.rpc("get_effective_governance", {
+          p_group_id: groupIdParam,
+        });
+        if (govData?.resolved?.tier_ceiling) {
+          setTierCeiling(govData.resolved.tier_ceiling);
+        }
       }
     }
     loadUser();
@@ -175,6 +187,20 @@ function NewProposalContent() {
         expiresAt = days > 0 ? new Date(Date.now() + days * 86400000).toISOString() : null;
       }
 
+      // T22: Validate tier against group chain before insert
+      if (groupIdParam && selectedTier !== "ordinary") {
+        const { data: validation } = await supabase.rpc("validate_proposal_against_chain", {
+          p_group_id: groupIdParam,
+          p_tier: selectedTier,
+        });
+        if (validation && !validation.valid) {
+          setError(validation.reason || t("proposals.tierValidationFailed"));
+          setSaving(false);
+          setPublishing(false);
+          return;
+        }
+      }
+
       const payload: Record<string, unknown> = {
         author_id: user.id,
         title: title.trim(),
@@ -187,8 +213,8 @@ function NewProposalContent() {
         parent_proposal_id: parentProposalId,
         // T09: scope to group if present
         group_id: groupIdParam || null,
-        // Art. 8.3: Legislative tier (ordinary = default for citizen proposals)
-        tier: "ordinary",
+        // T22: Legislative tier — selected by user, validated against chain
+        tier: selectedTier,
       };
 
       const { data, error: insertError } = await supabase
@@ -574,6 +600,40 @@ function NewProposalContent() {
               </div>
             )}
           </div>
+
+          {/* T22: Legislative Tier Selector */}
+          {groupIdParam && (
+            <div>
+              <label className="label">{t("proposals.legislativeTier")}</label>
+              <p className="text-xs text-fg-muted mb-2">{t("proposals.legislativeTierDesc")}</p>
+              <div className="flex flex-wrap gap-2">
+                {(["ordinary", "platform", "core", "constitutional"] as const)
+                  .filter((tier) => {
+                    const rank: Record<string, number> = { ordinary: 1, platform: 2, core: 3, constitutional: 4 };
+                    return rank[tier] <= (rank[tierCeiling] || 1);
+                  })
+                  .map((tier) => (
+                    <button
+                      key={tier}
+                      type="button"
+                      onClick={() => setSelectedTier(tier)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        selectedTier === tier
+                          ? "border-fg-primary/50 bg-fg-primary/10 text-fg-primary"
+                          : "border-theme text-fg-muted hover:border-fg-primary/30 hover:text-fg"
+                      }`}
+                    >
+                      {t(`proposals.tier.${tier}`)}
+                    </button>
+                  ))}
+              </div>
+              {tierCeiling !== "constitutional" && (
+                <p className="text-xs text-amber-400 mt-1">
+                  {t("proposals.tierCeilingNote")} {t(`proposals.tier.${tierCeiling}`)}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Opzioni deliberative */}
           <div>

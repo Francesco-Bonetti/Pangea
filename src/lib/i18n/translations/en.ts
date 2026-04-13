@@ -245,6 +245,17 @@ const en = {
     daysPlaceholder: "e.g. 45",
     or: "or",
     pickEndDate: "Pick a specific end date",
+    // T22: Legislative tier selector
+    legislativeTier: "Legislative Tier",
+    legislativeTierDesc: "Choose the legislative weight of this proposal. Higher tiers require stricter approval thresholds.",
+    tierCeilingNote: "This group's maximum tier is:",
+    tierValidationFailed: "This proposal's tier exceeds the group's tier ceiling.",
+    tier: {
+      ordinary: "Ordinary",
+      platform: "Platform",
+      core: "Core",
+      constitutional: "Constitutional",
+    },
     votingOptions: "Voting options *",
     votingOptionsDesc: "In Pangea, voting is not just \"yes or no\": each citizen distributes their vote as a percentage among the options you propose...",
     writeAtLeast2: "Write at least 2 alternatives. For example...",
@@ -647,6 +658,42 @@ const en = {
       noPermission: "You do not have permission to edit settings.",
       errorLocked: "Cannot change this setting — it is locked by",
       errorGeneric: "Failed to save settings. Please try again.",
+    },
+    // T21: Governance Config (advanced decision-making parameters)
+    governance: {
+      title: "Advanced Governance",
+      description: "Decision-making process parameters. These settings inherit from parent groups and determine how proposals and votes are handled.",
+      inheritedFrom: "Inherited from",
+      save: "Save Governance Config",
+      // Voting method
+      votingMethod: "Voting Method",
+      votingMethodDesc: "How votes are counted to determine the outcome of a proposal.",
+      method: {
+        simple_majority: "Simple Majority (>50%)",
+        supermajority: "Supermajority (≥67%)",
+        consensus: "Consensus (≥90%)",
+      },
+      // Tier ceiling
+      tierCeiling: "Proposal Tier Ceiling",
+      tierCeilingDesc: "The maximum legislative tier that proposals in this group can reach. Subgroups cannot exceed their parent's ceiling.",
+      tier: {
+        ordinary: "Ordinary",
+        platform: "Platform",
+        core: "Core",
+        constitutional: "Constitutional",
+      },
+      // Numeric
+      proposalReviewDays: "Proposal Review Period",
+      proposalReviewDaysDesc: "Number of days proposals spend in the curation phase before moving to a vote.",
+      minMembersToPropose: "Minimum Members to Propose",
+      minMembersToProposeDesc: "The minimum number of group members required before any member can submit a proposal.",
+      maxProposalDuration: "Maximum Voting Duration",
+      maxProposalDurationDesc: "The maximum number of days a vote can remain open.",
+      // Booleans
+      allowDelegatedVoting: "Allow Delegated Voting",
+      allowDelegatedVotingDesc: "Whether delegated votes (liquid democracy) are counted in this group's proposals and elections.",
+      requireQuorum: "Require Quorum",
+      requireQuorumDesc: "Whether a minimum participation threshold must be reached for a vote to be valid.",
     },
     miniPangea: {
       law: "law",

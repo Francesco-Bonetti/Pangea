@@ -863,6 +863,7 @@ export default function GroupDetailPage() {
             <GroupSettingsPanel
               groupId={groupId}
               settings={group.settings}
+              governanceConfig={group.governance_config || {}}
               lockedSettings={group.locked_settings || {}}
               userRole={myRole}
               hasChildren={children.length > 0}

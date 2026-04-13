@@ -390,6 +390,37 @@ export type EffectiveLocks = Record<string, LockedSetting>;
 // T10: Map of setting keys to boolean (stored on the group itself)
 export type GroupLockedSettings = Record<string, boolean>;
 
+// T21: Governance config — decision-making process (separate from operational settings)
+export interface GovernanceConfig {
+  voting_method?: "simple_majority" | "supermajority" | "consensus";
+  proposal_review_days?: number;
+  min_members_to_propose?: number;
+  allow_delegated_voting?: boolean;
+  max_proposal_duration_days?: number;
+  require_quorum?: boolean;
+  tier_ceiling?: "constitutional" | "core" | "platform" | "ordinary";
+}
+
+// T21: Resolved governance with source tracking (from get_effective_governance RPC)
+export interface GovernanceSource {
+  value: unknown;
+  from_group_id: string | null;
+  from_group_name: string;
+  inherited: boolean;
+}
+export interface EffectiveGovernance {
+  resolved: Required<GovernanceConfig>;
+  sources: Record<string, GovernanceSource>;
+}
+
+// T22: Proposal tier validation result
+export interface ProposalTierValidation {
+  valid: boolean;
+  reason: string | null;
+  tier_ceiling: string;
+  chain_depth: number;
+}
+
 export interface Group {
   id: string;
   uid?: string | null;
@@ -401,6 +432,7 @@ export interface Group {
   parent_group_id: string | null;
   geographic_area_id?: string | null;
   settings: GroupSettings;
+  governance_config: GovernanceConfig;
   locked_settings: GroupLockedSettings;
   is_active: boolean;
   created_at: string;
