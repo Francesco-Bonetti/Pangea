@@ -91,7 +91,8 @@ export default function VotingBooth({
   // Delegation weight (resolve_voting_weight)
   const [voteWeight, setVoteWeight] = useState<number>(1);
 
-  const isActive = proposal.status === "active";
+  const isActive = proposal.status === "active" || proposal.status === "second_vote";
+  const isTrial = proposal.status === "trial";
   const isClosed = proposal.status === "closed";
   const isCuration = proposal.status === "curation";
   const canVote = isActive && !hasVoted && options.length > 0;

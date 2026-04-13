@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import AppShell from "@/components/core/AppShell";
 import VotingBooth from "@/components/governance/VotingBooth";
 import VoteIntegrityBadge from "@/components/governance/VoteIntegrityBadge";
+import TrialEnvironmentPanel from "@/components/governance/TrialEnvironmentPanel";
+import ProposalPhaseBadge from "@/components/governance/ProposalPhaseBadge";
 import SignalButton from "@/components/social/SignalButton";
 import DraftActions from "@/components/governance/DraftActions";
 import CommentSection from "@/components/social/CommentSection";
@@ -176,6 +178,10 @@ export default async function ProposalDetailPage({ params }: Props) {
                   ? "status-closed"
                   : proposal.status === "repealed"
                   ? "status-repealed"
+                  : proposal.status === "trial"
+                  ? "status-active"
+                  : proposal.status === "second_vote"
+                  ? "status-active"
                   : "status-draft"
               }
             >
@@ -183,6 +189,10 @@ export default async function ProposalDetailPage({ params }: Props) {
                 ? "Active Vote"
                 : proposal.status === "curation"
                 ? "Community Review"
+                : proposal.status === "trial"
+                ? "Trial Period"
+                : proposal.status === "second_vote"
+                ? "Second Vote"
                 : proposal.status === "closed"
                 ? "Concluded"
                 : proposal.status === "repealed"
@@ -199,6 +209,12 @@ export default async function ProposalDetailPage({ params }: Props) {
                 Repeal
               </span>
             )}
+            {/* T23: Double vote phase badge */}
+            <ProposalPhaseBadge
+              status={proposal.status}
+              tier={proposal.tier}
+              trialEndsAt={proposal.trial_ends_at}
+            />
             {isAuthor && (
               <span className="text-xs text-amber-400 font-medium bg-warning-tint px-2 py-1 rounded-full border border-amber-800/30">
                 Your proposal
@@ -364,6 +380,15 @@ export default async function ProposalDetailPage({ params }: Props) {
             ) : (
               /* Voting Booth — with sliders */
               <>
+                {/* T24: Trial environment panel for trial/second_vote proposals */}
+                {(proposal.status === "trial" || proposal.status === "second_vote") && (
+                  <TrialEnvironmentPanel
+                    proposalId={proposal.id}
+                    trialEndsAt={proposal.trial_ends_at}
+                    userId={user?.id}
+                    isGuardian={currentProfile?.role === "admin"}
+                  />
+                )}
                 {/* DE-16: Vote integrity badge for closed proposals */}
                 {proposal.status === "closed" && (
                   <VoteIntegrityBadge proposalId={proposal.id} />

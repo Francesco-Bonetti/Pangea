@@ -308,6 +308,35 @@ const en = {
     doubleVoteExplainer: "This is a {tier} law. It requires two votes with a trial period in between. First vote: \"Should we start the trial?\" Second vote: \"Do we confirm?\"",
   },
 
+  // ── Trial Environment (T24) ──
+  trial: {
+    title: "Trial Environment",
+    description: "This proposal is being tested in an isolated environment with a snapshot of real data. Citizens can access the preview and submit feedback before the second vote.",
+    statusPending: "Pending",
+    statusProvisioning: "Provisioning",
+    statusActive: "Active",
+    statusCompleted: "Completed",
+    statusFailed: "Failed",
+    daysLeft: "{days}d {hours}h remaining",
+    ending: "Trial ending soon",
+    openPreview: "Open Preview",
+    snapshotAt: "Snapshot taken:",
+    awaitingProvisioning: "The trial environment is being prepared. The Guardian will provision a database snapshot and preview deployment shortly.",
+    citizenFeedback: "Citizen Feedback",
+    feedbackPrompt: "Have you tested the preview? Share your feedback to help the community decide in the second vote.",
+    feedbackPlaceholder: "Describe what you found (min 10 characters)...",
+    submitting: "Submitting...",
+    submitFeedback: "Submit",
+    feedbackSubmitted: "Feedback submitted successfully",
+    feedbackType: {
+      bug: "Bug",
+      concern: "Concern",
+      observation: "Observation",
+      approval: "Approval",
+    },
+    example: "For example: if a proposal changes the voting threshold from 66% to 75%, the trial environment lets citizens test the new threshold with real data before the community confirms the change.",
+  },
+
   // ── Contention ──
   contention: {
     oneProposal: "1 proposal targeting this article",
