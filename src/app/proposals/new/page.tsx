@@ -632,6 +632,13 @@ function NewProposalContent() {
                   {t("proposals.tierCeilingNote")} {t(`proposals.tier.${tierCeiling}`)}
                 </p>
               )}
+              {/* T25: Unanimity info */}
+              <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-500/10 border border-amber-500/25 px-3 py-2">
+                <span className="text-amber-400 text-sm mt-0.5">✦</span>
+                <p className="text-xs text-amber-300/80">
+                  {t("proposals.unanimityHint")}
+                </p>
+              </div>
             </div>
           )}
 

@@ -7,14 +7,13 @@ import {
   MessageSquare,
   Search,
   Lock,
-  Clock,
   ChevronRight,
   PenSquare,
   ShieldCheck,
 } from "lucide-react";
-import KeySetup from "@/components/ui/KeySetup";
 import NewConversationModal from "@/components/social/NewConversationModal";
-import { getLocalSecretKey, decryptMessage } from "@/lib/crypto";
+import { autoInitializeKeys, decryptMessage } from "@/lib/crypto";
+import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/components/core/language-provider";
 import type { UserKeys } from "@/lib/types";
 
@@ -60,20 +59,18 @@ export default function MessagesClient({
     Record<string, string>
   >({});
 
-  // Check if we already have the secret key in IndexedDB
+  // Auto-initialize encryption keys (transparent, no user action needed)
   useEffect(() => {
-    async function checkKey() {
-      try {
-        const sk = await getLocalSecretKey(userId);
-        if (sk) {
-          setSecretKey(sk);
-          setKeysReady(true);
-        }
-      } catch {
-        // IndexedDB not available or empty
+    async function initKeys() {
+      const sk = await autoInitializeKeys(userId, createClient());
+      if (sk) {
+        setSecretKey(sk);
+        setKeysReady(true);
+        router.refresh();
       }
     }
-    checkKey();
+    initKeys();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   // Decrypt last message previews once we have the secret key
@@ -84,26 +81,22 @@ export default function MessagesClient({
     for (const conv of conversations) {
       if (conv.last_message && conv.other_user_public_key) {
         try {
-          const senderPk =
-            conv.last_message.sender_id === userId
-              ? userKeys?.public_key || ""
-              : conv.other_user_public_key;
-
-          if (senderPk) {
-            const decrypted = decryptMessage(
-              conv.last_message.encrypted_content,
-              conv.last_message.nonce,
-              senderPk,
-              secretKey
-            );
-            if (decrypted) {
-              previews[conv.id] =
-                decrypted.length > 60
-                  ? decrypted.slice(0, 60) + "..."
-                  : decrypted;
-            } else {
-              previews[conv.id] = "Unable to decrypt";
-            }
+          // NaCl box shared secret is symmetric: always use the OTHER user's public key
+          // regardless of who sent the message. Using my own public key would produce
+          // the wrong shared secret and fail decryption.
+          const decrypted = decryptMessage(
+            conv.last_message.encrypted_content,
+            conv.last_message.nonce,
+            conv.other_user_public_key,
+            secretKey
+          );
+          if (decrypted) {
+            previews[conv.id] =
+              decrypted.length > 60
+                ? decrypted.slice(0, 60) + "..."
+                : decrypted;
+          } else {
+            previews[conv.id] = "Unable to decrypt";
           }
         } catch {
           previews[conv.id] = "Encrypted message";
@@ -111,34 +104,17 @@ export default function MessagesClient({
       }
     }
     setDecryptedPreviews(previews);
-  }, [secretKey, conversations, userId, userKeys]);
+  }, [secretKey, conversations]);
 
-  // If no keys at all, or keys exist but not unlocked yet
-  if (!userKeys && !keysReady) {
+  // Keys are initializing — show brief loading state
+  if (!keysReady) {
     return (
-      <KeySetup
-        userId={userId}
-        hasExistingKeys={false}
-        onComplete={() => {
-          setKeysReady(true);
-          router.refresh();
-        }}
-      />
-    );
-  }
-
-  if (userKeys && !keysReady) {
-    return (
-      <KeySetup
-        userId={userId}
-        hasExistingKeys={true}
-        encryptedPrivateKey={userKeys.encrypted_private_key}
-        keySalt={userKeys.key_salt}
-        onComplete={() => {
-          setKeysReady(true);
-          router.refresh();
-        }}
-      />
+      <div className="flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-3">
+          <span className="animate-spin w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full" />
+          <p className="text-sm text-fg-muted">{t("messages.settingUpEncryption")}</p>
+        </div>
+      </div>
     );
   }
 
@@ -284,8 +260,8 @@ export default function MessagesClient({
                     >
                       {conv.last_message
                         ? conv.last_message.sender_id === userId
-                          ? `You: ${decryptedPreviews[conv.id] || "Encrypted message"}`
-                          : decryptedPreviews[conv.id] || "Encrypted message"
+                          ? `${t("messages.youPrefix")}${decryptedPreviews[conv.id] || t("messages.encryptedMessagePlaceholder")}`
+                          : decryptedPreviews[conv.id] || t("messages.encryptedMessagePlaceholder")
                         : "No messages yet"}
                     </p>
                   </div>

@@ -13,9 +13,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import KeySetup from "@/components/ui/KeySetup";
 import {
-  getLocalSecretKey,
+  autoInitializeKeys,
   encryptMessage,
   decryptMessage,
 } from "@/lib/crypto";
@@ -70,20 +69,19 @@ export default function ChatThread({
         .slice(0, 2)
     : "?";
 
-  // Check for local secret key
+  // Auto-initialize encryption keys (transparent, no user action needed)
   useEffect(() => {
-    async function checkKey() {
-      try {
-        const sk = await getLocalSecretKey(userId);
-        if (sk) {
-          setSecretKey(sk);
-          setKeysReady(true);
-        }
-      } catch {
-        // not available
+    async function initKeys() {
+      const sk = await autoInitializeKeys(userId, supabase);
+      if (sk) {
+        setSecretKey(sk);
+        setKeysReady(true);
+        // If we just created keys (public key changed), refresh so server has updated data
+        router.refresh();
       }
     }
-    checkKey();
+    initKeys();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   // Decrypt messages helper
@@ -102,9 +100,9 @@ export default function ChatThread({
             otherUserPublicKey,
             secretKey
           );
-          return { ...msg, decrypted_content: decrypted || "[Unable to decrypt]" };
+          return { ...msg, decrypted_content: decrypted || t("messages.unableToDecrypt") };
         } catch {
-          return { ...msg, decrypted_content: "[Encrypted message]" };
+          return { ...msg, decrypted_content: t("messages.encryptedMessagePlaceholder") };
         }
       });
     },
@@ -244,8 +242,8 @@ export default function ChatThread({
     const diffMs = now.getTime() - d.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
+    if (diffDays === 0) return t("messages.dateToday");
+    if (diffDays === 1) return t("messages.dateYesterday");
     return d.toLocaleDateString([], {
       weekday: "long",
       month: "long",
@@ -258,38 +256,14 @@ export default function ChatThread({
     return new Date(dateStr).toDateString();
   }
 
-  // Show key setup if needed
-  if (!myPublicKey && !keysReady) {
+  // Keys are initializing — show brief loading state
+  if (!keysReady) {
     return (
-      <div className="flex-1">
-        <KeySetup
-          userId={userId}
-          hasExistingKeys={false}
-          onComplete={() => {
-            setKeysReady(true);
-            router.refresh();
-          }}
-        />
-      </div>
-    );
-  }
-
-  if (myPublicKey && !keysReady) {
-    return (
-      <div className="flex-1">
-        <KeySetup
-          userId={userId}
-          hasExistingKeys={true}
-          encryptedPrivateKey={myEncryptedPrivateKey || ""}
-          keySalt={myKeySalt || ""}
-          onComplete={async () => {
-            const sk = await getLocalSecretKey(userId);
-            if (sk) {
-              setSecretKey(sk);
-              setKeysReady(true);
-            }
-          }}
-        />
+      <div className="flex-1 flex items-center justify-center py-16">
+        <div className="flex flex-col items-center gap-3">
+          <span className="animate-spin w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full" />
+          <p className="text-sm text-fg-muted">{t("messages.settingUpEncryption")}</p>
+        </div>
       </div>
     );
   }
@@ -323,7 +297,7 @@ export default function ChatThread({
               <div className="flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-fg-success" />
                 <span className="text-xs text-fg-muted">
-                  End-to-end encrypted
+                  {t("messages.endToEndEncrypted")}
                 </span>
               </div>
             </div>
@@ -342,8 +316,7 @@ export default function ChatThread({
           <div className="flex items-center gap-2 bg-theme-card/60 border border-theme rounded-full px-4 py-2">
             <Lock className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-xs text-fg-muted">
-              Messages are end-to-end encrypted. Only you and {displayName} can
-              read them.
+              {t("messages.e2eNotice").replace("{name}", displayName)}
             </span>
           </div>
         </div>
@@ -354,10 +327,10 @@ export default function ChatThread({
               <User className="w-8 h-8 text-fg-muted" />
             </div>
             <p className="text-fg font-medium mb-1">
-              Start a conversation with {displayName}
+              {t("messages.startConversationWith").replace("{name}", displayName)}
             </p>
             <p className="text-sm text-fg-muted">
-              Your messages will be encrypted end-to-end.
+              {t("messages.willBeEncrypted")}
             </p>
           </div>
         ) : (
@@ -390,7 +363,7 @@ export default function ChatThread({
                       {msg.decrypted_content || (
                         <span className="italic text-fg-muted flex items-center gap-1">
                           <Lock className="w-3 h-3" />
-                          Encrypted message
+                          {t("messages.encryptedMessagePlaceholder")}
                         </span>
                       )}
                     </p>
@@ -437,8 +410,7 @@ export default function ChatThread({
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
             <p className="text-sm text-amber-300">
-              {displayName} hasn&apos;t set up encryption yet. You can send messages
-              once they enable encrypted messaging.
+              {t("messages.recipientSettingUpKeys").replace("{name}", displayName)}
             </p>
           </div>
         </div>
@@ -454,8 +426,8 @@ export default function ChatThread({
             onKeyDown={handleKeyDown}
             placeholder={
               otherHasKeys
-                ? "Type a message..."
-                : "Waiting for recipient to set up encryption..."
+                ? t("messages.typeMessage")
+                : t("messages.waitingForEncryption")
             }
             disabled={!otherHasKeys || sending}
             rows={1}

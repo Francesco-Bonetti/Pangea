@@ -5,6 +5,7 @@ import VotingBooth from "@/components/governance/VotingBooth";
 import VoteIntegrityBadge from "@/components/governance/VoteIntegrityBadge";
 import TrialEnvironmentPanel from "@/components/governance/TrialEnvironmentPanel";
 import ProposalPhaseBadge from "@/components/governance/ProposalPhaseBadge";
+import UnanimityBadge from "@/components/governance/UnanimityBadge";
 import SignalButton from "@/components/social/SignalButton";
 import DraftActions from "@/components/governance/DraftActions";
 import CommentSection from "@/components/social/CommentSection";
@@ -215,6 +216,10 @@ export default async function ProposalDetailPage({ params }: Props) {
               tier={proposal.tier}
               trialEndsAt={proposal.trial_ends_at}
             />
+            {/* T25: Unanimity badge */}
+            {proposal.unanimity_achieved && (
+              <UnanimityBadge voterCount={proposal.unanimity_voter_count} />
+            )}
             {isAuthor && (
               <span className="text-xs text-amber-400 font-medium bg-warning-tint px-2 py-1 rounded-full border border-amber-800/30">
                 Your proposal

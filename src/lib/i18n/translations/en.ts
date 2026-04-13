@@ -250,6 +250,12 @@ const en = {
     legislativeTierDesc: "Choose the legislative weight of this proposal. Higher tiers require stricter approval thresholds.",
     tierCeilingNote: "This group's maximum tier is:",
     tierValidationFailed: "This proposal's tier exceeds the group's tier ceiling.",
+    // T25 — Unanimity
+    unanimityBadge: "Unanimity",
+    unanimityTooltip: "100% of voters agreed (excl. guardian). This proposal can override locked group settings.",
+    unanimityDesc: "All eligible voters agreed. Overrides group tier ceiling and locked settings (not reinforced articles).",
+    unanimityVoters: "voters",
+    unanimityHint: "If a proposal receives 100% YES votes from all eligible voters (excluding the guardian), it achieves Unanimity and can override this group's tier ceiling and locked settings — but never reinforced constitutional articles (Art. 3, 5, 6, 11, 12).",
     tier: {
       ordinary: "Ordinary",
       platform: "Platform",
@@ -874,6 +880,21 @@ const en = {
     startConversation: "Start a conversation by clicking \"New Message\" or visiting a citizen's profile.",
     tryDifferentSearch: "Try a different search term.",
     encryptedMessages: "End-to-end encrypted. Only you and the recipient can read these messages.",
+    // Chat thread
+    endToEndEncrypted: "End-to-end encrypted",
+    e2eNotice: "Messages are end-to-end encrypted. Only you and {name} can read them.",
+    startConversationWith: "Start a conversation with {name}",
+    willBeEncrypted: "Your messages will be encrypted end-to-end.",
+    unableToDecrypt: "[Unable to decrypt]",
+    encryptedMessagePlaceholder: "[Encrypted message]",
+    dateToday: "Today",
+    dateYesterday: "Yesterday",
+    recipientSettingUpKeys: "{name} is setting up their encryption. Try again in a moment.",
+    waitingForEncryption: "Waiting for recipient to set up encryption...",
+    settingUpEncryption: "Setting up encryption...",
+    // Conversation list
+    youPrefix: "You: ",
+    sendMessageButton: "Send Message",
   },
 
   // ── Settings ──

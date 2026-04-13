@@ -195,6 +195,9 @@ export interface Proposal {
   incubator_passed?: boolean;
   incubator_t2_upvotes?: number;
   signal_count?: number;
+  // T25: Unanimity (100% YES excl. guardian overrides tier_ceiling / locked_settings)
+  unanimity_achieved?: boolean;
+  unanimity_voter_count?: number | null;
   // Join
   profiles?: Profile;
   categories?: Category;

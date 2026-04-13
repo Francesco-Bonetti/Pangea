@@ -206,6 +206,48 @@ export async function getLocalSecretKey(
   });
 }
 
+// ----- Auto-initialization (transparent E2E, no user setup needed) -----
+
+/**
+ * Auto-initialize encryption keys for a user.
+ * - First checks IndexedDB for a cached secret key (same device, same browser).
+ * - If not found, generates a NEW Curve25519 key pair, stores public key on
+ *   Supabase and secret key ONLY in IndexedDB. The server never sees the secret key.
+ * - If the user switches devices/browsers they get a new key pair automatically;
+ *   old encrypted messages become unreadable but new ones work immediately.
+ *
+ * @param userId - The authenticated user's ID
+ * @param supabase - A Supabase client instance
+ * @returns The secret key (base64) or null on error
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function autoInitializeKeys(userId: string, supabase: any): Promise<string | null> {
+  try {
+    // Fast path: return cached key from IndexedDB
+    const cached = await getLocalSecretKey(userId);
+    if (cached) return cached;
+
+    // Generate a fresh key pair (new device or first ever)
+    const keyPair = generateKeyPair();
+
+    // Store public key on server; private key NEVER leaves the device
+    await supabase.from("user_keys").upsert({
+      user_id: userId,
+      public_key: keyPair.publicKey,
+      encrypted_private_key: "local", // sentinel: private key is device-local only
+      key_salt: "auto",
+      updated_at: new Date().toISOString(),
+    });
+
+    // Cache secret key in IndexedDB for the current session
+    await storeSecretKeyLocally(userId, keyPair.secretKey);
+
+    return keyPair.secretKey;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Remove the secret key from IndexedDB (on logout)
  */

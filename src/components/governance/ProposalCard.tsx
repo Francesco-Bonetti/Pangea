@@ -8,6 +8,7 @@ import TranslatedContent from "@/components/ui/TranslatedContent";
 import IntegrityBadge from "@/components/governance/IntegrityBadge";
 import TierBadge from "@/components/governance/TierBadge";
 import ProposalPhaseBadge from "@/components/governance/ProposalPhaseBadge";
+import UnanimityBadge from "@/components/governance/UnanimityBadge";
 import UidBadge from "@/components/ui/UidBadge";
 import { useLanguage } from "@/components/core/language-provider";
 
@@ -120,6 +121,9 @@ export default function ProposalCard({ proposal, curationThreshold = 2 }: Propos
               trialEndsAt={proposal.trial_ends_at}
             />
             <IntegrityBadge entityType="proposal" entityId={proposal.id} compact />
+            {proposal.unanimity_achieved && (
+              <UnanimityBadge compact />
+            )}
             {proposal.uid && <UidBadge uid={proposal.uid} size="xs" clickable={false} />}
             {proposal.groups && (
               <span

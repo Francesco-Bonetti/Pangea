@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MessageSquare, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/components/core/language-provider";
 
 interface SendMessageButtonProps {
   currentUserId: string;
@@ -19,12 +20,13 @@ export default function SendMessageButton({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
+  const { t } = useLanguage();
 
   if (dmPolicy === "nobody") {
     return (
       <div className="flex items-center gap-2 text-xs text-fg-muted">
         <Lock className="w-3.5 h-3.5" />
-        <span>This citizen has disabled direct messages.</span>
+        <span>{t("messages.dmDisabled")}</span>
       </div>
     );
   }
@@ -60,7 +62,7 @@ export default function SendMessageButton({
       ) : (
         <MessageSquare className="w-4 h-4" />
       )}
-      Send Message
+      {t("messages.sendMessageButton")}
     </button>
   );
 }
